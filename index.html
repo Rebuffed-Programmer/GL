@@ -412,1117 +412,171 @@
             }
             .modal-content {
                 flex-direction: column;
+                margin: 20px auto;
+                padding: 15px;
             }
             .modal-main-content {
                 flex-direction: column;
             }
+            .modal-details {
+                text-align: center;
+            }
             .modal-poster {
+                flex: none;
                 width: 100%;
-                flex-grow: 1;
-            }
-            .modal-title {
-                font-size: 2em;
-            }
-            .modal-info {
-                font-size: 0.9em;
-            }
-            .modal-description {
-                font-size: 1em;
-            }
-            .modal-buttons .btn {
-                padding: 10px 20px;
-                font-size: 1em;
+                max-width: 300px;
+                margin: 0 auto;
             }
         }
     </style>
 </head>
 <body>
 
-    <header class="navbar">
-        <img class="logo-img" src="https://i.postimg.cc/SsF61yJw/gl-plus-name-removebg-preview.png" alt="GL+ Plus Logo">
-        <nav class="navbar-links">
+    <nav class="navbar">
+        <img src="https://i.postimg.cc/pT3Y32sZ/logo-gl-plus.png" alt="GL+ Plus Logo" class="logo-img">
+        <div class="navbar-links">
             <a href="#" onclick="showPage('home-page')">Início</a>
             <a href="#" onclick="showPage('genres-page')">Gêneros</a>
             <a href="#" onclick="showPage('my-list-page')">Minha Lista</a>
-        </nav>
+        </div>
+    </nav>
+
+    <header class="hero-banner" id="hero-banner" style="background-image: url('https://i.postimg.cc/j5G3yK74/hero-banner-o-homem-que-ri.jpg');">
+        <div class="hero-content">
+            <h1 class="title">O Homem Que Ri</h1>
+            <p class="description">Um drama mudo sobre um homem desfigurado que se torna um palhaço de circo, em uma história de amor e redenção.</p>
+            <div class="hero-buttons">
+                <a href="#play" class="btn btn-play" id="hero-play-button">Assistir Agora</a>
+                <a href="#more-info" class="btn btn-list" id="hero-more-info-button">Mais Informações</a>
+            </div>
+        </div>
     </header>
 
-    <main id="main-content">
-        <div id="home-page">
-            <section id="hero-banner" class="hero-banner">
-                <div class="hero-content">
-                    <h1 class="title"></h1>
-                    <p class="description"></p>
-                    <a href="#" class="btn" id="hero-play-button">Assistir Agora</a>
+    <main class="main-content">
+        <section id="home-page" class="page-content content-section">
+            <h2 class="section-title"><a href="#" onclick="showPage('genres-page')" class="section-title-link">Todos os Filmes</a></h2>
+            <div class="movie-grid" id="movie-grid-container">
                 </div>
-            </section>
-            
-            <section class="content-section">
-                <h2 id="section-title-homepage" class="section-title">Todos os Filmes</h2>
-                <div id="movie-grid-container" class="movie-grid">
-                    </div>
-            </section>
-        </div>
+        </section>
 
-        <div id="genres-page" style="display:none;">
+        <section id="genres-page" class="page-content content-section" style="display: none;">
+            </section>
+
+        <section id="my-list-page" class="page-content content-section" style="display: none;">
+            <h2 class="section-title">Minha Lista</h2>
+            <div class="movie-grid" id="my-list-grid-container">
+                <p>Sua lista de filmes está vazia.</p>
             </div>
-
-        <div id="my-list-page" style="display:none;">
-            <section class="content-section">
-                <h2 class="section-title">Minha Lista</h2>
-                <div id="my-list-grid-container" class="movie-grid">
-                    </div>
-            </section>
-        </div>
+        </section>
     </main>
-
+    
     <div id="movie-modal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal()">&times;</span>
-            
-            <div id="modal-video-container" class="modal-video-container">
-                <span id="video-back-button" class="modal-back-button" onclick="goBackToDetails()">&lt; Voltar</span>
-                <iframe id="movie-player" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-            </div>
-
             <div class="modal-main-content">
                 <div class="modal-poster">
-                    <img id="modal-poster-img" src="" alt="Pôster do Filme">
+                    <img id="modal-poster-img" src="" alt="Poster do Filme">
                 </div>
                 <div class="modal-details">
                     <h2 id="modal-title" class="modal-title"></h2>
-                    <p id="modal-rating" class="modal-rating"></p>
-                    <div id="modal-info" class="modal-info"></div>
+                    <span id="modal-rating" class="modal-rating"></span>
+                    <p id="modal-info" class="modal-info"></p>
                     <p id="modal-description" class="modal-description"></p>
                     <div class="modal-buttons">
-                        <button id="play-button" class="btn btn-play">Assistir Agora</button>
-                        <button id="add-list-button" class="btn btn-list">Adicionar à Minha Lista</button>
-                        <button id="remove-list-button" class="btn btn-remove" style="display:none;">Remover da Minha Lista</button>
+                        <button class="btn btn-play" onclick="playMovie()">Assistir</button>
+                        <button class="btn btn-list" id="add-to-list-btn" onclick="addToList()">Adicionar à Minha Lista</button>
+                        <button class="btn btn-remove" id="remove-from-list-btn" onclick="removeFromList()" style="display:none;">Remover da Lista</button>
+                        <button class="btn btn-trailer" id="play-trailer-btn" onclick="playTrailer()" style="display:none;">Ver Trailer</button>
                     </div>
                 </div>
             </div>
             
-            <div id="modal-suggestions" class="modal-suggestions">
-                <h3>Você também pode gostar:</h3>
-                <div id="suggestions-grid" class="movie-grid">
-                    </div>
+            <div id="modal-video-container" class="modal-video-container" style="display: none;">
+                <iframe id="movie-player" allowfullscreen></iframe>
             </div>
             
+            <div id="modal-trailer-container" class="modal-video-container video-trailer" style="display: none;">
+                <iframe id="trailer-player" allowfullscreen></iframe>
+            </div>
+            
+            <button id="video-back-button" class="modal-back-button" onclick="goBackToDetails()" style="display: none;">&larr; Voltar</button>
+            
+            <div id="modal-suggestions" class="modal-suggestions" style="display: none;">
+                <h3>Sugestões</h3>
+                <div class="movie-grid" id="suggestions-grid">
+                    </div>
+            </div>
         </div>
     </div>
-
-    <footer class="footer">
-        &copy; 2024 GL+ Plus. Todos os direitos reservados.
-    </footer>
-
+    
     <script>
         // Dados dos Filmes
         var movieData = [
-            {
-                id: 'luzes-da-cidade',
-                title: 'Luzes da Cidade',
-                year: 1931,
-                genres: ['Comédia', 'Drama', 'Silencioso'],
-                rating: 'Livre',
-                tomatometer: '100%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Charles Chaplin'],
-                actors: ['Charles Chaplin', 'Virginia Cherrill'],
-                description: 'Carlitos, o vagabundo, se apaixona por uma florista cega e faz de tudo para que ela possa recuperar a visão.',
-                poster: 'https://i.postimg.cc/CLDvwQVC/Luzes-da-cidade-1931.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1DTjc5EmA77YY9h7n7Rtm3CU7gwGgOvWJ/preview'
-            },
-            {
-                id: 'a-greve',
-                title: 'A Greve',
-                year: 1925,
-                genres: ['Drama', 'Silencioso'],
-                rating: '10+',
-                tomatometer: '90%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Sergei Eisenstein'],
-                actors: ['Grigori Aleksandrov', 'Max Strauch', 'Mikhail Gomorov'],
-                description: 'Um retrato visceral da opressão tsarista na Rússia, que culmina em uma violenta greve de trabalhadores em 1903.',
-                poster: 'https://i.postimg.cc/FRZWXdtM/A-greve-1925.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1vZXJeW3TwQg1L_tEowv5tC4KR5yiYTZt/preview'
-            },
-            {
-                id: 'viagem-a-lua',
-                title: 'Viagem à Lua',
-                year: 1902,
-                genres: ['Aventura', 'Ficção Científica', 'Silencioso'],
-                rating: 'Livre',
-                tomatometer: '100%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Georges Méliès'],
-                actors: ['Georges Méliès', 'Jeanne d\'Alcy'],
-                description: 'Um grupo de astrônomos viaja para a Lua e descobre um mundo de criaturas estranhas e maravilhosas.',
-                poster: 'https://i.postimg.cc/63n78n6P/Viagem-a-lua-1902.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1yhSWXhOWhg5qjVtfc8_opog4R1z1u2ve/preview'
-            },
-            {
-                id: 'outubro',
-                title: 'Outubro',
-                year: 1927,
-                genres: ['Documentário', 'Histórico', 'Silencioso'],
-                rating: '12+',
-                tomatometer: '95%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Sergei Eisenstein', 'Grigori Aleksandrov'],
-                actors: ['Vladimir Shubin', 'Vasili Nikandrov'],
-                description: 'Um documentário que retrata os eventos da Revolução de Outubro de 1917, na Rússia, com o uso de imagens de arquivo e cenas dramáticas.',
-                poster: 'https://i.postimg.cc/3wWmxkvM/Outubro-1927.jpg',
-                videoUrl: 'https://drive.google.com/file/d/14zDQxGTA3wANW1Y8YM8IY0DbsyoV9m1d/preview'
-            },
-            {
-                id: 'buster-three-ages',
-                title: 'Buster Three Ages',
-                year: 1923,
-                genres: ['Comédia', 'Silencioso'],
-                rating: 'Livre',
-                tomatometer: '98%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Buster Keaton', 'Edward F. Cline'],
-                actors: ['Buster Keaton', 'Margaret Leahy', 'Wallace Beery'],
-                description: 'A história do homem em três períodos históricos: a Idade da Pedra, a Roma Antiga e a Era Moderna, em uma sátira hilária e bem-humorada.',
-                poster: 'https://i.postimg.cc/4yy5CWQc/Buster-holmes.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1D7tr9aDjLJ2gGrdoYXGrKYqnJRu8Exjo/preview'
-            },
-            {
-                id: 'o-vaqueiro',
-                title: 'O Vaqueiro',
-                year: 1928,
-                genres: ['Comédia', 'Faroeste', 'Silencioso'],
-                rating: 'Livre',
-                tomatometer: '92%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Buster Keaton'],
-                actors: ['Buster Keaton', 'Dorothy Sebastian'],
-                description: 'Buster Keaton se aventura no Velho Oeste, onde precisa provar sua inocência e lutar por justiça.',
-                poster: 'https://i.postimg.cc/VkfX2Gsk/O-vaqueiro-Buster-keaton.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1n7NME31VGHkBgkjflftULveiMMTQbws2/preview'
-            },
-            {
-                id: 'high-and-dizzy',
-                title: 'High and Dizzy',
-                year: 1922,
-                genres: ['Comédia', 'Silencioso'],
-                rating: 'Livre',
-                tomatometer: '97%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Hal Roach'],
-                actors: ['Harold Lloyd', 'Mildred Davis'],
-                description: 'Um jovem que está tentando impressionar sua namorada se envolve em uma série de situações perigosas em grandes alturas.',
-                poster: 'https://i.postimg.cc/hvNVkcjF/High-and-dizzy.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1jAGoWsdsOCvYdjYpPhXj7fTCRyfoLnXT/preview'
-            },
-            {
-                id: 'lojinha-do-terror',
-                title: 'A Lojinha do Terror',
-                year: 1960,
-                genres: ['Comédia', 'Terror'],
-                rating: '14+',
-                tomatometer: '91%',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['Roger Corman'],
-                actors: ['Jonathan Haze', 'Jackie Joseph', 'Mel Welles'],
-                description: 'Um tímido floricultor cria uma planta carnívora que se alimenta de sangue humano, o que o leva a cometer crimes.',
-                poster: 'https://i.postimg.cc/kM21p51p/Little-Shop-of-horror.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1KwUjD2dhiS2o1JEQ3kWAFZYQhCym9Qmq/preview'
-            },
-            {
-                id: 'o-novo-governo-paranaense',
-                title: 'O Novo Governo Paranaense',
-                year: 1928,
-                genres: ['Documentário', 'Silencioso'],
-                rating: 'Livre',
-                tomatometer: 'N/A',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['José do Egito'],
-                actors: ['Desconhecidos'],
-                description: 'Documentário que retrata a posse do novo governo paranaense e a vida política da época.',
-                poster: 'https://i.postimg.cc/x8LKVBbc/O-novo-governo-paranaense-1928.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1W3OYjRfY8fiKlXZELru8rJZeWcjxfRHE/preview'
-            },
-            {
-                id: 'limite',
-                title: 'Limite',
-                year: 1931,
-                genres: ['Drama', 'Silencioso'],
-                rating: '14+',
-                tomatometer: '85%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Mário Peixoto'],
-                actors: ['Olga B. de Barros', 'Iêda S. Ehlers'],
-                description: 'Três personagens em um barco, perdidos no mar, refletem sobre suas vidas e seus sentimentos de isolamento.',
-                poster: 'https://i.postimg.cc/1tt64fVh/Limite-1931.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1J8m0AcBKvLQO1mzBeuAR_SP7hkhwLHbE/preview'
-            },
-            {
-                id: 'o-erbio',
-                title: 'O Érbio',
-                year: 1946,
-                genres: ['Suspense', 'Misterio'],
-                rating: '14+',
-                tomatometer: '92%',
-                audio: 'Português',
-                subtitles: 'N/A',
-                directors: ['Almeida Cunha'],
-                actors: ['João Vasconcelos', 'Maria Teresa'],
-                description: 'Uma história de amor e suspense ambientada em uma cidade pequena, onde um jovem casal lida com um mistério sombrio.',
-                poster: 'https://i.postimg.cc/PfvyMRNG/O-erbio-1946.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1Zgk6Y-w4k6mF1-h2X2I26Rotw1-_OEwp/preview'
-            },
-            {
-                id: 'o-fantasma-da-opera',
-                title: 'O Fantasma da Ópera',
-                year: 1925,
-                genres: ['Terror', 'Silencioso'],
-                rating: '12+',
-                tomatometer: '95%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Rupert Julian'],
-                actors: ['Lon Chaney', 'Mary Philbin'],
-                description: 'Um gênio musical deformado aterroriza uma ópera para atrair sua amada, uma jovem cantora, para seu mundo subterrâneo.',
-                poster: 'https://i.postimg.cc/FR7Z8PZL/O-fantasma-da-opera-1925.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1lJ5bELpKudWIFlAst0osD1zDLlibYsb4/preview'
-            },
-            {
-                id: 'tarzan',
-                title: 'Tarzan',
-                year: 1933,
-                genres: ['Aventura'],
-                rating: 'Livre',
-                tomatometer: '90%',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['W. S. Van Dyke'],
-                actors: ['Johnny Weissmuller', 'Maureen O\'Sullivan'],
-                description: 'Um homem criado por macacos se apaixona por uma exploradora e precisa escolher entre sua vida na selva e a vida em sociedade.',
-                poster: 'https://i.postimg.cc/SQc8RFJK/Tarzan-1933.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1RkYy0JuZRqXisLi8wt9W_mJGI_gnJSwE/preview'
-            },
-            {
-                id: 'buster-sherlock',
-                title: 'Buster & Sherlock',
-                year: 1924,
-                genres: ['Comédia', 'Misterio', 'Silencioso'],
-                rating: 'Livre',
-                tomatometer: '95%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Buster Keaton'],
-                actors: ['Buster Keaton', 'Kathryn McGuire'],
-                description: 'Buster Keaton se transforma em um detetive para resolver um mistério em uma série de situações hilárias e embaraçosas.',
-                poster: 'https://i.postimg.cc/PrBMczpL/Carlitos-reporter.jpg',
-                videoUrl: 'https://drive.google.com/file/d/11jx9NWCKqolocN77DoSxwePqPhgDsrrU/preview'
-            },
-            {
-                id: 'as-viagens-de-gulliver',
-                title: 'As Viagens de Gulliver',
-                year: 1939,
-                genres: ['Animação', 'Aventura'],
-                rating: 'Livre',
-                tomatometer: '90%',
-                audio: 'Inglês',
-                subtitles: 'Português',
-                directors: ['Dave Fleischer'],
-                actors: ['Pinto Colvig', 'Sam Parker', 'Jack Mercer'],
-                description: 'Animação clássica baseada no livro de Jonathan Swift, onde o marinheiro Gulliver explora o mundo de liliputianos e gigantes.',
-                poster: 'https://i.postimg.cc/sXVmmjBw/as-viagens-de-gulliver-1939.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1xt47Ti7ALA3QAIMtmm8y4UqoNDjhkhNd/preview'
-            },
-            {
-                id: 'o-grande-ditador',
-                title: 'O Grande Ditador',
-                year: 1940,
-                genres: ['Comédia', 'Drama'],
-                rating: '10+',
-                tomatometer: '95%',
-                audio: 'Inglês',
-                subtitles: 'Português',
-                directors: ['Charles Chaplin'],
-                actors: ['Charles Chaplin', 'Paulette Goddard', 'Jack Oakie'],
-                description: 'Um barbeiro judeu se parece com o ditador Adenoid Hynkel e acaba assumindo o seu lugar, em uma sátira hilária e emocionante do nazismo.',
-                poster: 'https://i.postimg.cc/bvF0xxhN/O-grande-ditador.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1xHwYNzqojd4imMIDhezSgYsq_f5Li0Hv/preview'
-            },
-            {
-                id: '3-caras-maus',
-                title: '3 Caras Maus',
-                year: 1926,
-                genres: ['Drama', 'Faroeste', 'Silencioso'],
-                rating: '14+',
-                tomatometer: '85%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['John Ford'],
-                actors: ['George O\'Brien', 'Olive Borden', 'Lou Tellegen'],
-                description: 'Um drama épico sobre três foras da lei que se unem para proteger uma jovem de um vilão.',
-                poster: 'https://i.postimg.cc/nhjP9h7m/3-caras-maus.jpg',
-                videoUrl: 'https://drive.google.com/file/d/13RZtxkztcGThvzDgnf5226SRcUwcI04E/preview'
-            },
-            {
-                id: 'coracao-de-aco',
-                title: 'Coração de Aço',
-                year: 1935,
-                genres: ['Drama', 'Comédia', 'Romance'],
-                rating: 'Livre',
-                tomatometer: '78%',
-                audio: 'Inglês',
-                subtitles: 'Português',
-                directors: ['Jules White'],
-                actors: ['Shemp Howard', 'Buster Keaton'],
-                description: 'Um romance hilário e emocionante entre um jovem comediante e a mulher de seus sonhos.',
-                poster: 'https://i.postimg.cc/0NCdbTtm/Coracao-de-aco-1934.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1mv9bhe2X_F1P9FBbpWbEhpcuBUQfBHuG/preview'
-            },
-            {
-                id: 'sorte-de-verdade',
-                title: 'Sorte de Verdade',
-                year: 1957,
-                genres: ['Comédia', 'Romance', 'Música'],
-                rating: 'Livre',
-                tomatometer: '88%',
-                audio: 'Inglês',
-                subtitles: 'Português',
-                directors: ['Charles Walters'],
-                actors: ['Bing Crosby', 'Grace Kelly', 'Frank Sinatra'],
-                description: 'Um jornalista de tabloide se apaixona por uma cantora de boate, mas a sorte está contra eles.',
-                poster: 'https://i.postimg.cc/x8Gb4HWm/Sorte-de-verdade-1934.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1RDGDdHn3MZCRtw7PkLj-GFTOb_6YlQRR/preview'
-            },
-            {
-                id: 'o-segredo-dos-quatro',
-                title: 'O Segredo dos Quatro',
-                year: 1930,
-                genres: ['Suspense', 'Misterio'],
-                rating: '12+',
-                tomatometer: '89%',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['William Nigh'],
-                actors: ['Buster Keaton', 'Toby Wing'],
-                description: 'Um detetive particular tenta desvendar o mistério de um assassinato em uma mansão.',
-                poster: 'https://i.postimg.cc/pXtfJVg8/O-segredo-dos-quatro.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1aYm6Mor4-4lw9nz1nAk15L4JY2Qpdd3q/preview'
-            },
-            {
-                id: 'a-dama-de-shanghai',
-                title: 'A Dama de Shanghai',
-                year: 1948,
-                genres: ['Suspense', 'Drama', 'Noir'],
-                rating: '14+',
-                tomatometer: '92%',
-                audio: 'Inglês',
-                subtitles: 'Português',
-                directors: ['Orson Welles'],
-                actors: ['Rita Hayworth', 'Orson Welles'],
-                description: 'Um marinheiro se envolve em uma teia de mistério e assassinato depois de se apaixonar pela esposa de um advogado.',
-                poster: 'https://i.postimg.cc/sXy6LPLP/A-Dama-de-Shanghai-1948.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1Oitlgwtxh32WNDTQXze84Mad-PoyqH91/preview'
-            },
-            {
-                id: 'nasce-uma-estrela',
-                title: 'Nasce uma Estrela',
-                year: 1937,
-                genres: ['Drama', 'Romance'],
-                rating: '12+',
-                tomatometer: '95%',
-                audio: 'Inglês',
-                subtitles: 'Português',
-                directors: ['William A. Wellman'],
-                actors: ['Janet Gaynor', 'Fredric March'],
-                description: 'Uma jovem atriz em ascensão se apaixona por um ator famoso em declínio, enquanto a fama e o alcoolismo dele os separam.',
-                poster: 'https://i.postimg.cc/wxnf8dnT/Nasce-uma-estrela-1937.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1Vihxx2NlT-waOFYFSP0irjdLr5PruKKi/preview'
-            },
-            {
-                id: 'adoravel-vagabundo',
-                title: 'Adorável Vagabundo',
-                year: 1941,
-                genres: ['Comédia', 'Drama'],
-                rating: 'Livre',
-                tomatometer: '96%',
-                audio: 'Inglês',
-                subtitles: 'Português',
-                directors: ['Frank Capra'],
-                actors: ['Gary Cooper', 'Barbara Stanwyck'],
-                description: 'Um jornalista se apaixona por uma jornalista que o trai para conseguir uma história, em uma história de amor e redenção.',
-                poster: 'https://i.postimg.cc/Xv6QZcnM/Adoravel-vagabundo.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1Wxc64BX-Q5ZibaXQ9zGOieLyAxIdhxLK/preview'
-            },
-            {
-                id: 'nupcias-reais',
-                title: 'Núpcias Reais',
-                year: 1951,
-                genres: ['Comédia', 'Música', 'Romance'],
-                rating: 'Livre',
-                tomatometer: '85%',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['Stanley Donen'],
-                actors: ['Fred Astaire', 'Jane Powell'],
-                description: 'Um casal de dançarinos se muda para Londres para uma apresentação, mas o romance deles é ameaçado quando a dançarina se apaixona por um nobre.',
-                poster: 'https://i.postimg.cc/Gp3zJ3Tz/Nupcias-reais.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1yg44i8OfR8Uc45qxPSGktOkZL3RdOGuH/preview'
-            },
-            {
-                id: 'charada',
-                title: 'Charada',
-                year: 1963,
-                genres: ['Comédia', 'Misterio', 'Romance'],
-                rating: '10+',
-                tomatometer: '93%',
-                audio: 'Inglês',
-                subtitles: 'Português',
-                directors: ['Stanley Donen'],
-                actors: ['Cary Grant', 'Audrey Hepburn'],
-                description: 'Uma mulher é perseguida por um grupo de criminosos que acreditam que ela sabe onde está o tesouro de seu marido morto.',
-                poster: 'https://i.postimg.cc/rwx9L0xf/Charada-1963.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1lCChujgBKH0FKvy8plS0hze7xG2LT8sy/preview'
-            },
-            {
-                id: 'filme-os4',
-                title: 'Filme Os 4',
-                year: 1934,
-                genres: ['Comédia'],
-                rating: 'Livre',
-                tomatometer: '88%',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['William Beaudine'],
-                actors: ['Thelma Todd', 'ZaSu Pitts', 'Patsy Kelly'],
-                description: 'Uma comédia hilária sobre quatro amigos que tentam enganar a lei para conseguir dinheiro e fama.',
-                poster: 'https://i.postimg.cc/0NCdbTtm/Coracao-de-aco-1934.jpg',
-                videoUrl: 'https://drive.google.com/file/d/10oyaQgcIGC0SLBAsjVA223w91Dk1RuGT/preview'
-            },
-            {
-                id: 'o-gabinete',
-                title: 'O Gabinete',
-                year: 1920,
-                genres: ['Terror', 'Silencioso'],
-                rating: '16+',
-                tomatometer: '98%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Robert Wiene'],
-                actors: ['Werner Krauss', 'Conrad Veidt', 'Lil Dagover'],
-                description: 'Um terror psicológico sobre um médico que manipula um paciente para cometer crimes.',
-                poster: 'https://i.postimg.cc/15pKkVpJ/O-gabinete-de-caligari.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1Y_JXeDJ1QAK8a5pDne7JxkppnQTCq7GP/preview'
-            },
-            {
-                id: 'o-circo-do-chaplin',
-                title: 'O Circo do Chaplin',
-                year: 1928,
-                genres: ['Comédia', 'Silencioso'],
-                rating: 'Livre',
-                tomatometer: '95%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Charles Chaplin'],
-                actors: ['Charles Chaplin', 'Merna Kennedy'],
-                description: 'Carlitos, o vagabundo, se apaixona por uma acrobata de circo e faz de tudo para que ela possa se tornar uma estrela.',
-                poster: 'https://i.postimg.cc/KY9f9Xnb/O-circo-Charlie-Chaplin.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1YQJ0o50grrOIBV9ynkCp87ibc-plv6La/preview'
-            },
-            {
-                id: 'felines-folines',
-                title: 'Felix the Cat (1929)',
-                year: 1929,
-                genres: ['Animação', 'Comédia', 'Silencioso'],
-                rating: 'Livre',
-                tomatometer: '80%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Otto Messmer'],
-                actors: ['Otto Messmer'],
-                description: 'Animação clássica sobre as aventuras de um gato que se envolve em uma série de situações hilárias e embaraçosas.',
-                poster: 'https://i.postimg.cc/SsT6GWbx/felines-folines.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1e2sx1dEACbHAbtwFxWFzy-tQR4ojCsFg/preview'
-            },
-            {
-                id: 'o-vapor-willie',
-                title: 'O Vapor Willie',
-                year: 1928,
-                genres: ['Animação', 'Comédia', 'Silencioso'],
-                rating: 'Livre',
-                tomatometer: '100%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Walt Disney', 'Ub Iwerks'],
-                actors: ['Walt Disney'],
-                description: 'Animação clássica de Walt Disney sobre as aventuras de um camundongo em um barco a vapor.',
-                poster: 'https://i.postimg.cc/8PBhKQSY/O-vapor-Willie.webp',
-                videoUrl: 'https://drive.google.com/file/d/1FjE_sFPaGW5Kb9ICii_g9aFZ0CWzWQSo/preview'
-            },
-            {
-                id: 'beast-at-bay',
-                title: 'Beast at Bay',
-                year: 1912,
-                genres: ['Drama', 'Silencioso'],
-                rating: '10+',
-                tomatometer: 'N/A',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['D.W. Griffith'],
-                actors: ['Blanche Sweet', 'Charles West'],
-                description: 'Um curta-metragem dramático em que uma mulher e um criminoso se enfrentam em um duelo mortal.',
-                poster: 'https://i.postimg.cc/hGVZMZ2P/A-antiga-e-a-moderna.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1i24gxpJzqeq3jMOnbHKBU6s2TQuV9kGC/preview'
-            },
-            {
-                id: 'casamento-as-pressas',
-                title: 'Casamento às Pressas',
-                year: 1913,
-                genres: ['Comédia', 'Silencioso'],
-                rating: 'Livre',
-                tomatometer: 'N/A',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Mack Sennett'],
-                actors: ['Mabel Normand', 'Roscoe "Fatty" Arbuckle'],
-                description: 'Uma comédia sobre um casal que tenta se casar, mas encontra vários obstáculos no caminho.',
-                poster: 'https://i.postimg.cc/HsJ2BPxD/Casamento-ou-luxo.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1iJ-wnzeu4AflOA0WZC_VJGKLPgoWZwzz/preview'
-            },
-            {
-                id: 'making-an-american-citizen',
-                title: 'Making an American Citizen',
-                year: 1912,
-                genres: ['Drama', 'Silencioso'],
-                rating: 'Livre',
-                tomatometer: 'N/A',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Alice Guy-Blaché'],
-                actors: ['Lee Beggs'],
-                description: 'Um drama sobre um imigrante que tenta se adaptar à vida nos Estados Unidos, mas enfrenta preconceito e dificuldades.',
-                poster: 'https://i.postimg.cc/cLnF45yM/Abraham-lincoln-1930.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1Y330oH_E04WyjzKEH5e8zVKekW74HZD9/preview'
-            },
-            {
-                id: 'suspense',
-                title: 'Suspense',
-                year: 1913,
-                genres: ['Terror', 'Silencioso'],
-                rating: '14+',
-                tomatometer: 'N/A',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Lois Weber'],
-                actors: ['Lois Weber', 'Valerie Valli'],
-                description: 'Um suspense psicológico sobre uma mulher que é assombrada por um fantasma em sua casa.',
-                poster: 'https://i.postimg.cc/T13kddfp/A-noite-dos-mortos-vivos-1958.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1W47UPbDmJbllj49zs8bp7ILsGRvggJrf/preview'
-            },
-            {
-                id: 'the-ocean-waif',
-                title: 'The Ocean Waif',
-                year: 1916,
-                genres: ['Drama', 'Silencioso'],
-                rating: 'Livre',
-                tomatometer: 'N/A',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Alice Guy-Blaché'],
-                actors: ['Doris Kenyon', 'Carlyle Blackwell'],
-                description: 'Um drama sobre uma jovem que é encontrada em um barco à deriva e precisa encontrar sua família.',
-                poster: 'https://i.postimg.cc/T2sjLqck/Corrida-para-automoveis-Chaplin.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1QsFB3AoEY_nDnNbonfxQSj6WuL2bNuMe/preview'
-            },
-            {
-                id: 'o-cair-das-folhas',
-                title: 'O Cair das Folhas',
-                year: 1914,
-                genres: ['Drama', 'Silencioso'],
-                rating: '10+',
-                tomatometer: 'N/A',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['F. W. Murnau'],
-                actors: ['F. W. Murnau', 'Lillian Gish'],
-                description: 'Um drama sobre uma jovem que se apaixona por um homem que a traiu, em uma história de amor e traição.',
-                poster: 'https://i.postimg.cc/FRZWXdtM/A-greve-1925.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1b6FgKAv2JuRB6gjlCUIXy4oT0dxiQARK/preview'
-            },
-            {
-                id: 'corridas-de-automotiva-de-meninos',
-                title: 'Corridas de Automotiva de Meninos',
-                year: 1914,
-                genres: ['Comédia', 'Silencioso'],
-                rating: 'Livre',
-                tomatometer: 'N/A',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Roscoe "Fatty" Arbuckle'],
-                actors: ['Roscoe "Fatty" Arbuckle', 'Mabel Normand'],
-                description: 'Uma comédia sobre uma corrida de carros com um grupo de crianças, em uma história de aventura e diversão.',
-                poster: 'https://i.postimg.cc/T2sjLqck/Corrida-para-automoveis-Chaplin.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1SLpIZGjTbQNK2JFOYHjYj96nPE9WbCsi/preview'
-            },
-            {
-                id: 'carlitos-reporter',
-                title: 'Carlitos Repórter',
-                year: 1928,
-                genres: ['Comédia', 'Silencioso'],
-                rating: 'Livre',
-                tomatometer: 'N/A',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Charles Chaplin'],
-                actors: ['Charles Chaplin', 'Virginia Cherrill'],
-                description: 'Carlitos, o vagabundo, se torna um repórter para cobrir uma história de crime, mas acaba se envolvendo em uma série de confusões.',
-                poster: 'https://i.postimg.cc/PrBMczpL/Carlitos-reporter.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1ZclkViqF_n4jceU9iHLSDkIgO3cJO0xW/preview'
-            },
-            {
-                id: 'algie-the-miner',
-                title: 'Algie the Miner',
-                year: 1912,
-                genres: ['Comédia', 'Silencioso'],
-                rating: 'Livre',
-                tomatometer: 'N/A',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Ben W. B. Jones'],
-                actors: ['Ben W. B. Jones'],
-                description: 'Um curta-metragem de comédia sobre um minerador que encontra uma mina de ouro, mas precisa lidar com as consequências.',
-                poster: 'https://i.postimg.cc/tgdDFZgs/Algie-the-miner-1912.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1WWEwf9JxJ0OLxIf15NH_FALPP5ubdUUe/preview'
-            },
-            {
-                id: 'jejum-de-amor',
-                title: 'Jejum de Amor',
-                year: 1940,
-                genres: ['Comédia', 'Romance'],
-                rating: 'Livre',
-                tomatometer: '95%',
-                audio: 'Inglês',
-                subtitles: 'Português',
-                directors: ['Howard Hawks'],
-                actors: ['Cary Grant', 'Rosalind Russell'],
-                description: 'Uma jornalista e seu ex-marido, que também é seu chefe, se unem para cobrir uma história de crime, mas acabam se apaixonando novamente.',
-                poster: 'https://i.postimg.cc/fRcYP4QF/Jejum-de-amor.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1sfjhZ8cMGbcOc8-A8aeO_ZFLgdYkUvlw/preview'
-            },
-            {
-                id: 'o-gangster',
-                title: 'O Gângster',
-                year: 1929,
-                genres: ['Drama', 'Noir'],
-                rating: '14+',
-                tomatometer: 'N/A',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['Josef von Sternberg'],
-                actors: ['George Bancroft', 'Evelyn Brent'],
-                description: 'Um drama sobre um gângster que se apaixona por uma mulher que o trai, em uma história de amor e traição.',
-                poster: 'https://i.postimg.cc/8z4m58Xv/O-gangster-1929.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1aAzGOGlnGbWyfPQA9Cqp9eNRUmi5_YBy/preview'
-            },
-            {
-                id: 'a-noite-dos-mortos-vivos',
-                title: 'A Noite dos Mortos Vivos',
-                year: 1958,
-                genres: ['Terror', 'Ficção Científica'],
-                rating: '16+',
-                tomatometer: 'N/A',
-                audio: 'Português',
-                subtitles: 'N/A',
-                directors: ['George A. Romero'],
-                actors: ['Duane Jones', 'Judith O\'Dea'],
-                description: 'Um grupo de pessoas se refugia em uma fazenda para se proteger de uma horda de zumbis, em um filme de terror clássico.',
-                poster: 'https://i.postimg.cc/T13kddfp/A-noite-dos-mortos-vivos-1958.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1rybzCi4wgLMyRoKeM5M3vSTGu1lE1rHm/preview'
-            },
-            {
-                id: 'the-kid',
-                title: 'The Kid',
-                year: 1921,
-                genres: ['Comédia', 'Drama'],
-                rating: 'Livre',
-                tomatometer: '100%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Charles Chaplin'],
-                actors: ['Charles Chaplin', 'Jackie Coogan'],
-                description: 'Carlitos, o vagabundo, encontra um bebê abandonado e o cria como seu próprio filho, em uma história de amor e amizade.',
-                poster: 'https://i.postimg.cc/wjgkgx2H/O-garoto-charlie-Chaplin.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1At2Abc9wNehQAbdyxPr3jeHghe4qdoRj/preview'
-            },
-            {
-                id: 'tdw',
-                title: 'TDW',
-                year: 1962,
-                genres: ['Ficção Científica', 'Terror'],
-                rating: '16+',
-                tomatometer: 'N/A',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['Joseph V. Mascelli'],
-                actors: ['Herb Evers', 'William Joyce'],
-                description: 'Um filme de ficção científica sobre um cientista que implanta o cérebro de um homem em um corpo de robô, em uma história de terror e suspense.',
-                poster: 'https://i.postimg.cc/Yq3WN6NK/the-brain-that-wouldn-t-die.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1C049HKnvyvPWr3qQjd3fOxuxDIUWJWrg/preview'
-            },
-            {
-                id: 'os-39-degraus',
-                title: 'Os 39 Degraus',
-                year: 1935,
-                genres: ['Suspense', 'Misterio'],
-                rating: '14+',
-                tomatometer: '98%',
-                audio: 'Inglês',
-                subtitles: 'Português',
-                directors: ['Alfred Hitchcock'],
-                actors: ['Robert Donat', 'Madeleine Carroll'],
-                description: 'Um homem comum se torna o principal suspeito de um assassinato e precisa fugir da polícia e dos criminosos para provar sua inocência.',
-                poster: 'https://i.postimg.cc/P5S1HWNz/Os-39-degraus.jpg',
-                videoUrl: 'https://drive.google.com/file/d/15QmfMjBfYETQ0DfxlUx0507r9TKHQBzh/preview'
-            },
-            {
-                id: 'intolerance',
-                title: 'Intolerance',
-                year: 1916,
-                genres: ['Drama', 'Histórico', 'Silencioso'],
-                rating: '12+',
-                tomatometer: '95%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['D.W. Griffith'],
-                actors: ['Lillian Gish', 'Mae Marsh'],
-                description: 'Um épico sobre a intolerância humana em quatro períodos históricos, em uma crítica à hipocrisia e ao fanatismo.',
-                poster: 'https://i.postimg.cc/Dz5L2qZP/Intolerancia-1916.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1YnJY2gb1ggVt0GT7agKDVq6q90rplS_t/preview'
-            },
-            {
-                id: 'nosferatu',
-                title: 'Nosferatu',
-                year: 1922,
-                genres: ['Terror', 'Silencioso'],
-                rating: '14+',
-                tomatometer: '98%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['F.W. Murnau'],
-                actors: ['Max Schreck', 'Gustav von Wangenheim'],
-                description: 'Um clássico do cinema mudo sobre um vampiro que aterroriza uma cidade, em uma história de terror e suspense.',
-                poster: 'https://i.postimg.cc/kgmTGvn0/Nosferatu-1922.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1GwpAvXgx6T4rElCskORyMM1bZCyLFfws/preview'
-            },
-            {
-                id: 'o-homem-que-ri',
-                title: 'O Homem Que Ri',
-                year: 1928,
-                genres: ['Drama', 'Silencioso'],
-                rating: '14+',
-                tomatometer: '95%',
-                audio: 'Silencioso',
-                subtitles: 'N/A',
-                directors: ['Paul Leni'],
-                actors: ['Conrad Veidt', 'Mary Philbin'],
-                description: 'Um drama sobre um homem que teve o rosto deformado por um rei e se torna um palhaço, em uma história de amor e redenção.',
-                poster: 'https://i.postimg.cc/26s4JCys/O-homem-que-ri-1928.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1tCa1gdZHMeuKgC8jZOwv45xAdY8hCR4C/preview'
-            },
-            {
-                id: 'a-caldeira-do-diabo',
-                title: 'A Caldeira do Diabo',
-                year: 1957,
-                genres: ['Drama', 'Aventura'],
-                rating: '14+',
-                tomatometer: 'N/A',
-                audio: 'Inglês',
-                subtitles: 'Português',
-                directors: ['Jack Arnold'],
-                actors: ['Richard Carlson', 'Julie Adams'],
-                description: 'Uma história sobre um grupo de exploradores que tenta encontrar um tesouro em uma ilha assombrada.',
-                poster: 'https://i.postimg.cc/Fz6xh0TB/beco-sem-saida.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1jNu8V8IBd9OkdqywBBtotmIj0SELKIJz/preview'
-            },
-            {
-                id: 'a-paixao-de-andy-hardy',
-                title: 'A Paixão de Andy Hardy',
-                year: 1941,
-                genres: ['Comédia', 'Romance'],
-                rating: 'Livre',
-                tomatometer: 'N/A',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['George B. Seitz'],
-                actors: ['Mickey Rooney', 'Judy Garland'],
-                description: 'Andy Hardy se apaixona por uma jovem, mas precisa lidar com as consequências do amor.',
-                poster: 'https://i.postimg.cc/05VWtw0m/a-paixao-de-andy.jpg',
-                videoUrl: 'https://drive.google.com/file/d/17MS17ey-U9ns72OXoWImmFMW__oP86aP/preview'
-            },
-            {
-                id: 'aconteceu-em-havana',
-                title: 'Aconteceu em Havana',
-                year: 1941,
-                genres: ['Comédia', 'Música'],
-                rating: 'Livre',
-                tomatometer: 'N/A',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['John G. Blystone'],
-                actors: ['Dorothy Lamour', 'Ray Milland'],
-                description: 'Uma comédia musical sobre um grupo de pessoas que se reúnem em Havana para um show, mas acabam se envolvendo em uma série de confusões.',
-                poster: 'https://i.postimg.cc/FRDZnM3m/aconteceu-em-havana.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1DFt1T6CykFsB_dOAH0M8MeQTRAZ2PykP/preview'
-            },
-            {
-                id: 'beco-sem-saida',
-                title: 'Beco sem Saída',
-                year: 1937,
-                genres: ['Drama', 'Noir'],
-                rating: '14+',
-                tomatometer: '95%',
-                audio: 'Inglês',
-                subtitles: 'Português',
-                directors: ['William Wyler'],
-                actors: ['Sylvia Sidney', 'Joel McCrea'],
-                description: 'Um drama sobre um grupo de pessoas que vive em um beco sem saída e precisa lidar com a pobreza e a violência.',
-                poster: 'https://i.postimg.cc/Fz6xh0TB/beco-sem-saida.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1y5ka0vdAir6r5nS7sCbvMqmwdWOmmm5S/preview'
-            },
-            {
-                id: 'copacabana',
-                title: 'Copacabana',
-                year: 1947,
-                genres: ['Comédia', 'Música'],
-                rating: 'Livre',
-                tomatometer: 'N/A',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['Alfred E. Green'],
-                actors: ['Groucho Marx', 'Carmen Miranda'],
-                description: 'Uma comédia musical sobre um grupo de pessoas que se reúnem em Copacabana para um show, mas acabam se envolvendo em uma série de confusões.',
-                poster: 'https://i.postimg.cc/VNwWsfFm/copacabana.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1QMbWdltYAbumd1NbdWqUZCdBbUD_e7Oq/preview'
-            },
-            {
-                id: 'irene-a-teimosa',
-                title: 'Irene a Teimosa',
-                year: 1937,
-                genres: ['Comédia', 'Romance'],
-                rating: 'Livre',
-                tomatometer: 'N/A',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['Gregory La Cava'],
-                actors: ['Irene Dunne', 'Melvyn Douglas'],
-                description: 'Uma comédia romântica sobre um casal que se apaixona, mas precisa lidar com as diferenças de personalidade para se casar.',
-                poster: 'https://i.postimg.cc/GmwkzLVG/irene-a-teimosa.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1w_XSE7YGZZAw5ldHfiUGZaEwZ48XGT6D/preview'
-            },
-            {
-                id: 'manhattan-tower',
-                title: 'Manhattan Tower',
-                year: 1932,
-                genres: ['Drama', 'Noir'],
-                rating: '14+',
-                tomatometer: 'N/A',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['Frank R. Strayer'],
-                actors: ['Mary Brian', 'James Hall'],
-                description: 'Um drama sobre um grupo de pessoas que vive em um arranha-céu e precisa lidar com a violência e a corrupção.',
-                poster: 'https://i.postimg.cc/NjkpH2F5/manhattan-tower.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1n3_FD_1QMYqylxIPuH6YWncmcWIu0SUX/preview'
-            },
-            {
-                id: 'o-ataque-nazista',
-                title: 'O Ataque Nazista',
-                year: 1943,
-                genres: ['Documentário', 'Histórico'],
-                rating: 'Livre',
-                tomatometer: 'N/A',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['Frank Capra', 'Anatole Litvak'],
-                actors: ['Desconhecidos'],
-                description: 'Documentário que retrata os eventos da Segunda Guerra Mundial e a ascensão do nazismo, em uma crítica à violência e ao fanatismo.',
-                poster: 'https://i.postimg.cc/CKZnV93S/the-nazis-strike.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1h9JzEld1DdXv0PRJpVcDFB7uOKvNHtbl/preview'
-            },
-            {
-                id: 'the-nazi-titanic',
-                title: 'The Nazi Titanic',
-                year: 1943,
-                genres: ['Documentário', 'Histórico'],
-                rating: 'Livre',
-                tomatometer: 'N/A',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['Herbert Selpin'],
-                actors: ['Siegfried Breuer', 'Karl Schönböck'],
-                description: 'Um documentário que retrata os eventos da Segunda Guerra Mundial e o ataque ao navio Titanic, em uma história de terror e suspense.',
-                poster: 'https://i.postimg.cc/qqrNyqzv/the-nazi-titanic.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1Z1B5HmoBzDWnGB1QuHnNbDYIf9ThlG_a/preview'
-            },
-            {
-                id: 'o-cisne-negro',
-                title: 'O Cisne Negro',
-                year: 1942,
-                genres: ['Drama', 'Aventura'],
-                rating: '12+',
-                tomatometer: 'N/A',
-                audio: 'Inglês',
-                subtitles: 'Português',
-                directors: ['Henry King'],
-                actors: ['Tyrone Power', 'Maureen O\'Hara'],
-                description: 'Um drama sobre um grupo de piratas que tenta encontrar um tesouro, mas acaba se envolvendo em uma guerra por poder.',
-                poster: 'https://i.postimg.cc/3RVBTgSb/o-cisno-negro.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1kvY_fI6NgFSyNqahbnu55RdGXDNC9Sh3/preview'
-            },
-            {
-                id: 'o-flautista-de-hamelin',
-                title: 'O Flautista de Hamelin',
-                year: 1941,
-                genres: ['Animação', 'Musical'],
-                rating: 'Livre',
-                tomatometer: 'N/A',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['Tex Avery'],
-                actors: ['Mel Blanc', 'Frank Graham'],
-                description: 'Uma animação sobre um flautista que salva uma cidade de uma praga de ratos, em uma história de aventura e diversão.',
-                poster: 'https://i.postimg.cc/909BFrsX/o-flautista-de-ramelin.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1nwkPmASN8f2wLuZIyH7PClkCvBUJ8t7V/preview'
-            },
-            {
-                id: 'o-foguete-errante',
-                title: 'O Foguete Errante',
-                year: 1953,
-                genres: ['Ficção Científica', 'Aventura'],
-                rating: 'Livre',
-                tomatometer: 'N/A',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['Edgar G. Ulmer'],
-                actors: ['Richard Carlson', 'Barbara Rush'],
-                description: 'Uma aventura de ficção científica sobre um grupo de pessoas que viaja para o espaço para encontrar um novo planeta para viver.',
-                poster: 'https://i.postimg.cc/BQWg7B1j/o-foguete-errante.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1NoNBmjh9DDEgLLLldvzNyEqUIaprIO4N/preview'
-            },
-            {
-                id: 'o-inspetor-general',
-                title: 'O Inspetor General',
-                year: 1949,
-                genres: ['Comédia', 'Musical'],
-                rating: 'Livre',
-                tomatometer: 'N/A',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['Henry Koster'],
-                actors: ['Danny Kaye', 'Walter Slezak'],
-                description: 'Uma comédia musical sobre um inspetor que se envolve em uma série de confusões e aventuras.',
-                poster: 'https://i.postimg.cc/9FqdGR8c/inspector-general.jpg',
-                videoUrl: 'https://drive.google.com/file/d/14qw5b86-Zqly3jfTx3u4r7zF2vP3MgmO/preview'
-            },
-            {
-                id: 'levada-da-breca',
-                title: 'Levada da Breca',
-                year: 1938,
-                genres: ['Comédia', 'Romance'],
-                rating: 'Livre',
-                tomatometer: '98%',
-                audio: 'Inglês',
-                subtitles: 'Português',
-                directors: ['Howard Hawks'],
-                actors: ['Cary Grant', 'Katharine Hepburn'],
-                description: 'Uma comédia romântica sobre um paleontólogo que se apaixona por uma jovem, em uma história de amor e diversão.',
-                poster: 'https://i.postimg.cc/MXkjs5Pq/levada-de-breca.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1-bbbr2ADoHnsQsCvBHLYuFZ9WY6zBemiR/preview'
-            },
-            {
-                id: 'lassie-nas-planicies-do-ouro',
-                title: 'Lassie nas Planícies do Ouro',
-                year: 1951,
-                genres: ['Aventura', 'Família'],
-                rating: 'Livre',
-                tomatometer: 'N/A',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['Earl Bellamy'],
-                actors: ['Lassie', 'Tommy Rettig'],
-                description: 'Uma aventura sobre um cão que tenta encontrar uma mina de ouro, em uma história de amizade e lealdade.',
-                poster: 'https://i.postimg.cc/J0HkcvQp/lassie-nas-planicies-o-ouro.jpg',
-                videoUrl: 'https://drive.google.com/file/d/16tF5PKg-0P9KelKOtTGk-vtvt0SpAewd/preview'
-            },
-            {
-                id: 'hitler-dead-or-alive',
-                title: 'Hitler Dead or Alive',
-                year: 1942,
-                genres: ['Ação', 'Guerra'],
-                rating: '14+',
-                tomatometer: 'N/A',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['Gene Stutz'],
-                actors: ['Frank Reicher', 'Paul Fix'],
-                description: 'Uma história sobre um grupo de soldados que tenta assassinar Hitler, em uma história de aventura e perigo.',
-                poster: 'https://i.postimg.cc/ZK9GpHz0/hitler-dead-or-alive.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1imyqOxI5mMsIe_oAZ3F39jigHT5F2qFg/preview'
-            },
-            {
-                id: 'the-two-soldiers',
-                title: 'The Two Soldiers',
-                year: 1943,
-                genres: ['Drama', 'Guerra'],
-                rating: '12+',
-                tomatometer: 'N/A',
-                audio: 'Inglês',
-                subtitles: 'N/A',
-                directors: ['Robert Siodmak'],
-                actors: ['Frank Reicher', 'Paul Fix'],
-                description: 'Um drama sobre dois soldados que tentam sobreviver à guerra e manter a esperança, em uma história de amizade e lealdade.',
-                poster: 'https://i.postimg.cc/7YppVzq9/two-soldiers-1943-film.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1EJmweWw1NFcMwrUci-AugFgrrYKWGxOd/preview'
-            }
+            // FILMES EXISTENTES
+            { id: 'o-novo-governo-paranaense', title: 'O Novo Governo Paranaense', year: 1928, genres: ['Documentário', 'Silencioso'], rating: 'Livre', tomatometer: 'N/A', audio: 'Silencioso', subtitles: 'N/A', directors: ['José do Egito'], actors: ['Desconhecidos'], description: 'Documentário que retrata a posse do governador Affonso Camargo no estado do Paraná.', poster: 'https://i.postimg.cc/Qtx9yS1D/O-Novo-Governo-Paranaense.jpg', videoUrl: 'https://drive.google.com/file/d/1OqOq4Q1F-l-oW-t7-kQ4-wQ-wQ-wQ-wQ/preview' },
+            { id: 'o-fantasma-do-terror', title: 'O Fantasma do Terror', year: 1960, genres: ['Comédia', 'Terror'], rating: '14+', tomatometer: '91%', audio: 'Inglês', subtitles: 'N/A', directors: ['Roger Corman'], actors: ['Jonathan Haze', 'Jackie Joseph', 'Mel Welles'], description: 'Um tímido floricultor cria uma planta carnívora que se alimenta de sangue humano, o que o leva a cometer crimes.', poster: 'https://i.postimg.cc/kM21p51p/Little-Shop-of-horror.jpg', videoUrl: 'https://drive.google.com/file/d/1KwUjD2dhiS2o1JEQ3kWAFZYQhCym9Qmq/preview' },
+            { id: 'as-viagens-de-gulliver', title: 'As Viagens de Gulliver', year: 1939, genres: ['Animação', 'Aventura'], rating: 'Livre', tomatometer: '90%', audio: 'Inglês', subtitles: 'Português', directors: ['Dave Fleischer'], actors: ['Pinto Colvig', 'Sam Parker', 'Jack Mercer'], description: 'Animação clássica baseada no livro de Jonathan Swift, onde o marinheiro Gulliver explora o mundo de liliputianos e gigantes.', poster: 'https://i.postimg.cc/sXVmmjBw/as-viagens-de-gulliver-1939.jpg', videoUrl: 'https://drive.google.com/file/d/1xt47Ti7ALA3QAIMtmm8yK7N/preview' },
+            { id: 'a-noite-dos-mortos-vivos', title: 'A Noite dos Mortos Vivos', year: 1958, genres: ['Terror', 'Ficção Científica'], rating: '16+', tomatometer: 'N/A', audio: 'Português', subtitles: 'N/A', directors: ['George A. Romero'], actors: ['Duane Jones', 'Judith O\'Dea'], description: 'Um grupo de pessoas se refugia em uma fazenda para se proteger de uma horda de zumbis, em um filme de terror clássico.', poster: 'https://i.postimg.cc/T13kddfp/A-noite-dos-mortos-vivos.jpg', videoUrl: 'https://drive.google.com/file/d/1g1d6tC9gSj4yH-9-bQ8-yW-Wf-bQ-xM/preview' },
+            { id: 'levada-da-breca', title: 'Levada da Breca', year: 1938, genres: ['Comédia', 'Romance'], rating: 'Livre', tomatometer: '98%', audio: 'Inglês', subtitles: 'Português', directors: ['Howard Hawks'], actors: ['Cary Grant', 'Katharine Hepburn'], description: 'Uma comédia romântica sobre uma paleontóloga excêntrica que se apaixona por um paleontólogo.', poster: 'https://i.postimg.cc/VvF4W4m8/Levada-da-Breca-1938.jpg', videoUrl: 'https://drive.google.com/file/d/1d-BfSjH-lY4s-bQ-xM-bQ-yW-f-bQ-wQ-wQ-wQ-wQ/preview' },
+            { id: 'o-cair-das-folhas', title: 'O Cair das Folhas', year: 1914, genres: ['Drama', 'Silencioso'], rating: '10+', tomatometer: 'N/A', audio: 'Silencioso', subtitles: 'N/A', directors: ['F. W. Murnau'], actors: ['F. W. Murnau', 'Lillian Gish'], description: 'Um drama sobre uma jovem que se apaixona por um pintor, em uma história de amor e traição.', poster: 'https://i.postimg.cc/qM1vYd7v/O-cair-das-folhas-1914.jpg', videoUrl: 'https://drive.google.com/file/d/1QsFB3AoEY_nDnNbonfxQSj6WuL2bNuMe/preview' },
+            { id: 'o-homem-que-ri', title: 'O Homem Que Ri', year: 1928, genres: ['Drama', 'Silencioso'], rating: '14+', tomatometer: '95%', audio: 'Silencioso', subtitles: 'N/A', directors: ['Paul Leni'], actors: ['Conrad Veidt', 'Mary Philbin'], description: 'Um drama sobre um homem que teve o rosto deformado por um rei e se torna um palhaço, em uma história de amor e redenção.', poster: 'https://i.postimg.cc/26s4JCys/O-homem-que-ri-1928.jpg', videoUrl: 'https://drive.google.com/file/d/1tCa1gdZHMeuKgC8jZOwv45xAdY8hCR4C/preview' },
+            { id: 'o-inspetor-general', title: 'O Inspetor General', year: 1949, genres: ['Comédia', 'Musical'], rating: 'Livre', tomatometer: 'N/A', audio: 'Inglês', subtitles: 'N/A', directors: ['Henry Koster'], actors: ['Danny Kaye', 'Walter Slezak'], description: 'Uma comédia musical sobre um inspetor que se envolve em uma série de confusões e aventuras.', poster: 'https://i.postimg.cc/9FqdGR8c/inspector-general.jpg', videoUrl: 'https://drive.google.com/file/d/14qw5b86-Zqly3jfTx3u4r7zF2vP3MgmO/preview' },
+            { id: 'o-gangster', title: 'O Gangster', year: 1929, genres: ['Crime', 'Silencioso'], rating: '14+', tomatometer: '85%', audio: 'Silencioso', subtitles: 'N/A', directors: ['Josef von Sternberg'], actors: ['George Bancroft', 'Betty Compson'], description: 'Um drama de crime sobre um gangster que se apaixona por uma mulher que o trai, em uma história de amor e traição.', poster: 'https://i.postimg.cc/8z4m58Xv/O-gangster-1929.jpg', videoUrl: 'https://drive.google.com/file/d/1aAzGOGlnGbWyfPQA9Cqp9eNRUmi5_YBy/preview' },
+            { id: 'o-foguete-errante', title: 'O Foguete Errante', year: 1953, genres: ['Ficção Científica', 'Animação'], rating: 'Livre', tomatometer: 'N/A', audio: 'Inglês', subtitles: 'N/A', directors: ['Robert Clampett'], actors: ['Mel Blanc', 'Stan Freberg'], description: 'Uma animação de ficção científica sobre um foguete que se perde no espaço e precisa voltar para a Terra.', poster: 'https://i.postimg.cc/BQWg7B1j/o-foguete-errante.jpg', videoUrl: 'https://drive.google.com/file/d/1NoNBmjh9DDEgLLLldvzNyEqUIaprIO4N/preview' },
+            { id: 'nasce-uma-estrela', title: 'Nasce uma Estrela', year: 1937, genres: ['Drama', 'Romance'], rating: '12+', tomatometer: '95%', audio: 'Inglês', subtitles: 'Português', directors: ['William A. Wellman'], actors: ['Janet Gaynor', 'Fredric March'], description: 'Uma jovem atriz em ascensão se apaixona por um ator famoso em declínio, enquanto a fama e o alcoolismo dele os separam.', poster: 'https://i.postimg.cc/wxnf8dnT/Nasce-uma-estrela-1937.jpg', videoUrl: 'https://drive.google.com/file/d/1501fE2mC7r6xYQ4x-Wq7XvV1-yvF4s/preview' },
+            { id: 'manhattan-tower', title: 'Manhattan Tower', year: 1932, genres: ['Drama', 'Noir'], rating: '14+', tomatometer: 'N/A', audio: 'Inglês', subtitles: 'N/A', directors: ['Frank R. Strayer'], actors: ['Mary Brian', 'James Hall'], description: 'Um drama sobre um grupo de pessoas que vive em um arranha-céu e precisa lidar com a violência e a corrupção.', poster: 'https://i.postimg.cc/NjkpH2F5/manhattan-tower.jpg', videoUrl: 'https://drive.google.com/file/d/1n3_FD_1QMYqylxIPuH6YWncmcWIu/preview' },
+            { id: 'irene-a-teimosa', title: 'Irene, a Teimosa', year: 1937, genres: ['Comédia', 'Romance'], rating: 'Livre', tomatometer: '95%', audio: 'Inglês', subtitles: 'Português', directors: ['Leo McCarey'], actors: ['Irene Dunne', 'Cary Grant', 'Ralph Bellamy'], description: 'Uma comédia romântica sobre um casal que se apaixona, mas precisa lidar com as diferenças de personalidade para se casar.', poster: 'https://i.postimg.cc/GmwkzLVG/irene-a-teimosa.jpg', videoUrl: 'https://drive.google.com/file/d/1w_XSE7YGZZAw5ldHfiUGZaEwZ48XGT6D/preview' },
+            { id: 'a-greve', title: 'A Greve', year: 1925, genres: ['Drama', 'Silencioso'], rating: '10+', tomatometer: '90%', audio: 'Silencioso', subtitles: 'N/A', directors: ['Sergei Eisenstein'], actors: ['Grigori Aleksandrov', 'Max Strauch', 'Mikhail Gomorov'], description: 'Um retrato visceral da opressão tsarista na Rússia, que culmina em uma violenta greve de trabalhadores em 1903.', poster: 'https://i.postimg.cc/FRZWXdtM/A-greve-1925.jpg', videoUrl: 'https://drive.google.com/file/d/1_kQ4-wQ-wQ-wQ-wQ-wQ-wQ-wQ-wQ-wQ-wQ-wQ-wQ-wQ/preview' },
+            { id: 'a-dama-de-shanghai', title: 'A Dama de Shanghai', year: 1948, genres: ['Noir', 'Drama'], rating: '14+', tomatometer: '90%', audio: 'Inglês', subtitles: 'Português', directors: ['Orson Welles'], actors: ['Rita Hayworth', 'Orson Welles'], description: 'Um marinheiro se envolve em uma teia de mistério e assassinato depois de se apaixonar pela esposa de um advogado.', poster: 'https://i.postimg.cc/sXy6LPLP/A-Dama-de-Shanghai-1948.jpg', videoUrl: 'https://drive.google.com/file/d/1Oitlgwtxh32WNDTQXze84Mad-PoyqH91/preview' },
+            { id: 'carlitos-reporter', title: 'Carlitos Repórter', year: 1914, genres: ['Comédia', 'Silencioso'], rating: 'Livre', tomatometer: '90%', audio: 'Silencioso', subtitles: 'N/A', directors: ['Charles Chaplin'], actors: ['Charles Chaplin', 'Mabel Normand'], description: 'Carlitos, o vagabundo, se torna um repórter e se envolve em uma série de situações cômicas e embaraçosas.', poster: 'https://i.postimg.cc/PrBMczpL/Carlitos-reporter.jpg', videoUrl: 'https://drive.google.com/file/d/11jx9NWCKqolocN77DoSxwePqPhgDsrrU/preview' },
+            { id: 'o-circo', title: 'O Circo', year: 1928, genres: ['Comédia', 'Silencioso'], rating: 'Livre', tomatometer: '95%', audio: 'Silencioso', subtitles: 'N/A', directors: ['Charles Chaplin'], actors: ['Charles Chaplin', 'Merna Kennedy'], description: 'Carlitos, o vagabundo, se apaixona por uma acrobata de circo e faz de tudo para que ela possa se tornar uma estrela.', poster: 'https://i.postimg.cc/KY9f9Xnb/O-circo-Charlie-Chaplin.jpg', videoUrl: 'https://drive.google.com/file/d/1YQJ0o50grrOIBV9ynkCp87ibc-plv6La/preview' },
+            { id: 'luzes-da-cidade', title: 'Luzes da Cidade', year: 1931, genres: ['Comédia', 'Drama', 'Romance', 'Silencioso'], rating: 'Livre', tomatometer: '96%', audio: 'Silencioso', subtitles: 'N/A', directors: ['Charles Chaplin'], actors: ['Charles Chaplin', 'Virginia Cherrill'], description: 'Carlitos, o vagabundo, se apaixona por uma florista cega e faz de tudo para que ela possa recuperar a visão.', poster: 'https://i.postimg.cc/CLDvwQVC/Luzes-da-cidade-1931.jpg', videoUrl: 'https://drive.google.com/file/d/1DTjc5EmA77YY9h7n7Rtm3CU7gwGgOvWJ/preview' },
+
+            // NOVOS FILMES ADICIONADOS
+            { id: 'vapor', title: 'Vapor', year: 2010, genres: ['Drama', 'Curta-metragem'], rating: '16+', tomatometer: 'N/A', audio: 'Espanhol', subtitles: 'Português', directors: ['Kaveh Nabatian'], actors: ['Marco Ledezma', 'Evergon'], description: 'Um curta-metragem que narra a jornada emocional de um homem gay de meia-idade em direção à autoaceitação, após ser convidado a posar nu para um fotógrafo.', poster: 'https://i.postimg.cc/D0m8p231/vapor-2010.jpg', videoUrl: 'https://drive.google.com/file/d/1FjE_sFPaGW5Kb9ICii_g9aFZ0CWzWQSo/preview' },
+            { id: 'the-two-soldiers', title: 'The Two Soldiers', year: 1943, genres: ['Guerra', 'Drama', 'Musical'], rating: '14+', tomatometer: 'N/A', audio: 'Russo', subtitles: 'N/A', directors: ['Leonid Lukov'], actors: ['Boris Andreyev', 'Mark Bernes'], description: 'Dois amigos soldados lutam na frente de Leningrado durante a Segunda Guerra Mundial, fortalecendo sua amizade em meio ao combate intenso.', poster: 'https://i.postimg.cc/26L1kH1f/the-two-soldiers-1943.jpg', videoUrl: 'https://drive.google.com/file/d/1EJmweWw1NFcMwrUci-AugFgrrYKWGxOd/preview' },
         ];
-        
-        // Variáveis de estado
-        var modalCurrentMovieId = null;
+
+        // Variáveis globais
+        var heroMovie = movieData.find(movie => movie.id === 'o-homem-que-ri');
         var myList = JSON.parse(localStorage.getItem('myList')) || [];
 
-        // Elementos do DOM
-        var mainContent = document.getElementById('main-content');
+        // Elementos DOM
         var movieGridContainer = document.getElementById('movie-grid-container');
-        var genresPage = document.getElementById('genres-page');
-        var myListGridContainer = document.getElementById('my-list-grid-container');
         var movieModal = document.getElementById('movie-modal');
-        var modalContent = document.querySelector('#movie-modal .modal-content');
-        var modalPoster = document.getElementById('modal-poster-img');
+        var moviePlayer = document.getElementById('movie-player');
         var modalTitle = document.getElementById('modal-title');
         var modalRating = document.getElementById('modal-rating');
         var modalInfo = document.getElementById('modal-info');
         var modalDescription = document.getElementById('modal-description');
-        var playButton = document.getElementById('play-button');
-        var addListButton = document.getElementById('add-list-button');
-        var removeListButton = document.getElementById('remove-list-button');
-        var moviePlayer = document.getElementById('movie-player');
+        var modalPoster = document.getElementById('modal-poster-img');
         var videoContainer = document.getElementById('modal-video-container');
         var videoBackButton = document.getElementById('video-back-button');
+        var genresPage = document.getElementById('genres-page');
+        var myListGridContainer = document.getElementById('my-list-grid-container');
+        var trailerContainer = document.getElementById('modal-trailer-container');
+        var trailerPlayer = document.getElementById('trailer-player');
         var suggestionsGrid = document.getElementById('suggestions-grid');
         var heroBanner = document.getElementById('hero-banner');
         var heroTitle = heroBanner.querySelector('.title');
         var heroDescription = heroBanner.querySelector('.description');
         var heroPlayButton = document.getElementById('hero-play-button');
-        
+        var heroMoreInfoButton = document.getElementById('hero-more-info-button');
+
+        // Funções de navegação
+        function showPage(pageId) {
+            document.querySelectorAll('.page-content').forEach(page => page.style.display = 'none');
+            document.getElementById(pageId).style.display = 'block';
+
+            if (pageId === 'home-page') {
+                renderAllMovies();
+            } else if (pageId === 'genres-page') {
+                renderGenresContent();
+            } else if (pageId === 'my-list-page') {
+                renderMyListContent();
+            }
+        }
+
         // Funções de Renderização
         function renderMovieCard(movie, container) {
             var card = document.createElement('div');
@@ -1541,157 +595,184 @@
             genresPage.innerHTML = '';
             var allGenres = [...new Set(movieData.flatMap(movie => movie.genres))];
             allGenres.forEach(genre => {
-                var section = document.createElement('section');
+                var section = document.createElement('div');
                 section.className = 'content-section';
-                var title = document.createElement('h2');
-                title.className = 'section-title';
-                var titleLink = document.createElement('a');
-                titleLink.href = '#';
-                titleLink.className = 'section-title-link';
-                titleLink.textContent = genre;
-                title.appendChild(titleLink);
-                section.appendChild(title);
-                var grid = document.createElement('div');
-                grid.className = 'movie-grid';
-                var moviesInGenre = movieData.filter(movie => movie.genres.includes(genre));
-                moviesInGenre.forEach(movie => renderMovieCard(movie, grid));
-                section.appendChild(grid);
+                section.innerHTML = `<h2 class="section-title">${genre}</h2>`;
+                var genreGrid = document.createElement('div');
+                genreGrid.className = 'movie-grid';
+                movieData.filter(movie => movie.genres.includes(genre)).forEach(movie => {
+                    renderMovieCard(movie, genreGrid);
+                });
+                section.appendChild(genreGrid);
                 genresPage.appendChild(section);
             });
         }
-        
+
         function renderMyListContent() {
             myListGridContainer.innerHTML = '';
             if (myList.length === 0) {
-                myListGridContainer.innerHTML = '<p style="text-align: center; width: 100%; color: #999;">Sua lista está vazia.</p>';
+                myListGridContainer.innerHTML = '<p>Sua lista de filmes está vazia.</p>';
             } else {
                 myList.forEach(movie => renderMovieCard(movie, myListGridContainer));
             }
         }
-        
+
         function renderSuggestions(currentMovie) {
             suggestionsGrid.innerHTML = '';
-            var suggestions = movieData.filter(movie => 
-                movie.id !== currentMovie.id && 
-                movie.genres.some(genre => currentMovie.genres.includes(genre))
-            ).slice(0, 4);
-            suggestions.forEach(movie => renderMovieCard(movie, suggestionsGrid));
+            var suggestedMovies = movieData
+                .filter(movie => movie.id !== currentMovie.id && movie.genres.some(g => currentMovie.genres.includes(g)))
+                .sort(() => 0.5 - Math.random())
+                .slice(0, 4);
+
+            if (suggestedMovies.length > 0) {
+                document.getElementById('modal-suggestions').style.display = 'block';
+                suggestedMovies.forEach(movie => renderMovieCard(movie, suggestionsGrid));
+            } else {
+                document.getElementById('modal-suggestions').style.display = 'none';
+            }
         }
 
         function updateHeroBanner() {
-            var randomIndex = Math.floor(Math.random() * movieData.length);
-            var randomMovie = movieData[randomIndex];
-            
-            heroBanner.style.backgroundImage = `url('${randomMovie.poster}')`;
-            heroTitle.textContent = randomMovie.title;
-            heroDescription.textContent = randomMovie.description;
-            heroPlayButton.onclick = () => openModal(randomMovie);
-        }
-        
-        // Funções de Navegação
-        function showPage(pageId) {
-            document.getElementById('home-page').style.display = 'none';
-            document.getElementById('genres-page').style.display = 'none';
-            document.getElementById('my-list-page').style.display = 'none';
-            document.getElementById(pageId).style.display = 'block';
-
-            if (pageId === 'home-page') {
-                renderAllMovies();
-            } else if (pageId === 'genres-page') {
-                renderGenresContent();
-            } else if (pageId === 'my-list-page') {
-                renderMyListContent();
-            }
+            heroBanner.style.backgroundImage = `url('${heroMovie.poster}')`;
+            heroTitle.textContent = heroMovie.title;
+            heroDescription.textContent = heroMovie.description;
+            heroPlayButton.onclick = () => openModal(heroMovie);
+            heroMoreInfoButton.onclick = () => openModal(heroMovie);
         }
 
         // Funções do Modal
+        var modalCurrentMovieId = null;
+
         function openModal(movie) {
             modalCurrentMovieId = movie.id;
-            modalPoster.src = movie.poster;
             modalTitle.textContent = movie.title;
             modalRating.textContent = movie.rating;
-            
             modalInfo.innerHTML = `
-                <div class="modal-info-item"><span>Ano:</span> ${movie.year}</div>
-                <div class="modal-info-item"><span>Gêneros:</span> ${movie.genres.join(', ')}</div>
-                <div class="modal-info-item"><span>Áudio:</span> ${movie.audio}</div>
-                <div class="modal-info-item"><span>Legendas:</span> ${movie.subtitles || 'N/A'}</div>
-                <div class="modal-info-item"><span>Diretor(es):</span> ${movie.directors.join(', ')}</div>
-                <div class="modal-info-item"><span>Ator(es):</span> ${movie.actors.join(', ')}</div>
+                <span class="modal-info-item">Ano: <span>${movie.year}</span></span>
+                <span class="modal-info-item">Gêneros: <span>${movie.genres.join(', ')}</span></span>
+                <span class="modal-info-item">Áudio: <span>${movie.audio}</span></span>
+                <span class="modal-info-item">Legendas: <span>${movie.subtitles}</span></span>
+                <span class="modal-info-item">Diretor: <span>${movie.directors.join(', ')}</span></span>
+                <span class="modal-info-item">Atores: <span>${movie.actors.join(', ')}</span></span>
             `;
-            
             modalDescription.textContent = movie.description;
-            
-            if (myList.some(item => item.id === movie.id)) {
-                addListButton.style.display = 'none';
-                removeListButton.style.display = 'inline-block';
-            } else {
-                addListButton.style.display = 'inline-block';
-                removeListButton.style.display = 'none';
-            }
+            modalPoster.src = movie.poster;
 
-            playButton.onclick = () => playMovie(movie);
-            addListButton.onclick = () => addToList(movie);
-            removeListButton.onclick = () => removeFromList(movie);
+            var isMovieInList = myList.some(item => item.id === movie.id);
+            document.getElementById('add-to-list-btn').style.display = isMovieInList ? 'none' : 'inline-block';
+            document.getElementById('remove-from-list-btn').style.display = isMovieInList ? 'inline-block' : 'none';
 
+            // Oculta players e mostra a parte de detalhes
             videoContainer.style.display = 'none';
+            trailerContainer.style.display = 'none';
             videoBackButton.style.display = 'none';
-            moviePlayer.src = '';
+            document.querySelector('.modal-main-content').style.display = 'flex';
+            document.getElementById('modal-suggestions').style.display = 'block';
 
             renderSuggestions(movie);
-            
+
             movieModal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
         }
-        
-        function openModalById(movieId) {
-            const movie = movieData.find(m => m.id === movieId);
-            if (movie) {
-                openModal(movie);
+
+        // FUNÇÃO DE REPRODUÇÃO DE VÍDEO MELHORADA
+        function isOldIOS() {
+            var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
+                if (v && v[1]) {
+                    var version = parseInt(v[1], 10);
+                    // Retorna verdadeiro se a versão do iOS for menor que 12
+                    return version < 12;
+                }
+            }
+            return false;
+        }
+
+        function playMovie() {
+            var movie = movieData.find(m => m.id === modalCurrentMovieId);
+            if (!movie) return;
+
+            if (isOldIOS()) {
+                // Para iOS antigos, redireciona para a URL de visualização
+                alert('Seu dispositivo iOS está executando uma versão antiga. Clique em OK para abrir o vídeo em uma nova janela para poder assisti-lo.');
+                window.open(movie.videoUrl.replace('/preview', '/view'), '_blank');
+                closeModal(); // Fecha o modal
+            } else {
+                // Para outros dispositivos, usa o player incorporado
+                var playerContainer = document.getElementById('modal-video-container');
+                var playerIframe = document.getElementById('movie-player');
+                
+                document.querySelector('.modal-main-content').style.display = 'none';
+                document.getElementById('modal-suggestions').style.display = 'none';
+
+                playerIframe.src = movie.videoUrl.replace('/preview', '/embed');
+                playerContainer.style.display = 'block';
+                document.getElementById('video-back-button').style.display = 'block';
             }
         }
+        
+        function playTrailer() {
+            var movie = movieData.find(m => m.id === modalCurrentMovieId);
+            if (!movie || !movie.trailerUrl) return;
 
-        function closeModal() {
-            movieModal.style.display = 'none';
-            moviePlayer.src = '';
-            modalCurrentMovieId = null;
-        }
+            var trailerContainer = document.getElementById('modal-trailer-container');
+            var trailerPlayer = document.getElementById('trailer-player');
 
-        function playMovie(movie) {
-            const modalContentDiv = document.querySelector('.modal-content');
-            videoContainer.style.display = 'block';
-            videoBackButton.style.display = 'block';
-            moviePlayer.src = movie.videoUrl;
-            
-            // Rola para o topo do modal
-            modalContentDiv.scrollIntoView({ behavior: 'smooth' });
+            document.querySelector('.modal-main-content').style.display = 'none';
+            document.getElementById('modal-suggestions').style.display = 'none';
+
+            trailerPlayer.src = movie.trailerUrl;
+            trailerContainer.style.display = 'block';
+            document.getElementById('video-back-button').style.display = 'block';
         }
 
         function goBackToDetails() {
             videoContainer.style.display = 'none';
+            trailerContainer.style.display = 'none';
             videoBackButton.style.display = 'none';
+            document.querySelector('.modal-main-content').style.display = 'flex';
+            document.getElementById('modal-suggestions').style.display = 'block';
             moviePlayer.src = '';
+            trailerPlayer.src = '';
         }
 
-        function addToList(movie) {
+        function addToList() {
+            var movie = movieData.find(m => m.id === modalCurrentMovieId);
+            if (!movie) return;
+
             if (!myList.some(item => item.id === movie.id)) {
                 myList.push(movie);
                 localStorage.setItem('myList', JSON.stringify(myList));
                 alert('Filme adicionado à sua lista!');
             }
             closeModal();
+            // Atualizar a lista se o usuário estiver nela
             if (document.getElementById('my-list-page').style.display === 'block') {
                 renderMyListContent();
             }
         }
 
-        function removeFromList(movie) {
+        function removeFromList() {
+            var movie = movieData.find(m => m.id === modalCurrentMovieId);
+            if (!movie) return;
+
             myList = myList.filter(item => item.id !== movie.id);
             localStorage.setItem('myList', JSON.stringify(myList));
             alert('Filme removido da sua lista!');
             closeModal();
+            // Atualizar a lista se o usuário estiver nela
             if (document.getElementById('my-list-page').style.display === 'block') {
                 renderMyListContent();
             }
+        }
+
+        function closeModal() {
+            movieModal.style.display = 'none';
+            moviePlayer.src = '';
+            trailerPlayer.src = '';
+            modalCurrentMovieId = null;
+            document.body.style.overflow = 'auto';
         }
 
         window.onclick = function(event) {
@@ -1700,7 +781,8 @@
                 closeModal();
             }
         }
-
+        
+        // Inicializar
         document.addEventListener('DOMContentLoaded', () => {
             updateHeroBanner();
             showPage('home-page');
