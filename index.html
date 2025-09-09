@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GL+ Plus</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/QtxK3zYm/gl-plus-icon.png">
     <style>
         /* Estilos gerais */
         body {
@@ -13,56 +14,43 @@
             margin: 0;
             padding: 0;
         }
-        
+
         /* Barra de navegação superior */
         .navbar {
-            display: -webkit-box;
-            display: -ms-flexbox;
             display: flex;
-            -webkit-box-pack: justify;
-            -ms-flex-pack: justify;
             justify-content: space-between;
-            -webkit-box-align: center;
-            -ms-flex-align: center;
             align-items: center;
             padding: 15px 50px;
             background-color: #0d0f10;
             border-bottom: 1px solid #1a1e20;
-            position: -webkit-sticky;
             position: sticky;
             top: 0;
             z-index: 1000;
         }
-        
+
         .logo-img {
             height: 40px;
         }
-        
+
         .navbar-links a {
             color: #999;
             text-decoration: none;
             margin-left: 30px;
             font-size: 16px;
-            -webkit-transition: color 0.3s ease;
-            -o-transition: color 0.3s ease;
             transition: color 0.3s ease;
         }
-        
+
         .navbar-links a:hover {
             color: #fff;
         }
-        
+
         /* Banner principal */
         .hero-banner {
             position: relative;
             height: 500px;
             background-size: cover;
             background-position: center;
-            display: -webkit-box;
-            display: -ms-flexbox;
             display: flex;
-            -webkit-box-align: end;
-            -ms-flex-align: end;
             align-items: flex-end;
             padding: 50px;
         }
@@ -74,29 +62,27 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: -webkit-gradient(linear, left top, left bottom, from(#0d0f10), color-stop(50%, rgba(13, 15, 16, 0.5)), to(rgba(13, 15, 16, 0.1)));
-            background: -o-linear-gradient(top, #0d0f10, rgba(13, 15, 16, 0.5) 50%, rgba(13, 15, 16, 0.1) 100%);
             background: linear-gradient(to top, #0d0f10, rgba(13, 15, 16, 0.5) 50%, rgba(13, 15, 16, 0.1) 100%);
         }
-        
+
         .hero-content {
             z-index: 10;
             max-width: 600px;
         }
-        
+
         .hero-content .title {
             font-size: 4em;
             font-weight: bold;
             margin-bottom: 10px;
             line-height: 1.1;
         }
-        
+
         .hero-content .description {
             font-size: 1.2em;
             color: #ccc;
             margin-bottom: 20px;
         }
-        
+
         .hero-content .btn {
             background-color: #48c948;
             color: #fff;
@@ -104,83 +90,46 @@
             text-decoration: none;
             border-radius: 5px;
             font-weight: bold;
-            -webkit-transition: background-color 0.3s ease;
-            -o-transition: background-color 0.3s ease;
             transition: background-color 0.3s ease;
+            cursor: pointer;
         }
-        
+
         .hero-content .btn:hover {
             background-color: #3b9f3b;
         }
-        
+
         /* Seções de conteúdo */
         .content-section {
             padding: 50px;
         }
-        
+
         .section-title {
             font-size: 2em;
             margin: 0 0 20px;
         }
-        
+
         /* Lista de filmes em colunas (Homepage e Gêneros) */
         .movie-grid {
-            display: -webkit-box;
-            display: -ms-flexbox;
-            display: flex;
-            -ms-flex-wrap: wrap;
-            flex-wrap: wrap;
-            -webkit-box-pack: start;
-            -ms-flex-pack: start;
-            justify-content: flex-start;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(200px, 1fr));
             gap: 20px;
         }
 
-        .movie-grid .movie-card {
-            -webkit-box-flex: 0;
-            -ms-flex: 0 0 calc(25% - 15px);
-            flex: 0 0 calc(25% - 15px); /* 4 colunas */
-            max-width: calc(25% - 15px);
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 1024px) {
-            .movie-grid .movie-card {
-                -webkit-box-flex: 0;
-                -ms-flex: 0 0 calc(33.333% - 14px);
-                flex: 0 0 calc(33.333% - 14px); /* 3 colunas */
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .movie-grid .movie-card {
-                -webkit-box-flex: 0;
-                -ms-flex: 0 0 calc(50% - 10px);
-                flex: 0 0 calc(50% - 10px); /* 2 colunas */
-            }
-        }
-        
         .movie-card {
             cursor: pointer;
-            -webkit-transition: -webkit-transform 0.2s ease-in-out;
-            transition: -webkit-transform 0.2s ease-in-out;
-            -o-transition: transform 0.2s ease-in-out;
             transition: transform 0.2s ease-in-out;
-            transition: transform 0.2s ease-in-out, -webkit-transform 0.2s ease-in-out;
         }
-        
+
         .movie-card:hover {
-            -webkit-transform: scale(1.05);
-            -ms-transform: scale(1.05);
             transform: scale(1.05);
         }
-        
+
         .movie-card img {
             width: 100%;
             height: auto;
             border-radius: 8px;
         }
-        
+
         /* Modal de Detalhes */
         .modal {
             display: none; /* Inicia escondido */
@@ -202,70 +151,46 @@
             border-radius: 10px;
             width: 90%;
             max-width: 900px;
-            display: -webkit-box;
-            display: -ms-flexbox;
             display: flex;
             gap: 30px;
             position: relative;
         }
 
-        @media (max-width: 768px) {
-            .modal-content {
-                -webkit-box-orient: vertical;
-                -webkit-box-direction: normal;
-                -ms-flex-direction: column;
-                flex-direction: column;
-            }
-        }
-        
         .modal-poster {
-            -webkit-box-flex: 0;
-            -ms-flex: 0 0 300px;
             flex: 0 0 300px;
         }
 
-        @media (max-width: 768px) {
-            .modal-poster {
-                width: 100%;
-                -webkit-box-flex: 1;
-                -ms-flex-positive: 1;
-                flex-grow: 1;
-            }
-        }
-        
         .modal-poster img {
             width: 100%;
             border-radius: 8px;
         }
-        
+
         .modal-details {
-            -webkit-box-flex: 1;
-            -ms-flex-positive: 1;
             flex-grow: 1;
         }
-        
+
         .modal-title {
             font-size: 2.5em;
             margin-bottom: 10px;
         }
-        
+
         .modal-info {
             font-size: 1em;
             color: #999;
             margin-bottom: 20px;
         }
-        
+
         .modal-info span {
             font-weight: bold;
             color: #fff;
         }
-        
+
         .modal-description {
             font-size: 1.1em;
             line-height: 1.6;
             margin-bottom: 20px;
         }
-        
+
         .modal-buttons .btn {
             display: inline-block;
             margin-right: 15px;
@@ -273,26 +198,24 @@
             text-decoration: none;
             border-radius: 5px;
             font-weight: bold;
-            -webkit-transition: background-color 0.3s ease;
-            -o-transition: background-color 0.3s ease;
             transition: background-color 0.3s ease;
             cursor: pointer;
         }
-        
+
         .modal-buttons .btn-play {
             background-color: #48c948;
             color: #fff;
         }
-        
+
         .modal-buttons .btn-play:hover {
             background-color: #3b9f3b;
         }
-        
+
         .modal-buttons .btn-list {
             background-color: #333;
             color: #fff;
         }
-        
+
         .modal-buttons .btn-list:hover {
             background-color: #555;
         }
@@ -305,7 +228,7 @@
         .modal-buttons .btn-remove:hover {
             background-color: #7b2121;
         }
-        
+
         .close-button {
             color: #aaa;
             position: absolute;
@@ -314,11 +237,9 @@
             font-size: 35px;
             font-weight: bold;
             cursor: pointer;
-            -webkit-transition: color 0.3s ease;
-            -o-transition: color 0.3s ease;
             transition: color 0.3s ease;
         }
-        
+
         .close-button:hover,
         .close-button:focus {
             color: #fff;
@@ -349,6 +270,72 @@
             padding: 20px;
             border-top: 1px solid #1a1e20;
             color: #888;
+        }
+
+        /* Otimização para tablets (iPad) */
+        @media (max-width: 1024px) {
+            .navbar {
+                padding: 15px 30px;
+            }
+            .hero-content .title {
+                font-size: 3em;
+            }
+            .movie-grid {
+                grid-template-columns: repeat(3, minmax(180px, 1fr));
+            }
+        }
+
+        /* Otimização para celulares (iPhone) */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 10px 20px;
+            }
+            .navbar-links a {
+                margin-left: 15px;
+                font-size: 14px;
+            }
+            .hero-banner {
+                height: 400px;
+                padding: 30px;
+            }
+            .hero-content .title {
+                font-size: 2.5em;
+            }
+            .hero-content .description {
+                font-size: 1em;
+            }
+            .hero-content .btn {
+                padding: 10px 20px;
+            }
+            .content-section {
+                padding: 30px 20px;
+            }
+            .movie-grid {
+                grid-template-columns: repeat(2, minmax(150px, 1fr));
+            }
+            .section-title {
+                font-size: 1.8em;
+            }
+            .modal-content {
+                flex-direction: column;
+            }
+            .modal-poster {
+                width: 100%;
+                flex-grow: 1;
+            }
+            .modal-title {
+                font-size: 2em;
+            }
+            .modal-info {
+                font-size: 0.9em;
+            }
+            .modal-description {
+                font-size: 1em;
+            }
+            .modal-buttons .btn {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
         }
     </style>
 </head>
@@ -385,7 +372,7 @@
             </section>
         </div>
     </main>
-    
+
     <div id="movie-modal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal()">&times;</span>
@@ -811,7 +798,7 @@
                 actors: ['Olga B. de Barros', 'Iêda S. Ehlers'],
                 description: 'Um drama sobre um homem que se apaixona por uma mulher casada e precisa lutar para que eles possam ficar juntos.',
                 poster: 'https://i.postimg.cc/1tt64fVh/Limite-1931.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1o5s27eY4HhR4-RkE2L0s9Tq0K4_wYm0e/preview'
+                videoUrl: 'https://drive.google.com/file/d/1b6FgKAv2JuRB6gjlCUIXy4oT0dxiQARK/preview'
             },
             {
                 id: 'carlitos-reporter',
@@ -822,7 +809,7 @@
                 actors: ['Charles Chaplin'],
                 description: 'Carlitos, o vagabundo, se torna um repórter e se envolve em uma série de situações hilárias e embaraçosas.',
                 poster: 'https://i.postimg.cc/PrBMczpL/Carlitos-reporter.jpg',
-                videoUrl: 'https://drive.google.com/file/d/11jx9NWCKqolocN77DoSxwePqPhgDsrrU/preview'
+                videoUrl: 'https://drive.google.com/file/d/1ZclkViqF_n4jceU9iHLSDkIgO3cJO0xW/preview'
             },
             {
                 id: 'o-garoto-charlie-chaplin',
@@ -833,7 +820,7 @@
                 actors: ['Charles Chaplin', 'Jackie Coogan'],
                 description: 'Carlitos, o vagabundo, encontra um bebê abandonado e o cria como se fosse seu filho, em uma história de amor e redenção.',
                 poster: 'https://i.postimg.cc/wjgkgx2H/O-garoto-charlie-Chaplin.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1XlM4_y1hB5g3LgM9tL4X9uWz2V0W-lRk/preview'
+                videoUrl: 'https://drive.google.com/file/d/1At2Abc9wNehQAbdyxPr3jeHghe4qdoRj/preview'
             },
             {
                 id: 'o-homem-que-ri',
@@ -844,7 +831,7 @@
                 actors: ['Conrad Veidt', 'Mary Philbin', 'Olga Baclanova'],
                 description: 'Um drama sobre um homem que é forçado a sorrir para o resto de sua vida por causa de uma mutilação.',
                 poster: 'https://i.postimg.cc/26s4JCys/O-homem-que-ri-1928.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1gQfQ8J4g5N-F-E4k-5m1L5h3M6s8bM4J/preview'
+                videoUrl: 'https://drive.google.com/file/d/1tCa1gdZHMeuKgC8jZOwv45xAdY8hCR4C/preview'
             },
             {
                 id: 'a-antiga-e-a-moderna',
@@ -855,7 +842,7 @@
                 actors: ['Marfa Lapkina', 'M. N. Iudin'],
                 description: 'Um drama sobre as dificuldades de uma mulher que tenta se adaptar à nova sociedade soviética.',
                 poster: 'https://i.postimg.cc/hGVZMZ2P/A-antiga-e-a-moderna.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+                videoUrl: 'https://drive.google.com/file/d/1C049HKnvyvPWr3qQjd3fOxuxDIUWJWrg/preview'
             },
             {
                 id: 'o-nascimento-de-uma-nova-nacao',
@@ -866,7 +853,7 @@
                 actors: ['Lillian Gish', 'Mae Marsh'],
                 description: 'Um drama sobre a Guerra Civil Americana e o surgimento da Ku Klux Klan.',
                 poster: 'https://i.postimg.cc/mDzY8PL3/O-nascimento-de-uma-nova-nacao-1915.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1S6b_4iL-T5m5xG6D9lP6s-6Y3J8k4q7M/preview'
+                videoUrl: 'https://drive.google.com/file/d/1YnJY2gb1ggVt0GT7agKDVq6q90rplS_t/preview'
             },
             {
                 id: 'jovem-e-inocente',
@@ -877,7 +864,7 @@
                 actors: ['Nova Pilbeam', 'Derrick De Marney'],
                 description: 'Um jovem que é acusado de assassinato e precisa fugir para provar sua inocência.',
                 poster: 'https://i.postimg.cc/PxRDDT1L/jovem-e-inocente.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1lCChujgBKH0FKvy8plS0hze7xG2LT8sy/preview'
+                videoUrl: 'https://drive.google.com/file/d/1yWlS8qT5zZ2-2C5Y8x3z5b_H3v4g-j6x/preview'
             },
             {
                 id: 'os-39-degraus',
@@ -888,7 +875,7 @@
                 actors: ['Robert Donat', 'Madeleine Carroll'],
                 description: 'Um homem que é acusado de assassinato e precisa fugir para provar sua inocência.',
                 poster: 'https://i.postimg.cc/P5S1HWNz/Os-39-degraus.jpg',
-                videoUrl: 'https://drive.google.com/file/d/14x8Jj9x1Nq91x7k2bHl0c9Jt2l2d5b-s/preview'
+                videoUrl: 'https://drive.google.com/file/d/15QmfMjBfYETQ0DfxlUx0507r9TKHQBzh/preview'
             },
             {
                 id: 'o-gangster',
@@ -899,7 +886,7 @@
                 actors: ['George Bancroft', 'Betty Compson'],
                 description: 'Um gangster que tenta se aposentar e viver uma vida normal, mas é perseguido por seus inimigos.',
                 poster: 'https://i.postimg.cc/8z4m58Xv/O-gangster-1929.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1Fk4s5h9rY5uG5c8U8B7L7-pQ8G5s7Y6j/preview'
+                videoUrl: 'https://drive.google.com/file/d/1aAzGOGlnGbWyfPQA9Cqp9eNRUmi5_YBy/preview'
             },
             {
                 id: 'the-lost-world',
@@ -910,7 +897,7 @@
                 actors: ['Bessie Love', 'Lloyd Hughes'],
                 description: 'Um grupo de exploradores que viajam para um mundo perdido habitado por dinossauros.',
                 poster: 'https://i.postimg.cc/rwZR3qYf/The-Lost-World.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+                videoUrl: 'https://drive.google.com/file/d/1vZXJeW3TwQg1L_tEowv5tC4KR5yiYTZt/preview'
             },
             {
                 id: 'noite-dos-mortos-vivos',
@@ -921,7 +908,7 @@
                 actors: ['Duane Jones', 'Judith O\'Dea'],
                 description: 'Um grupo de pessoas que se refugia em uma casa para se proteger de um ataque de zumbis.',
                 poster: 'https://i.postimg.cc/T13kddfp/A-noite-dos-mortos-vivos-1958.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1y6vjF6TqF6y-t_W4e2H1k5X4gq6wX2-c/preview'
+                videoUrl: 'https://drive.google.com/file/d/1rybzCi4wgLMyRoKeM5M3vSTGu1lE1rHm/preview'
             },
             {
                 id: 'intolerancia',
@@ -932,7 +919,7 @@
                 actors: ['Lillian Gish', 'Mae Marsh'],
                 description: 'Um drama sobre a intolerância religiosa, social e política ao longo da história da humanidade.',
                 poster: 'https://i.postimg.cc/Dz5L2qZP/Intolerancia-1916.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1K-4T5m_p8b_4y5z5y2-z8t9-2y6_e6g4/preview'
+                videoUrl: 'https://drive.google.com/file/d/1YnJY2gb1ggVt0GT7agKDVq6q90rplS_t/preview'
             },
             {
                 id: 'o-cisno-negro',
@@ -943,7 +930,7 @@
                 actors: ['Tyrone Power', 'Maureen O\'Hara'],
                 description: 'Um corsário que se apaixona por uma mulher casada e precisa lutar para que eles possam ficar juntos.',
                 poster: 'https://i.postimg.cc/3RVBTgSb/o-cisno-negro.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U6lJ4t_8_9-z-p2-0-p9-p8_y2-y8-y9/preview'
+                videoUrl: 'https://drive.google.com/file/d/1kvY_fI6NgFSyNqahbnu55RdGXDNC9Sh3/preview'
             },
             {
                 id: 'frankestein',
@@ -954,7 +941,7 @@
                 actors: ['Boris Karloff', 'Colin Clive', 'Mae Clarke'],
                 description: 'Um cientista louco que cria uma criatura de cadáveres e a traz à vida.',
                 poster: 'https://i.postimg.cc/WzdMYhs6/frankenstein-1931.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1P5mQ4p6P3p7S9h4j2-h3y5-j5m9e6f4/preview'
+                videoUrl: 'https://drive.google.com/file/d/1jNu8V8IBd9OkdqywBBtotmIj0SELKIJz/preview'
             },
             {
                 id: 'nosferatu',
@@ -965,7 +952,7 @@
                 actors: ['Max Schreck', 'Gustav von Wangenheim'],
                 description: 'Um terror sobre um vampiro que se muda para a cidade e aterroriza a todos.',
                 poster: 'https://i.postimg.cc/kgmTGvn0/Nosferatu-1922.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1W5u7h1t_8t_7j6-q4h5-j9h2-p2-j5/preview'
+                videoUrl: 'https://drive.google.com/file/d/1GwpAvXgx6T4rElCskORyMM1bZCyLFfws/preview'
             },
             {
                 id: 'rebecca',
@@ -976,7 +963,7 @@
                 actors: ['Laurence Olivier', 'Joan Fontaine'],
                 description: 'Uma jovem que se casa com um viúvo e é assombrada pelo fantasma de sua primeira esposa.',
                 poster: 'https://i.postimg.cc/3NQv19b7/Rebecca-1940.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+                videoUrl: 'https://drive.google.com/file/d/1yWlS8qT5zZ2-2C5Y8x3z5b_H3v4g-j6x/preview'
             },
             {
                 id: 'the-general',
@@ -987,7 +974,7 @@
                 actors: ['Buster Keaton', 'Marion Mack'],
                 description: 'Um maquinista que tenta recuperar sua locomotiva roubada por espiões da União durante a Guerra Civil Americana.',
                 poster: 'https://i.postimg.cc/N0W9GptT/The-general-Buster-keaston.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+                videoUrl: 'https://drive.google.com/file/d/1vZXJeW3TwQg1L_tEowv5tC4KR5yiYTZt/preview'
             },
             {
                 id: 'carnival-of-souls',
@@ -998,7 +985,7 @@
                 actors: ['Candace Hilligoss', 'Frances Feist'],
                 description: 'Uma mulher que sobrevive a um acidente de carro e é assombrada por um fantasma.',
                 poster: 'https://i.postimg.cc/L4QDkMm3/Carnival-of-souls.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+                videoUrl: 'https://drive.google.com/file/d/1vZXJeW3TwQg1L_tEowv5tC4KR5yiYTZt/preview'
             },
             {
                 id: 'the-brain-that-wouldnt-die',
@@ -1009,7 +996,7 @@
                 actors: ['Jason Evers', 'Virginia Leith'],
                 description: 'Um cientista que mantém o cérebro de sua namorada vivo depois de um acidente de carro e tenta encontrar um corpo para ela.',
                 poster: 'https://i.postimg.cc/Yq3WN6NK/the-brain-that-wouldn-t-die.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+                videoUrl: 'https://drive.google.com/file/d/1vZXJeW3TwQg1L_tEowv5tC4KR5yiYTZt/preview'
             },
             {
                 id: 'hitler-dead-or-alive',
@@ -1020,7 +1007,7 @@
                 actors: ['Ward Bond', 'Dorothy Tree'],
                 description: 'Um filme de guerra que mostra um grupo de soldados americanos que tentam assassinar Hitler.',
                 poster: 'https://i.postimg.cc/ZK9GpHz0/hitler-dead-or-alive.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+                videoUrl: 'https://drive.google.com/file/d/1imyqOxI5mMsIe_oAZ3F39jigHT5F2qFg/preview'
             },
             {
                 id: 'the-nazis-strike',
@@ -1031,7 +1018,7 @@
                 actors: ['Walter Huston'],
                 description: 'Um documentário de guerra que mostra a ascensão do nazismo na Alemanha e a sua agressão à Europa.',
                 poster: 'https://i.postimg.cc/CKZnV93S/the-nazis-strike.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+                videoUrl: 'https://drive.google.com/file/d/1h9JzEld1DdXv0PRJpVcDFB7uOKvNHtbl/preview'
             },
             {
                 id: 'two-soldiers',
@@ -1042,7 +1029,7 @@
                 actors: ['Walter Huston'],
                 description: 'Um documentário de guerra que mostra a história de dois soldados americanos que lutam na Segunda Guerra Mundial.',
                 poster: 'https://i.postimg.cc/7YppVzq9/two-soldiers-1943-film.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+                videoUrl: 'https://drive.google.com/file/d/1EJmweWw1NFcMwrUci-AugFgrrYKWGxOd/preview'
             },
             {
                 id: 'the-nazi-titanic',
@@ -1053,7 +1040,7 @@
                 actors: ['Sybille Schmitz', 'Hans Nielsen'],
                 description: 'Um filme de propaganda nazista que mostra a história do navio Titanic.',
                 poster: 'https://i.postimg.cc/qqrNyqzv/the-nazi-titanic.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+                videoUrl: 'https://drive.google.com/file/d/1Z1B5HmoBzDWnGB1QuHnNbDYIf9ThlG_a/preview'
             },
             {
                 id: 'algie-the-miner',
@@ -1064,7 +1051,7 @@
                 actors: ['Algie the Miner', 'Harry Myers'],
                 description: 'Um jovem que se torna um minerador e se envolve em uma série de situações hilárias e embaraçosas.',
                 poster: 'https://i.postimg.cc/tgdDFZgs/Algie-the-miner-1912.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+                videoUrl: 'https://drive.google.com/file/d/1WWEwf9JxJ0OLxIf15NH_FALPP5ubdUUe/preview'
             },
             {
                 id: 'o-flautista-de-ramelin',
@@ -1075,7 +1062,7 @@
                 actors: ['Walt Disney'],
                 description: 'Animação de Walt Disney baseada na lenda alemã sobre um flautista que salva uma cidade de uma praga de ratos.',
                 poster: 'https://i.postimg.cc/909BFrsX/o-flautista-de-ramelin.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1Y_JXeDJ1QAK8a5pDne7JxkppnQTCq7GP/preview'
+                videoUrl: 'https://drive.google.com/file/d/1nwkPmASN8f2wLuZIyH7PClkCvBUJ8t7V/preview'
             },
             {
                 id: 'beco-sem-saida',
@@ -1086,7 +1073,7 @@
                 actors: ['Sylvia Sidney', 'Joel McCrea'],
                 description: 'Um drama sobre um grupo de jovens que vivem em um beco sem saída em Nova York e tentam escapar da pobreza.',
                 poster: 'https://i.postimg.cc/Fz6xh0TB/beco-sem-saida.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+                videoUrl: 'https://drive.google.com/file/d/1y5ka0vdAir6r5nS7sCbvMqmwdWOmmm5S/preview'
             },
             {
                 id: 'o-foguete-errante',
@@ -1097,7 +1084,7 @@
                 actors: ['Gerda Maurus', 'Willy Fritsch'],
                 description: 'Um drama de ficção científica sobre um grupo de cientistas que viajam para a Lua em um foguete.',
                 poster: 'https://i.postimg.cc/BQWg7B1j/o-foguete-errante.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+                videoUrl: 'https://drive.google.com/file/d/1NoNBmjh9DDEgLLLldvzNyEqUIaprIO4N/preview'
             },
             {
                 id: 'the-passion-of-joan-of-arc',
@@ -1108,7 +1095,7 @@
                 actors: ['Maria Falconetti', 'Eugene Silvain'],
                 description: 'Um drama sobre a vida de Joana D\'Arc, uma heroína francesa que lutou pela liberdade de seu país.',
                 poster: 'https://i.postimg.cc/X7h2W6hY/A-paixao-de-Joana-darc.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+                videoUrl: 'https://drive.google.com/file/d/1vZXJeW3TwQg1L_tEowv5tC4KR5yiYTZt/preview'
             },
             {
                 id: 'the-passion-of-andy',
@@ -1119,7 +1106,7 @@
                 actors: ['Andy Warhol', 'Billy Name'],
                 description: 'Um drama sobre a vida do artista Andy Warhol e a sua paixão pela arte e pela fama.',
                 poster: 'https://i.postimg.cc/05VWtw0m/a-paixao-de-andy.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+                videoUrl: 'https://drive.google.com/file/d/17MS17ey-U9ns72OXoWImmFMW__oP86aP/preview'
             },
             {
                 id: 'inspector-general',
@@ -1130,7 +1117,7 @@
                 actors: ['Danny Kaye', 'Walter Slezak'],
                 description: 'Um musical sobre um homem que se torna um inspetor geral e se envolve em uma série de situações hilárias e embaraçosas.',
                 poster: 'https://i.postimg.cc/9FqdGR8c/inspector-general.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+                videoUrl: 'https://drive.google.com/file/d/14qw5b86-Zqly3jfTx3u4r7zF2vP3MgmO/preview'
             },
             {
                 id: 'corrida-para-automoveis',
@@ -1141,7 +1128,7 @@
                 actors: ['Charles Chaplin', 'Edgar Kennedy'],
                 description: 'Carlitos, o vagabundo, se envolve em uma corrida de carros e se mete em uma série de problemas.',
                 poster: 'https://i.postimg.cc/T2sjLqck/Corrida-para-automoveis-Chaplin.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+                videoUrl: 'https://drive.google.com/file/d/1SLpIZGjTbQNK2JFOYHjYj96nPE9WbCsi/preview'
             },
             {
                 id: 'o-netinho-do-papai',
@@ -1152,7 +1139,7 @@
                 actors: ['Betty Grable', 'Dan Dailey'],
                 description: 'Uma comédia sobre um casal que se casa e tem um filho que se parece com o pai de sua esposa.',
                 poster: 'https://i.postimg.cc/3rGjG0bY/o-netinho-do-papai.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+                videoUrl: 'https://drive.google.com/file/d/1vZXJeW3TwQg1L_tEowv5tC4KR5yiYTZt/preview'
             },
             {
                 id: 'copacabana',
@@ -1163,7 +1150,7 @@
                 actors: ['Groucho Marx', 'Carmen Miranda'],
                 description: 'Um musical sobre uma mulher que se muda para o Rio de Janeiro para se tornar uma estrela de cinema.',
                 poster: 'https://i.postimg.cc/VNwWsfFm/copacabana.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+                videoUrl: 'https://drive.google.com/file/d/1QMbWdltYAbumd1NbdWqUZCdBbUD_e7Oq/preview'
             },
             {
                 id: 'manhattan-tower',
@@ -1174,7 +1161,7 @@
                 actors: ['Irene Dunne', 'George Raft'],
                 description: 'Um drama sobre um casal que se muda para um arranha-céu em Nova York e se envolve em uma série de problemas.',
                 poster: 'https://i.postimg.cc/NjkpH2F5/manhattan-tower.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+                videoUrl: 'https://drive.google.com/file/d/1n3_FD_1QMYqylxIPuH6YWncmcWIu0SUX/preview'
             },
             {
                 id: 'a-ultima-vez-que-vi-paris',
@@ -1185,7 +1172,7 @@
                 actors: ['Elizabeth Taylor', 'Van Johnson'],
                 description: 'Um drama sobre um homem que se muda para Paris e se apaixona por uma mulher casada.',
                 poster: 'https://i.postimg.cc/Kv49C80W/A-ultima-vez-que-vi-Paris.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+                videoUrl: 'https://drive.google.com/file/d/1Kv49C80W/preview'
             },
             {
                 id: 'abraham-lincoln',
@@ -1196,7 +1183,7 @@
                 actors: ['Walter Huston', 'Una Merkel'],
                 description: 'Um drama sobre a vida de Abraham Lincoln, um dos presidentes mais importantes da história dos Estados Unidos.',
                 poster: 'https://i.postimg.cc/cLnF45yM/Abraham-lincoln-1930.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+                videoUrl: 'https://drive.google.com/file/d/1yWlS8qT5zZ2-2C5Y8x3z5b_H3v4g-j6x/preview'
             },
             {
                 id: 'aconteceu-em-havana',
@@ -1207,7 +1194,7 @@
                 actors: ['Carmen Miranda', 'Don Ameche'],
                 description: 'Um musical sobre um casal que se muda para Havana e se envolve em uma série de situações hilárias e embaraçosas.',
                 poster: 'https://i.postimg.cc/FRDZnM3m/aconteceu-em-havana.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+                videoUrl: 'https://drive.google.com/file/d/1DFt1T6CykFsB_dOAH0M8MeQTRAZ2PykP/preview'
             },
             {
                 id: 'casamento-ou-luxo',
@@ -1218,7 +1205,7 @@
                 actors: ['Groucho Marx', 'Carmen Miranda'],
                 description: 'Um musical sobre um casal que se casa e precisa escolher entre uma vida de luxo ou uma vida simples.',
                 poster: 'https://i.postimg.cc/HsJ2BPxD/Casamento-ou-luxo.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+                videoUrl: 'https://drive.google.com/file/d/1iJ-wnzeu4AflOA0WZC_VJGKLPgoWZwzz/preview'
             },
             {
                 id: 'encouracado-potemkin',
@@ -1229,7 +1216,7 @@
                 actors: ['Aleksandr Antonov', 'Vladimir Barsky'],
                 description: 'Um drama sobre a revolta dos marinheiros a bordo do navio de guerra Potemkin, em 1905.',
                 poster: 'https://i.postimg.cc/wvT5JwPr/Encouracado-potemkin.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+                videoUrl: 'https://drive.google.com/file/d/1vZXJeW3TwQg1L_tEowv5tC4KR5yiYTZt/preview'
             },
             {
                 id: 'irene-a-teimosa',
@@ -1240,7 +1227,7 @@
                 actors: ['Irene Dunne', 'Fred Astaire'],
                 description: 'Um musical sobre uma jovem que se muda para Nova York e se torna uma estrela da Broadway.',
                 poster: 'https://i.postimg.cc/GmwkzLVG/irene-a-teimosa.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+                videoUrl: 'https://drive.google.com/file/d/1w_XSE7YGZZAw5ldHfiUGZaEwZ48XGT6D/preview'
             },
             {
                 id: 'jejum-de-amor',
@@ -1251,7 +1238,7 @@
                 actors: ['Cary Grant', 'Rosalind Russell'],
                 description: 'Uma comédia romântica sobre um casal de jornalistas que se separam e precisam trabalhar juntos em uma história de crime.',
                 poster: 'https://i.postimg.cc/fRcYP4QF/Jejum-de-amor.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+                videoUrl: 'https://drive.google.com/file/d/1sfjhZ8cMGbcOc8-A8aeO_ZFLgdYkUvlw/preview'
             },
             {
                 id: 'lassie-nas-planicies-o-ouro',
@@ -1262,7 +1249,7 @@
                 actors: ['Lassie', 'June Lockhart'],
                 description: 'Um drama sobre a história de um cachorro que se torna um herói e salva a vida de uma família.',
                 poster: 'https://i.postimg.cc/J0HkcvQp/lassie-nas-planicies-o-ouro.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+                videoUrl: 'https://drive.google.com/file/d/16tF5PKg-0P9KelKOtTGk-vtvt0SpAewd/preview'
             },
             {
                 id: 'levada-de-breca',
@@ -1273,7 +1260,7 @@
                 actors: ['Cary Grant', 'Katharine Hepburn'],
                 description: 'Uma comédia romântica sobre um paleontólogo que se apaixona por uma mulher que o persegue e o causa problemas.',
                 poster: 'https://i.postimg.cc/MXkjs5Pq/levada-de-breca.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+                videoUrl: 'https://drive.google.com/file/d/1-bbbr2ADoHnsQsCvHLYuFZ9WY6zBemiR/preview'
             },
             {
                 id: 'plan-9-from-outer-space',
@@ -1284,7 +1271,7 @@
                 actors: ['Bela Lugosi', 'Vampira'],
                 description: 'Um filme de ficção científica sobre alienígenas que ressuscitam os mortos para atacar a Terra.',
                 poster: 'https://i.postimg.cc/QtT7cvm0/Plan-9-from-outer-space.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+                videoUrl: 'https://drive.google.com/file/d/1vZXJeW3TwQg1L_tEowv5tC4KR5yiYTZt/preview'
             },
             {
                 id: 'rain',
@@ -1295,7 +1282,7 @@
                 actors: ['Joan Crawford', 'Walter Huston'],
                 description: 'Um drama sobre uma prostituta que se muda para uma ilha tropical e se apaixona por um missionário.',
                 poster: 'https://i.postimg.cc/bvMbDqxZ/Rain-1932.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+                videoUrl: 'https://drive.google.com/file/d/1vZXJeW3TwQg1L_tEowv5tC4KR5yiYTZt/preview'
             },
             {
                 id: 'sherlock-holmes',
@@ -1306,7 +1293,7 @@
                 actors: ['John Barrymore', 'Roland Young'],
                 description: 'Um drama de mistério sobre a história de Sherlock Holmes, o detetive mais famoso do mundo.',
                 poster: 'https://i.postimg.cc/VkkbKJ4S/Sherlock-Holmes-1922.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+                videoUrl: 'https://drive.google.com/file/d/1vZXJeW3TwQg1L_tEowv5tC4KR5yiYTZt/preview'
             },
             {
                 id: 'tempos-modernos',
@@ -1317,7 +1304,7 @@
                 actors: ['Charles Chaplin', 'Paulette Goddard'],
                 description: 'Carlitos, o vagabundo, tenta sobreviver na sociedade industrial moderna, onde a automação e a pobreza o ameaçam.',
                 poster: 'https://i.postimg.cc/RV9tnsHL/Tempos-modernos-1936.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+                videoUrl: 'https://drive.google.com/file/d/1vZXJeW3TwQg1L_tEowv5tC4KR5yiYTZt/preview'
             },
             {
                 id: 'zaroff',
@@ -1328,7 +1315,7 @@
                 actors: ['Joel McCrea', 'Fay Wray'],
                 description: 'Um drama de aventura sobre um caçador de homens que se torna a presa de um caçador de homens.',
                 poster: 'https://i.postimg.cc/qqGzLr3X/Zaroff1932.jpg',
-                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+                videoUrl: 'https://drive.google.com/file/d/1vZXJeW3TwQg1L_tEowv5tC4KR5yiYTZt/preview'
             }
         ];
 
@@ -1347,7 +1334,7 @@
                 <div class="hero-content">
                     <h1 class="title">${heroMovie.title}</h1>
                     <p class="description">${heroMovie.description}</p>
-                    <button class="btn" onclick="openModal(${JSON.stringify(heroMovie).replace(/"/g, "'")})">Assistir Agora</button>
+                    <button class="btn" onclick="openModal('${heroMovie.id}')">Assistir Agora</button>
                 </div>
             `;
             banner.innerHTML = heroContent;
@@ -1363,7 +1350,7 @@
                 movieCard.innerHTML = `
                     <img src="${movie.poster}" alt="Pôster do Filme: ${movie.title}">
                 `;
-                movieCard.onclick = () => openModal(movie);
+                movieCard.onclick = () => openModal(movie.id);
                 gridContainer.appendChild(movieCard);
             });
         }
@@ -1400,16 +1387,25 @@
         }
 
         function renderMyListContent() {
-            if (isMyListRendered) return;
-            renderMovieGrid('my-list-grid-container', myList);
-            isMyListRendered = true;
+            var myListContainer = document.getElementById('my-list-grid-container');
+            myListContainer.innerHTML = '';
+            myList.forEach(movie => {
+                var movieCard = document.createElement('div');
+                movieCard.className = 'movie-card';
+                movieCard.setAttribute('data-id', movie.id);
+                movieCard.innerHTML = `
+                    <img src="${movie.poster}" alt="Pôster do Filme: ${movie.title}">
+                `;
+                movieCard.onclick = () => openModal(movie.id);
+                myListContainer.appendChild(movieCard);
+            });
         }
 
         function showPage(pageId) {
             document.getElementById('home-page').style.display = 'none';
             document.getElementById('genres-page').style.display = 'none';
             document.getElementById('my-list-page').style.display = 'none';
-            
+
             document.getElementById(pageId).style.display = 'block';
 
             if (pageId === 'home-page') {
@@ -1422,12 +1418,15 @@
             }
         }
 
-        function openModal(movie) {
+        function openModal(movieId) {
+            var movie = movieData.find(m => m.id === movieId);
+            if (!movie) return;
+
             var modal = document.getElementById('movie-modal');
             var detailsView = document.getElementById('modal-details-view');
             var videoView = document.getElementById('modal-video-view');
             var moviePlayer = document.getElementById('movie-player');
-            
+
             // Revertendo a exibição para a tela de detalhes
             detailsView.style.display = 'flex';
             videoView.style.display = 'none';
@@ -1439,11 +1438,12 @@
                 <span>Ano:</span> ${movie.year} | <span>Gêneros:</span> ${movie.genres.join(', ')} | <span>Diretores:</span> ${movie.directors.join(', ')} | <span>Atores:</span> ${movie.actors.join(', ')}
             `;
             document.getElementById('modal-description').innerText = movie.description;
-            
+
             document.getElementById('play-button').onclick = () => {
                 videoView.style.display = 'block';
                 detailsView.style.display = 'none';
-                moviePlayer.src = movie.videoUrl;
+                moviePlayer.src = movie.videoUrl + '?autoplay=1'; // Adiciona autoplay para iniciar o vídeo automaticamente
+
                 // Entra em tela cheia (fullscreen) quando o botão de play é clicado
                 var elem = document.getElementById('movie-modal');
                 if (elem.requestFullscreen) {
@@ -1469,7 +1469,7 @@
                     removeFromList(movie);
                     // Atualiza a visualização da Minha Lista se estiver nela
                     if (document.getElementById('my-list-page').style.display === 'block') {
-                        renderMovieGrid('my-list-grid-container', myList);
+                        renderMyListContent();
                     }
                 };
             } else {
@@ -1485,6 +1485,19 @@
             var modal = document.getElementById('movie-modal');
             document.getElementById('movie-player').src = "";
             modal.style.display = 'none';
+
+            // Sai do modo de tela cheia se estiver ativado
+            if (document.fullscreenElement) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) { /* Firefox */
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) { /* Chrome, Safari & Opera */
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { /* IE/Edge */
+                    document.msExitFullscreen();
+                }
+            }
         }
 
         function addToList(movie) {
@@ -1518,8 +1531,6 @@
             renderHeroBanner();
             renderMovieGrid('movie-grid-container', movieData);
         });
-
     </script>
-
 </body>
 </html>
