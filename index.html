@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GL+ Plus</title>
+    <style>
+        /* Estilos gerais */
+        body {
+            background-color: #0d0f10;
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Barra de navegação superior */
+        .navbar {
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-pack: justify;
+            -ms-flex-pack: justify;
+            justify-content: space-between;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+            padding: 15px 50px;
+            background-color: #0d0f10;
+            border-bottom: 1px solid #1a1e20;
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .logo-img {
+            height: 40px;
+        }
+        
+        .navbar-links a {
+            color: #999;
+            text-decoration: none;
+            margin-left: 30px;
+            font-size: 16px;
+            -webkit-transition: color 0.3s ease;
+            -o-transition: color 0.3s ease;
+            transition: color 0.3s ease;
+        }
+        
+        .navbar-links a:hover {
+            color: #fff;
+        }
+        
+        /* Banner principal */
+        .hero-banner {
+            position: relative;
+            height: 500px;
+            background-size: cover;
+            background-position: center;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-align: end;
+            -ms-flex-align: end;
+            align-items: flex-end;
+            padding: 50px;
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: -webkit-gradient(linear, left top, left bottom, from(#0d0f10), color-stop(50%, rgba(13, 15, 16, 0.5)), to(rgba(13, 15, 16, 0.1)));
+            background: -o-linear-gradient(top, #0d0f10, rgba(13, 15, 16, 0.5) 50%, rgba(13, 15, 16, 0.1) 100%);
+            background: linear-gradient(to top, #0d0f10, rgba(13, 15, 16, 0.5) 50%, rgba(13, 15, 16, 0.1) 100%);
+        }
+        
+        .hero-content {
+            z-index: 10;
+            max-width: 600px;
+        }
+        
+        .hero-content .title {
+            font-size: 4em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            line-height: 1.1;
+        }
+        
+        .hero-content .description {
+            font-size: 1.2em;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+        
+        .hero-content .btn {
+            background-color: #48c948;
+            color: #fff;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            -webkit-transition: background-color 0.3s ease;
+            -o-transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease;
+        }
+        
+        .hero-content .btn:hover {
+            background-color: #3b9f3b;
+        }
+        
+        /* Seções de conteúdo */
+        .content-section {
+            padding: 50px;
+        }
+        
+        .section-title {
+            font-size: 2em;
+            margin: 0 0 20px;
+        }
+        
+        /* Lista de filmes em colunas (Homepage e Gêneros) */
+        .movie-grid {
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-wrap: wrap;
+            flex-wrap: wrap;
+            -webkit-box-pack: start;
+            -ms-flex-pack: start;
+            justify-content: flex-start;
+            gap: 20px;
+        }
+
+        .movie-grid .movie-card {
+            -webkit-box-flex: 0;
+            -ms-flex: 0 0 calc(25% - 15px);
+            flex: 0 0 calc(25% - 15px); /* 4 colunas */
+            max-width: calc(25% - 15px);
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .movie-grid .movie-card {
+                -webkit-box-flex: 0;
+                -ms-flex: 0 0 calc(33.333% - 14px);
+                flex: 0 0 calc(33.333% - 14px); /* 3 colunas */
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .movie-grid .movie-card {
+                -webkit-box-flex: 0;
+                -ms-flex: 0 0 calc(50% - 10px);
+                flex: 0 0 calc(50% - 10px); /* 2 colunas */
+            }
+        }
+        
+        .movie-card {
+            cursor: pointer;
+            -webkit-transition: -webkit-transform 0.2s ease-in-out;
+            transition: -webkit-transform 0.2s ease-in-out;
+            -o-transition: transform 0.2s ease-in-out;
+            transition: transform 0.2s ease-in-out;
+            transition: transform 0.2s ease-in-out, -webkit-transform 0.2s ease-in-out;
+        }
+        
+        .movie-card:hover {
+            -webkit-transform: scale(1.05);
+            -ms-transform: scale(1.05);
+            transform: scale(1.05);
+        }
+        
+        .movie-card img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        
+        /* Modal de Detalhes */
+        .modal {
+            display: none; /* Inicia escondido */
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #1a1e20;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 900px;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            gap: 30px;
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                -webkit-box-orient: vertical;
+                -webkit-box-direction: normal;
+                -ms-flex-direction: column;
+                flex-direction: column;
+            }
+        }
+        
+        .modal-poster {
+            -webkit-box-flex: 0;
+            -ms-flex: 0 0 300px;
+            flex: 0 0 300px;
+        }
+
+        @media (max-width: 768px) {
+            .modal-poster {
+                width: 100%;
+                -webkit-box-flex: 1;
+                -ms-flex-positive: 1;
+                flex-grow: 1;
+            }
+        }
+        
+        .modal-poster img {
+            width: 100%;
+            border-radius: 8px;
+        }
+        
+        .modal-details {
+            -webkit-box-flex: 1;
+            -ms-flex-positive: 1;
+            flex-grow: 1;
+        }
+        
+        .modal-title {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .modal-info {
+            font-size: 1em;
+            color: #999;
+            margin-bottom: 20px;
+        }
+        
+        .modal-info span {
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .modal-description {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .modal-buttons .btn {
+            display: inline-block;
+            margin-right: 15px;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            -webkit-transition: background-color 0.3s ease;
+            -o-transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .modal-buttons .btn-play {
+            background-color: #48c948;
+            color: #fff;
+        }
+        
+        .modal-buttons .btn-play:hover {
+            background-color: #3b9f3b;
+        }
+        
+        .modal-buttons .btn-list {
+            background-color: #333;
+            color: #fff;
+        }
+        
+        .modal-buttons .btn-list:hover {
+            background-color: #555;
+        }
+
+        .modal-buttons .btn-remove {
+            background-color: #a82e2e;
+            color: #fff;
+        }
+
+        .modal-buttons .btn-remove:hover {
+            background-color: #7b2121;
+        }
+        
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            -webkit-transition: color 0.3s ease;
+            -o-transition: color 0.3s ease;
+            transition: color 0.3s ease;
+        }
+        
+        .close-button:hover,
+        .close-button:focus {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        /* Estilos do Player de Vídeo */
+        .modal-video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* Proporção 16:9 */
+            display: none;
+        }
+
+        .modal-video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* Rodapé */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #1a1e20;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <img class="logo-img" src="https://i.postimg.cc/SsF61yJw/gl-plus-name-removebg-preview.png" alt="GL+ Plus Logo">
+        <nav class="navbar-links">
+            <a href="#" onclick="showPage('home-page')">Início</a>
+            <a href="#" onclick="showPage('genres-page')">Gêneros</a>
+            <a href="#" onclick="showPage('my-list-page')">Minha Lista</a>
+        </nav>
+    </header>
+
+    <main id="main-content">
+        <div id="home-page">
+            <section id="hero-banner" class="hero-banner">
+                </section>
+            <section class="content-section">
+                <h2 id="section-title-homepage" class="section-title">Todos os Filmes</h2>
+                <div id="movie-grid-container" class="movie-grid">
+                    </div>
+            </section>
+        </div>
+
+        <div id="genres-page" style="display:none;">
+            </div>
+
+        <div id="my-list-page" style="display:none;">
+            <section class="content-section">
+                <h2 class="section-title">Minha Lista</h2>
+                <div id="my-list-grid-container" class="movie-grid">
+                    </div>
+            </section>
+        </div>
+    </main>
+    
+    <div id="movie-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <div id="modal-details-view">
+                <div class="modal-poster">
+                    <img id="modal-poster-img" src="" alt="Pôster do Filme">
+                </div>
+                <div class="modal-details">
+                    <h2 id="modal-title" class="modal-title"></h2>
+                    <p id="modal-info" class="modal-info"></p>
+                    <p id="modal-description" class="modal-description"></p>
+                    <div class="modal-buttons">
+                        <button id="play-button" class="btn btn-play">Assistir Agora</button>
+                        <button id="add-list-button" class="btn btn-list">Adicionar à Minha Lista</button>
+                        <button id="remove-list-button" class="btn btn-remove" style="display:none;">Remover da Minha Lista</button>
+                    </div>
+                </div>
+            </div>
+            <div id="modal-video-view" class="modal-video-container">
+                <iframe id="movie-player" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        &copy; 2024 GL+ Plus. Todos os direitos reservados.
+    </footer>
+
+    <script>
+        // Dados dos Filmes
+        var movieData = [
+            {
+                id: 'luzes-da-cidade',
+                title: 'Luzes da Cidade',
+                year: 1931,
+                genres: ['Comédia', 'Drama', 'Silencioso'],
+                directors: ['Charles Chaplin'],
+                actors: ['Charles Chaplin', 'Virginia Cherrill'],
+                description: 'Carlitos, o vagabundo, se apaixona por uma florista cega e faz de tudo para que ela possa recuperar a visão.',
+                poster: 'https://i.postimg.cc/CLDvwQVC/Luzes-da-cidade-1931.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1DTjc5EmA77YY9h7n7Rtm3CU7gwGgOvWJ/preview'
+            },
+            {
+                id: 'a-greve',
+                title: 'A Greve',
+                year: 1925,
+                genres: ['Drama', 'Silencioso'],
+                directors: ['Sergei Eisenstein'],
+                actors: ['Grigori Aleksandrov', 'Max Strauch', 'Mikhail Gomorov'],
+                description: 'Um retrato visceral da opressão tsarista na Rússia, que culmina em uma violenta greve de trabalhadores em 1903.',
+                poster: 'https://i.postimg.cc/FRZWXdtM/A-greve-1925.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1vZXJeW3TwQg1L_tEowv5tC4KR5yiYTZt/preview'
+            },
+            {
+                id: 'viagem-a-lua',
+                title: 'Viagem à Lua',
+                year: 1902,
+                genres: ['Aventura', 'Ficção Científica', 'Silencioso'],
+                directors: ['Georges Méliès'],
+                actors: ['Georges Méliès', 'Jeanne d\'Alcy'],
+                description: 'Um grupo de astrônomos viaja para a Lua e descobre um mundo de criaturas estranhas e maravilhosas.',
+                poster: 'https://i.postimg.cc/63n78n6P/Viagem-a-lua-1902.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1yhSWXhOWhg5qjVtfc8_opog4R1z1u2ve/preview'
+            },
+            {
+                id: 'outubro',
+                title: 'Outubro',
+                year: 1927,
+                genres: ['Documentário', 'Histórico', 'Silencioso'],
+                directors: ['Sergei Eisenstein', 'Grigori Aleksandrov'],
+                actors: ['Vladimir Shubin', 'Vasili Nikandrov'],
+                description: 'Um documentário que retrata os eventos da Revolução de Outubro de 1917, na Rússia, com o uso de imagens de arquivo e cenas dramáticas.',
+                poster: 'https://i.postimg.cc/3wWmxkvM/Outubro-1927.jpg',
+                videoUrl: 'https://drive.google.com/file/d/14zDQxGTA3wANW1Y8YM8IY0DbsyoV9m1d/preview'
+            },
+            {
+                id: 'buster-three-ages',
+                title: 'Buster Three Ages',
+                year: 1923,
+                genres: ['Comédia', 'Silencioso'],
+                directors: ['Buster Keaton', 'Edward F. Cline'],
+                actors: ['Buster Keaton', 'Margaret Leahy', 'Wallace Beery'],
+                description: 'A história do homem em três períodos históricos: a Idade da Pedra, a Roma Antiga e a Era Moderna, em uma sátira hilária e bem-humorada.',
+                poster: 'https://i.postimg.cc/4yy5CWQc/Buster-holmes.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1D7tr9aDjLJ2gGrdoYXGrKYqnJRu8Exjo/preview'
+            },
+            {
+                id: 'o-vaqueiro',
+                title: 'O Vaqueiro',
+                year: 1928,
+                genres: ['Comédia', 'Faroeste', 'Silencioso'],
+                directors: ['Buster Keaton'],
+                actors: ['Buster Keaton'],
+                description: 'Buster Keaton se aventura no Velho Oeste, onde precisa provar sua inocência e lutar por justiça.',
+                poster: 'https://i.postimg.cc/VkfX2Gsk/O-vaqueiro-Buster-keaton.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1n7NME31VGHkBgkjflftULveiMMTQbws2/preview'
+            },
+            {
+                id: 'high-and-dizzy',
+                title: 'High and Dizzy',
+                year: 1922,
+                genres: ['Comédia', 'Silencioso'],
+                directors: ['Hal Roach'],
+                actors: ['Harold Lloyd', 'Mildred Davis'],
+                description: 'Um jovem que está tentando impressionar sua namorada se envolve em uma série de situações perigosas em grandes alturas.',
+                poster: 'https://i.postimg.cc/hvNVkcjF/High-and-dizzy.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1jAGoWsdsOCvYdjYpPhXj7fTCRyfoLnXT/preview'
+            },
+            {
+                id: 'lojinha-do-terror',
+                title: 'A Lojinha do Terror',
+                year: 1960,
+                genres: ['Comédia', 'Terror'],
+                directors: ['Roger Corman'],
+                actors: ['Jonathan Haze', 'Jackie Joseph', 'Mel Welles'],
+                description: 'Um tímido floricultor cria uma planta carnívora que se alimenta de sangue humano, o que o leva a cometer crimes.',
+                poster: 'https://i.postimg.cc/kM21p51p/Little-Shop-of-horror.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1KwUjD2dhiS2o1JEQ3kWAFZYQhCym9Qmq/preview'
+            },
+            {
+                id: 'o-novo-governo-paranaense',
+                title: 'O Novo Governo Paranaense',
+                year: 1928,
+                genres: ['Documentário', 'Silencioso'],
+                directors: ['José do Egito'],
+                actors: ['Desconhecidos'],
+                description: 'Documentário que retrata a posse do novo governo paranaense e a vida política da época.',
+                poster: 'https://i.postimg.cc/x8LKVBbc/O-novo-governo-paranaense-1928.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1W3OYjRfY8fiKlXZELru8rJZeWcjxfRHE/preview'
+            },
+            {
+                id: 'limite',
+                title: 'Limite',
+                year: 1931,
+                genres: ['Drama', 'Silencioso'],
+                directors: ['Mário Peixoto'],
+                actors: ['Olga B. de Barros', 'Iêda S. Ehlers'],
+                description: 'Três personagens em um barco, perdidos no mar, refletem sobre suas vidas e seus sentimentos de isolamento.',
+                poster: 'https://i.postimg.cc/1tt64fVh/Limite-1931.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1J8m0AcBKvLQO1mzBeuAR_SP7hkhwLHbE/preview'
+            },
+            {
+                id: 'o-erbio',
+                title: 'O Érbio',
+                year: 1946,
+                genres: ['Suspense', 'Misterio'],
+                directors: ['Almeida Cunha'],
+                actors: ['João Vasconcelos', 'Maria Teresa'],
+                description: 'Uma história de amor e suspense ambientada em uma cidade pequena, onde um jovem casal lida com um mistério sombrio.',
+                poster: 'https://i.postimg.cc/PfvyMRNG/O-erbio-1946.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1Zgk6Y-w4k6mF1-h2X2I26Rotw1-_OEwp/preview'
+            },
+            {
+                id: 'o-fantasma-da-opera',
+                title: 'O Fantasma da Ópera',
+                year: 1925,
+                genres: ['Terror', 'Silencioso'],
+                directors: ['Rupert Julian'],
+                actors: ['Lon Chaney', 'Mary Philbin'],
+                description: 'Um gênio musical deformado aterroriza uma ópera para atrair sua amada, uma jovem cantora, para seu mundo subterrâneo.',
+                poster: 'https://i.postimg.cc/FR7Z8PZL/O-fantasma-da-opera-1925.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1lJ5bELpKudWIFlAst0osD1zDLlibYsb4/preview'
+            },
+            {
+                id: 'tarzan',
+                title: 'Tarzan',
+                year: 1933,
+                genres: ['Aventura'],
+                directors: ['W. S. Van Dyke'],
+                actors: ['Johnny Weissmuller', 'Maureen O\'Sullivan'],
+                description: 'Um homem criado por macacos se apaixona por uma exploradora e precisa escolher entre sua vida na selva e a vida em sociedade.',
+                poster: 'https://i.postimg.cc/SQc8RFJK/Tarzan-1933.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1RkYy0JuZRqXisLi8wt9W_mJGI_gnJSwE/preview'
+            },
+            {
+                id: 'buster-sherlock',
+                title: 'Buster & Sherlock',
+                year: 1924,
+                genres: ['Comédia', 'Misterio', 'Silencioso'],
+                directors: ['Buster Keaton'],
+                actors: ['Buster Keaton', 'Kathryn McGuire'],
+                description: 'Buster Keaton se transforma em um detetive para resolver um mistério em uma série de situações hilárias e embaraçosas.',
+                poster: 'https://i.postimg.cc/PrBMczpL/Carlitos-reporter.jpg',
+                videoUrl: 'https://drive.google.com/file/d/11jx9NWCKqolocN77DoSxwePqPhgDsrrU/preview'
+            },
+            {
+                id: 'as-viagens-de-gulliver',
+                title: 'As Viagens de Gulliver',
+                year: 1939,
+                genres: ['Animação', 'Aventura'],
+                directors: ['Dave Fleischer'],
+                actors: ['Pinto Colvig', 'Sam Parker', 'Jack Mercer'],
+                description: 'Animação clássica baseada no livro de Jonathan Swift, onde o marinheiro Gulliver explora o mundo de liliputianos e gigantes.',
+                poster: 'https://i.postimg.cc/sXVmmjBw/as-viagens-de-gulliver-1939.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1xt47Ti7ALA3QAIMtmm8y4UqoNDjhkhNd/preview'
+            },
+            {
+                id: 'o-grande-ditador',
+                title: 'O Grande Ditador',
+                year: 1940,
+                genres: ['Comédia', 'Drama'],
+                directors: ['Charles Chaplin'],
+                actors: ['Charles Chaplin', 'Paulette Goddard', 'Jack Oakie'],
+                description: 'Um barbeiro judeu se parece com o ditador Adenoid Hynkel e acaba assumindo o seu lugar, em uma sátira hilária e emocionante do nazismo.',
+                poster: 'https://i.postimg.cc/bvF0xxhN/O-grande-ditador.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1xHwYNzqojd4imMIDhezSgYsq_f5Li0Hv/preview'
+            },
+            {
+                id: '3-caras-maus',
+                title: '3 Caras Maus',
+                year: 1926,
+                genres: ['Drama', 'Faroeste', 'Silencioso'],
+                directors: ['John Ford'],
+                actors: ['George O\'Brien', 'Olive Borden', 'Lou Tellegen'],
+                description: 'Um drama épico sobre três foras da lei que se unem para proteger uma jovem de um vilão.',
+                poster: 'https://i.postimg.cc/nhjP9h7m/3-caras-maus.jpg',
+                videoUrl: 'https://drive.google.com/file/d/13RZtxkztcGThvzDgnf5226SRcUwcI04E/preview'
+            },
+            {
+                id: 'coracao-de-aco',
+                title: 'Coração de Aço',
+                year: 1935,
+                genres: ['Drama', 'Comédia', 'Romance'],
+                directors: ['Jules White'],
+                actors: ['Shemp Howard', 'Buster Keaton'],
+                description: 'Um romance hilário e emocionante entre um jovem comediante e a mulher de seus sonhos.',
+                poster: 'https://i.postimg.cc/0NCdbTtm/Coracao-de-aco-1934.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1mv9bhe2X_F1P9FBbpWbEhpcuBUQfBHuG/preview'
+            },
+            {
+                id: 'sorte-de-verdade',
+                title: 'Sorte de Verdade',
+                year: 1957,
+                genres: ['Comédia', 'Romance', 'Música'],
+                directors: ['Charles Walters'],
+                actors: ['Bing Crosby', 'Grace Kelly', 'Frank Sinatra'],
+                description: 'Um jornalista de tabloide se apaixona por uma cantora de boate, mas a sorte está contra eles.',
+                poster: 'https://i.postimg.cc/x8Gb4HWm/Sorte-de-verdade-1934.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1RDGDdHn3MZCRtw7PkLj-GFTOb_6YlQRR/preview'
+            },
+            {
+                id: 'o-segredo-dos-quatro',
+                title: 'O Segredo dos Quatro',
+                year: 1930,
+                genres: ['Suspense', 'Misterio'],
+                directors: ['William Nigh'],
+                actors: ['Buster Keaton'],
+                description: 'Um detetive particular tenta desvendar o mistério de um assassinato em uma mansão.',
+                poster: 'https://i.postimg.cc/pXtfJVg8/O-segredo-dos-quatro.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1aYm6Mor4-4lw9nz1nAk15L4JY2Qpdd3q/preview'
+            },
+            {
+                id: 'a-dama-de-shanghai',
+                title: 'A Dama de Shanghai',
+                year: 1948,
+                genres: ['Suspense', 'Drama', 'Noir'],
+                directors: ['Orson Welles'],
+                actors: ['Rita Hayworth', 'Orson Welles'],
+                description: 'Um marinheiro se envolve em uma teia de mistério e assassinato depois de se apaixonar pela esposa de um advogado.',
+                poster: 'https://i.postimg.cc/sXy6LPLP/A-Dama-de-Shanghai-1948.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1Oitlgwtxh32WNDTQXze84Mad-PoyqH91/preview'
+            },
+            {
+                id: 'nasce-uma-estrela',
+                title: 'Nasce uma Estrela',
+                year: 1937,
+                genres: ['Drama', 'Romance'],
+                directors: ['William A. Wellman'],
+                actors: ['Janet Gaynor', 'Fredric March'],
+                description: 'Uma jovem atriz em ascensão se apaixona por um ator famoso em declínio, enquanto a fama e o alcoolismo dele os separam.',
+                poster: 'https://i.postimg.cc/wxnf8dnT/Nasce-uma-estrela-1937.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1Vihxx2NlT-waOFYFSP0irjdLr5PruKKi/preview'
+            },
+            {
+                id: 'adoravel-vagabundo',
+                title: 'Adorável Vagabundo',
+                year: 1941,
+                genres: ['Comédia', 'Drama'],
+                directors: ['Frank Capra'],
+                actors: ['Gary Cooper', 'Barbara Stanwyck'],
+                description: 'Um jornalista se apaixona por uma jornalista que o trai para conseguir uma história, em uma história de amor e redenção.',
+                poster: 'https://i.postimg.cc/Xv6QZcnM/Adoravel-vagabundo.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1Wxc64BX-Q5ZibaXQ9zGOieLyAxIdhxLK/preview'
+            },
+            {
+                id: 'nupcias-reais',
+                title: 'Núpcias Reais',
+                year: 1951,
+                genres: ['Comédia', 'Música', 'Romance'],
+                directors: ['Stanley Donen'],
+                actors: ['Fred Astaire', 'Jane Powell'],
+                description: 'Um casal de dançarinos se muda para Londres para uma apresentação, mas o romance deles é ameaçado quando a dançarina se apaixona por um nobre.',
+                poster: 'https://i.postimg.cc/Gp3zJ3Tz/Nupcias-reais.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1yg44i8OfR8Uc45qxPSGktOkZL3RdOGuH/preview'
+            },
+            {
+                id: 'charada',
+                title: 'Charada',
+                year: 1963,
+                genres: ['Comédia', 'Misterio', 'Romance'],
+                directors: ['Stanley Donen'],
+                actors: ['Cary Grant', 'Audrey Hepburn'],
+                description: 'Uma mulher é perseguida por um grupo de criminosos que acreditam que ela sabe onde está o tesouro de seu marido morto.',
+                poster: 'https://i.postimg.cc/rwx9L0xf/Charada-1963.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1lCChujgBKH0FKvy8plS0hze7xG2LT8sy/preview'
+            },
+            {
+                id: 'filme-os4',
+                title: 'Filme Os 4',
+                year: 1934,
+                genres: ['Comédia'],
+                directors: ['William Beaudine'],
+                actors: ['Thelma Todd', 'ZaSu Pitts', 'Patsy Kelly'],
+                description: 'Uma comédia hilária sobre quatro amigos que tentam enganar a lei para conseguir dinheiro e fama.',
+                poster: 'https://i.postimg.cc/0NCdbTtm/Coracao-de-aco-1934.jpg',
+                videoUrl: 'https://drive.google.com/file/d/10oyaQgcIGC0SLBAsjVA223w91Dk1RuGT/preview'
+            },
+            {
+                id: 'o-gabinete',
+                title: 'O Gabinete',
+                year: 1920,
+                genres: ['Terror', 'Silencioso'],
+                directors: ['Robert Wiene'],
+                actors: ['Werner Krauss', 'Conrad Veidt', 'Lil Dagover'],
+                description: 'Um terror psicológico sobre um médico que manipula um paciente para cometer crimes.',
+                poster: 'https://i.postimg.cc/15pKkVpJ/O-gabinete-de-caligari.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1Y_JXeDJ1QAK8a5pDne7JxkppnQTCq7GP/preview'
+            },
+            {
+                id: 'o-circo-do-chaplin',
+                title: 'O Circo do Chaplin',
+                year: 1928,
+                genres: ['Comédia', 'Silencioso'],
+                directors: ['Charles Chaplin'],
+                actors: ['Charles Chaplin', 'Merna Kennedy'],
+                description: 'Carlitos, o vagabundo, se apaixona por uma acrobata de circo e faz de tudo para que ela possa se tornar uma estrela.',
+                poster: 'https://i.postimg.cc/KY9f9Xnb/O-circo-Charlie-Chaplin.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1YQJ0o50grrOIBV9ynkCp87ibc-plv6La/preview'
+            },
+            {
+                id: 'felix-the-cat',
+                title: 'Felix the Cat (1929)',
+                year: 1929,
+                genres: ['Animação', 'Comédia', 'Silencioso'],
+                directors: ['Otto Messmer'],
+                actors: ['Otto Messmer'],
+                description: 'Animação clássica sobre as aventuras de um gato que se envolve em uma série de situações hilárias e embaraçosas.',
+                poster: 'https://i.postimg.cc/SsT6GWbx/felines-folines.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1e2sx1dEACbHAbtwFxWFzy-tQR4ojCsFg/preview'
+            },
+            {
+                id: 'o-vapor-willie',
+                title: 'O Vapor Willie',
+                year: 1928,
+                genres: ['Animação', 'Comédia', 'Silencioso'],
+                directors: ['Walt Disney', 'Ub Iwerks'],
+                actors: ['Walt Disney'],
+                description: 'Animação clássica de Walt Disney sobre as aventuras de um camundongo em um barco a vapor.',
+                poster: 'https://i.postimg.cc/8PBhKQSY/O-vapor-Willie.webp',
+                videoUrl: 'https://drive.google.com/file/d/1FjE_sFPaGW5Kb9ICii_g9aFZ0CWzWQSo/preview'
+            },
+            {
+                id: 'beast-at-bay',
+                title: 'Beast at Bay (1912)',
+                year: 1912,
+                genres: ['Drama', 'Silencioso'],
+                directors: ['D. W. Griffith'],
+                actors: ['Mary Pickford', 'Lionel Barrymore'],
+                description: 'Um drama sobre um homem que se torna um animal feroz depois de ser abandonado por sua amada.',
+                poster: 'https://i.postimg.cc/4yy5CWQc/Buster-holmes.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1i24gxpJzqeq3jMOnbHKBU6s2TQuV9kGC/preview'
+            },
+            {
+                id: 'casamento-as-pressas',
+                title: 'Casamento às Pressas (1913)',
+                year: 1913,
+                genres: ['Comédia', 'Silencioso'],
+                directors: ['Charles Chaplin'],
+                actors: ['Charles Chaplin', 'Edna Purviance'],
+                description: 'Uma comédia hilária sobre um casal que se casa às pressas para evitar que o casamento seja interrompido.',
+                poster: 'https://i.postimg.cc/HsJ2BPxD/Casamento-ou-luxo.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1iJ-wnzeu4AflOA0WZC_VJGKLPgoWZwzz/preview'
+            },
+            {
+                id: 'making-an-american-citizen',
+                title: 'Making an American Citizen (1912)',
+                year: 1912,
+                genres: ['Drama', 'Silencioso'],
+                directors: ['D. W. Griffith'],
+                actors: ['John A. Dillon', 'George Nichols', 'Blanche Sweet'],
+                description: 'Um drama sobre um imigrante que se torna um cidadão americano e se envolve em uma série de problemas.',
+                poster: 'https://i.postimg.cc/cLnF45yM/Abraham-lincoln-1930.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1Y330oH_E04WyjzKEH5e8zVKekW74HZD9/preview'
+            },
+            {
+                id: 'suspense',
+                title: 'Suspense (1913)',
+                year: 1913,
+                genres: ['Suspense', 'Silencioso'],
+                directors: ['Lois Weber'],
+                actors: ['Lois Weber', 'Valerie Valli'],
+                description: 'Um suspense sobre uma mulher que é perseguida por um criminoso e precisa lutar por sua vida.',
+                poster: 'https://i.postimg.cc/PxRDDT1L/jovem-e-inocente.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1W47UPbDmJbllj49zs8bp7ILsGRvggJrf/preview'
+            },
+            {
+                id: 'the-ocean-waif',
+                title: 'The Ocean Waif (1916)',
+                year: 1916,
+                genres: ['Drama', 'Silencioso'],
+                directors: ['Alice Guy-Blaché'],
+                actors: ['Doris Kenyon', 'Carlyle Blackwell'],
+                description: 'Um drama sobre uma jovem que é abandonada em um navio e precisa lutar por sua vida.',
+                poster: 'https://i.postimg.cc/P5S1HWNz/Os-39-degraus.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1QsFB3AoEY_nDnNbonfxQSj6WuL2bNuMe/preview'
+            },
+            {
+                id: 'o-cair-das-folhas',
+                title: 'O Cair das Folhas',
+                year: 1931,
+                genres: ['Drama', 'Silencioso'],
+                directors: ['Mário Peixoto'],
+                actors: ['Olga B. de Barros', 'Iêda S. Ehlers'],
+                description: 'Um drama sobre um homem que se apaixona por uma mulher casada e precisa lutar para que eles possam ficar juntos.',
+                poster: 'https://i.postimg.cc/1tt64fVh/Limite-1931.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1o5s27eY4HhR4-RkE2L0s9Tq0K4_wYm0e/preview'
+            },
+            {
+                id: 'carlitos-reporter',
+                title: 'Carlitos Repórter',
+                year: 1914,
+                genres: ['Comédia', 'Silencioso'],
+                directors: ['Charles Chaplin'],
+                actors: ['Charles Chaplin'],
+                description: 'Carlitos, o vagabundo, se torna um repórter e se envolve em uma série de situações hilárias e embaraçosas.',
+                poster: 'https://i.postimg.cc/PrBMczpL/Carlitos-reporter.jpg',
+                videoUrl: 'https://drive.google.com/file/d/11jx9NWCKqolocN77DoSxwePqPhgDsrrU/preview'
+            },
+            {
+                id: 'o-garoto-charlie-chaplin',
+                title: 'O Garoto Charlie Chaplin',
+                year: 1921,
+                genres: ['Comédia', 'Drama', 'Silencioso'],
+                directors: ['Charles Chaplin'],
+                actors: ['Charles Chaplin', 'Jackie Coogan'],
+                description: 'Carlitos, o vagabundo, encontra um bebê abandonado e o cria como se fosse seu filho, em uma história de amor e redenção.',
+                poster: 'https://i.postimg.cc/wjgkgx2H/O-garoto-charlie-Chaplin.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1XlM4_y1hB5g3LgM9tL4X9uWz2V0W-lRk/preview'
+            },
+            {
+                id: 'o-homem-que-ri',
+                title: 'O Homem Que Ri',
+                year: 1928,
+                genres: ['Drama', 'Silencioso'],
+                directors: ['Paul Leni'],
+                actors: ['Conrad Veidt', 'Mary Philbin', 'Olga Baclanova'],
+                description: 'Um drama sobre um homem que é forçado a sorrir para o resto de sua vida por causa de uma mutilação.',
+                poster: 'https://i.postimg.cc/26s4JCys/O-homem-que-ri-1928.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1gQfQ8J4g5N-F-E4k-5m1L5h3M6s8bM4J/preview'
+            },
+            {
+                id: 'a-antiga-e-a-moderna',
+                title: 'A Antiga e a Moderna',
+                year: 1929,
+                genres: ['Drama', 'Silencioso'],
+                directors: ['Grigori Aleksandrov'],
+                actors: ['Marfa Lapkina', 'M. N. Iudin'],
+                description: 'Um drama sobre as dificuldades de uma mulher que tenta se adaptar à nova sociedade soviética.',
+                poster: 'https://i.postimg.cc/hGVZMZ2P/A-antiga-e-a-moderna.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+            },
+            {
+                id: 'o-nascimento-de-uma-nova-nacao',
+                title: 'O Nascimento de Uma Nova Nação',
+                year: 1915,
+                genres: ['Histórico', 'Silencioso'],
+                directors: ['D. W. Griffith'],
+                actors: ['Lillian Gish', 'Mae Marsh'],
+                description: 'Um drama sobre a Guerra Civil Americana e o surgimento da Ku Klux Klan.',
+                poster: 'https://i.postimg.cc/mDzY8PL3/O-nascimento-de-uma-nova-nacao-1915.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1S6b_4iL-T5m5xG6D9lP6s-6Y3J8k4q7M/preview'
+            },
+            {
+                id: 'jovem-e-inocente',
+                title: 'Jovem e Inocente',
+                year: 1937,
+                genres: ['Suspense', 'Misterio'],
+                directors: ['Alfred Hitchcock'],
+                actors: ['Nova Pilbeam', 'Derrick De Marney'],
+                description: 'Um jovem que é acusado de assassinato e precisa fugir para provar sua inocência.',
+                poster: 'https://i.postimg.cc/PxRDDT1L/jovem-e-inocente.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1lCChujgBKH0FKvy8plS0hze7xG2LT8sy/preview'
+            },
+            {
+                id: 'os-39-degraus',
+                title: 'Os 39 Degraus',
+                year: 1935,
+                genres: ['Suspense', 'Misterio'],
+                directors: ['Alfred Hitchcock'],
+                actors: ['Robert Donat', 'Madeleine Carroll'],
+                description: 'Um homem que é acusado de assassinato e precisa fugir para provar sua inocência.',
+                poster: 'https://i.postimg.cc/P5S1HWNz/Os-39-degraus.jpg',
+                videoUrl: 'https://drive.google.com/file/d/14x8Jj9x1Nq91x7k2bHl0c9Jt2l2d5b-s/preview'
+            },
+            {
+                id: 'o-gangster',
+                title: 'O Gangster',
+                year: 1929,
+                genres: ['Drama', 'Crime', 'Silencioso'],
+                directors: ['Josef von Sternberg'],
+                actors: ['George Bancroft', 'Betty Compson'],
+                description: 'Um gangster que tenta se aposentar e viver uma vida normal, mas é perseguido por seus inimigos.',
+                poster: 'https://i.postimg.cc/8z4m58Xv/O-gangster-1929.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1Fk4s5h9rY5uG5c8U8B7L7-pQ8G5s7Y6j/preview'
+            },
+            {
+                id: 'the-lost-world',
+                title: 'The Lost World',
+                year: 1925,
+                genres: ['Aventura', 'Ficção Científica', 'Silencioso'],
+                directors: ['Harry O. Hoyt'],
+                actors: ['Bessie Love', 'Lloyd Hughes'],
+                description: 'Um grupo de exploradores que viajam para um mundo perdido habitado por dinossauros.',
+                poster: 'https://i.postimg.cc/rwZR3qYf/The-Lost-World.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+            },
+            {
+                id: 'noite-dos-mortos-vivos',
+                title: 'Noite dos Mortos-Vivos',
+                year: 1958,
+                genres: ['Terror', 'Silencioso'],
+                directors: ['George A. Romero'],
+                actors: ['Duane Jones', 'Judith O\'Dea'],
+                description: 'Um grupo de pessoas que se refugia em uma casa para se proteger de um ataque de zumbis.',
+                poster: 'https://i.postimg.cc/T13kddfp/A-noite-dos-mortos-vivos-1958.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1y6vjF6TqF6y-t_W4e2H1k5X4gq6wX2-c/preview'
+            },
+            {
+                id: 'intolerancia',
+                title: 'Intolerância',
+                year: 1916,
+                genres: ['Drama', 'Histórico', 'Silencioso'],
+                directors: ['D. W. Griffith'],
+                actors: ['Lillian Gish', 'Mae Marsh'],
+                description: 'Um drama sobre a intolerância religiosa, social e política ao longo da história da humanidade.',
+                poster: 'https://i.postimg.cc/Dz5L2qZP/Intolerancia-1916.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1K-4T5m_p8b_4y5z5y2-z8t9-2y6_e6g4/preview'
+            },
+            {
+                id: 'o-cisno-negro',
+                title: 'O Cisno Negro',
+                year: 1942,
+                genres: ['Aventura', 'Romance'],
+                directors: ['Henry King'],
+                actors: ['Tyrone Power', 'Maureen O\'Hara'],
+                description: 'Um corsário que se apaixona por uma mulher casada e precisa lutar para que eles possam ficar juntos.',
+                poster: 'https://i.postimg.cc/3RVBTgSb/o-cisno-negro.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U6lJ4t_8_9-z-p2-0-p9-p8_y2-y8-y9/preview'
+            },
+            {
+                id: 'frankestein',
+                title: 'Frankenstein',
+                year: 1931,
+                genres: ['Terror', 'Ficção Científica'],
+                directors: ['James Whale'],
+                actors: ['Boris Karloff', 'Colin Clive', 'Mae Clarke'],
+                description: 'Um cientista louco que cria uma criatura de cadáveres e a traz à vida.',
+                poster: 'https://i.postimg.cc/WzdMYhs6/frankenstein-1931.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1P5mQ4p6P3p7S9h4j2-h3y5-j5m9e6f4/preview'
+            },
+            {
+                id: 'nosferatu',
+                title: 'Nosferatu',
+                year: 1922,
+                genres: ['Terror', 'Silencioso'],
+                directors: ['F. W. Murnau'],
+                actors: ['Max Schreck', 'Gustav von Wangenheim'],
+                description: 'Um terror sobre um vampiro que se muda para a cidade e aterroriza a todos.',
+                poster: 'https://i.postimg.cc/kgmTGvn0/Nosferatu-1922.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1W5u7h1t_8t_7j6-q4h5-j9h2-p2-j5/preview'
+            },
+            {
+                id: 'rebecca',
+                title: 'Rebecca',
+                year: 1940,
+                genres: ['Suspense', 'Drama', 'Romance'],
+                directors: ['Alfred Hitchcock'],
+                actors: ['Laurence Olivier', 'Joan Fontaine'],
+                description: 'Uma jovem que se casa com um viúvo e é assombrada pelo fantasma de sua primeira esposa.',
+                poster: 'https://i.postimg.cc/3NQv19b7/Rebecca-1940.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+            },
+            {
+                id: 'the-general',
+                title: 'The General',
+                year: 1926,
+                genres: ['Comédia', 'Aventura', 'Silencioso'],
+                directors: ['Buster Keaton', 'Clyde Bruckman'],
+                actors: ['Buster Keaton', 'Marion Mack'],
+                description: 'Um maquinista que tenta recuperar sua locomotiva roubada por espiões da União durante a Guerra Civil Americana.',
+                poster: 'https://i.postimg.cc/N0W9GptT/The-general-Buster-keaston.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+            },
+            {
+                id: 'carnival-of-souls',
+                title: 'Carnival of Souls',
+                year: 1962,
+                genres: ['Terror', 'Silencioso'],
+                directors: ['Herk Harvey'],
+                actors: ['Candace Hilligoss', 'Frances Feist'],
+                description: 'Uma mulher que sobrevive a um acidente de carro e é assombrada por um fantasma.',
+                poster: 'https://i.postimg.cc/L4QDkMm3/Carnival-of-souls.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+            },
+            {
+                id: 'the-brain-that-wouldnt-die',
+                title: 'The Brain That Wouldn\'t Die',
+                year: 1962,
+                genres: ['Terror', 'Ficção Científica'],
+                directors: ['Joseph Green'],
+                actors: ['Jason Evers', 'Virginia Leith'],
+                description: 'Um cientista que mantém o cérebro de sua namorada vivo depois de um acidente de carro e tenta encontrar um corpo para ela.',
+                poster: 'https://i.postimg.cc/Yq3WN6NK/the-brain-that-wouldn-t-die.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+            },
+            {
+                id: 'hitler-dead-or-alive',
+                title: 'Hitler Dead or Alive',
+                year: 1942,
+                genres: ['Drama', 'Guerra'],
+                directors: ['Alfred E. Green'],
+                actors: ['Ward Bond', 'Dorothy Tree'],
+                description: 'Um filme de guerra que mostra um grupo de soldados americanos que tentam assassinar Hitler.',
+                poster: 'https://i.postimg.cc/ZK9GpHz0/hitler-dead-or-alive.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+            },
+            {
+                id: 'the-nazis-strike',
+                title: 'The Nazis Strike',
+                year: 1943,
+                genres: ['Documentário', 'Guerra'],
+                directors: ['Frank Capra', 'Anatole Litvak'],
+                actors: ['Walter Huston'],
+                description: 'Um documentário de guerra que mostra a ascensão do nazismo na Alemanha e a sua agressão à Europa.',
+                poster: 'https://i.postimg.cc/CKZnV93S/the-nazis-strike.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+            },
+            {
+                id: 'two-soldiers',
+                title: 'Two Soldiers',
+                year: 1943,
+                genres: ['Documentário', 'Guerra'],
+                directors: ['Frank Capra'],
+                actors: ['Walter Huston'],
+                description: 'Um documentário de guerra que mostra a história de dois soldados americanos que lutam na Segunda Guerra Mundial.',
+                poster: 'https://i.postimg.cc/7YppVzq9/two-soldiers-1943-film.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+            },
+            {
+                id: 'the-nazi-titanic',
+                title: 'The Nazi Titanic',
+                year: 1943,
+                genres: ['Documentário', 'Guerra'],
+                directors: ['Herbert Selpin'],
+                actors: ['Sybille Schmitz', 'Hans Nielsen'],
+                description: 'Um filme de propaganda nazista que mostra a história do navio Titanic.',
+                poster: 'https://i.postimg.cc/qqrNyqzv/the-nazi-titanic.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+            },
+            {
+                id: 'algie-the-miner',
+                title: 'Algie the Miner',
+                year: 1912,
+                genres: ['Comédia', 'Silencioso'],
+                directors: ['Harry Myers'],
+                actors: ['Algie the Miner', 'Harry Myers'],
+                description: 'Um jovem que se torna um minerador e se envolve em uma série de situações hilárias e embaraçosas.',
+                poster: 'https://i.postimg.cc/tgdDFZgs/Algie-the-miner-1912.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+            },
+            {
+                id: 'o-flautista-de-ramelin',
+                title: 'O Flautista de Ramelin',
+                year: 1933,
+                genres: ['Animação', 'Música', 'Fantasia'],
+                directors: ['Walt Disney'],
+                actors: ['Walt Disney'],
+                description: 'Animação de Walt Disney baseada na lenda alemã sobre um flautista que salva uma cidade de uma praga de ratos.',
+                poster: 'https://i.postimg.cc/909BFrsX/o-flautista-de-ramelin.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1Y_JXeDJ1QAK8a5pDne7JxkppnQTCq7GP/preview'
+            },
+            {
+                id: 'beco-sem-saida',
+                title: 'Beco Sem Saída',
+                year: 1937,
+                genres: ['Drama', 'Crime'],
+                directors: ['William Wyler'],
+                actors: ['Sylvia Sidney', 'Joel McCrea'],
+                description: 'Um drama sobre um grupo de jovens que vivem em um beco sem saída em Nova York e tentam escapar da pobreza.',
+                poster: 'https://i.postimg.cc/Fz6xh0TB/beco-sem-saida.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+            },
+            {
+                id: 'o-foguete-errante',
+                title: 'O Foguete Errante',
+                year: 1928,
+                genres: ['Ficção Científica', 'Drama', 'Silencioso'],
+                directors: ['Fritz Lang'],
+                actors: ['Gerda Maurus', 'Willy Fritsch'],
+                description: 'Um drama de ficção científica sobre um grupo de cientistas que viajam para a Lua em um foguete.',
+                poster: 'https://i.postimg.cc/BQWg7B1j/o-foguete-errante.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+            },
+            {
+                id: 'the-passion-of-joan-of-arc',
+                title: 'A Paixão de Joana D\'Arc',
+                year: 1928,
+                genres: ['Drama', 'Histórico', 'Silencioso'],
+                directors: ['Carl Theodor Dreyer'],
+                actors: ['Maria Falconetti', 'Eugene Silvain'],
+                description: 'Um drama sobre a vida de Joana D\'Arc, uma heroína francesa que lutou pela liberdade de seu país.',
+                poster: 'https://i.postimg.cc/X7h2W6hY/A-paixao-de-Joana-darc.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+            },
+            {
+                id: 'the-passion-of-andy',
+                title: 'A Paixão de Andy',
+                year: 1928,
+                genres: ['Drama', 'Silencioso'],
+                directors: ['Charles Brabin'],
+                actors: ['Andy Warhol', 'Billy Name'],
+                description: 'Um drama sobre a vida do artista Andy Warhol e a sua paixão pela arte e pela fama.',
+                poster: 'https://i.postimg.cc/05VWtw0m/a-paixao-de-andy.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+            },
+            {
+                id: 'inspector-general',
+                title: 'Inspector General',
+                year: 1949,
+                genres: ['Comédia', 'Musical'],
+                directors: ['Henry Koster'],
+                actors: ['Danny Kaye', 'Walter Slezak'],
+                description: 'Um musical sobre um homem que se torna um inspetor geral e se envolve em uma série de situações hilárias e embaraçosas.',
+                poster: 'https://i.postimg.cc/9FqdGR8c/inspector-general.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+            },
+            {
+                id: 'corrida-para-automoveis',
+                title: 'Corrida para Automóveis',
+                year: 1914,
+                genres: ['Comédia', 'Silencioso'],
+                directors: ['Charles Chaplin'],
+                actors: ['Charles Chaplin', 'Edgar Kennedy'],
+                description: 'Carlitos, o vagabundo, se envolve em uma corrida de carros e se mete em uma série de problemas.',
+                poster: 'https://i.postimg.cc/T2sjLqck/Corrida-para-automoveis-Chaplin.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+            },
+            {
+                id: 'o-netinho-do-papai',
+                title: 'O Netinho do Papai',
+                year: 1948,
+                genres: ['Comédia'],
+                directors: ['Walter Lang'],
+                actors: ['Betty Grable', 'Dan Dailey'],
+                description: 'Uma comédia sobre um casal que se casa e tem um filho que se parece com o pai de sua esposa.',
+                poster: 'https://i.postimg.cc/3rGjG0bY/o-netinho-do-papai.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+            },
+            {
+                id: 'copacabana',
+                title: 'Copacabana',
+                year: 1947,
+                genres: ['Comédia', 'Musical'],
+                directors: ['Alfred E. Green'],
+                actors: ['Groucho Marx', 'Carmen Miranda'],
+                description: 'Um musical sobre uma mulher que se muda para o Rio de Janeiro para se tornar uma estrela de cinema.',
+                poster: 'https://i.postimg.cc/VNwWsfFm/copacabana.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+            },
+            {
+                id: 'manhattan-tower',
+                title: 'Manhattan Tower',
+                year: 1932,
+                genres: ['Drama', 'Romance'],
+                directors: ['George Fitzmaurice'],
+                actors: ['Irene Dunne', 'George Raft'],
+                description: 'Um drama sobre um casal que se muda para um arranha-céu em Nova York e se envolve em uma série de problemas.',
+                poster: 'https://i.postimg.cc/NjkpH2F5/manhattan-tower.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+            },
+            {
+                id: 'a-ultima-vez-que-vi-paris',
+                title: 'A Última Vez Que Vi Paris',
+                year: 1954,
+                genres: ['Drama', 'Romance'],
+                directors: ['Richard Brooks'],
+                actors: ['Elizabeth Taylor', 'Van Johnson'],
+                description: 'Um drama sobre um homem que se muda para Paris e se apaixona por uma mulher casada.',
+                poster: 'https://i.postimg.cc/Kv49C80W/A-ultima-vez-que-vi-Paris.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+            },
+            {
+                id: 'abraham-lincoln',
+                title: 'Abraham Lincoln',
+                year: 1930,
+                genres: ['Drama', 'Histórico'],
+                directors: ['D. W. Griffith'],
+                actors: ['Walter Huston', 'Una Merkel'],
+                description: 'Um drama sobre a vida de Abraham Lincoln, um dos presidentes mais importantes da história dos Estados Unidos.',
+                poster: 'https://i.postimg.cc/cLnF45yM/Abraham-lincoln-1930.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+            },
+            {
+                id: 'aconteceu-em-havana',
+                title: 'Aconteceu em Havana',
+                year: 1941,
+                genres: ['Comédia', 'Musical'],
+                directors: ['Walter Lang'],
+                actors: ['Carmen Miranda', 'Don Ameche'],
+                description: 'Um musical sobre um casal que se muda para Havana e se envolve em uma série de situações hilárias e embaraçosas.',
+                poster: 'https://i.postimg.cc/FRDZnM3m/aconteceu-em-havana.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+            },
+            {
+                id: 'casamento-ou-luxo',
+                title: 'Casamento ou Luxo',
+                year: 1947,
+                genres: ['Comédia', 'Musical'],
+                directors: ['Walter Lang'],
+                actors: ['Groucho Marx', 'Carmen Miranda'],
+                description: 'Um musical sobre um casal que se casa e precisa escolher entre uma vida de luxo ou uma vida simples.',
+                poster: 'https://i.postimg.cc/HsJ2BPxD/Casamento-ou-luxo.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+            },
+            {
+                id: 'encouracado-potemkin',
+                title: 'Encouraçado Potemkin',
+                year: 1925,
+                genres: ['Drama', 'Histórico', 'Silencioso'],
+                directors: ['Sergei Eisenstein'],
+                actors: ['Aleksandr Antonov', 'Vladimir Barsky'],
+                description: 'Um drama sobre a revolta dos marinheiros a bordo do navio de guerra Potemkin, em 1905.',
+                poster: 'https://i.postimg.cc/wvT5JwPr/Encouracado-potemkin.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+            },
+            {
+                id: 'irene-a-teimosa',
+                title: 'Irene a Teimosa',
+                year: 1937,
+                genres: ['Comédia', 'Musical'],
+                directors: ['Mark Sandrich'],
+                actors: ['Irene Dunne', 'Fred Astaire'],
+                description: 'Um musical sobre uma jovem que se muda para Nova York e se torna uma estrela da Broadway.',
+                poster: 'https://i.postimg.cc/GmwkzLVG/irene-a-teimosa.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+            },
+            {
+                id: 'jejum-de-amor',
+                title: 'Jejum de Amor',
+                year: 1940,
+                genres: ['Comédia', 'Romance'],
+                directors: ['Howard Hawks'],
+                actors: ['Cary Grant', 'Rosalind Russell'],
+                description: 'Uma comédia romântica sobre um casal de jornalistas que se separam e precisam trabalhar juntos em uma história de crime.',
+                poster: 'https://i.postimg.cc/fRcYP4QF/Jejum-de-amor.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+            },
+            {
+                id: 'lassie-nas-planicies-o-ouro',
+                title: 'Lassie nas Planícies o Ouro',
+                year: 1948,
+                genres: ['Aventura', 'Drama'],
+                directors: ['S. Sylvan Simon'],
+                actors: ['Lassie', 'June Lockhart'],
+                description: 'Um drama sobre a história de um cachorro que se torna um herói e salva a vida de uma família.',
+                poster: 'https://i.postimg.cc/J0HkcvQp/lassie-nas-planicies-o-ouro.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+            },
+            {
+                id: 'levada-de-breca',
+                title: 'Levada de Breca',
+                year: 1938,
+                genres: ['Comédia', 'Romance'],
+                directors: ['Howard Hawks'],
+                actors: ['Cary Grant', 'Katharine Hepburn'],
+                description: 'Uma comédia romântica sobre um paleontólogo que se apaixona por uma mulher que o persegue e o causa problemas.',
+                poster: 'https://i.postimg.cc/MXkjs5Pq/levada-de-breca.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+            },
+            {
+                id: 'plan-9-from-outer-space',
+                title: 'Plan 9 from Outer Space',
+                year: 1959,
+                genres: ['Ficção Científica', 'Terror'],
+                directors: ['Ed Wood'],
+                actors: ['Bela Lugosi', 'Vampira'],
+                description: 'Um filme de ficção científica sobre alienígenas que ressuscitam os mortos para atacar a Terra.',
+                poster: 'https://i.postimg.cc/QtT7cvm0/Plan-9-from-outer-space.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+            },
+            {
+                id: 'rain',
+                title: 'Rain',
+                year: 1932,
+                genres: ['Drama', 'Romance'],
+                directors: ['Lewis Milestone'],
+                actors: ['Joan Crawford', 'Walter Huston'],
+                description: 'Um drama sobre uma prostituta que se muda para uma ilha tropical e se apaixona por um missionário.',
+                poster: 'https://i.postimg.cc/bvMbDqxZ/Rain-1932.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+            },
+            {
+                id: 'sherlock-holmes',
+                title: 'Sherlock Holmes',
+                year: 1922,
+                genres: ['Misterio', 'Drama'],
+                directors: ['Albert Parker'],
+                actors: ['John Barrymore', 'Roland Young'],
+                description: 'Um drama de mistério sobre a história de Sherlock Holmes, o detetive mais famoso do mundo.',
+                poster: 'https://i.postimg.cc/VkkbKJ4S/Sherlock-Holmes-1922.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+            },
+            {
+                id: 'tempos-modernos',
+                title: 'Tempos Modernos',
+                year: 1936,
+                genres: ['Comédia', 'Drama', 'Silencioso'],
+                directors: ['Charles Chaplin'],
+                actors: ['Charles Chaplin', 'Paulette Goddard'],
+                description: 'Carlitos, o vagabundo, tenta sobreviver na sociedade industrial moderna, onde a automação e a pobreza o ameaçam.',
+                poster: 'https://i.postimg.cc/RV9tnsHL/Tempos-modernos-1936.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1rVjJ-hBf9b-wYgY6zM_u3Qz7Qz9yq9Yk/preview'
+            },
+            {
+                id: 'zaroff',
+                title: 'Zaroff',
+                year: 1932,
+                genres: ['Aventura', 'Terror'],
+                directors: ['Ernest B. Schoedsack', 'Irving Pichel'],
+                actors: ['Joel McCrea', 'Fay Wray'],
+                description: 'Um drama de aventura sobre um caçador de homens que se torna a presa de um caçador de homens.',
+                poster: 'https://i.postimg.cc/qqGzLr3X/Zaroff1932.jpg',
+                videoUrl: 'https://drive.google.com/file/d/1U40Q-tV4x3K0s-zYjK5g-5k8r2y2k9C8/preview'
+            }
+        ];
+
+        var myList = JSON.parse(localStorage.getItem('myList')) || [];
+
+        var isGenresRendered = false;
+        var isMyListRendered = false;
+
+        function renderHeroBanner() {
+            var randomIndex = Math.floor(Math.random() * movieData.length);
+            var heroMovie = movieData[randomIndex];
+            var banner = document.getElementById('hero-banner');
+            banner.style.backgroundImage = 'url(\'' + heroMovie.poster + '\')';
+
+            var heroContent = `
+                <div class="hero-content">
+                    <h1 class="title">${heroMovie.title}</h1>
+                    <p class="description">${heroMovie.description}</p>
+                    <button class="btn" onclick="openModal(${JSON.stringify(heroMovie).replace(/"/g, "'")})">Assistir Agora</button>
+                </div>
+            `;
+            banner.innerHTML = heroContent;
+        }
+
+        function renderMovieGrid(containerId, movies) {
+            var gridContainer = document.getElementById(containerId);
+            gridContainer.innerHTML = '';
+            movies.forEach(movie => {
+                var movieCard = document.createElement('div');
+                movieCard.className = 'movie-card';
+                movieCard.setAttribute('data-id', movie.id);
+                movieCard.innerHTML = `
+                    <img src="${movie.poster}" alt="Pôster do Filme: ${movie.title}">
+                `;
+                movieCard.onclick = () => openModal(movie);
+                gridContainer.appendChild(movieCard);
+            });
+        }
+
+        function renderGenresContent() {
+            if (isGenresRendered) return;
+
+            var genres = {};
+            movieData.forEach(movie => {
+                movie.genres.forEach(genre => {
+                    if (!genres[genre]) {
+                        genres[genre] = [];
+                    }
+                    genres[genre].push(movie);
+                });
+            });
+
+            var genresPage = document.getElementById('genres-page');
+            genresPage.innerHTML = '';
+
+            for (var genre in genres) {
+                if (genres.hasOwnProperty(genre)) {
+                    var section = document.createElement('section');
+                    section.className = 'content-section';
+                    section.innerHTML = `
+                        <h2 class="section-title">${genre}</h2>
+                        <div class="movie-grid" id="genre-grid-${genre.replace(/\s+/g, '-').toLowerCase()}"></div>
+                    `;
+                    genresPage.appendChild(section);
+                    renderMovieGrid(`genre-grid-${genre.replace(/\s+/g, '-').toLowerCase()}`, genres[genre]);
+                }
+            }
+            isGenresRendered = true;
+        }
+
+        function renderMyListContent() {
+            if (isMyListRendered) return;
+            renderMovieGrid('my-list-grid-container', myList);
+            isMyListRendered = true;
+        }
+
+        function showPage(pageId) {
+            document.getElementById('home-page').style.display = 'none';
+            document.getElementById('genres-page').style.display = 'none';
+            document.getElementById('my-list-page').style.display = 'none';
+            
+            document.getElementById(pageId).style.display = 'block';
+
+            if (pageId === 'home-page') {
+                renderHeroBanner();
+                renderMovieGrid('movie-grid-container', movieData);
+            } else if (pageId === 'genres-page') {
+                renderGenresContent();
+            } else if (pageId === 'my-list-page') {
+                renderMyListContent();
+            }
+        }
+
+        function openModal(movie) {
+            var modal = document.getElementById('movie-modal');
+            var detailsView = document.getElementById('modal-details-view');
+            var videoView = document.getElementById('modal-video-view');
+            var moviePlayer = document.getElementById('movie-player');
+            
+            // Revertendo a exibição para a tela de detalhes
+            detailsView.style.display = 'flex';
+            videoView.style.display = 'none';
+            moviePlayer.src = ''; // Limpa o src do iframe para evitar que o vídeo continue rodando em segundo plano
+
+            document.getElementById('modal-poster-img').src = movie.poster;
+            document.getElementById('modal-title').innerText = movie.title;
+            document.getElementById('modal-info').innerHTML = `
+                <span>Ano:</span> ${movie.year} | <span>Gêneros:</span> ${movie.genres.join(', ')} | <span>Diretores:</span> ${movie.directors.join(', ')} | <span>Atores:</span> ${movie.actors.join(', ')}
+            `;
+            document.getElementById('modal-description').innerText = movie.description;
+            
+            document.getElementById('play-button').onclick = () => {
+                videoView.style.display = 'block';
+                detailsView.style.display = 'none';
+                moviePlayer.src = movie.videoUrl;
+                // Entra em tela cheia (fullscreen) quando o botão de play é clicado
+                var elem = document.getElementById('movie-modal');
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.mozRequestFullScreen) { /* Firefox */
+                    elem.mozRequestFullScreen();
+                } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) { /* IE/Edge */
+                    elem.msRequestFullscreen();
+                }
+            };
+
+            var addToListBtn = document.getElementById('add-list-button');
+            var removeFromListBtn = document.getElementById('remove-list-button');
+
+            var isMovieInList = myList.some(item => item.id === movie.id);
+
+            if (isMovieInList) {
+                addToListBtn.style.display = 'none';
+                removeFromListBtn.style.display = 'inline-block';
+                removeFromListBtn.onclick = () => {
+                    removeFromList(movie);
+                    // Atualiza a visualização da Minha Lista se estiver nela
+                    if (document.getElementById('my-list-page').style.display === 'block') {
+                        renderMovieGrid('my-list-grid-container', myList);
+                    }
+                };
+            } else {
+                addToListBtn.style.display = 'inline-block';
+                removeFromListBtn.style.display = 'none';
+                addToListBtn.onclick = () => addToList(movie);
+            }
+
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            var modal = document.getElementById('movie-modal');
+            document.getElementById('movie-player').src = "";
+            modal.style.display = 'none';
+        }
+
+        function addToList(movie) {
+            if (!myList.some(item => item.id === movie.id)) {
+                myList.push(movie);
+                localStorage.setItem('myList', JSON.stringify(myList));
+                alert('Filme adicionado à sua lista!');
+            }
+            closeModal();
+            // Atualiza o estado para que a Minha Lista seja renderizada novamente se clicarem nela
+            isMyListRendered = false;
+        }
+
+        function removeFromList(movie) {
+            myList = myList.filter(item => item.id !== movie.id);
+            localStorage.setItem('myList', JSON.stringify(myList));
+            alert('Filme removido da sua lista!');
+            closeModal();
+            // Atualiza o estado para que a Minha Lista seja renderizada novamente se clicarem nela
+            isMyListRendered = false;
+        }
+
+        window.onclick = function(event) {
+            var modal = document.getElementById('movie-modal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderHeroBanner();
+            renderMovieGrid('movie-grid-container', movieData);
+        });
+
+    </script>
+
+</body>
+</html>
