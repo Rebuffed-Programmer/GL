@@ -376,7 +376,7 @@
     <div id="movie-modal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal()">&times;</span>
-            <div id="modal-details-view">
+            <div class="modal-content-inner">
                 <div class="modal-poster">
                     <img id="modal-poster-img" src="" alt="Pôster do Filme">
                 </div>
@@ -391,7 +391,7 @@
                     </div>
                 </div>
             </div>
-            <div id="modal-video-view" class="modal-video-container">
+            <div id="modal-video-container" class="modal-video-container">
                 <iframe id="movie-player" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
             </div>
         </div>
@@ -1039,7 +1039,7 @@
                 directors: ['Herbert Selpin'],
                 actors: ['Sybille Schmitz', 'Hans Nielsen'],
                 description: 'Um filme de propaganda nazista que mostra a história do navio Titanic.',
-                poster: 'https://i.postimg.cc/qqrNyqzv/the-nazi-titanic.jpg',
+                poster: 'https://i.postimg.cc/qqrNyqzv/the-nazis-strike.jpg',
                 videoUrl: 'https://drive.google.com/file/d/1Z1B5HmoBzDWnGB1QuHnNbDYIf9ThlG_a/preview'
             },
             {
@@ -1423,14 +1423,13 @@
             if (!movie) return;
 
             var modal = document.getElementById('movie-modal');
-            var detailsView = document.getElementById('modal-details-view');
-            var videoView = document.getElementById('modal-video-view');
+            var modalContentInner = modal.querySelector('.modal-content-inner');
+            var videoContainer = document.getElementById('modal-video-container');
             var moviePlayer = document.getElementById('movie-player');
-
-            // Revertendo a exibição para a tela de detalhes
-            detailsView.style.display = 'flex';
-            videoView.style.display = 'none';
-            moviePlayer.src = ''; // Limpa o src do iframe para evitar que o vídeo continue rodando em segundo plano
+        
+            modalContentInner.style.display = 'flex';
+            videoContainer.style.display = 'none';
+            moviePlayer.src = '';
 
             document.getElementById('modal-poster-img').src = movie.poster;
             document.getElementById('modal-title').innerText = movie.title;
@@ -1440,21 +1439,12 @@
             document.getElementById('modal-description').innerText = movie.description;
 
             document.getElementById('play-button').onclick = () => {
-                videoView.style.display = 'block';
-                detailsView.style.display = 'none';
-                moviePlayer.src = movie.videoUrl + '?autoplay=1'; // Adiciona autoplay para iniciar o vídeo automaticamente
-
-                // Entra em tela cheia (fullscreen) quando o botão de play é clicado
-                var elem = document.getElementById('movie-modal');
-                if (elem.requestFullscreen) {
-                    elem.requestFullscreen();
-                } else if (elem.mozRequestFullScreen) { /* Firefox */
-                    elem.mozRequestFullScreen();
-                } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
-                    elem.webkitRequestFullscreen();
-                } else if (elem.msRequestFullscreen) { /* IE/Edge */
-                    elem.msRequestFullscreen();
-                }
+                modalContentInner.style.display = 'none';
+                videoContainer.style.display = 'block';
+                // Adiciona o link do vídeo com autoplay para tentar iniciar a reprodução.
+                // Note: a reprodução automática pode ser bloqueada em alguns navegadores,
+                // especialmente em dispositivos móveis, por política do SO.
+                moviePlayer.src = movie.videoUrl + '?autoplay=1';
             };
 
             var addToListBtn = document.getElementById('add-list-button');
@@ -1467,7 +1457,6 @@
                 removeFromListBtn.style.display = 'inline-block';
                 removeFromListBtn.onclick = () => {
                     removeFromList(movie);
-                    // Atualiza a visualização da Minha Lista se estiver nela
                     if (document.getElementById('my-list-page').style.display === 'block') {
                         renderMyListContent();
                     }
@@ -1483,21 +1472,9 @@
 
         function closeModal() {
             var modal = document.getElementById('movie-modal');
-            document.getElementById('movie-player').src = "";
+            var moviePlayer = document.getElementById('movie-player');
+            moviePlayer.src = "";
             modal.style.display = 'none';
-
-            // Sai do modo de tela cheia se estiver ativado
-            if (document.fullscreenElement) {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.mozCancelFullScreen) { /* Firefox */
-                    document.mozCancelFullScreen();
-                } else if (document.webkitExitFullscreen) { /* Chrome, Safari & Opera */
-                    document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) { /* IE/Edge */
-                    document.msExitFullscreen();
-                }
-            }
         }
 
         function addToList(movie) {
@@ -1507,7 +1484,6 @@
                 alert('Filme adicionado à sua lista!');
             }
             closeModal();
-            // Atualiza o estado para que a Minha Lista seja renderizada novamente se clicarem nela
             isMyListRendered = false;
         }
 
@@ -1516,7 +1492,6 @@
             localStorage.setItem('myList', JSON.stringify(myList));
             alert('Filme removido da sua lista!');
             closeModal();
-            // Atualiza o estado para que a Minha Lista seja renderizada novamente se clicarem nela
             isMyListRendered = false;
         }
 
