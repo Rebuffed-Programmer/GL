@@ -887,45 +887,9 @@
             }
         });
    <script>
-    document.addEventListener("DOMContentLoaded", function () {
-  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  if (isIOS) {
-    // Cria o botão que só vai aparecer para usuários de iOS
-    var btn = document.createElement("button");
-    btn.innerText = "Meu iOS é inferior";
-    btn.style.position = "fixed";
-    btn.style.bottom = "20px";
-    btn.style.right = "20px";
-    btn.style.padding = "10px 15px";
-    btn.style.background = "#000";
-    btn.style.color = "#fff";
-    btn.style.border = "none";
-    btn.style.borderRadius = "5px";
-    btn.style.cursor = "pointer";
-    btn.style.zIndex = "9999";
-
-    // Adiciona o botão à página
-    document.body.appendChild(btn);
-
-    // Adiciona a funcionalidade de clique ao botão
-    btn.onclick = function () {
-      document.querySelectorAll("a, iframe").forEach(function (el) {
-        // Altera links e iframes que contêm "/preview" para "/view"
-        if (el.href && el.href.includes("/preview")) {
-          el.href = el.href.replace("/preview", "/view");
-        }
-        if (el.src && el.src.includes("/preview")) {
-          el.src = el.src.replace("/preview", "/view");
-        }
-      });
-      // Opcional: esconde o botão depois de ser clicado
-      btn.style.display = 'none';
-    };
-  }
-});
-    </script> 
 </body>
 </html>
+
 
 
 
