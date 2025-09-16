@@ -889,7 +889,49 @@
 
 
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  if (!isIOS) return;
+
+  // Selecionar todos os players
+  document.querySelectorAll("iframe").forEach(function(player, index) {
+    // Criar botão toggle
+    var btn = document.createElement("button");
+    btn.innerText = "Ativar modo iOS antigo";
+    btn.style.display = "block";
+    btn.style.margin = "10px auto";
+    btn.style.padding = "8px 12px";
+    btn.style.background = "#000";
+    btn.style.color = "#fff";
+    btn.style.border = "none";
+    btn.style.borderRadius = "5px";
+    btn.style.cursor = "pointer";
+
+    var isViewMode = false;
+
+    btn.addEventListener("click", function () {
+      if (!player) return;
+
+      if (isViewMode) {
+        player.src = player.src.replace("/view", "/preview");
+        btn.innerText = "Ativar modo iOS antigo";
+        isViewMode = false;
+      } else {
+        player.src = player.src.replace("/preview", "/view");
+        btn.innerText = "Voltar para modo normal";
+        isViewMode = true;
+      }
+    });
+
+    // Inserir botão depois do player
+    player.insertAdjacentElement("afterend", btn);
+  });
+});
+</script>
 </body>
+
 </html>
 
 
