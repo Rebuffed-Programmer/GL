@@ -446,13 +446,13 @@
     </style>
 </head>
 <body>
-
     <!--
-        Este é o código HTML que você precisa adicionar dentro da sua modal ou da sua seção de player de vídeo.
-        Ele só será visível em dispositivos iOS mais antigos.
+        Este é o código HTML do botão que você precisa adicionar na sua modal.
+        Ele deve estar ao lado do seu <iframe> do Google Drive.
+        Note que o ID 'ios-toggle-wrapper' é usado pelo script.
     -->
     <div id="ios-toggle-wrapper" class="ios-toggle-container hidden">
-        <span>Modo de visualização otimizado para iOS (Preview)</span>
+        <span id="toggle-label">Modo de visualização otimizado para iOS (Preview)</span>
         <label class="switch">
             <input type="checkbox" id="ios-toggle-switch">
             <span class="slider"></span>
@@ -902,17 +902,6 @@
 
 </script>
 <script>
-    // A função para ser chamada quando a modal do filme for aberta.
-    // Ela vai mostrar ou esconder o botão de alternância.
-    function showToggleIfApplicable() {
-        const toggleWrapper = document.getElementById("ios-toggle-wrapper");
-        if (isOldIOS() && toggleWrapper) {
-            toggleWrapper.classList.remove("hidden");
-        } else if (toggleWrapper) {
-            toggleWrapper.classList.add("hidden");
-        }
-    }
-
     // Esta função verifica se o dispositivo é um iOS e se a versão é inferior a 12
     function isOldIOS() {
         const ua = navigator.userAgent;
@@ -922,36 +911,66 @@
         return isIOS && iOSVersion < 12;
     }
 
-    // Adiciona o listener para o botão de deslize
-    document.addEventListener("DOMContentLoaded", function() {
+    // Esta é a função que você deve chamar quando abrir a modal do filme.
+    // O argumento 'playerElement' deve ser o <iframe> do Google Drive.
+    function setupIosPlayerToggle(playerElement) {
+        const toggleWrapper = document.getElementById("ios-toggle-wrapper");
         const toggleSwitch = document.getElementById("ios-toggle-switch");
-        // Substitua 'video-player' pelo ID do seu iframe de player de vídeo
-        const videoPlayer = document.getElementById("video-player");
+        const toggleLabel = document.getElementById("toggle-label");
 
+        // Oculta o botão por padrão
+        toggleWrapper.classList.add("hidden");
+
+        // Verifica se é um iOS antigo e mostra o botão
+        if (isOldIOS()) {
+            toggleWrapper.classList.remove("hidden");
+            
+            // Define o vídeo para começar em 'view' se for um player do Google Drive
+            const currentSrc = playerElement.src;
+            if (currentSrc.includes("/preview")) {
+                playerElement.src = currentSrc.replace("/preview", "/view");
+                toggleSwitch.checked = true;
+                toggleLabel.innerText = "Modo de visualização otimizado para iOS (View)";
+            }
+        } else {
+            // Garante que o botão está oculto em outros dispositivos
+            toggleWrapper.classList.add("hidden");
+        }
+
+        // Adiciona o listener para o botão de deslize
         if (toggleSwitch) {
-            toggleSwitch.addEventListener("change", function() {
-                if (!videoPlayer) {
-                    console.error("Elemento do player de vídeo não encontrado. Verifique o ID.");
-                    return;
-                }
-                const currentSrc = videoPlayer.src;
+            toggleSwitch.onchange = function() {
+                const currentSrc = playerElement.src;
                 if (this.checked) {
-                    // Ativado: muda para o modo "view" se não estiver
-                    if (!currentSrc.includes("/view")) {
-                         videoPlayer.src = currentSrc.replace("/preview", "/view");
+                    // Ativado: muda para o modo "view"
+                    if (currentSrc.includes("/preview")) {
+                        playerElement.src = currentSrc.replace("/preview", "/view");
                     }
+                    toggleLabel.innerText = "Modo de visualização otimizado para iOS (View)";
                 } else {
                     // Desativado: volta para o modo "preview"
-                    videoPlayer.src = currentSrc.replace("/view", "/preview");
+                    if (currentSrc.includes("/view")) {
+                        playerElement.src = currentSrc.replace("/view", "/preview");
+                    }
+                    toggleLabel.innerText = "Modo de visualização otimizado para iOS (Preview)";
                 }
-            });
+            };
         }
-    });
+    }
 
-    // Lembre-se de chamar showToggleIfApplicable() quando sua modal de filme for aberta.
+    // Exemplo de uso:
+    // Suponha que você tenha um botão para abrir a modal com o ID 'open-modal-btn'
+    // e o seu <iframe> do Google Drive dentro da modal tenha o ID 'google-drive-player'
+    //
+    // openModalBtn.onclick = function() {
+    //     modal.style.display = 'block';
+    //     const player = document.getElementById('google-drive-player');
+    //     setupIosPlayerToggle(player);
+    // };
+
 </script>
-</body>
 
+</body>
 </html>
 
 
