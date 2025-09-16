@@ -889,50 +889,59 @@
 
 
 </script>
-
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  if (!isIOS) return;
+    // A função para ser chamada quando a modal do filme for aberta.
+    // Ela vai mostrar ou esconder o botão de alternância.
+    function showToggleIfApplicable() {
+        const toggleWrapper = document.getElementById("ios-toggle-wrapper");
+        if (isOldIOS() && toggleWrapper) {
+            toggleWrapper.classList.remove("hidden");
+        } else if (toggleWrapper) {
+            toggleWrapper.classList.add("hidden");
+        }
+    }
 
-  // Selecionar todos os players
-  document.querySelectorAll("iframe").forEach(function(player, index) {
-    // Criar botão toggle
-    var btn = document.createElement("button");
-    btn.innerText = "Ativar modo iOS antigo";
-    btn.style.display = "block";
-    btn.style.margin = "10px auto";
-    btn.style.padding = "8px 12px";
-    btn.style.background = "#000";
-    btn.style.color = "#fff";
-    btn.style.border = "none";
-    btn.style.borderRadius = "5px";
-    btn.style.cursor = "pointer";
+    // Esta função verifica se o dispositivo é um iOS e se a versão é inferior a 12
+    function isOldIOS() {
+        const ua = navigator.userAgent;
+        const isIOS = /iPad|iPhone|iPod/.test(ua);
+        const iOSVersionMatch = ua.match(/OS (\d+)_/);
+        const iOSVersion = iOSVersionMatch ? parseInt(iOSVersionMatch[1], 10) : 0;
+        return isIOS && iOSVersion < 12;
+    }
 
-    var isViewMode = false;
+    // Adiciona o listener para o botão de deslize
+    document.addEventListener("DOMContentLoaded", function() {
+        const toggleSwitch = document.getElementById("ios-toggle-switch");
+        // Substitua 'video-player' pelo ID do seu iframe de player de vídeo
+        const videoPlayer = document.getElementById("video-player");
 
-    btn.addEventListener("click", function () {
-      if (!player) return;
-
-      if (isViewMode) {
-        player.src = player.src.replace("/view", "/preview");
-        btn.innerText = "Ativar modo iOS antigo";
-        isViewMode = false;
-      } else {
-        player.src = player.src.replace("/preview", "/view");
-        btn.innerText = "Voltar para modo normal";
-        isViewMode = true;
-      }
+        if (toggleSwitch) {
+            toggleSwitch.addEventListener("change", function() {
+                if (!videoPlayer) {
+                    console.error("Elemento do player de vídeo não encontrado. Verifique o ID.");
+                    return;
+                }
+                const currentSrc = videoPlayer.src;
+                if (this.checked) {
+                    // Ativado: muda para o modo "view" se não estiver
+                    if (!currentSrc.includes("/view")) {
+                         videoPlayer.src = currentSrc.replace("/preview", "/view");
+                    }
+                } else {
+                    // Desativado: volta para o modo "preview"
+                    videoPlayer.src = currentSrc.replace("/view", "/preview");
+                }
+            });
+        }
     });
 
-    // Inserir botão depois do player
-    player.insertAdjacentElement("afterend", btn);
-  });
-});
+    // Lembre-se de chamar showToggleIfApplicable() quando sua modal de filme for aberta.
 </script>
 </body>
 
 </html>
+
 
 
 
