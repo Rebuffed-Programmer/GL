@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+<!-- Video.js CSS -->
+<link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+
+<!-- Video.js JS -->
+<script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -326,12 +331,15 @@
         }
         
         /* Modal Video Player */
-        .modal-video-container {
-            display: none;
-            position: relative;
-            background-color: black;
-            padding-bottom: 56.25%; /* 16:9 aspect ratio */
-        }
+        <div id="modal-video-container" class="modal-video-container">
+  <button class="back-to-info-btn"><i class="fas fa-arrow-left"></i> Voltar</button>
+  
+  <!-- Novo player -->
+  <video id="movie-player" class="video-js vjs-big-play-centered" controls preload="metadata" playsinline webkit-playsinline width="100%" height="100%">
+    <source src="" type="video/mp4">
+    Seu navegador não suporta vídeo.
+  </video>
+</div>
         
         .modal-video-container iframe {
             position: absolute;
@@ -894,7 +902,37 @@
 
 
 </script>
-<script>
+
+<script> 
+function playMovieInModal(videoUrl) {
+    modalInfoContainer.style.display = 'none';
+    modalVideoContainer.style.display = 'block';
+    movieModal.classList.add('fullscreen-video');
+
+    // Extrair fileId do Google Drive
+    const fileIdMatch = videoUrl.match(/\/d\/([^/]+)\//);
+    if (!fileIdMatch) return alert("Erro: link inválido");
+
+    const fileId = fileIdMatch[1];
+    const directUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+    // Atualiza player
+    const playerEl = document.getElementById('movie-player');
+    const sourceEl = playerEl.querySelector('source');
+    sourceEl.src = directUrl;
+
+    // Recarrega o player Video.js
+    if (window.player) {
+        window.player.dispose();
+    }
+    window.player = videojs(playerEl);
+    window.player.src({ src: directUrl, type: 'video/mp4' });
+    window.player.load();
+    window.player.play();
+}
+    </script>
+    
+ <script>
     document.addEventListener('DOMContentLoaded', () => {
         const ua = navigator.userAgent;
         const isIOS = /iPad|iPhone|iPod/.test(ua);
@@ -914,3 +952,4 @@
 </body>
 
 </html>
+
