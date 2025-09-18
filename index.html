@@ -910,30 +910,12 @@
         });
 
 
-</script>
 
-
-    
- <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const ua = navigator.userAgent;
-        const isIOS = /iPad|iPhone|iPod/.test(ua);
-        const iOSVersionMatch = ua.match(/OS (\d+)_/);
-        const iOSVersion = iOSVersionMatch ? parseInt(iOSVersionMatch[1], 10) : 0;
-        const redirectButton = document.getElementById('ios-redirect-btn');
-
-        if (isIOS && iOSVersion < 12) {
-            redirectButton.style.display = 'block';
-        }
-
-        redirectButton.addEventListener('click', () => {
-            window.location.href = "index-ios-old.html"; // Redireciona para o View
-        });
-    });
 </script>
 </body>
 
 </html>
+
 
 
 
