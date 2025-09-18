@@ -747,24 +747,31 @@
         }
 
         function playMovieInModal(videoUrl) {
-            modalInfoContainer.style.display = 'none';
-            modalVideoContainer.style.display = 'block';
-            movieModal.classList.add('fullscreen-video');
-            
-            modalVideoContainer.innerHTML = '';
-            const iframe = document.createElement('iframe');
-            iframe.src = videoUrl;
-            iframe.allow = 'autoplay';
-            iframe.allowfullscreen = true;
-            modalVideoContainer.appendChild(iframe);
+    modalInfoContainer.style.display = 'none';
+    modalVideoContainer.style.display = 'block';
+    movieModal.classList.add('fullscreen-video');
 
-            const backBtn = document.createElement('button');
-            backBtn.className = 'back-to-info-btn';
-            backBtn.innerHTML = `<i class="fas fa-arrow-left"></i> Voltar`;
-            backBtn.addEventListener('click', backToInfo);
-            modalVideoContainer.appendChild(backBtn);
-        }
+    // Extrair fileId do Google Drive
+    const fileIdMatch = videoUrl.match(/\/d\/([^/]+)\//);
+    if (!fileIdMatch) return alert("Erro: link inválido");
 
+    const fileId = fileIdMatch[1];
+    const directUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+    // Atualiza player
+    const playerEl = document.getElementById('movie-player');
+    const sourceEl = playerEl.querySelector('source');
+    sourceEl.src = directUrl;
+
+    // Recarrega o player Video.js
+    if (window.player) {
+        window.player.dispose();
+    }
+    window.player = videojs(playerEl);
+    window.player.src({ src: directUrl, type: 'video/mp4' });
+    window.player.load();
+    window.player.play();
+}
         function backToInfo() {
             modalVideoContainer.innerHTML = `<button class="back-to-info-btn"><i class="fas fa-arrow-left"></i> Voltar</button>`;
             modalVideoContainer.style.display = 'none';
@@ -896,34 +903,7 @@
 
 </script>
 
-<script> 
-function playMovieInModal(videoUrl) {
-    modalInfoContainer.style.display = 'none';
-    modalVideoContainer.style.display = 'block';
-    movieModal.classList.add('fullscreen-video');
 
-    // Extrair fileId do Google Drive
-    const fileIdMatch = videoUrl.match(/\/d\/([^/]+)\//);
-    if (!fileIdMatch) return alert("Erro: link inválido");
-
-    const fileId = fileIdMatch[1];
-    const directUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-
-    // Atualiza player
-    const playerEl = document.getElementById('movie-player');
-    const sourceEl = playerEl.querySelector('source');
-    sourceEl.src = directUrl;
-
-    // Recarrega o player Video.js
-    if (window.player) {
-        window.player.dispose();
-    }
-    window.player = videojs(playerEl);
-    window.player.src({ src: directUrl, type: 'video/mp4' });
-    window.player.load();
-    window.player.play();
-}
-    </script>
     
  <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -945,6 +925,7 @@ function playMovieInModal(videoUrl) {
 </body>
 
 </html>
+
 
 
 
