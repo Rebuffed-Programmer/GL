@@ -944,7 +944,52 @@ document.addEventListener('click', function(e) {
     
 </body>
 <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+<script>
+function playMovieInModal(videoUrl) {
+  try {
+    // esconde infos e mostra player
+    modalInfoContainer.style.display = 'none';
+    modalVideoContainer.style.display = 'block';
+    movieModal.classList.add('fullscreen-video');
+
+    // pega o ID do arquivo do Google Drive
+    const fileIdMatch = videoUrl.match(/\/d\/([^/]+)\//);
+    if (!fileIdMatch) throw new Error("Link inválido");
+    const fileId = fileIdMatch[1];
+
+    // monta URL direta para o player
+    const directUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+    // pega elementos
+    const playerEl = document.getElementById('movie-player');
+    const sourceEl = playerEl.querySelector('source');
+    sourceEl.src = directUrl;
+
+    // reinicia Video.js
+    if (window.player) {
+      window.player.dispose();
+    }
+    window.player = videojs(playerEl);
+    window.player.src({ src: directUrl, type: 'video/mp4' });
+    window.player.load();
+    window.player.play();
+  } catch (err) {
+    console.error("Erro no playMovieInModal:", err);
+    alert("Não foi possível carregar o vídeo.");
+  }
+}
+
+// Captura cliques nos botões "Assistir Agora"
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.btn-watch');
+  if (!btn) return;
+  e.preventDefault();
+  const videoUrl = btn.getAttribute('data-video-url');
+  if (videoUrl) playMovieInModal(videoUrl);
+});
+</script>
 </html>
+
 
 
 
