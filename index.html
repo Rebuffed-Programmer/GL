@@ -3,9 +3,7 @@
 <head>
 <!-- Video.js CSS -->
 <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
-
-<!-- Video.js JS -->
-<script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+<link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
 </head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -525,31 +523,18 @@
         </section>
     </main>
     
-    <div id="movie-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <div id="modal-info-container" class="modal-info-container">
-                <div class="modal-poster-container">
-                    <img id="modal-poster" src="" alt="Poster do filme" class="modal-poster">
-                </div>
-                <div class="modal-info">
-                    <h2 id="modal-title"></h2>
-                    <p id="modal-year"></p>
-                    <p id="modal-genres"></p>
-                    <p id="modal-description"></p>
-                    <a id="modal-watch-btn" href="#" class="btn-watch">Assistir Já</a>
-                </div>
-                <div class="recommended-section">
-                    <h3>Filmes que talvez irá gostar</h3>
-                    <div class="recommended-grid" id="recommended-grid">
-                        </div>
-                </div>
-            </div>
-            <div id="modal-video-container" class="modal-video-container">
-                <button class="back-to-info-btn"><i class="fas fa-arrow-left"></i> Voltar</button>
-            </div>
-        </div>
-    </div>
+<div id="modal-video-container" class="modal-video-container" style="display:none;">
+  <button class="back-to-info-btn"><i class="fas fa-arrow-left"></i> Voltar</button>
+
+  <!-- Player Video.js -->
+  <video id="movie-player" class="video-js vjs-big-play-centered"
+         controls preload="metadata"
+         playsinline webkit-playsinline
+         width="100%" height="100%">
+    <source src="" type="video/mp4">
+    Seu navegador não suporta vídeo.
+  </video>
+</div>
 
     <script>
         const movieData = [
@@ -912,9 +897,55 @@
 
 
 </script>
-</body>
+<script>
+function playMovieInModal(videoUrl) {
+  try {
+    // esconde infos e mostra player
+    modalInfoContainer.style.display = 'none';
+    modalVideoContainer.style.display = 'block';
+    movieModal.classList.add('fullscreen-video');
 
+    // pega o ID do arquivo do Google Drive
+    const fileIdMatch = videoUrl.match(/\/d\/([^/]+)\//);
+    if (!fileIdMatch) throw new Error("Link inválido");
+    const fileId = fileIdMatch[1];
+
+    // monta URL direta para o player
+    const directUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+    // pega elementos
+    const playerEl = document.getElementById('movie-player');
+    const sourceEl = playerEl.querySelector('source');
+    sourceEl.src = directUrl;
+
+    // reinicia Video.js
+    if (window.player) {
+      window.player.dispose();
+    }
+    window.player = videojs(playerEl);
+    window.player.src({ src: directUrl, type: 'video/mp4' });
+    window.player.load();
+    window.player.play();
+  } catch (err) {
+    console.error("Erro no playMovieInModal:", err);
+    alert("Não foi possível carregar o vídeo.");
+  }
+}
+
+// Captura cliques nos botões "Assistir Agora"
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.btn-watch');
+  if (!btn) return;
+  e.preventDefault();
+  const videoUrl = btn.getAttribute('data-video-url');
+  if (videoUrl) playMovieInModal(videoUrl);
+});
+</script>
+    
+</body>
+<script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
 </html>
+
 
 
 
