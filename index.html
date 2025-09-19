@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<!-- Video.js CSS -->
+<link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+
+<!-- Video.js JS -->
+<script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GL+ Plus</title>
+
+    <link rel="icon" type="image/png" sizes="16x16" href="https://i.postimg.cc/HnLz9gWG/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://i.postimg.cc/tJm5rM7s/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="https://i.postimg.cc/JzHTFMNM/apple-touch-icon-96x96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="https://i.postimg.cc/Xq22Rv17/android-icon-192x192.png">
+
+    <link rel="apple-touch-icon" sizes="57x57" href="https://i.postimg.cc/tCTvhh71/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="https://i.postimg.cc/zXctpVRx/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="https://i.postimg.cc/RCGb6PC5/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="https://i.postimg.cc/PqG6s9yZ/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="https://i.postimg.cc/vmW0Qh2K/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="https://i.postimg.cc/PxT2NDB5/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://i.postimg.cc/fLC5dLNj/apple-touch-icon-180x180.png">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* Estilos gerais */
+        body {
+            background-color: #0d0f10;
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Barra de navegação superior */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+            background-color: #0d0f10;
+            border-bottom: 1px solid #1a1e20;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-img {
+            height: 40px;
+        }
+
+        .navbar-links a {
+            color: #999;
+            text-decoration: none;
+            margin-left: 30px;
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-links a:hover {
+            color: #fff;
+        }
+
+        /* Banner principal */
+        .hero-banner {
+            position: relative;
+            height: 500px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: flex-end;
+            padding: 50px;
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, #0d0f10, rgba(13, 15, 16, 0.5) 50%, rgba(13, 15, 16, 0.1) 100%);
+        }
+
+        .hero-content {
+            z-index: 10;
+            max-width: 600px;
+        }
+
+        .hero-content .title {
+            font-size: 4em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            line-height: 1.1;
+        }
+
+        .hero-content .description {
+            font-size: 1.2em;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        .hero-content .btn {
+            background-color: #48c948;
+            color: #fff;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .hero-content .btn:hover {
+            background-color: #3b9f3b;
+        }
+
+        /* Seções de conteúdo */
+        .content-section {
+            padding: 50px;
+        }
+        
+        .genres-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        
+        .genre-card {
+            background-color: #2c2c2c;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .genre-card:hover {
+            background-color: #48c948;
+        }
+
+        .section-title {
+            font-size: 2em;
+            margin: 0 0 20px;
+        }
+        
+        .section-title-link {
+            text-decoration: none;
+            color: #e0e0e0;
+            transition: color 0.3s ease;
+        }
+
+        .section-title-link:hover {
+            color: #48c948;
+        }
+
+        /* Layout de filmes em grid (4 por linha) */
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .movie-item {
+            position: relative;
+            background-color: #1a1e20;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio (9/16 * 100) */
+            position: relative;
+        }
+
+        .movie-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        
+        .movie-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .add-to-list-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .add-to-list-btn:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        /* Modal Fichário */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: #1a1e20;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 95%;
+            position: relative;
+            animation: fadeIn 0.3s;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            color: #fff;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Modal Info */
+        .modal-info-container {
+            display: block;
+        }
+        
+        .modal-poster-container {
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .modal-poster {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .modal-info h2 {
+            font-size: 2.5em;
+            margin-top: 0;
+        }
+
+        .modal-info p {
+            font-size: 1em;
+            color: #ccc;
+        }
+
+        .modal-info .btn-watch {
+            background-color: #48c948;
+            color: #fff;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .modal-info .btn-watch:hover {
+            background-color: #3b9f3b;
+        }
+
+        .recommended-section {
+            margin-top: 20px;
+            border-top: 1px solid #2c2c2c;
+            padding-top: 20px;
+        }
+        
+        .recommended-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .recommended-item img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        
+        /* Modal Video Player */
+        .modal-video-container {
+            display: none;
+            position: relative;
+            background-color: black;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        }
+        
+        <div id="modal-video-container" class="modal-video-container">
+  <button class="back-to-info-btn"><i class="fas fa-arrow-left"></i> Voltar</button>
+  
+  <!-- Novo player -->
+  <video id="movie-player" class="video-js vjs-big-play-centered" controls preload="metadata" playsinline webkit-playsinline width="100%" height="100%">
+    <source src="" type="video/mp4">
+    Seu navegador não suporta vídeo.
+  </video>
+</div>
+        
+        
+
+        .back-to-info-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            z-index: 10;
+            transition: background-color 0.3s;
+        }
+
+        .back-to-info-btn:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        /* --- Estilos para o modo de vídeo em tela cheia (Corrigido) --- */
+        .modal.fullscreen-video {
+            padding: 0; /* Remove o padding do modal */
+            backdrop-filter: none; /* Remove o desfoque do fundo para uma tela 100% preta */
+            background-color: black; /* Fundo preto total */
+        }
+
+        .modal.fullscreen-video .modal-content {
+            max-width: 100%;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            border-radius: 0;
+            overflow: hidden;
+            background-color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.fullscreen-video .modal-video-container {
+            width: 100%;
+            height: 100%;
+            padding-bottom: 0;
+            position: relative;
+        }
+
+        .modal.fullscreen-video .modal-video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Aumenta o tamanho do botão Voltar em modo tela cheia */
+        .modal.fullscreen-video .back-to-info-btn {
+            padding: 12px 20px;
+            font-size: 1.2em;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        
+        /* Esconde o botão de fechar quando o vídeo está em tela cheia */
+        .modal.fullscreen-video .close-btn {
+            display: none;
+        }
+        /* --- Fim das correções --- */
+
+        /* Responsividade */
+        /* PC: 4 colunas */
+        @media (min-width: 1024px) {
+            .movie-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        /* Tablet: 3 colunas */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .movie-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .navbar-links { display: flex; }
+            .hero-content .title { font-size: 2.5em; }
+            .hero-content .description { font-size: 1em; }
+        }
+
+        /* Mobile: 2 colunas */
+        @media (max-width: 767px) {
+            .navbar { padding: 15px 20px; }
+            .navbar-links { display: none; }
+            .hero-banner { height: 400px; padding: 30px; align-items: flex-end; }
+            .hero-content .title { font-size: 2.5em; }
+            .hero-content .description { font-size: 1em; }
+            .content-section { padding: 30px; }
+            .genres-grid { 
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .movie-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</style>
+
+<button id="ios-redirect-btn" class="ios-redirect-button">
+    Ativar versão otimizada (iOS 12 ou Inferior)
+</button>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="https://a.imagem.app/BC6eOG.png" alt="GL+ Plus" class="logo-img">
+        </div>
+        <div class="navbar-links">
+            <a href="#home">Início</a>
+            <a href="#my-list">Minha Lista</a>
+            <a href="#genres">Gêneros</a>
+        </div>
+    </nav>
+
+    <header class="hero-banner" style="background-image: url('https://a.imagem.app/BCsQMT.jpeg');" id="home">
+        <div class="hero-content">
+            <h1 class="title">A Última Vez que Vi Paris</h1>
+            <p class="description">
+                A história de um casal de americanos que decide viver em Paris logo após a Segunda Guerra Mundial, mas a vida de luxo e festa na cidade luz logo se desfaz quando as escolhas de ambos geram consequências negativas.
+            </p>
+            <a href="#" class="btn watch-btn-hero" data-movie-id="1">Assistir Agora</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="content-section" id="all-movies">
+            <h2 class="section-title">Todos os Filmes</h2>
+            <ul class="movie-grid" id="movie-grid">
+                </ul>
+        </section>
+        
+        <section class="content-section" id="my-list" style="display: none;">
+            <h2 class="section-title">Minha Lista</h2>
+            <ul class="movie-grid" id="my-movie-grid">
+                </ul>
+        </section>
+
+        <section class="content-section" id="genres">
+            <h2 class="section-title">Gêneros</h2>
+            <div class="genres-grid">
+                <div class="genre-card" data-genre="all">Todos os Filmes</div>
+                <div class="genre-card" data-genre="Ação">Ação</div>
+                <div class="genre-card" data-genre="Animação">Animação</div>
+                <div class="genre-card" data-genre="Aventura">Aventura</div>
+                <div class="genre-card" data-genre="Biografia">Biografia</div>
+                <div class="genre-card" data-genre="Comédia">Comédia</div>
+                <div class="genre-card" data-genre="Crime">Crime</div>
+                <div class="genre-card" data-genre="Documentário">Documentário</div>
+                <div class="genre-card" data-genre="Drama">Drama</div>
+                <div class="genre-card" data-genre="Experimental">Experimental</div>
+                <div class="genre-card" data-genre="Faroeste">Faroeste</div>
+                <div class="genre-card" data-genre="Ficção Científica">Ficção Científica</div>
+                <div class="genre-card" data-genre="Guerra">Guerra</div>
+                <div class="genre-card" data-genre="História">História</div>
+                <div class="genre-card" data-genre="Mistério">Mistério</div>
+                <div class="genre-card" data-genre="Musical">Musical</div>
+                <div class="genre-card" data-genre="Noir">Noir</div>
+                <div class="genre-card" data-genre="Propaganda">Propaganda</div>
+                <div class="genre-card" data-genre="Romance">Romance</div>
+                <div class="genre-card" data-genre="Suspense">Suspense</div>
+                <div class="genre-card" data-genre="Terror">Terror</div>
+                <div class="genre-card" data-genre="Vampiro">Vampiro</div>
+            </div>
+        </section>
+    </main>
+    
+    <div id="movie-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div id="modal-info-container" class="modal-info-container">
+                <div class="modal-poster-container">
+                    <img id="modal-poster" src="" alt="Poster do filme" class="modal-poster">
+                </div>
+                <div class="modal-info">
+                    <h2 id="modal-title"></h2>
+                    <p id="modal-year"></p>
+                    <p id="modal-genres"></p>
+                    <p id="modal-description"></p>
+                    <a id="modal-watch-btn" href="#" class="btn-watch">Assistir Já</a>
+                </div>
+                <div class="recommended-section">
+                    <h3>Filmes que talvez irá gostar</h3>
+                    <div class="recommended-grid" id="recommended-grid">
+                        </div>
+                </div>
+            </div>
+            <div id="modal-video-container" class="modal-video-container">
+                <button class="back-to-info-btn"><i class="fas fa-arrow-left"></i> Voltar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const movieData = [
+            { id: 1, title: "A Última Vez que Vi Paris", year: "1954", description: "A história de um casal de americanos que decide viver em Paris logo após a Segunda Guerra Mundial, mas a vida de luxo e festa na cidade luz logo se desfaz quando as escolhas de ambos geram consequências negativas.", poster: "https://a.imagem.app/BCsQMT.jpeg", genres: ["Romance", "Drama"], videoUrl: "https://drive.google.com/file/d/1WBzFajjbABNqIQgzVYh7qP0vqjtDHQYs/preview" },
+            { id: 2, title: "A Antiga e a Moderna", year: "1929", description: "O jovem Komarovskis volta do exílio para sua aldeia na Sibéria, onde se depara com grandes mudanças em andamento. Entre elas, a jovem Marfa, que se rebela contra os costumes de uma família patriarcal e está determinada a viver de acordo com suas próprias regras.", poster: "https://a.imagem.app/BCs9X0.jpeg", genres: ["Drama", "Romance"], videoUrl: "https://drive.google.com/file/d/1D7tr9aDjLJ2gGrdoYXGrKYqnJRu8Exjo/preview" },
+            { id: 3, title: "A Dama de Shanghai", year: "1948", description: "Um marinheiro irlandês se apaixona por uma mulher fatal casada com um advogado famoso e doente, e se envolve em uma rede de mentiras e assassinatos.", poster: "https://a.imagem.app/BCsCe2.jpeg", genres: ["Suspense", "Noir", "Drama"], videoUrl: "https://drive.google.com/file/d/1Oitlgwtxh32WNDTQXze84Mad-PoyqH91/preview" },
+            { id: 4, title: "A Greve", year: "1925", description: "Na Rússia czarista de 1912, operários de uma fábrica realizam uma greve após o suicídio de um colega. A polícia secreta do governo reprime o protesto com violência.", poster: "https://a.imagem.app/BCsLCP.jpeg", genres: ["Drama", "História"], videoUrl: "https://drive.google.com/file/d/1vZXJeW3TwQg1L_tEowv5tC4KR5yiYTZt/preview" },
+            { id: 5, title: "A Noite dos Mortos Vivos", year: "1958", description: "O professor universitário de antropologia, Zomborsky, consegue ressuscitar pessoas recentemente falecidas e as transforma em zumbis sedentos por vingança.", poster: "https://a.imagem.app/BCstfl.jpeg", genres: ["Terror", "Ficção Científica"], videoUrl: "https://drive.google.com/file/d/1rybzCi4wgLMyRoKeM5M3vSTGu1lE1rHm/preview" },
+            { id: 6, title: "A Paixão de Andy", year: "1973", description: "Um grupo de pessoas busca um tesouro de Andy Warbol na cidade de Los Angeles.", poster: "https://a.imagem.app/BCsE2S.jpeg", genres: ["Aventura"], videoUrl: "https://drive.google.com/file/d/17MS17ey-U9ns72OXoWImmFMW__oP86aP/preview" },
+            { id: 7, title: "A Paixão de Joana d'Arc", year: "1928", description: "Em 1431, na França, Joana d'Arc é julgada por heresia por clérigos ingleses. O filme documenta seu julgamento e sua jornada até a execução.", poster: "https://a.imagem.app/BCsIlv.jpeg", genres: ["Drama", "História"], videoUrl: "https://drive.google.com/file/d/1w3ZHVO5pqadeFwFs6Yhqg4uVV3qbPOOU/preview" },
+            { id: 8, title: "Abraham Lincoln", year: "1930", description: "O filme acompanha a vida de Abraham Lincoln, desde sua infância até o momento de sua morte, e conta a história de sua luta pela igualdade.", poster: "https://a.imagem.app/BCsZG3.jpeg", genres: ["Biografia", "História"], videoUrl: "https://drive.google.com/file/d/1-T7K5M-c-s4q4g-k-2r8t5u6p_7h6w3h/preview" },
+            { id: 9, title: "Aconteceu em Havana", year: "1941", description: "Uma estrela de cinema e o seu empresário fogem para Cuba após serem perseguidos por uma gangue de gângsteres.", poster: "https://a.imagem.app/BCsdXZ.jpeg", genres: ["Musical", "Comédia"], videoUrl: "https://drive.google.com/file/d/1DFt1T6CykFsB_dOAH0M8MeQTRAZ2PykP/preview" },
+            { id: 10, title: "Adorável Vagabundo", year: "1939", description: "Em uma comédia romântica clássica, uma jovem rica se apaixona por um homem que a ajuda a escapar de sua casa de campo. Eles vivem aventuras em Londres, mas são perseguidos pela família da garota.", poster: "https://a.imagem.app/BCsmRi.jpeg", genres: ["Comédia", "Romance"], videoUrl: "https://drive.google.com/file/d/1Wxc64BX-Q5ZibaXQ9zGOieLyAxIdhxLK/preview" },
+            { id: 11, title: "Algie, the miner", year: "1912", description: "O jovem Algie decide viajar para o oeste dos Estados Unidos em busca de ouro e se aventura em uma cidade do interior.", poster: "https://a.imagem.app/BCsv88.jpeg", genres: ["Comédia", "Curta-metragem"], videoUrl: "https://drive.google.com/file/d/1WWEwf9JxJ0OLxIf15NH_FALPP5ubdUUe/preview" },
+            { id: 12, title: "As Viagens de Gulliver", year: "1939", description: "O filme de animação conta a história de Gulliver, um marinheiro que, após um naufrágio, acorda em uma ilha habitada por pessoas minúsculas e por gigantes.", poster: "https://a.imagem.app/BCsMeE.jpeg", genres: ["Animação", "Aventura"], videoUrl: "https://drive.google.com/file/d/1xt47Ti7ALA3QAIMtmm8y4UqoNDjhkhNd/preview" },
+            { id: 13, title: "Bancando o Águia", year: "1924", description: "Em um filme mudo, um homem se aventura em uma série de situações hilárias enquanto tenta conquistar o coração de uma mulher.", poster: "https://a.imagem.app/BCsVLe.webp", genres: ["Comédia", "Aventura"], videoUrl: "https://drive.google.com/file/d/11jx9NWCKqolocN77DoSxwePqPhgDsrrU/preview" },
+            { id: 14, title: "Beco sem Saída", year: "1937", description: "Em Nova York, a vida de um grupo de amigos de rua e uma jovem da alta sociedade se entrelaçam.", poster: "https://a.imagem.app/BCsU2C.jpeg", genres: ["Drama", "Crime"], videoUrl: "https://drive.google.com/file/d/1y5ka0vdAir6r5nS7sCbvMqmwdWOmmm5S/preview" },
+            { id: 15, title: "Beast at Bay", year: "1912", description: "Em um filme mudo, uma jovem é salva de um homem perigoso por um homem corajoso, mas o homem que a salvou se revela um criminoso.", poster: "https://a.imagem.app/BCs4fN.png", genres: ["Suspense", "Crime"], videoUrl: "https://drive.google.com/file/d/1i24gxpJzqeq3jMOnbHKBU6s2TQuV9kGC/preview" },
+            { id: 16, title: "Buster Three Ages", year: "1923", description: "Buster Keaton interpreta três homens diferentes em três épocas diferentes: a Idade da Pedra, a Roma Antiga e a Idade Média. Ele tenta conquistar o amor de uma mulher em cada época.", poster: "https://a.imagem.app/BCsa5Y.jpeg", genres: ["Comédia", "Aventura"], videoUrl: "https://drive.google.com/file/d/1D7tr9aDjLJ2gGrdoYXGrKYqnJRu8Exjo/preview" },
+            { id: 17, title: "Carlitos Repórter", year: "1914", description: "Em um curta-metragem, Carlitos tenta roubar um jornal de um repórter e se envolve em uma série de confusões.", poster: "https://a.imagem.app/BCsfMa.jpeg", genres: ["Comédia", "Curta-metragem"], videoUrl: "https://drive.google.com/file/d/1ZclkViqF_n4jceU9iHLSDkIgO3cJO0xW/preview" },
+            { id: 18, title: "Carnival of Souls", year: "1962", description: "Uma jovem pianista, que é a única sobrevivente de um acidente de carro, é perseguida por um fantasma misterioso.", poster: "https://a.imagem.app/BCsDG9.jpeg", genres: ["Terror", "Mistério"], videoUrl: "https://drive.google.com/file/d/1BNcWGAYs9sbtb1gBzqZ7v8qgMqsDaN4G/preview" },
+            { id: 19, title: "Casamento às Pressas", year: "1913", description: "Em um curta-metragem, um casal de amantes decide se casar, mas o casamento é interrompido por um grupo de pessoas que tentam impedir a união.", poster: "https://a.imagem.app/BCsNxk.jpeg", genres: ["Comédia", "Romance"], videoUrl: "https://drive.google.com/file/d/1iJ-wnzeu4AflOA0WZC_VJGKLPgoWZwzz/preview" },
+            { id: 20, title: "Charada", year: "1963", description: "Em Paris, uma mulher descobre que seu marido foi assassinado e que ela está sendo perseguida por um grupo de pessoas que buscam uma fortuna que ele escondeu.", poster: "https://a.imagem.app/BCsORV.jpeg", genres: ["Mistério", "Romance"], videoUrl: "https://drive.google.com/file/d/1lCChujgBKH0FKvy8plS0hze7xG2LT8sy/preview" },
+            { id: 21, title: "Copacabana", year: "1947", description: "Em um show de talentos em Copacabana, um artista de cabaré finge ser um agente de talentos e se apaixona por uma dançarina.", poster: "https://a.imagem.app/BCsp8J.jpeg", genres: ["Musical", "Comédia"], videoUrl: "https://drive.google.com/file/d/1QMbWdltYAbumd1NbdWqUZCdBbUD_e7Oq/preview" },
+            { id: 22, title: "Coração de Aço", year: "1934", description: "Um grupo de trabalhadores de uma usina de aço tenta lutar por melhores condições de trabalho, mas a greve é reprimida pelo governo.", poster: "https://a.imagem.app/BC18sG.jpeg", genres: ["Drama", "História"], videoUrl: "https://drive.google.com/file/d/1mv9bhe2X_F1P9FBbpWbEhpcuBUQfBHuG/preview" },
+            { id: 23, title: "Corrida para Automóveis", year: "1914", description: "Em um curta-metragem, Carlitos se envolve em uma série de confusões em uma corrida de carros.", poster: "https://a.imagem.app/BC1ALm.jpeg", genres: ["Comédia", "Curta-metragem"], videoUrl: "https://drive.google.com/file/d/1SLpIZGjTbQNK2JFOYHjYj96nPE9WbCsi/preview" },
+            { id: 24, title: "Encouraçado Potemkin", year: "1925", description: "O filme conta a história do motim da tripulação do Encouraçado Potemkin em 1905, durante a Revolução Russa.", poster: "https://a.imagem.app/BC1byX.jpeg", genres: ["Drama", "História"], videoUrl: "https://drive.google.com/file/d/1pzsI9LLzWEBl4bCqdJe-3JrlUutE8WdK/preview" },
+            { id: 25, title: "Felines Folines", year: "1919", description: "Uma animação de um gato que tenta roubar a comida de um cachorro.", poster: "https://a.imagem.app/BC137b.jpeg", genres: ["Animação", "Curta-metragem"], videoUrl: "https://drive.google.com/file/d/1e2sx1dEACbHAbtwFxWFzy-tQR4ojCsFg/preview" },
+            { id: 26, title: "Frankenstein", year: "1931", description: "Um cientista obcecado por criar vida a partir de partes de cadáveres, cria um monstro que se torna uma ameaça para a sociedade.", poster: "https://a.imagem.app/BC1B5Q.jpeg", genres: ["Terror", "Ficção Científica"], videoUrl: "https://drive.google.com/file/d/1o_p2q3r-s4t5u6v7w-x8y9z0a-b1c2d/preview" },
+            { id: 27, title: "High and Dizzy", year: "1920", description: "Em um curta-metragem, Harold Lloyd interpreta um homem que é obrigado a passar a noite em um hotel de luxo, mas se envolve em uma série de situações hilárias.", poster: "https://a.imagem.app/BC1GV1.jpeg", genres: ["Comédia", "Curta-metragem"], videoUrl: "https://drive.google.com/file/d/1jAGoWsdsOCvYdjYpPhXj7fTCRyfoLnXT/preview" },
+            { id: 28, title: "Hitler: Dead or Alive", year: "1942", description: "Durante a Segunda Guerra Mundial, um grupo de agentes americanos é enviado para a Alemanha para assassinar Hitler.", poster: "https://a.imagem.app/BC1SGW.jpeg", genres: ["Guerra", "História"], videoUrl: "https://drive.google.com/file/d/1imyqOxI5mMsIe_oAZ3F39jigHT5F2qFg/preview" },
+            { id: 29, title: "Inspector General", year: "1949", description: "Um mendigo é confundido com um inspetor do governo e se envolve em uma série de situações hilárias.", poster: "https://a.imagem.app/BC1hxt.jpeg", genres: ["Musical", "Comédia"], videoUrl: "https://drive.google.com/file/d/14qw5b86-Zqly3jfTx3u4r7zF2vP3MgmO/preview" },
+            { id: 30, title: "Intolerância", year: "1916", description: "O filme conta quatro histórias diferentes em épocas diferentes, que mostram a intolerância e a injustiça da humanidade ao longo da história.", poster: "https://a.imagem.app/BC1kZ0.jpeg", genres: ["Drama", "História"], videoUrl: "https://drive.google.com/file/d/1YnJY2gb1ggVt0GT7agKDVq6q90rplS_t/preview" },
+            { id: 31, title: "Irene, a Teimosa", year: "1936", description: "Uma jovem decide se casar com um homem que ela mal conhece, mas o noivo se revela um homem teimoso e prepotente.", poster: "https://a.imagem.app/BC128y.jpeg", genres: ["Comédia", "Romance"], videoUrl: "https://drive.google.com/file/d/1w_XSE7YGZZAw5ldHfiUGZaEwZ48XGT6D/preview" },
+            { id: 32, title: "Jejum de Amor", year: "1940", description: "Um jornalista e sua ex-mulher se envolvem em uma série de situações hilárias enquanto cobrem um caso de assassinato.", poster: "https://a.imagem.app/BC17sr.jpeg", genres: ["Comédia", "Romance"], videoUrl: "https://drive.google.com/file/d/1sfjhZ8cMGbcOc8-A8aeO_ZFLgdYkUvlw/preview" },
+            { id: 33, title: "Jovem e Inocente", year: "1937", description: "Um jovem é acusado de assassinar uma mulher, mas ele foge da prisão e se une a uma jovem que o ajuda a provar sua inocência.", poster: "https://a.imagem.app/BC1Yt2.jpeg", genres: ["Suspense", "Mistério"], videoUrl: "https://drive.google.com/file/d/1h_i2j3k-l4m5n6o7p-q8r9s0t-u1v2w/preview" },
+            { id: 34, title: "Lassie nas Planícies", year: "1943", description: "Em um faroeste, um menino e seu cão de estimação, Lassie, vivem aventuras em uma pequena cidade do interior.", poster: "https://a.imagem.app/BC1nyP.jpeg", genres: ["Aventura", "Faroeste"], videoUrl: "https://drive.google.com/file/d/16tF5PKg-0P9KelKOtTGk-vtvt0SpAewd/preview" },
+            { id: 35, title: "Levada de Breca", year: "1938", description: "Um paleontólogo e uma jovem se envolvem em uma série de situações hilárias enquanto procuram um esqueleto de dinossauro.", poster: "https://a.imagem.app/BC1K7l.jpeg", genres: ["Comédia", "Romance"], videoUrl: "https://drive.google.com/file/d/1-bbbr2ADoHnsQsCvHLYuFZ9WY6zBemiR/preview" },
+            { id: 36, title: "Limite", year: "1931", description: "O filme de drama acompanha a história de três pessoas que vivem em uma ilha isolada e lutam para sobreviver.", poster: "https://a.imagem.app/BC1e9S.jpeg", genres: ["Drama", "Experimental"], videoUrl: "https://drive.google.com/file/d/1J8m0AcBKvLQO1mzBeuAR_SP7hkhwLHbE/preview" },
+            { id: 37, title: "Little Shop of Horrors", year: "1960", description: "Um jovem florista cultiva uma planta carnívora que se alimenta de sangue humano e se torna uma ameaça para a sociedade.", poster: "https://a.imagem.app/BC1sVv.jpeg", genres: ["Terror", "Comédia"], videoUrl: "https://drive.google.com/file/d/1KwUjD2dhiS2o1JEQ3kWAFZYQhCym9Qmq/preview" },
+            { id: 38, title: "Luzes da Cidade", year: "1931", description: "O Vagabundo se apaixona por uma florista cega e tenta arrecadar dinheiro para pagar uma cirurgia que pode devolver sua visão.", poster: "https://a.imagem.app/BC16HT.jpeg", genres: ["Comédia", "Drama"], videoUrl: "https://drive.google.com/file/d/1DTjc5EmA77YY9h7n7Rtm3CU7gwGgOvWJ/preview" },
+            { id: 39, title: "Making an American Citizen", year: "1912", description: "O filme de propaganda, dirigido por Alice Guy Blaché, retrata a história de um casal de imigrantes que se mudam para os Estados Unidos.", poster: "https://a.imagem.app/BC1iT3.jpeg", genres: ["Propaganda"], videoUrl: "https://drive.google.com/file/d/1Y330oH_E04WyjzKEH5e8zVKekW74HZD9/preview" },
+            { id: 40, title: "Manhattan Tower", year: "1932", description: "A história de um grupo de pessoas que vivem em um prédio de apartamentos em Nova York, e seus relacionamentos se entrelaçam.", poster: "https://a.imagem.app/BC1FZZ.jpeg", genres: ["Drama", "Romance"], videoUrl: "https://drive.google.com/file/d/1n3_FD_1QMYqylxIPuH6YWncmcWIu0SUX/preview" },
+            { id: 41, title: "Metropolis", year: "1927", description: "Em um futuro distópico, a cidade de Metropolis é dividida entre os ricos, que vivem no alto, e os trabalhadores, que vivem no subsolo. O filme de ficção científica retrata a luta por igualdade social e justiça.", poster: "https://a.imagem.app/BC1xAi.jpeg", genres: ["Ficção Científica", "Drama"], videoUrl: "https://drive.google.com/file/d/1MjZTOZUVRsEZMrapkSw_-t8pMk3LTcPC/preview" },
+            { id: 42, title: "Nasce uma Estrela", year: "1937", description: "Uma jovem aspirante a atriz conhece um ator famoso, que a ajuda a se tornar uma estrela de cinema, mas o sucesso dela faz com que o relacionamento entre eles seja abalado.", poster: "https://a.imagem.app/BC1T18.jpeg", genres: ["Musical", "Drama"], videoUrl: "https://drive.google.com/file/d/1Vihxx2NlT-waOFYFSP0irjdLr5PruKKi/preview" },
+            { id: 43, title: "Nosferatu", year: "1922", description: "O filme de terror mudo, inspirado no livro de Bram Stoker, conta a história de um conde vampiro que se muda para a cidade e aterroriza a população local.", poster: "https://a.imagem.app/BC1qtE.jpeg", genres: ["Terror", "Vampiro"], videoUrl: "https://drive.google.com/file/d/1GwpAvXgx6T4rElCskORyMM1bZCyLFfws/preview" },
+            { id: 44, title: "Núpcias Reais", year: "1951", description: "Em um musical, um casal de dançarinos se apresenta em Londres e se envolve em uma série de situações hilárias.", poster: "https://a.imagem.app/BC1JDe.jpeg", genres: ["Musical", "Comédia"], videoUrl: "https://drive.google.com/file/d/1yg44i8OfR8Uc45qxPSGktOkZL3RdOGuH/preview" },
+            { id: 45, title: "O Cair das Folhas", year: "1912", description: "Em um curta-metragem, o filme retrata o amor entre um homem e uma mulher, mas a vida de ambos é abalada por uma tragédia.", poster: "https://a.imagem.app/BC1l7N.jpeg", genres: ["Drama", "Romance"], videoUrl: "https://drive.google.com/file/d/1b6FgKAv2JuRB6gjlCUIXy4oT0dxiQARK/preview" },
+            { id: 46, title: "O Circo", year: "1928", description: "Em um circo, o Vagabundo se envolve em uma série de situações hilárias enquanto tenta se tornar um artista de circo.", poster: "https://a.imagem.app/BC159C.jpeg", genres: ["Comédia", "Drama"], videoUrl: "https://drive.google.com/file/d/1YQJ0o50grrOIBV9ynkCp87ibc-plv6La/preview" },
+            { id: 47, title: "O Cisne Negro", year: "1942", description: "Em uma aventura de piratas, um pirata se une a um grupo de rebeldes para lutar contra um governador tirano.", poster: "https://a.imagem.app/BC194Y.jpeg", genres: ["Ação", "Aventura"], videoUrl: "https://drive.google.com/file/d/1kvY_fI6NgFSyNqahbnu55RdGXDNC9Sh3/preview" },
+            { id: 48, title: "O Érbio", year: "1946", description: "Um drama de suspense com cenas de ação, dirigido por Jean-Pierre Melville, sobre o submundo de Paris, onde um policial corrupto e um ladrão de joias se enfrentam.", poster: "https://a.imagem.app/BC1rHa.jpeg", genres: ["Drama", "Suspense"], videoUrl: "https://drive.google.com/file/d/1Zgk6Y-w4k6mF1-h2X2I26Rotw1-_OEwp/preview" },
+            { id: 49, title: "O Fantasma da Ópera", year: "1925", description: "Em uma ópera, um fantasma mascarado se apaixona por uma cantora e a sequestra.", poster: "https://a.imagem.app/BC1wT9.jpeg", genres: ["Terror", "Romance"], videoUrl: "https://drive.google.com/file/d/1lJ5bELpKudWIFlAst0osD1zDLlibYsb4/preview" },
+            { id: 50, title: "O Flautista de Hamelin", year: "1933", description: "Uma animação de fantasia musical, baseada em um conto de fadas alemão, sobre um flautista que salva uma cidade de uma infestação de ratos.", poster: "https://a.imagem.app/BC1Cdk.jpeg", genres: ["Animação", "Musical"], videoUrl: "https://drive.google.com/file/d/1nwkPmASN8f2wLuZIyH7PClkCvBUJ8t7V/preview" },
+            { id: 51, title: "O Foguete Errante", year: "1959", description: "Um grupo de cientistas se aventura em uma viagem espacial para encontrar uma nova forma de energia.", poster: "https://a.imagem.app/BC1tAV.jpeg", genres: ["Ficção Científica", "Aventura"], videoUrl: "https://drive.google.com/file/d/1NoNBmjh9DDEgLLLldvzNyEqUIaprIO4N/preview" },
+            { id: 52, title: "O Gabinete do Dr. Caligari", year: "1920", description: "O filme de terror mudo alemão conta a história de um hipnotizador que usa um sonâmbulo para cometer assassinatos.", poster: "https://a.imagem.app/BC1u1J.jpeg", genres: ["Terror", "Expressionismo"], videoUrl: "https://drive.google.com/file/d/1Y_JXeDJ1QAK8a5pDne7JxkppnQTCq7GP/preview" },
+            { id: 53, title: "O Gângster", year: "1929", description: "Em um filme de gângsteres, um criminoso se torna um dos mais procurados pela polícia.", poster: "https://a.imagem.app/BC1EuG.jpeg", genres: ["Crime", "Drama"], videoUrl: "https://drive.google.com/file/d/1aAzGOGlnGbWyfPQA9Cqp9eNRUmi5_YBy/preview" },
+            { id: 54, title: "O Garoto", year: "1921", description: "O Vagabundo adota um menino abandonado e o cria como seu filho, mas as autoridades tentam separá-los.", poster: "https://a.imagem.app/BC1IDm.jpeg", genres: ["Comédia", "Drama"], videoUrl: "https://drive.google.com/file/d/1At2Abc9wNehQAbdyxPr3jeHghe4qdoRj/preview" },
+            { id: 55, title: "O Grande Ditador", year: "1940", description: "O barbeiro judeu Adenoid Hynkel, o ditador de Tomania, tenta dominar o mundo com a ajuda de seus seguidores.", poster: "https://a.imagem.app/BC1RYX.jpeg", genres: ["Comédia", "Drama"], videoUrl: "https://drive.google.com/file/d/1xHwYNzqojd4imMIDhezSgYsq_f5Li0Hv/preview" },
+            { id: 56, title: "O Homem que Ri", year: "1928", description: "Em um drama romântico, um jovem com o rosto desfigurado por um sorriso fixo se apaixona por uma jovem cega e tenta viver uma vida normal.", poster: "https://a.imagem.app/BC1Zcb.jpeg", genres: ["Drama", "Romance"], videoUrl: "https://drive.google.com/file/d/1tCa1gdZHMeuKgC8jZOwv45xAdY8hCR4C/preview" },
+            { id: 57, title: "O Nascimento de uma Nova Nação", year: "1915", description: "Em um filme épico, o filme retrata a Guerra Civil Americana e a ascensão do Ku Klux Klan.", poster: "https://a.imagem.app/BC1d4Q.jpeg", genres: ["Drama", "História"], videoUrl: "https://drive.google.com/file/d/1n_o1p2q-r3s4t5u6v-w7x8y9z-a0b1c/preview" },
+            { id: 58, title: "O Netinho do Papai", year: "1936", description: "Um jovem casal se muda para a casa dos pais dela, mas a vida de ambos se torna um inferno por causa da teimosia dos pais dela.", poster: "https://a.imagem.app/BC1gS1.jpeg", genres: ["Comédia", "Romance"], videoUrl: "https://drive.google.com/file/d/1m_n1o2p-q3r4s5t6u-v7w8x9y-z0a1b/preview" },
+            { id: 59, title: "O Novo Governo Paranaense", year: "1928", description: "Um curta-metragem brasileiro que mostra a posse do novo governador do Paraná.", poster: "https://a.imagem.app/BC1vTW.jpeg", genres: ["Documentário"], videoUrl: "https://drive.google.com/file/d/1W3OYjRfY8fiKlXZELru8rJZeWcjxfRHE/preview" },
+            { id: 60, title: "O Segredo dos Quatro", year: "1932", description: "Em um mistério, um grupo de pessoas se une para desvendar um crime que aconteceu em uma mansão.", poster: "https://a.imagem.app/BC1Mdt.jpeg", genres: ["Mistério", "Suspense"], videoUrl: "https://drive.google.com/file/d/1aYm6Mor4-4lw9nz1nAk15L4JY2Qpdd3q/preview" },
+            { id: 61, title: "bancando o aguia", year: "1924", description: "Aspirante a detetive, um projecionista de cinema se vê em maus lençóis quando um rival rouba o relógio do pai da sua amada e o acusa. De volta ao seu trabalho, durante uma projeção, ele adormece e sonha que ele está em um filme, onde é o detetive da história, procurando por umas jóias roubadas.", poster: "https://a.imagem.app/BCsVLe.webp", genres: ["ação", "comédia", "suspense"], videoUrl: "https://drive.google.com/file/d/11jx9NWCKqolocN77DoSxwePqPhgDsrrU/preview" },
+            { id: 62, title: "O Vaqueiro", year: "1928", description: "Buster Keaton interpreta um vaqueiro que se apaixona por uma jovem e tenta conquistar seu coração.", poster: "https://a.imagem.app/BC14b0.jpeg", genres: ["Faroeste", "Comédia"], videoUrl: "https://drive.google.com/file/d/1n7NME31VGHkBgkjflftULveiMMTQbws2/preview" },
+            { id: 63, title: "Os 39 Degraus", year: "1935", description: "Um homem é acusado de assassinar uma espiã e tenta provar sua inocência enquanto é perseguido pela polícia e por uma organização secreta.", poster: "https://a.imagem.app/BC1P1y.jpeg", genres: ["Suspense", "Mistério"], videoUrl: "https://drive.google.com/file/d/15QmfMjBfYETQ0DfxlUx0507r9TKHQBzh/preview" },
+            { id: 64, title: "Outubro", year: "1927", description: "O filme épico conta a história da Revolução de Outubro de 1917, na Rússia, e a ascensão do Partido Comunista.", poster: "https://a.imagem.app/BC1Uur.jpeg", genres: ["Drama", "História"], videoUrl: "https://drive.google.com/file/d/14zDQxGTA3wANW1Y8YM8IY0DbsyoV9m1d/preview" },
+            { id: 65, title: "Plan 9 from Outer Space", year: "1959", description: "Em um filme de ficção científica, alienígenas invadem a Terra e usam os mortos para atacar os humanos.", poster: "https://a.imagem.app/BC1aN2.jpeg", genres: ["Ficção Científica", "Terror"], videoUrl: "https://drive.google.com/file/d/1IUme022GHjlFH4b-tgb07Dhn-LxWy_nK/preview" },
+            { id: 66, title: "Rain", year: "1932", description: "Em um drama, uma prostituta e um reverendo se envolvem em uma história de amor e redenção em uma ilha isolada.", poster: "https://a.imagem.app/BC1yYP.jpeg", genres: ["Drama", "Romance"], videoUrl: "https://drive.google.com/file/d/1tDRBE2wBM-8Xf22gvDYLSpk_CfIAC4-H/preview" },
+            { id: 67, title: "Rebecca", year: "1940", description: "Uma jovem recém-casada se muda para a mansão de seu marido, mas ela é atormentada pelo fantasma de sua primeira esposa, Rebecca.", poster: "https://a.imagem.app/BC1Dcl.jpeg", genres: ["Mistério", "Romance"], videoUrl: "https://drive.google.com/file/d/1hxRrUroipbJTop9KyM7jU_I_l9Vrn3fn/preview" },
+            { id: 68, title: "Sherlock Holmes", year: "1922", description: "Em um mistério, Sherlock Holmes é contratado para desvendar um crime que aconteceu em uma mansão.", poster: "https://a.imagem.app/BC1NPS.jpeg", genres: ["Mistério", "Aventura"], videoUrl: "https://drive.google.com/file/d/1c_d1e2f-g3h4i5j6k-l7m8n9o-p0q1r/preview" },
+            { id: 69, title: "Sorte de Verdade", year: "1934", description: "Em um romance, uma jovem herdeira se apaixona por um homem que ela conhece em um hotel de luxo, mas a família dela desaprova o relacionamento.", poster: "https://a.imagem.app/BC1WSv.jpeg", genres: ["Romance", "Comédia"], videoUrl: "https://drive.google.com/file/d/1RDGDdHn3MZCRtw7PkLj-GFTOb_6YlQRR/preview" },
+            { id: 70, title: "Suspense", year: "1913", description: "Em um curta-metragem, uma mulher e seu filho são atacados por um grupo de bandidos, mas um homem misterioso os salva.", poster: "https://a.imagem.app/BC1pqT.jpeg", genres: ["Suspense"], videoUrl: "https://drive.google.com/file/d/1W47UPbDmJbllj49zs8bp7ILsGRvggJrf/preview" },
+            { id: 71, title: "Tarzan", year: "1933", description: "Em uma aventura na selva, Tarzan, o homem-macaco, se apaixona por uma jovem exploradora e a salva de um grupo de caçadores.", poster: "https://a.imagem.app/BC68m3.jpeg", genres: ["Aventura", "Romance"], videoUrl: "https://drive.google.com/file/d/1RkYy0JuZRqXisLi8wt9W_mJGI_gnJSwE/preview" },
+            { id: 72, title: "Tempos Modernos", year: "1936", description: "O Vagabundo e uma jovem órfã lutam para sobreviver durante a Grande Depressão e sonham com uma vida melhor.", poster: "https://a.imagem.app/BC6bbZ.jpeg", genres: ["Comédia", "Drama"], videoUrl: "https://drive.google.com/file/d/1z_a1b2c-d3e4f5g6h-i7j8k9l-m0n1o/previewhttps://drive.google.com/file/d/1GZZ9MpBvcBvmp5VTeQNmLuITi4e_nax1/preview" },
+            { id: 73, title: "The Brain That Wouldn't Die", year: "1962", description: "Um cientista usa a cabeça de sua namorada para fazer um experimento científico, mas a cabeça se transforma em uma criatura sedenta por vingança.", poster: "https://a.imagem.app/BC6o6i.jpeg", genres: ["Terror", "Ficção Científica"], videoUrl: "https://drive.google.com/file/d/1C049HKnvyvPWr3qQjd3fOxuxDIUWJWrg/preview" },
+            { id: 74, title: "The General", year: "1926", description: "Buster Keaton interpreta um maquinista que tenta recuperar sua locomotiva, que foi roubada por espiões da União.", poster: "https://a.imagem.app/BC63E8.jpeg", genres: ["Comédia", "Aventura"], videoUrl: "https://drive.google.com/file/d/1NCENVQO-vzi5L9TIUAlQ6RGRUPC11tCj/preview" },
+            { id: 75, title: "The Lost World", year: "1925", description: "Um grupo de exploradores encontra uma ilha isolada e cheia de dinossauros, mas a vida de todos é colocada em risco quando um deles tenta sequestrar um pterodáctilo.", poster: "https://a.imagem.app/BC6BNE.jpeg", genres: ["Aventura", "Ficção Científica"], videoUrl: "https://drive.google.com/file/d/1C049HKnvyvPWr3qQjd3fOxuxDIUWJWrg/preview" },
+            { id: 76, title: "The Nazi Titanic", year: "1943", description: "O filme de propaganda nazista conta a história do navio Titanic, mas a história é manipulada para mostrar os nazistas como heróis.", poster: "https://a.imagem.app/BC6Hne.jpeg", genres: ["Propaganda"], videoUrl: "https://drive.google.com/file/d/1Z1B5HmoBzDWnGB1QuHnNbDYIf9ThlG_a/preview" },
+            { id: 77, title: "The Nazis Strike", year: "1943", description: "Em um filme de propaganda americana, a história da Segunda Guerra Mundial é contada para mostrar a crueldade dos nazistas.", poster: "https://a.imagem.app/BC6ScN.jpeg", genres: ["Propaganda"], videoUrl: "https://drive.google.com/file/d/1h9JzEld1DdXv0PRJpVcDFB7uOKvNHtbl/preview" },
+            { id: 78, title: "The Ocean Waif", year: "1916", description: "Em um drama romântico, uma jovem é salva de um afogamento por um homem misterioso, mas a vida de ambos é abalada quando ela descobre que o homem é um criminoso.", poster: "https://a.imagem.app/BC6hPC.jpeg", genres: ["Drama", "Romance"], videoUrl: "https://drive.google.com/file/d/1QsFB3AoEY_nDnNbonfxQSj6WuL2bNuMe/preview" },
+            { id: 79, title: "Two Soldiers", year: "1943", description: "O filme de propaganda americana conta a história de dois soldados que lutam na Segunda Guerra Mundial.", poster: "https://a.imagem.app/BC6zhY.jpeg", genres: ["Propaganda"], videoUrl: "https://drive.google.com/file/d/1EJmweWw1NFcMwrUci-AugFgrrYKWGxOd/view?usp=drivesdk" },
+            { id: 80, title: "Viagem à Lua", year: "1902", description: "Em um curta-metragem, um grupo de astrônomos viaja à lua e se depara com uma série de situações hilárias.", poster: "https://a.imagem.app/BC67m9.jpeg", genres: ["Ficção Científica", "Aventura"], videoUrl: "https://drive.google.com/file/d/1yhSWXhOWhg5qjVtfc8_opog4R1z1u2ve/preview" },
+            { id: 81, title: "Zaroff, o Caçador de Vidas", year: "1932", description: "Em um filme de suspense, um caçador se aventura em uma ilha isolada e se depara com um caçador russo que caça humanos.", poster: "https://a.imagem.app/BC6nok.jpeg", genres: ["Suspense", "Aventura"], videoUrl: "https://drive.google.com/file/d/1r_s1t2u-v3w4x5y6z-a7b8c9d-e0f1g/preview" },
+            { id: 82, title: "3 Caras Maus", year: "1926", description: "Em um faroeste mudo, três bandidos de coração de ouro se envolvem em uma série de situações hilárias e salvam uma jovem de um vilão.", poster: "https://a.imagem.app/BCscQy.jpeg", genres: ["Faroeste", "Comédia"], videoUrl: "https://drive.google.com/file/d/13RZtxkztcGThvzDgnf5226SRcUwcI04E/preview" },
+            { id: 83, title: "A Caldeira do Diabo", year: "1924", description: "Um filme de suspense que narra a história de um grupo de pessoas que tentam sobreviver em uma ilha isolada, mas a vida de todos é colocada em risco por uma criatura misteriosa.", poster: "https://a.imagem.app/BCsrpr.png", genres: ["Suspense", "Terror"], videoUrl: "https://drive.google.com/file/d/1jNu8V8IBd9OkdqywBBtotmIj0SELKIJz/preview" },
+            { id: 84, title: "O Vapor Willie", year: "1928", description: "A primeira aparição de Mickey Mouse em um filme de animação, onde ele trabalha em um barco a vapor.", poster: "https://a.imagem.app/BC62qa.jpeg", genres: ["Animação", "Curta-metragem"], videoUrl: "https://drive.google.com/file/d/1FjE_sFPaGW5Kb9ICii_g9aFZ0CWzWQSo/preview" },
+        ];
+
+        const movieGrid = document.getElementById('movie-grid');
+        const myMovieGrid = document.getElementById('my-movie-grid');
+        const heroBanner = document.querySelector('.hero-banner');
+        const heroTitle = document.querySelector('.hero-content .title');
+        const heroDescription = document.querySelector('.hero-content .description');
+        const watchBtnHero = document.querySelector('.watch-btn-hero');
+
+        const movieModal = document.getElementById('movie-modal');
+        const closeModalBtn = document.querySelector('.close-btn');
+        const modalInfoContainer = document.getElementById('modal-info-container');
+        const modalVideoContainer = document.getElementById('modal-video-container');
+        const modalPoster = document.getElementById('modal-poster');
+        const modalTitle = document.getElementById('modal-title');
+        const modalYear = document.getElementById('modal-year');
+        const modalGenres = document.getElementById('modal-genres');
+        const modalDescription = document.getElementById('modal-description');
+        const modalWatchBtn = document.getElementById('modal-watch-btn');
+        const recommendedGrid = document.getElementById('recommended-grid');
+        
+        const genresGrid = document.querySelector('.genres-grid');
+        const homeSection = document.getElementById('all-movies');
+        const myListSection = document.getElementById('my-list');
+        const genresSection = document.getElementById('genres');
+        const navLinks = document.querySelectorAll('.navbar-links a');
+        const allSections = document.querySelectorAll('.content-section');
+        const backToInfoBtn = document.querySelector('.back-to-info-btn');
+
+        let mySavedList = JSON.parse(localStorage.getItem('myMovies')) || [];
+
+        function renderMovies(container, movies) {
+            container.innerHTML = '';
+            if (movies.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum filme na lista. Adicione alguns!</p>';
+            }
+            movies.forEach(movie => {
+                const isSaved = mySavedList.includes(movie.id);
+                const li = document.createElement('li');
+                li.className = 'movie-item';
+                li.setAttribute('data-movie-id', movie.id);
+                
+                const addBtnIcon = isSaved ? 'fa-check' : 'fa-plus';
+
+                li.innerHTML = `
+                    <button class="add-to-list-btn" data-movie-id="${movie.id}">
+                        <i class="fas ${addBtnIcon}"></i>
+                    </button>
+                    <img src="${movie.poster}" alt="Poster de ${movie.title}">
+                `;
+                container.appendChild(li);
+            });
+        }
+        
+        function displayMainSection(sectionId) {
+            allSections.forEach(section => {
+                section.style.display = 'none';
+            });
+            document.querySelector('.section-title').textContent = 'Todos os Filmes';
+
+            if (sectionId === 'my-list') {
+                myListSection.style.display = 'block';
+                document.querySelector('.section-title').textContent = 'Minha Lista';
+                const myMovies = movieData.filter(movie => mySavedList.includes(movie.id));
+                renderMovies(myMovieGrid, myMovies);
+            } else if (sectionId === 'genres') {
+                genresSection.style.display = 'block';
+                homeSection.style.display = 'block';
+                renderMovies(movieGrid, movieData);
+            } else {
+                homeSection.style.display = 'block';
+                renderMovies(movieGrid, movieData);
+            }
+        }
+
+        function setHeroBanner(movie) {
+            if (movie) {
+                heroBanner.style.backgroundImage = `url('${movie.poster}')`;
+                heroTitle.textContent = movie.title;
+                heroDescription.textContent = movie.description;
+                watchBtnHero.setAttribute('data-movie-id', movie.id);
+            }
+        }
+        
+        function populateModal(movie) {
+            // Reset modal state
+            modalInfoContainer.style.display = 'block';
+            modalVideoContainer.style.display = 'none';
+            modalVideoContainer.innerHTML = `<button class="back-to-info-btn"><i class="fas fa-arrow-left"></i> Voltar</button>`;
+
+            modalPoster.src = movie.poster;
+            modalTitle.textContent = movie.title;
+            modalYear.textContent = movie.year;
+            modalGenres.textContent = `Gêneros: ${movie.genres.join(', ')}`;
+            modalDescription.textContent = movie.description;
+            modalWatchBtn.setAttribute('data-video-url', movie.videoUrl);
+            
+            // Generate recommended movies (by genre, excluding current)
+            const recommendedMovies = movieData
+                .filter(m => m.id !== movie.id && m.genres.some(g => movie.genres.includes(g)))
+                .sort(() => 0.5 - Math.random()) // Shuffle
+                .slice(0, 4); // Get up to 4 movies
+                
+            recommendedGrid.innerHTML = '';
+            if (recommendedMovies.length === 0) {
+                 recommendedGrid.innerHTML = '<p style="color: #ccc;">Não há recomendações similares.</p>';
+            }
+            recommendedMovies.forEach(recMovie => {
+                const recItem = document.createElement('div');
+                recItem.className = 'recommended-item';
+                recItem.setAttribute('data-movie-id', recMovie.id);
+                recItem.innerHTML = `<img src="${recMovie.poster}" alt="Poster de ${recMovie.title}">`;
+                recommendedGrid.appendChild(recItem);
+            });
+
+            movieModal.style.display = 'flex';
+        }
+
+        function playMovieInModal(videoUrl) {
+    modalInfoContainer.style.display = 'none';
+    modalVideoContainer.style.display = 'block';
+    movieModal.classList.add('fullscreen-video');
+
+    // Extrair fileId do Google Drive
+    const fileIdMatch = videoUrl.match(/\/d\/([^/]+)\//);
+    if (!fileIdMatch) return alert("Erro: link inválido");
+
+    const fileId = fileIdMatch[1];
+    const directUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+
+    // Atualiza player
+    const playerEl = document.getElementById('movie-player');
+    const sourceEl = playerEl.querySelector('source');
+    sourceEl.src = directUrl;
+
+    // Recarrega o player Video.js
+    if (window.player) {
+        window.player.dispose();
+    }
+    window.player = videojs(playerEl);
+    window.player.src({ src: directUrl, type: 'video/mp4' });
+    window.player.load();
+    window.player.play();
+}
+        function backToInfo() {
+            modalVideoContainer.innerHTML = `<button class="back-to-info-btn"><i class="fas fa-arrow-left"></i> Voltar</button>`;
+            modalVideoContainer.style.display = 'none';
+            modalInfoContainer.style.display = 'block';
+            movieModal.classList.remove('fullscreen-video');
+        }
+        
+        function toggleMovieInList(movieId) {
+            const index = mySavedList.indexOf(movieId);
+            if (index > -1) {
+                mySavedList.splice(index, 1);
+            } else {
+                mySavedList.push(movieId);
+            }
+            localStorage.setItem('myMovies', JSON.stringify(mySavedList));
+            // Re-render to update icon
+            renderMovies(movieGrid, movieData);
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            setHeroBanner(movieData[0]);
+            renderMovies(movieGrid, movieData);
+        });
+        
+        navLinks.forEach(link => {
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                const sectionId = link.getAttribute('href').substring(1);
+                displayMainSection(sectionId);
+            });
+        });
+
+        document.addEventListener('click', (event) => {
+            const movieItem = event.target.closest('.movie-item');
+            const addBtn = event.target.closest('.add-to-list-btn');
+
+            if (addBtn) {
+                event.stopPropagation(); // Prevents modal from opening
+                const movieId = parseInt(addBtn.getAttribute('data-movie-id'));
+                toggleMovieInList(movieId);
+                // Update button icon
+                const icon = addBtn.querySelector('i');
+                if (mySavedList.includes(movieId)) {
+                    icon.classList.remove('fa-plus');
+                    icon.classList.add('fa-check');
+                } else {
+                    icon.classList.remove('fa-check');
+                    icon.classList.add('fa-plus');
+                }
+                // If on my list page, re-render the list
+                if (myListSection.style.display === 'block') {
+                     const myMovies = movieData.filter(movie => mySavedList.includes(movie.id));
+                     renderMovies(myMovieGrid, myMovies);
+                }
+            } else if (movieItem) {
+                const movieId = parseInt(movieItem.getAttribute('data-movie-id'));
+                const movie = movieData.find(m => m.id === movieId);
+                if (movie) {
+                    populateModal(movie);
+                }
+            }
+        });
+        
+        closeModalBtn.addEventListener('click', () => {
+            movieModal.style.display = 'none';
+            movieModal.classList.remove('fullscreen-video');
+            // Stop video playback when closing modal
+            modalVideoContainer.innerHTML = `<button class="back-to-info-btn"><i class="fas fa-arrow-left"></i> Voltar</button>`;
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === movieModal) {
+                movieModal.style.display = 'none';
+                movieModal.classList.remove('fullscreen-video');
+                modalVideoContainer.innerHTML = `<button class="back-to-info-btn"><i class="fas fa-arrow-left"></i> Voltar</button>`;
+            }
+        });
+
+        watchBtnHero.addEventListener('click', (event) => {
+            event.preventDefault();
+            const movieId = parseInt(event.target.getAttribute('data-movie-id'));
+            const movie = movieData.find(m => m.id === movieId);
+            if (movie) {
+                populateModal(movie);
+            }
+        });
+        
+        modalWatchBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            const videoUrl = modalWatchBtn.getAttribute('data-video-url');
+            if (videoUrl) {
+                playMovieInModal(videoUrl);
+            }
+        });
+
+        genresGrid.addEventListener('click', (event) => {
+            const genreCard = event.target.closest('.genre-card');
+            if (genreCard) {
+                const genre = genreCard.getAttribute('data-genre');
+                const filteredMovies = (genre === 'all') 
+                    ? movieData 
+                    : movieData.filter(movie => movie.genres.includes(genre));
+                
+                document.querySelector('.section-title').textContent = (genre === 'all') ? 'Todos os Filmes' : `Filmes de ${genre}`;
+                
+                myListSection.style.display = 'none';
+                renderMovies(movieGrid, filteredMovies);
+            }
+        });
+        
+        recommendedGrid.addEventListener('click', (event) => {
+            const recItem = event.target.closest('.recommended-item');
+            if (recItem) {
+                const movieId = parseInt(recItem.getAttribute('data-movie-id'));
+                const movie = movieData.find(m => m.id === movieId);
+                if (movie) {
+                    populateModal(movie);
+                }
+            }
+        });
+
+        movieModal.addEventListener('click', (event) => {
+            if (event.target.closest('.back-to-info-btn')) {
+                backToInfo();
+            }
+        });
+
+
+
+</script>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
