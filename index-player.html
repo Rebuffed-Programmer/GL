@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GL+ Plus - Player</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            font-family: Arial, sans-serif;
+            overflow: hidden; /* Evita a barra de rolagem */
+        }
+        .player-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+        }
+        #videoPlayer {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+        }
+        .controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .player-container:hover .controls {
+            opacity: 1;
+        }
+        .controls button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        .progress-bar {
+            flex-grow: 1;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            margin: 0 10px;
+            border-radius: 2px;
+            position: relative;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: #e50914; /* Cor da barra de progresso */
+            width: 0%;
+        }
+        .time {
+            font-size: 0.9em;
+            color: #ccc;
+        }
+        .volume-container {
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+        }
+        .volume-bar {
+            width: 60px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            border-radius: 2px;
+            margin-left: 5px;
+            position: relative;
+        }
+        .volume-bar-fill {
+            height: 100%;
+            background: #e50914; /* Cor da barra de volume */
+            width: 100%;
+        }
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+        .back-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-btn">Voltar</a>
+    
+    <div class="player-container">
+        <video id="videoPlayer" playsinline></video>
+        <div class="controls">
+            <button id="playPauseBtn">►</button>
+            <div class="progress-bar">
+                <div class="progress-bar-fill"></div>
+            </div>
+            <span class="time" id="currentTime">00:00</span> / <span class="time" id="durationTime">00:00</span>
+            <div class="volume-container">
+                <button id="volumeBtn">🔊</button>
+                <div class="volume-bar">
+                    <div class="volume-bar-fill"></div>
+                </div>
+            </div>
+            <button id="fullscreenBtn">📺</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            const progressBar = document.querySelector('.progress-bar');
+            const progressBarFill = document.querySelector('.progress-bar-fill');
+            const currentTimeEl = document.getElementById('currentTime');
+            const durationEl = document.getElementById('durationTime');
+            const volumeBtn = document.getElementById('volumeBtn');
+            const volumeBar = document.querySelector('.volume-bar');
+            const volumeBarFill = document.querySelector('.volume-bar-fill');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const videoUrl = urlParams.get('video');
+            
+            if (videoUrl) {
+                videoPlayer.src = decodeURIComponent(videoUrl);
+                videoPlayer.load();
+                videoPlayer.play();
+            }
+
+            playPauseBtn.addEventListener('click', () => {
+                if (videoPlayer.paused) {
+                    videoPlayer.play();
+                } else {
+                    videoPlayer.pause();
+                }
+            });
+
+            videoPlayer.addEventListener('play', () => {
+                playPauseBtn.textContent = '⏸';
+            });
+
+            videoPlayer.addEventListener('pause', () => {
+                playPauseBtn.textContent = '►';
+            });
+
+            videoPlayer.addEventListener('timeupdate', () => {
+                const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
+                progressBarFill.style.width = `${progress}%`;
+                currentTimeEl.textContent = formatTime(videoPlayer.currentTime);
+            });
+
+            videoPlayer.addEventListener('loadedmetadata', () => {
+                durationEl.textContent = formatTime(videoPlayer.duration);
+            });
+
+            progressBar.addEventListener('click', (e) => {
+                const rect = progressBar.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const percentage = x / rect.width;
+                videoPlayer.currentTime = videoPlayer.duration * percentage;
+            });
+
+            fullscreenBtn.addEventListener('click', () => {
+                if (videoPlayer.requestFullscreen) {
+                    videoPlayer.requestFullscreen();
+                }
+            });
+            
+            volumeBtn.addEventListener('click', () => {
+                videoPlayer.muted = !videoPlayer.muted;
+                if (videoPlayer.muted) {
+                    volumeBtn.textContent = '🔇';
+                } else {
+                    volumeBtn.textContent = '🔊';
+                }
+            });
+
+            volumeBar.addEventListener('click', (e) => {
+                const rect = volumeBar.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const percentage = x / rect.width;
+                videoPlayer.volume = percentage;
+                volumeBarFill.style.width = `${percentage * 100}%`;
+            });
+            
+            function formatTime(time) {
+                const minutes = Math.floor(time / 60);
+                const seconds = Math.floor(time % 60);
+                return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+        });
+    </script>
+</body>
+</html>
