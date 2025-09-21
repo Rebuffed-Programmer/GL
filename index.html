@@ -527,7 +527,9 @@
                     <p id="modal-year"></p>
                     <p id="modal-genres"></p>
                     <p id="modal-description"></p>
-                    <a id="modal-watch-btn" href="#" class="btn-watch">Assistir Já</a>
+                    <a id="modal-watch-btn" href="index-player.html" class="btn primary-btn" data-video-url="">
+    <i class="fas fa-play"></i> Assistir Já
+</a>
                 </div>
                 <div class="recommended-section">
                     <h3>Filmes que talvez irá gostar</h3>
@@ -541,7 +543,7 @@
         </div>
     </div>
 
-    <script>
+        <script>
         const movieData = [
             { id: 1, title: "A Última Vez que Vi Paris", year: "1954", description: "A história de um casal de americanos que decide viver em Paris logo após a Segunda Guerra Mundial, mas a vida de luxo e festa na cidade luz logo se desfaz quando as escolhas de ambos geram consequências negativas.", poster: "https://a.imagem.app/BCsQMT.jpeg", genres: ["Romance", "Drama"], videoUrl: "https://drive.google.com/file/d/1WBzFajjbABNqIQgzVYh7qP0vqjtDHQYs/preview" },
             { id: 2, title: "A Antiga e a Moderna", year: "1929", description: "O jovem Komarovskis volta do exílio para sua aldeia na Sibéria, onde se depara com grandes mudanças em andamento. Entre elas, a jovem Marfa, que se rebela contra os costumes de uma família patriarcal e está determinada a viver de acordo com suas próprias regras.", poster: "https://a.imagem.app/BCs9X0.jpeg", genres: ["Drama", "Romance"], videoUrl: "https://drive.google.com/file/d/1D7tr9aDjLJ2gGrdoYXGrKYqnJRu8Exjo/preview" },
@@ -628,6 +630,7 @@
             { id: 83, title: "A Caldeira do Diabo", year: "1924", description: "Um filme de suspense que narra a história de um grupo de pessoas que tentam sobreviver em uma ilha isolada, mas a vida de todos é colocada em risco por uma criatura misteriosa.", poster: "https://a.imagem.app/BCsrpr.png", genres: ["Suspense", "Terror"], videoUrl: "https://drive.google.com/file/d/1jNu8V8IBd9OkdqywBBtotmIj0SELKIJz/preview" },
             { id: 84, title: "O Vapor Willie", year: "1928", description: "A primeira aparição de Mickey Mouse em um filme de animação, onde ele trabalha em um barco a vapor.", poster: "https://a.imagem.app/BC62qa.jpeg", genres: ["Animação", "Curta-metragem"], videoUrl: "https://drive.google.com/file/d/1FjE_sFPaGW5Kb9ICii_g9aFZ0CWzWQSo/preview" },
         ];
+
 
         const movieGrid = document.getElementById('movie-grid');
         const myMovieGrid = document.getElementById('my-movie-grid');
@@ -852,13 +855,13 @@
             }
         });
         
-        modalWatchBtn.addEventListener('click', (event) => {
-            event.preventDefault();
-            const videoUrl = modalWatchBtn.getAttribute('data-video-url');
-            if (videoUrl) {
-                playMovieInModal(videoUrl);
-            }
-        });
+    modalWatchBtn.addEventListener('click', function(e) {
+    var url = modalWatchBtn.getAttribute('data-video-url');
+    if (url) {
+        // Redireciona para o index-player.html e passa a URL do vídeo como um parâmetro
+        window.location.href = `index-player.html?video=${encodeURIComponent(url)}`;
+    }
+});
 
         genresGrid.addEventListener('click', (event) => {
             const genreCard = event.target.closest('.genre-card');
@@ -914,3 +917,4 @@
 </body>
 
 </html>
+
