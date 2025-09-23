@@ -745,24 +745,100 @@
             movieModal.style.display = 'flex';
         }
 
-        function playMovieInModal(videoUrl) {
-            modalInfoContainer.style.display = 'none';
-            modalVideoContainer.style.display = 'block';
-            movieModal.classList.add('fullscreen-video');
-            
-            modalVideoContainer.innerHTML = '';
-            const iframe = document.createElement('iframe');
-            iframe.src = videoUrl;
-            iframe.allow = 'autoplay';
-            iframe.allowfullscreen = true;
-            modalVideoContainer.appendChild(iframe);
+        
 
-            const backBtn = document.createElement('button');
-            backBtn.className = 'back-to-info-btn';
-            backBtn.innerHTML = `<i class="fas fa-arrow-left"></i> Voltar`;
-            backBtn.addEventListener('click', backToInfo);
-            modalVideoContainer.appendChild(backBtn);
-        }
+function playMovieInModal(videoUrl) {
+    modalInfoContainer.style.display = 'none';
+    modalVideoContainer.style.display = 'block';
+    movieModal.classList.add('fullscreen-video');
+    
+    // limpa conteúdo do container
+    modalVideoContainer.innerHTML = '';
+
+    // Container relativo para posicionar elementos sobre o iframe
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+    wrapper.style.width = '100%';
+    wrapper.style.height = '100%';
+    wrapper.style.overflow = 'hidden';
+
+    // iframe do Google Drive
+    const iframe = document.createElement('iframe');
+    iframe.src = videoUrl;
+    iframe.allow = 'autoplay; encrypted-media';
+    iframe.allowFullscreen = true;
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.border = 'none';
+    iframe.style.display = 'block';
+
+    // Pequeno botão cobrindo a área do "abrir em nova guia" (top-right)
+    const blockBtn = document.createElement('button');
+    blockBtn.className = 'block-newtab-btn';
+    blockBtn.title = 'Abertura externa desativada';
+    blockBtn.style.position = 'absolute';
+    blockBtn.style.top = '12px';
+    blockBtn.style.right = '12px';
+    blockBtn.style.width = '44px';
+    blockBtn.style.height = '44px';
+    blockBtn.style.border = 'none';
+    blockBtn.style.background = 'rgba(0,0,0,0.15)';
+    blockBtn.style.color = '#fff';
+    blockBtn.style.borderRadius = '8px';
+    blockBtn.style.zIndex = '9999';
+    blockBtn.style.cursor = 'pointer';
+    blockBtn.style.display = 'flex';
+    blockBtn.style.alignItems = 'center';
+    blockBtn.style.justifyContent = 'center';
+    blockBtn.style.backdropFilter = 'blur(2px)';
+    blockBtn.innerHTML = '<i class=\"fas fa-link\"></i>';
+
+    // Ao clicar no blockBtn, impede a ação e mostra uma mensagem rápida
+    blockBtn.addEventListener('click', function(e){
+        e.stopPropagation();
+        e.preventDefault();
+        showBlockedMessage();
+    });
+
+    // Função que mostra um toast temporário informando que abrir externamente foi desativado
+    function showBlockedMessage() {
+        const toast = document.createElement('div');
+        toast.textContent = 'Abertura externa desativada.';
+        toast.style.position = 'absolute';
+        toast.style.top = '12px';
+        toast.style.right = '64px';
+        toast.style.padding = '8px 12px';
+        toast.style.background = 'rgba(0,0,0,0.7)';
+        toast.style.color = '#fff';
+        toast.style.borderRadius = '6px';
+        toast.style.zIndex = '10000';
+        toast.style.fontSize = '14px';
+        modalVideoContainer.appendChild(toast);
+        setTimeout(()=> { toast.style.opacity = '0'; setTimeout(()=> toast.remove(), 300); }, 1200);
+    }
+
+    // Adiciona iframe e o botão bloqueador no wrapper
+    wrapper.appendChild(iframe);
+    wrapper.appendChild(blockBtn);
+
+    // Adiciona wrapper ao container do modal
+    modalVideoContainer.appendChild(wrapper);
+
+    // Botão de voltar (à esquerda) -- mantém função original
+    const backBtn = document.createElement('button');
+    backBtn.className = 'back-to-info-btn';
+    backBtn.innerHTML = `<i class="fas fa-arrow-left"></i> Voltar`;
+    backBtn.addEventListener('click', backToInfo);
+    modalVideoContainer.appendChild(backBtn);
+
+    // Desativa clique direito dentro do container do modal (para dificultar "abrir em nova guia" via menu)
+    modalVideoContainer.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+
+    // Em alguns navegadores precisamos bloquear também o gesto de arrastar (dragstart)
+    modalVideoContainer.addEventListener('dragstart', function(e){ e.preventDefault(); });
+}
+
+
 
         function backToInfo() {
             modalVideoContainer.innerHTML = `<button class="back-to-info-btn"><i class="fas fa-arrow-left"></i> Voltar</button>`;
