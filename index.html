@@ -1080,69 +1080,179 @@ function playMovieInModal(videoUrl) {
     });
 </script>
 
+<!-- CSS rápido para título sobre a capa -->
+<style>
+  .movie-card { position: relative; min-width: 160px; background:#111; border-radius:6px; overflow:hidden; flex-shrink:0; cursor:pointer; }
+  .movie-card img { display:block; width:100%; height: auto; }
+  .movie-card .card-title {
+    position:absolute;
+    left:0; right:0; bottom:0;
+    padding:6px 8px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    color:#fff; font-size:13px; text-align:center;
+  }
+  /* hide small scrollbars on desktop */
+  .movie-row { display:flex; gap:10px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:6px; }
+  .movie-row::-webkit-scrollbar { height:8px; }
+  .movie-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius:4px; }
+  .movie-section { margin: 26px 22px; }
+  .movie-section h2 { color:#fff; margin:0 0 10px; font-size:1.3rem; }
+  .genre-section { margin-bottom:16px; }
+  @media (min-width:1024px) { .movie-card { min-width:180px } }
+  @media (max-width:767px) { .movie-card { min-width:140px } }
+</style>
+
 <script>
+(function(){
+  // cria o card do filme (usa poster/title) e abre o modal ao clicar
   function createMovieCard(movie) {
     const card = document.createElement('div');
     card.className = 'movie-card';
-    card.innerHTML = `<img src="${movie.image}" alt="${movie.title}">`;
-    card.addEventListener('click', () => openMovieModal(movie));
+
+    const img = document.createElement('img');
+    img.src = movie.poster || '';
+    img.alt = movie.title || 'Filme';
+    card.appendChild(img);
+
+    const title = document.createElement('div');
+    title.className = 'card-title';
+    title.textContent = movie.title || '';
+    card.appendChild(title);
+
+    card.addEventListener('click', function(e){
+      // usa populateModal(movie) já existente no seu index
+      if (typeof populateModal === 'function') {
+        populateModal(movie);
+      } else {
+        console.warn('populateModal não encontrado. Verifique ordem dos scripts.');
+      }
+    });
+
     return card;
   }
 
-  function populateSections() {
-    if (!window.movieData) return;
-
-    // Sugestões para você (primeiros 10)
-    const suggestionsRow = document.getElementById('suggestions-row');
-    movieData.slice(0, 10).forEach(m => suggestionsRow.appendChild(createMovieCard(m)));
-
-    // Nossa recomendação (primeiro da lista)
-    const recommendationRow = document.getElementById('recommendation-row');
-    if (movieData.length > 0) recommendationRow.appendChild(createMovieCard(movieData[0]));
-
-    // Os 10 melhores (aleatórios simulando ranking)
-    const top10Row = document.getElementById('top10-row');
-    movieData.slice(0, 10).forEach(m => top10Row.appendChild(createMovieCard(m)));
-
-    // Filmes bem avaliados (ordenados por rating)
-    const ratedRow = document.getElementById('rated-row');
-    const sortedByRating = [...movieData].sort((a, b) => (b.rating||0) - (a.rating||0));
-    sortedByRating.slice(0, 10).forEach(m => ratedRow.appendChild(createMovieCard(m)));
-
-    // Sucessos imperdíveis (pegar do meio da lista)
-    const successRow = document.getElementById('success-row');
-    movieData.slice(5, 15).forEach(m => successRow.appendChild(createMovieCard(m)));
-
-    // Talvez você irá gostar (outros filmes)
-    const maybeRow = document.getElementById('maybe-row');
-    movieData.slice(15, 25).forEach(m => maybeRow.appendChild(createMovieCard(m)));
-
-    // Os 10 melhores do cinema (últimos 10 da lista)
-    const cinemaRow = document.getElementById('cinema-top10-row');
-    movieData.slice(-10).forEach(m => cinemaRow.appendChild(createMovieCard(m)));
-
-    // Todos os gêneros
-    const genresContainer = document.getElementById('genres-container');
-    const genres = {};
-    movieData.forEach(m => {
-      (m.genre || []).forEach(g => {
-        if (!genres[g]) genres[g] = [];
-        genres[g].push(m);
-      });
-    });
-    for (const [genre, movies] of Object.entries(genres)) {
-      const gSection = document.createElement('div');
-      gSection.className = 'genre-section';
-      gSection.innerHTML = `<h3>${genre}</h3>`;
-      const row = document.createElement('div');
-      row.className = 'movie-row';
-      movies.forEach(m => row.appendChild(createMovieCard(m)));
-      gSection.appendChild(row);
-      genresContainer.appendChild(gSection);
+  // helper: shuffle array (Fisher-Yates)
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
     }
+    return a;
   }
 
-  document.addEventListener('DOMContentLoaded', populateSections);
+  function safeGenres(movie) {
+    return Array.isArray(movie.genres) ? movie.genres : (movie.genre ? (Array.isArray(movie.genre) ? movie.genre : [movie.genre]) : []);
+  }
+
+  function populateHomeSections() {
+    if (!window.movieData || !Array.isArray(window.movieData)) return;
+
+    // referências
+    const suggestionsRow = document.getElementById('suggestions-row');
+    const recommendationRow = document.getElementById('recommendation-row');
+    const top10Row = document.getElementById('top10-row');
+    const ratedRow = document.getElementById('rated-row');
+    const successRow = document.getElementById('success-row');
+    const maybeRow = document.getElementById('maybe-row');
+    const cinemaRow = document.getElementById('cinema-top10-row');
+    const genresContainer = document.getElementById('genres-container');
+
+    // limpa tudo primeiro (se já tinha algo)
+    [suggestionsRow, recommendationRow, top10Row, ratedRow, successRow, maybeRow, cinemaRow].forEach(el => { if (el) el.innerHTML = ''; });
+    if (genresContainer) genresContainer.innerHTML = '';
+
+    // 1) Nossa recomendação -> destaque (vamos usar primeiro item como destaque)
+    const hero = window.movieData[0] || window.movieData[Math.floor(Math.random()*window.movieData.length)];
+    if (recommendationRow && hero) recommendationRow.appendChild(createMovieCard(hero));
+
+    // 2) Sugestões para você -> pegar filmes que compartilham gênero com o hero, ou aleatório
+    const heroGenres = safeGenres(hero);
+    let suggestions = [];
+    if (heroGenres.length > 0) {
+      suggestions = window.movieData.filter(m => m.id !== hero.id && safeGenres(m).some(g => heroGenres.includes(g)));
+    }
+    if (suggestions.length < 10) {
+      const fill = window.movieData.filter(m => m.id !== hero.id && !suggestions.includes(m));
+      suggestions = suggestions.concat(fill);
+    }
+    suggestions = suggestions.slice(0, 10);
+    suggestions.forEach(m => suggestionsRow && suggestionsRow.appendChild(createMovieCard(m)));
+
+    // 3) Os 10 melhores -> ordenar por campo rating se existir, senão usar shuffle como fallback
+    const withRating = window.movieData.filter(m => typeof m.rating === 'number');
+    let top10 = [];
+    if (withRating.length >= 10) {
+      top10 = withRating.sort((a,b)=> b.rating - a.rating).slice(0,10);
+    } else {
+      top10 = shuffle(window.movieData).slice(0,10);
+    }
+    top10.forEach(m => top10Row && top10Row.appendChild(createMovieCard(m)));
+
+    // 4) Filmes bem avaliados -> preferir rating real senão usar top10
+    if (withRating.length > 0) {
+      const rated = withRating.sort((a,b)=> b.rating - a.rating).slice(0,10);
+      rated.forEach(m => ratedRow && ratedRow.appendChild(createMovieCard(m)));
+    } else {
+      top10.slice(0,10).forEach(m => ratedRow && ratedRow.appendChild(createMovieCard(m)));
+    }
+
+    // 5) Sucessos imperdíveis -> pegar um slice fixo (índice 5..15)
+    window.movieData.slice(5, 15).forEach(m => successRow && successRow.appendChild(createMovieCard(m)));
+
+    // 6) Talvez você irá gostar -> outra seleção relacionada ao hero (mas diferente das sugestões)
+    const maybe = window.movieData.filter(m => m.id !== hero.id && !suggestions.includes(m)).slice(0,10);
+    maybe.forEach(m => maybeRow && maybeRow.appendChild(createMovieCard(m)));
+
+    // 7) Os 10 melhores do cinema -> últimos 10 do array (ou shuffle se poucos)
+    const cinemaTop = window.movieData.slice(-10);
+    cinemaTop.forEach(m => cinemaRow && cinemaRow.appendChild(createMovieCard(m)));
+
+    // 8) Todos os gêneros -> agrupa por genre e cria seções (aparece quando clicar no botão Gêneros)
+    if (genresContainer) {
+      const map = {};
+      window.movieData.forEach(m => {
+        safeGenres(m).forEach(g => {
+          if (!map[g]) map[g] = [];
+          map[g].push(m);
+        });
+      });
+      // ordenar gêneros por nome
+      Object.keys(map).sort((a,b)=> a.localeCompare(b)).forEach(genre => {
+        const gSection = document.createElement('div');
+        gSection.className = 'genre-section';
+        const h3 = document.createElement('h3');
+        h3.textContent = genre;
+        gSection.appendChild(h3);
+
+        const row = document.createElement('div');
+        row.className = 'movie-row';
+        map[genre].forEach(m => row.appendChild(createMovieCard(m)));
+        gSection.appendChild(row);
+
+        genresContainer.appendChild(gSection);
+      });
+    }
+
+    // Seções vazias fallback: se algum row estiver vazio, mostra texto
+    [[suggestionsRow,'Sugestões'],[top10Row,'Top 10'],[ratedRow,'Bem avaliados'],[successRow,'Sucessos'],[maybeRow,'Talvez você irá gostar'],[cinemaRow,'Top cinema']].forEach(([el,txt])=>{
+      if (el && el.children.length === 0) {
+        const p = document.createElement('div');
+        p.style.color = '#ccc';
+        p.style.padding = '10px 0';
+        p.textContent = `Sem conteúdos em "${txt}"`;
+        el.appendChild(p);
+      }
+    });
+  } // populateHomeSections
+
+  // popula quando DOM pronto
+  document.addEventListener('DOMContentLoaded', populateHomeSections);
+
+  // re-popular caso queira forçar (ex: adicionou filmes dinamicamente)
+  window.populateHomeSections = populateHomeSections;
+
+})();
 </script>
 
 </body>
