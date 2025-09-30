@@ -68,6 +68,8 @@
             display: flex;
             align-items: flex-end;
             padding: 50px;
+            /* Transição para o novo banner ficar mais suave */
+            transition: background-image 1s ease;
         }
 
         .hero-banner::before {
@@ -83,6 +85,8 @@
         .hero-content {
             z-index: 10;
             max-width: 600px;
+            /* Transição para o novo conteúdo ficar mais suave */
+            transition: opacity 0.5s ease;
         }
 
         .hero-content .title {
@@ -114,15 +118,9 @@
         }
 
         /* Seções de conteúdo */
-        .content-section {
+        .content-section, .movie-section {
             padding: 50px;
         }
-        
-        /* Estilo para as novas seções de filmes, agora todas como grid */
-        .movie-section {
-            padding: 50px; /* Padroniza padding com content-section */
-        }
-
         
         .section-title {
             font-size: 2em;
@@ -465,23 +463,17 @@
         </div>
     </nav>
 
-    <header class="hero-banner" style="background-image: url('https://a.imagem.app/BCsQMT.jpeg');" id="home">
+    <header class="hero-banner" style="background-image: url('');" id="home">
         <div class="hero-content">
-            <h1 class="title">A Última Vez que Vi Paris</h1>
+            <h1 class="title">Carregando...</h1>
             <p class="description">
-                A história de um casal de americanos que decide viver em Paris logo após a Segunda Guerra Mundial, mas a vida de luxo e festa na cidade luz logo se desfaz quando as escolhas de ambos geram consequências negativas.
+                ...
             </p>
-            <a href="#" class="btn watch-btn-hero" data-movie-id="1">Assistir Agora</a>
+            <a href="#" class="btn watch-btn-hero" data-movie-id="0">Assistir Agora</a>
         </div>
     </header>
 
     <main>
-        <section class="content-section" id="all-movies">
-            <h2 class="section-title">Todos os Filmes</h2>
-            <ul class="movie-grid" id="movie-grid">
-                </ul>
-        </section>
-        
         <section class="content-section" id="my-list" style="display: none;">
             <h2 class="section-title">Minha Lista</h2>
             <ul class="movie-grid" id="my-movie-grid">
@@ -499,7 +491,12 @@
         <div class="movie-section"><h2>💎 Sucessos imperdíveis</h2><ul class="movie-grid" id="success-row"></ul></div>
         <div class="movie-section"><h2>🎲 Talvez você irá gostar</h2><ul class="movie-grid" id="maybe-row"></ul></div>
         <div class="movie-section"><h2>🎞️ Os 10 melhores do cinema</h2><ul class="movie-grid" id="cinema-top10-row"></ul></div>
-        <div class="movie-section"><h2>📂 Todos os filmes</h2><ul class="movie-grid" id="allmovies-row"></ul></div>
+        
+        <section class="content-section" id="all-movies-master">
+            <h2 class="section-title">📂 Todos os Filmes</h2>
+            <ul class="movie-grid" id="movie-grid"></ul>
+        </section>
+
   </main>
     
     <div id="movie-modal" class="modal">
@@ -615,7 +612,9 @@
             { id: 84, title: "O Vapor Willie", year: "1928", description: "A primeira aparição de Mickey Mouse em um filme de animação, onde ele trabalha em um barco a vapor.", poster: "https://a.imagem.app/BC62qa.jpeg", genres: ["Animação", "Curta-metragem"], videoUrl: "https://drive.google.com/file/d/1FjE_sFPaGW5Kb9ICii_g9aFZ0CWzWQSo/preview" },
         ];
 
-        const movieGrid = document.getElementById('movie-grid');
+        
+        // CORREÇÃO: movieGrid agora aponta para a ÚNICA lista de todos os filmes.
+        const movieGrid = document.getElementById('movie-grid'); 
         const myListGrid = document.getElementById('my-movie-grid');
         const mainContent = document.querySelector('main');
         const heroWatchBtn = document.querySelector('.watch-btn-hero');
@@ -647,7 +646,11 @@
             // Botão Adicionar à Lista
             const listBtn = document.createElement('button');
             listBtn.className = 'add-to-list-btn';
-            listBtn.innerHTML = '<i class="fas fa-plus"></i>'; 
+            
+            // Verifica se o filme está na lista para definir o ícone
+            const myList = JSON.parse(localStorage.getItem('myList') || '[]');
+            listBtn.innerHTML = myList.includes(movie.id) ? '<i class="fas fa-check"></i>' : '<i class="fas fa-plus"></i>'; 
+            
             listBtn.setAttribute('data-movie-id', movie.id);
 
             listItem.appendChild(img);
@@ -663,11 +666,6 @@
             });
         }
 
-        // Função para preencher a grade principal de todos os filmes
-        function renderAllMovies() {
-            renderMovies(movieGrid, movieData);
-        }
-
         // Função para preencher a lista do usuário
         function renderMyList() {
             const myList = JSON.parse(localStorage.getItem('myList')) || [];
@@ -678,7 +676,7 @@
             myListSection.style.display = myList.length > 0 ? 'block' : 'none';
         }
 
-        // Função para preencher as seções laterais (carrossel)
+        // Função para preencher as seções laterais (grid)
         function renderSection(rowId, ids) {
             const row = document.getElementById(rowId);
             const sectionMovies = movieData.filter(m => ids.includes(m.id));
@@ -698,9 +696,9 @@
                     sectionDiv.className = 'movie-section';
                     
                     const title = document.createElement('h2');
-                    title.innerHTML = `<a href="#all-movies" class="section-title-link" data-genre="${genre}">🍿 Gênero: ${genre}</a>`;
+                    // CORREÇÃO: Link agora aponta para a única seção de todos os filmes master
+                    title.innerHTML = `<a href="#all-movies-master" class="section-title-link" data-genre="${genre}">🍿 Gênero: ${genre}</a>`;
                     
-                    // IMPORTANTE: O UL agora usa 'movie-grid'
                     const ulRow = document.createElement('ul');
                     ulRow.className = 'movie-grid'; 
                     ulRow.id = `genre-row-${genre.replace(/\s+/g, '-').toLowerCase()}`;
@@ -709,7 +707,6 @@
                     sectionDiv.appendChild(ulRow);
                     genreSectionsContainer.appendChild(sectionDiv);
                     
-                    // Renderiza os filmes do gênero na nova linha
                     renderMovies(ulRow, genreMovies);
                 }
             });
@@ -768,7 +765,7 @@
             }, 1200);
         }
 
-        // Função para mudar o modal para o player de vídeo (CÓDIGO RESTAURADO)
+        // Função para mudar o modal para o player de vídeo
         function switchToVideo(videoUrl) {
             
             modalInfoContainer.style.display = 'none';
@@ -873,6 +870,33 @@
             modalVideoContainer.style.display = 'none';
             movieModal.classList.remove('fullscreen-video');
         }
+        
+        // --- NOVAS FUNÇÕES PARA O BANNER ALEATÓRIO ---
+        
+        // 1. Função para selecionar um filme aleatório
+        function getRandomMovie(movies) {
+            const randomIndex = Math.floor(Math.random() * movies.length);
+            return movies[randomIndex];
+        }
+
+        // 2. Função para atualizar o banner principal
+        function updateHeroBanner(movie) {
+            const heroBanner = document.querySelector('.hero-banner');
+            const heroContentTitle = document.querySelector('.hero-content .title');
+            const heroContentDescription = document.querySelector('.hero-content .description');
+            const heroWatchBtn = document.querySelector('.watch-btn-hero');
+            
+            // Atualiza a imagem de fundo
+            heroBanner.style.backgroundImage = `url('${movie.poster}')`;
+            
+            // Atualiza o conteúdo textual e o botão de assistir
+            heroWatchBtn.setAttribute('data-movie-id', movie.id);
+            heroContentTitle.textContent = movie.title;
+            heroContentDescription.textContent = movie.description;
+        }
+
+        // --- FIM NOVAS FUNÇÕES ---
+
 
         // Event Listeners
         
@@ -895,8 +919,10 @@
                 event.stopPropagation(); // Previne a abertura do modal
                 const movieId = parseInt(listBtn.getAttribute('data-movie-id'));
                 toggleMyList(movieId);
+                
                 // Atualiza o ícone
-                listBtn.innerHTML = JSON.parse(localStorage.getItem('myList') || '[]').includes(movieId) ? '<i class="fas fa-check"></i>' : '<i class="fas fa-plus"></i>';
+                const myList = JSON.parse(localStorage.getItem('myList') || '[]');
+                listBtn.innerHTML = myList.includes(movieId) ? '<i class="fas fa-check"></i>' : '<i class="fas fa-plus"></i>';
             }
         });
         
@@ -918,13 +944,14 @@
                 const genre = genreLink.getAttribute('data-genre');
                 const filteredMovies = movieData.filter(m => m.genres.includes(genre));
                 
-                // Exibe a seção Todos os Filmes
-                document.getElementById('all-movies').style.display = 'block';
+                // Exibe a seção Todos os Filmes master
+                const masterSection = document.getElementById('all-movies-master');
+                masterSection.style.display = 'block';
                 // Esconde Minha Lista, caso esteja ativa
                 document.getElementById('my-list').style.display = 'none';
                 
                 // Mude o título da seção principal e renderize os filmes filtrados
-                document.querySelector('#all-movies .section-title').textContent = `Filmes do Gênero: ${genre}`;
+                document.querySelector('#all-movies-master .section-title').textContent = `Filmes do Gênero: ${genre}`;
                 renderMovies(movieGrid, filteredMovies);
                 
                 // Esconde as outras seções
@@ -933,7 +960,7 @@
                 });
                 
                 // Navega para o topo da seção de filmes filtrados
-                document.getElementById('all-movies').scrollIntoView({ behavior: 'smooth' });
+                masterSection.scrollIntoView({ behavior: 'smooth' });
             }
         });
         
@@ -957,10 +984,12 @@
             document.querySelectorAll('.movie-section').forEach(section => {
                 section.style.display = 'block';
             });
-            document.getElementById('all-movies').style.display = 'block';
+            
+            const masterSection = document.getElementById('all-movies-master');
+            masterSection.style.display = 'block';
             document.getElementById('my-list').style.display = 'none';
-            document.querySelector('#all-movies .section-title').textContent = `Todos os Filmes`;
-            renderAllMovies();
+            document.querySelector('#all-movies-master .section-title').textContent = `📂 Todos os Filmes`; // Restaura título original
+            renderMovies(movieGrid, movieData); // Re-render all movies
             document.getElementById('home').scrollIntoView({ behavior: 'smooth' });
         });
         
@@ -970,7 +999,7 @@
             document.querySelectorAll('.movie-section').forEach(section => {
                 section.style.display = 'none';
             });
-            document.getElementById('all-movies').style.display = 'none'; 
+            document.getElementById('all-movies-master').style.display = 'none'; 
             renderMyList(); 
             
             // Rola para a seção Minha Lista
@@ -1005,20 +1034,16 @@
         const isIOS = /iPad|iPhone|iPod/.test(ua);
         const iOSVersionMatch = ua.match(/OS (\d+)_/);
         const iOSVersion = iOSVersionMatch ? parseInt(iOSVersionMatch[1], 10) : 0;
-        // O redirect button foi removido do HTML para manter a limpeza,
-        // mas a lógica abaixo pode ser reativada se necessário.
-        // const redirectButton = document.getElementById('ios-redirect-btn');
+        // if (isIOS && iOSVersion < 12) { /* Lógica de iOS antigo aqui */ }
 
-        // if (isIOS && iOSVersion < 12) {
-        //     // Lógica para iOS antigo (removida do HTML por simplificação)
-        // }
-
-        // Renderização inicial
-        renderAllMovies();
+        // 1. ATUALIZA O BANNER PRINCIPAL COM UM FILME ALEATÓRIO
+        const randomMovie = getRandomMovie(movieData);
+        updateHeroBanner(randomMovie);
+        
+        // 2. Renderização das listas
         renderMyList();
         
         // Renderização das seções fixas (usando IDs aleatórios como exemplo)
-        // ATENÇÃO: Os IDs agora preenchem um GRID, não um carrossel
         renderSection('suggestions-row', [3, 15, 20, 29, 35, 41, 7, 10]); 
         renderSection('recommendation-row', [2, 12, 18, 32, 1, 38, 5, 22]);
         renderSection('top10-row', [38, 24, 41, 30, 7, 35, 33, 20, 3, 1]);
@@ -1026,9 +1051,11 @@
         renderSection('success-row', [32, 1, 20, 35, 38, 24, 7]);
         renderSection('maybe-row', [12, 16, 21, 27, 40, 4, 14, 28]);
         renderSection('cinema-top10-row', [38, 24, 41, 30, 7, 35, 33, 20, 3, 1]);
-        renderSection('allmovies-row', movieData.map(m => m.id)); // Todos os filmes em um grid
         
-        // Renderiza as seções de gênero (também em grid)
+        // Renderiza a única lista de todos os filmes
+        renderMovies(movieGrid, movieData); 
+        
+        // Renderiza as seções de gênero
         renderGenreRows();
     });
 </script>
