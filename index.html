@@ -118,26 +118,12 @@
             padding: 50px;
         }
         
-        .genres-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 40px;
-        }
-        
-        .genre-card {
-            background-color: #2c2c2c;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        
-        .genre-card:hover {
-            background-color: #48c948;
+        /* Estilo para as novas seções de filmes, agora todas como grid */
+        .movie-section {
+            padding: 50px; /* Padroniza padding com content-section */
         }
 
+        
         .section-title {
             font-size: 2em;
             margin: 0 0 20px;
@@ -153,16 +139,17 @@
             color: #48c948;
         }
 
-        /* Layout de filmes em grid (4 por linha) */
+        /* LAYOUT PRINCIPAL: Grid de filmes (4 colunas) */
         .movie-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(4, 1fr); /* PC/Padrão: 4 Colunas */
             gap: 25px;
             list-style: none;
             padding: 0;
             margin: 0;
         }
 
+        /* CORREÇÃO CRÍTICA: Força o contêiner de todos os pôsteres para 16:9 (Horizontal/Deitado) */
         .movie-item {
             position: relative;
             background-color: #1a1e20;
@@ -170,8 +157,10 @@
             overflow: hidden;
             cursor: pointer;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio (9/16 * 100) */
+            /* 16:9 Aspect Ratio (9/16 * 100 = 56.25%) */
+            padding-bottom: 56.25%; 
             position: relative;
+            min-height: 0; /* Correção para grids flexíveis */
         }
 
         .movie-item:hover {
@@ -185,7 +174,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: cover; /* Garante que a imagem preencha o 16:9 sem distorção */
             border-radius: 8px;
         }
 
@@ -313,16 +302,35 @@
             padding-top: 20px;
         }
         
+        /* Grid de recomendados, ajustado para ser responsivo */
         .recommended-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(2, 1fr); /* 2x2 para telas pequenas */
             gap: 15px;
         }
+
+        /* Ajuste do grid de recomendados para 4 colunas em telas maiores */
+        @media (min-width: 600px) {
+            .recommended-grid {
+                grid-template-columns: repeat(4, 1fr); /* 4x4 para telas maiores */
+            }
+        }
         
-        .recommended-item img {
-            width: 100%;
-            height: auto;
+        /* Ajuste dos itens de recomendação para o 16:9 */
+        .recommended-item {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
             border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .recommended-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
         /* Modal Video Player */
@@ -361,11 +369,11 @@
             background-color: rgba(0, 0, 0, 0.8);
         }
 
-        /* --- Estilos para o modo de vídeo em tela cheia (Corrigido) --- */
+        /* --- Estilos para o modo de vídeo em tela cheia --- */
         .modal.fullscreen-video {
-            padding: 0; /* Remove o padding do modal */
-            backdrop-filter: none; /* Remove o desfoque do fundo para uma tela 100% preta */
-            background-color: black; /* Fundo preto total */
+            padding: 0; 
+            backdrop-filter: none; 
+            background-color: black; 
         }
 
         .modal.fullscreen-video .modal-content {
@@ -381,11 +389,19 @@
             justify-content: center;
         }
 
+        /* O contêiner do vídeo precisa ser 100% da tela no modo fullscreen */
         .modal.fullscreen-video .modal-video-container {
             width: 100%;
             height: 100%;
             padding-bottom: 0;
             position: relative;
+        }
+        
+        /* O iframe e o wrapper precisam ocupar 100% */
+        .modal.fullscreen-video .modal-video-container > div { 
+            width: 100%;
+            height: 100%;
+            position: relative; /* Garante que o blockBtn se posicione corretamente */
         }
 
         .modal.fullscreen-video .modal-video-container iframe {
@@ -397,101 +413,44 @@
             border: none;
         }
         
-        /* Aumenta o tamanho do botão Voltar em modo tela cheia */
         .modal.fullscreen-video .back-to-info-btn {
             padding: 12px 20px;
             font-size: 1.2em;
             background-color: rgba(0, 0, 0, 0.7);
         }
         
-        /* Esconde o botão de fechar quando o vídeo está em tela cheia */
         .modal.fullscreen-video .close-btn {
             display: none;
         }
         /* --- Fim das correções --- */
 
         /* Responsividade */
-        /* PC: 4 colunas */
-        @media (min-width: 1024px) {
+        /* Tablet/PC: 4 colunas */
+        @media (min-width: 768px) {
             .movie-grid {
                 grid-template-columns: repeat(4, 1fr);
             }
+            .navbar { padding: 15px 50px; }
+            .content-section, .movie-section { padding: 50px; }
         }
         
-        /* Tablet: 3 colunas */
-        @media (min-width: 768px) and (max-width: 1023px) {
-            .movie-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            .navbar-links { display: flex; }
-            .hero-content .title { font-size: 2.5em; }
-            .hero-content .description { font-size: 1em; }
-        }
-
-        /* Mobile: 2 colunas */
+        /* Mobile/iOS: 2 colunas */
         @media (max-width: 767px) {
             .navbar { padding: 15px 20px; }
             .navbar-links { display: none; }
             .hero-banner { height: 400px; padding: 30px; align-items: flex-end; }
             .hero-content .title { font-size: 2.5em; }
             .hero-content .description { font-size: 1em; }
-            .content-section { padding: 30px; }
-            .genres-grid { 
-                grid-template-columns: repeat(2, 1fr);
-            }
+            
+            .content-section, .movie-section { padding: 30px; }
+            
+            /* Ajuste para o grid principal no mobile (2 colunas) */
             .movie-grid {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
             }
         }
     </style>
-</style>
-
-<button id="ios-redirect-btn" class="ios-redirect-button">
-    Ativar versão otimizada (iOS 12 ou Inferior)
-</button>
-
-<style>
-  .movie-section {
-    margin: 30px 20px;
-  }
-  .movie-section h2 {
-    font-size: 1.4em;
-    margin-bottom: 10px;
-    color: #fff;
-  }
-  .movie-row {
-    display: flex;
-    overflow-x: auto;
-    gap: 10px;
-    padding-bottom: 10px;
-  }
-  .movie-row::-webkit-scrollbar {
-    display: none;
-  }
-  .movie-card {
-    min-width: 160px;
-    background: #111;
-    border-radius: 6px;
-    overflow: hidden;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: transform 0.2s;
-  }
-  .movie-card:hover {
-    transform: scale(1.05);
-  }
-  .movie-card img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-  .genre-section h3 {
-    font-size: 1.2em;
-    margin: 15px 0 10px;
-    color: #ddd;
-  }
-</style>
-
 </head>
 
 <body>
@@ -502,7 +461,7 @@
         <div class="navbar-links">
             <a href="#home">Início</a>
             <a href="#my-list">Minha Lista</a>
-            <a href="#genres">Gêneros</a>
+            <a href="#genre-sections-container">Gêneros</a>
         </div>
     </nav>
 
@@ -528,84 +487,20 @@
             <ul class="movie-grid" id="my-movie-grid">
                 </ul>
         </section>
-
-        <section class="content-section" id="genres">
-            <h2 class="section-title">Gêneros</h2>
-            <div class="genres-grid">
-                <div class="genre-card" data-genre="all">Todos os Filmes</div>
-                <div class="genre-card" data-genre="Ação">Ação</div>
-                <div class="genre-card" data-genre="Animação">Animação</div>
-                <div class="genre-card" data-genre="Aventura">Aventura</div>
-                <div class="genre-card" data-genre="Biografia">Biografia</div>
-                <div class="genre-card" data-genre="Comédia">Comédia</div>
-                <div class="genre-card" data-genre="Crime">Crime</div>
-                <div class="genre-card" data-genre="Documentário">Documentário</div>
-                <div class="genre-card" data-genre="Drama">Drama</div>
-                <div class="genre-card" data-genre="Experimental">Experimental</div>
-                <div class="genre-card" data-genre="Faroeste">Faroeste</div>
-                <div class="genre-card" data-genre="Ficção Científica">Ficção Científica</div>
-                <div class="genre-card" data-genre="Guerra">Guerra</div>
-                <div class="genre-card" data-genre="História">História</div>
-                <div class="genre-card" data-genre="Mistério">Mistério</div>
-                <div class="genre-card" data-genre="Musical">Musical</div>
-                <div class="genre-card" data-genre="Noir">Noir</div>
-                <div class="genre-card" data-genre="Propaganda">Propaganda</div>
-                <div class="genre-card" data-genre="Romance">Romance</div>
-                <div class="genre-card" data-genre="Suspense">Suspense</div>
-                <div class="genre-card" data-genre="Terror">Terror</div>
-                <div class="genre-card" data-genre="Vampiro">Vampiro</div>
-            </div>
-        </section>
-    
-<!-- Seções da Home estilo Netflix -->
-<section id="home-sections">
-  <div class="movie-section" id="suggestions">
-    <h2>Sugestões para você</h2>
-    <div class="movie-row" id="suggestions-row"></div>
-  </div>
-
-  <div class="movie-section" id="recommendation">
-    <h2>Nossa recomendação</h2>
-    <div class="movie-row" id="recommendation-row"></div>
-  </div>
-
-  <div class="movie-section" id="top10">
-    <h2>Os 10 melhores</h2>
-    <div class="movie-row" id="top10-row"></div>
-  </div>
-
-  <div class="movie-section" id="rated">
-    <h2>Filmes bem avaliados</h2>
-    <div class="movie-row" id="rated-row"></div>
-  </div>
-
-  <div class="movie-section" id="all-genres">
-    <h2>Todos os gêneros</h2>
-    <div id="genres-container"></div>
-  </div>
-
-  <div class="movie-section" id="success">
-    <h2>Sucessos imperdíveis</h2>
-    <div class="movie-row" id="success-row"></div>
-  </div>
-
-  <div class="movie-section" id="maybe">
-    <h2>Talvez você irá gostar</h2>
-    <div class="movie-row" id="maybe-row"></div>
-  </div>
-
-  <div class="movie-section" id="live">
-    <h2>Assista ao vivo</h2>
-    <div class="movie-row placeholder">Em breve...</div>
-  </div>
-
-  <div class="movie-section" id="cinema-top10">
-    <h2>Os 10 melhores do cinema</h2>
-    <div class="movie-row" id="cinema-top10-row"></div>
-  </div>
-</section>
-
-</main>
+        
+        <div class="movie-section"><h2>📺 Assista ao vivo</h2><p style="color:#ccc;">Em breve...</p></div>
+        <div class="movie-section"><h2>🎬 Sugestões para você</h2><ul class="movie-grid" id="suggestions-row"></ul></div>
+        <div class="movie-section"><h2>🌟 Nossa recomendação</h2><ul class="movie-grid" id="recommendation-row"></ul></div>
+        <div class="movie-section"><h2>🔥 Os 10 melhores</h2><ul class="movie-grid" id="top10-row"></ul></div>
+        <div class="movie-section"><h2>⭐ Filmes bem avaliados</h2><ul class="movie-grid" id="rated-row"></ul></div>
+        
+        <div id="genre-sections-container"></div>
+        
+        <div class="movie-section"><h2>💎 Sucessos imperdíveis</h2><ul class="movie-grid" id="success-row"></ul></div>
+        <div class="movie-section"><h2>🎲 Talvez você irá gostar</h2><ul class="movie-grid" id="maybe-row"></ul></div>
+        <div class="movie-section"><h2>🎞️ Os 10 melhores do cinema</h2><ul class="movie-grid" id="cinema-top10-row"></ul></div>
+        <div class="movie-section"><h2>📂 Todos os filmes</h2><ul class="movie-grid" id="allmovies-row"></ul></div>
+  </main>
     
     <div id="movie-modal" class="modal">
         <div class="modal-content">
@@ -628,8 +523,7 @@
                 </div>
             </div>
             <div id="modal-video-container" class="modal-video-container">
-                <button class="back-to-info-btn"><i class="fas fa-arrow-left"></i> Voltar</button>
-            </div>
+                </div>
         </div>
     </div>
 
@@ -722,272 +616,270 @@
         ];
 
         const movieGrid = document.getElementById('movie-grid');
-        const myMovieGrid = document.getElementById('my-movie-grid');
-        const heroBanner = document.querySelector('.hero-banner');
-        const heroTitle = document.querySelector('.hero-content .title');
-        const heroDescription = document.querySelector('.hero-content .description');
-        const watchBtnHero = document.querySelector('.watch-btn-hero');
-
+        const myListGrid = document.getElementById('my-movie-grid');
+        const mainContent = document.querySelector('main');
+        const heroWatchBtn = document.querySelector('.watch-btn-hero');
         const movieModal = document.getElementById('movie-modal');
-        const closeModalBtn = document.querySelector('.close-btn');
-        const modalInfoContainer = document.getElementById('modal-info-container');
-        const modalVideoContainer = document.getElementById('modal-video-container');
-        const modalPoster = document.getElementById('modal-poster');
         const modalTitle = document.getElementById('modal-title');
         const modalYear = document.getElementById('modal-year');
         const modalGenres = document.getElementById('modal-genres');
         const modalDescription = document.getElementById('modal-description');
+        const modalPoster = document.getElementById('modal-poster');
         const modalWatchBtn = document.getElementById('modal-watch-btn');
+        const modalVideoContainer = document.getElementById('modal-video-container');
+        const modalInfoContainer = document.getElementById('modal-info-container');
         const recommendedGrid = document.getElementById('recommended-grid');
+        const closeBtn = document.querySelector('.close-btn');
         
-        const genresGrid = document.querySelector('.genres-grid');
-        const homeSection = document.getElementById('all-movies');
-        const myListSection = document.getElementById('my-list');
-        const genresSection = document.getElementById('genres');
-        const navLinks = document.querySelectorAll('.navbar-links a');
-        const allSections = document.querySelectorAll('.content-section');
-        const backToInfoBtn = document.querySelector('.back-to-info-btn');
+        // Contêiner para as seções de gênero geradas dinamicamente
+        const genreSectionsContainer = document.getElementById('genre-sections-container');
+        
+        // Função para criar o elemento do pôster do filme (item de lista)
+        function createMovieItem(movie) {
+            const listItem = document.createElement('li');
+            listItem.className = 'movie-item';
+            listItem.setAttribute('data-movie-id', movie.id);
+            
+            const img = document.createElement('img');
+            img.src = movie.poster;
+            img.alt = movie.title;
+            
+            // Botão Adicionar à Lista
+            const listBtn = document.createElement('button');
+            listBtn.className = 'add-to-list-btn';
+            listBtn.innerHTML = '<i class="fas fa-plus"></i>'; 
+            listBtn.setAttribute('data-movie-id', movie.id);
 
-        let mySavedList = JSON.parse(localStorage.getItem('myMovies')) || [];
+            listItem.appendChild(img);
+            listItem.appendChild(listBtn);
+            return listItem;
+        }
 
+        // Função para renderizar filmes em um contêiner (grid ou row)
         function renderMovies(container, movies) {
             container.innerHTML = '';
-            if (movies.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum filme na lista. Adicione alguns!</p>';
-            }
             movies.forEach(movie => {
-                const isSaved = mySavedList.includes(movie.id);
-                const li = document.createElement('li');
-                li.className = 'movie-item';
-                li.setAttribute('data-movie-id', movie.id);
-                
-                const addBtnIcon = isSaved ? 'fa-check' : 'fa-plus';
+                container.appendChild(createMovieItem(movie));
+            });
+        }
 
-                li.innerHTML = `
-                    <button class="add-to-list-btn" data-movie-id="${movie.id}">
-                        <i class="fas ${addBtnIcon}"></i>
-                    </button>
-                    <img src="${movie.poster}" alt="Poster de ${movie.title}">
-                `;
-                container.appendChild(li);
+        // Função para preencher a grade principal de todos os filmes
+        function renderAllMovies() {
+            renderMovies(movieGrid, movieData);
+        }
+
+        // Função para preencher a lista do usuário
+        function renderMyList() {
+            const myList = JSON.parse(localStorage.getItem('myList')) || [];
+            const myMovies = movieData.filter(m => myList.includes(m.id));
+            renderMovies(myListGrid, myMovies);
+            
+            const myListSection = document.getElementById('my-list');
+            myListSection.style.display = myList.length > 0 ? 'block' : 'none';
+        }
+
+        // Função para preencher as seções laterais (carrossel)
+        function renderSection(rowId, ids) {
+            const row = document.getElementById(rowId);
+            const sectionMovies = movieData.filter(m => ids.includes(m.id));
+            renderMovies(row, sectionMovies); 
+        }
+        
+        // Função para renderizar as linhas de filmes por Gênero
+        function renderGenreRows() {
+            const allGenres = [...new Set(movieData.flatMap(m => m.genres))].sort();
+            genreSectionsContainer.innerHTML = ''; 
+
+            allGenres.forEach(genre => {
+                const genreMovies = movieData.filter(m => m.genres.includes(genre));
+                if (genreMovies.length > 0) {
+                    
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'movie-section';
+                    
+                    const title = document.createElement('h2');
+                    title.innerHTML = `<a href="#all-movies" class="section-title-link" data-genre="${genre}">🍿 Gênero: ${genre}</a>`;
+                    
+                    // IMPORTANTE: O UL agora usa 'movie-grid'
+                    const ulRow = document.createElement('ul');
+                    ulRow.className = 'movie-grid'; 
+                    ulRow.id = `genre-row-${genre.replace(/\s+/g, '-').toLowerCase()}`;
+                    
+                    sectionDiv.appendChild(title);
+                    sectionDiv.appendChild(ulRow);
+                    genreSectionsContainer.appendChild(sectionDiv);
+                    
+                    // Renderiza os filmes do gênero na nova linha
+                    renderMovies(ulRow, genreMovies);
+                }
             });
         }
         
-        function displayMainSection(sectionId) {
-            allSections.forEach(section => {
-                section.style.display = 'none';
-            });
-            document.querySelector('.section-title').textContent = 'Todos os Filmes';
+        // Função para adicionar/remover da lista
+        function toggleMyList(movieId) {
+            let myList = JSON.parse(localStorage.getItem('myList')) || [];
+            const index = myList.indexOf(movieId);
 
-            if (sectionId === 'my-list') {
-                myListSection.style.display = 'block';
-                document.querySelector('.section-title').textContent = 'Minha Lista';
-                const myMovies = movieData.filter(movie => mySavedList.includes(movie.id));
-                renderMovies(myMovieGrid, myMovies);
-            } else if (sectionId === 'genres') {
-                genresSection.style.display = 'block';
-                homeSection.style.display = 'block';
-                renderMovies(movieGrid, movieData);
+            if (index > -1) {
+                myList.splice(index, 1);
             } else {
-                homeSection.style.display = 'block';
-                renderMovies(movieGrid, movieData);
+                myList.push(movieId);
             }
+
+            localStorage.setItem('myList', JSON.stringify(myList));
+            renderMyList();
         }
 
-        function setHeroBanner(movie) {
-            if (movie) {
-                heroBanner.style.backgroundImage = `url('${movie.poster}')`;
-                heroTitle.textContent = movie.title;
-                heroDescription.textContent = movie.description;
-                watchBtnHero.setAttribute('data-movie-id', movie.id);
-            }
+        // Função para encontrar filmes relacionados (simplesmente busca por um gênero em comum)
+        function getRecommendedMovies(currentMovie) {
+            const currentGenres = currentMovie.genres;
+            
+            // Encontra 4 filmes aleatórios que compartilham pelo menos um gênero, excluindo o atual
+            const recommended = movieData
+                .filter(m => m.id !== currentMovie.id)
+                .filter(m => m.genres.some(g => currentGenres.includes(g)))
+                .sort(() => 0.5 - Math.random()) // Shuffle
+                .slice(0, 4); 
+
+            return recommended;
         }
         
-        function populateModal(movie) {
-            // Reset modal state
-            modalInfoContainer.style.display = 'block';
-            modalVideoContainer.style.display = 'none';
-            modalVideoContainer.innerHTML = `<button class="back-to-info-btn"><i class="fas fa-arrow-left"></i> Voltar</button>`;
+        // FUNÇÃO QUE MOSTRA O TOAST TEMPORÁRIO (USADO NO PLAYER)
+        function showBlockedMessage() {
+            const toast = document.createElement('div');
+            toast.textContent = 'Abertura externa desativada.';
+            toast.style.position = 'absolute';
+            toast.style.top = '12px';
+            toast.style.right = '64px';
+            toast.style.padding = '8px 12px';
+            toast.style.background = 'rgba(0,0,0,0.7)';
+            toast.style.color = '#fff';
+            toast.style.borderRadius = '6px';
+            toast.style.zIndex = '10000';
+            toast.style.fontSize = '14px';
+            // Adiciona o toast ao container de vídeo (que está em fullscreen)
+            document.querySelector('.modal.fullscreen-video .modal-video-container').appendChild(toast); 
+            
+            // Remove o toast após um tempo
+            setTimeout(()=> { 
+                toast.style.opacity = '0'; 
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(()=> toast.remove(), 300); 
+            }, 1200);
+        }
 
-            modalPoster.src = movie.poster;
+        // Função para mudar o modal para o player de vídeo (CÓDIGO RESTAURADO)
+        function switchToVideo(videoUrl) {
+            
+            modalInfoContainer.style.display = 'none';
+            modalVideoContainer.style.display = 'block';
+            movieModal.classList.add('fullscreen-video');
+            
+            modalVideoContainer.innerHTML = ''; // Limpa o container
+            
+            // Botão "Voltar" (Back-to-info-btn)
+            const backBtn = document.createElement('button');
+            backBtn.className = 'back-to-info-btn';
+            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Voltar';
+            modalVideoContainer.appendChild(backBtn);
+            
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative'; 
+            wrapper.style.width = '100%';
+            wrapper.style.height = '100%';
+            
+            // iframe do Google Drive
+            const iframe = document.createElement('iframe');
+            iframe.src = videoUrl;
+            iframe.allow = 'autoplay; encrypted-media';
+            iframe.allowFullscreen = true;
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.style.display = 'block';
+
+            // Pequeno botão cobrindo a área do "abrir em nova guia" (top-right)
+            const blockBtn = document.createElement('button');
+            blockBtn.className = 'block-newtab-btn';
+            blockBtn.title = 'Abertura externa desativada';
+            blockBtn.style.position = 'absolute';
+            blockBtn.style.top = '12px';
+            blockBtn.style.right = '12px';
+            blockBtn.style.width = '44px';
+            blockBtn.style.height = '44px';
+            blockBtn.style.border = 'none';
+            blockBtn.style.background = 'rgba(0,0,0,0.15)';
+            blockBtn.style.color = '#fff';
+            blockBtn.style.borderRadius = '8px';
+            blockBtn.style.zIndex = '9999';
+            blockBtn.style.cursor = 'pointer';
+            blockBtn.style.display = 'flex';
+            blockBtn.style.alignItems = 'center';
+            blockBtn.style.justifyContent = 'center';
+            blockBtn.style.backdropFilter = 'blur(2px)';
+            blockBtn.innerHTML = '<i class="fas fa-link"></i>';
+
+            // Ao clicar no blockBtn, impede a ação e mostra uma mensagem rápida
+            blockBtn.addEventListener('click', function(e){
+                e.stopPropagation();
+                e.preventDefault();
+                showBlockedMessage();
+            });
+
+            // Adiciona iframe e o botão bloqueador no wrapper
+            wrapper.appendChild(iframe);
+            wrapper.appendChild(blockBtn);
+
+            // Adiciona wrapper ao container do modal
+            modalVideoContainer.appendChild(wrapper);
+        }
+        
+        // Função para preencher o modal
+        function populateModal(movie) {
             modalTitle.textContent = movie.title;
             modalYear.textContent = movie.year;
             modalGenres.textContent = `Gêneros: ${movie.genres.join(', ')}`;
             modalDescription.textContent = movie.description;
-            modalWatchBtn.setAttribute('data-video-url', movie.videoUrl);
+            modalPoster.src = movie.poster;
             
-            // Generate recommended movies (by genre, excluding current)
-            const recommendedMovies = movieData
-                .filter(m => m.id !== movie.id && m.genres.some(g => movie.genres.includes(g)))
-                .sort(() => 0.5 - Math.random()) // Shuffle
-                .slice(0, 4); // Get up to 4 movies
-                
+            // Atualiza o botão 'Assistir Já' com o link do vídeo
+            modalWatchBtn.onclick = (e) => {
+                e.preventDefault();
+                switchToVideo(movie.videoUrl);
+            };
+
+            // Preenche a seção de recomendados
+            const recommended = getRecommendedMovies(movie);
             recommendedGrid.innerHTML = '';
-            if (recommendedMovies.length === 0) {
-                 recommendedGrid.innerHTML = '<p style="color: #ccc;">Não há recomendações similares.</p>';
-            }
-            recommendedMovies.forEach(recMovie => {
+            recommended.forEach(recMovie => {
                 const recItem = document.createElement('div');
                 recItem.className = 'recommended-item';
                 recItem.setAttribute('data-movie-id', recMovie.id);
-                recItem.innerHTML = `<img src="${recMovie.poster}" alt="Poster de ${recMovie.title}">`;
+                recItem.innerHTML = `<img src="${recMovie.poster}" alt="${recMovie.title}">`;
                 recommendedGrid.appendChild(recItem);
             });
-
+            
+            // Reseta para o modo de informações
+            modalInfoContainer.style.display = 'block';
+            modalVideoContainer.style.display = 'none';
+            movieModal.classList.remove('fullscreen-video');
             movieModal.style.display = 'flex';
         }
-
         
-
-function playMovieInModal(videoUrl) {
-    modalInfoContainer.style.display = 'none';
-    modalVideoContainer.style.display = 'block';
-    movieModal.classList.add('fullscreen-video');
-    
-    // limpa conteúdo do container
-    modalVideoContainer.innerHTML = '';
-
-    // Container relativo para posicionar elementos sobre o iframe
-    const wrapper = document.createElement('div');
-    wrapper.style.position = 'relative';
-    wrapper.style.width = '100%';
-    wrapper.style.height = '100%';
-    wrapper.style.overflow = 'hidden';
-
-    // iframe do Google Drive
-    const iframe = document.createElement('iframe');
-    iframe.src = videoUrl;
-    iframe.allow = 'autoplay; encrypted-media';
-    iframe.allowFullscreen = true;
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
-    iframe.style.border = 'none';
-    iframe.style.display = 'block';
-
-    // Pequeno botão cobrindo a área do "abrir em nova guia" (top-right)
-    const blockBtn = document.createElement('button');
-    blockBtn.className = 'block-newtab-btn';
-    blockBtn.title = 'Abertura externa desativada';
-    blockBtn.style.position = 'absolute';
-    blockBtn.style.top = '12px';
-    blockBtn.style.right = '12px';
-    blockBtn.style.width = '44px';
-    blockBtn.style.height = '44px';
-    blockBtn.style.border = 'none';
-    blockBtn.style.background = 'rgba(0,0,0,0.15)';
-    blockBtn.style.color = '#fff';
-    blockBtn.style.borderRadius = '8px';
-    blockBtn.style.zIndex = '9999';
-    blockBtn.style.cursor = 'pointer';
-    blockBtn.style.display = 'flex';
-    blockBtn.style.alignItems = 'center';
-    blockBtn.style.justifyContent = 'center';
-    blockBtn.style.backdropFilter = 'blur(2px)';
-    blockBtn.innerHTML = '<i class=\"fas fa-link\"></i>';
-
-    // Ao clicar no blockBtn, impede a ação e mostra uma mensagem rápida
-    blockBtn.addEventListener('click', function(e){
-        e.stopPropagation();
-        e.preventDefault();
-        showBlockedMessage();
-    });
-
-    // Função que mostra um toast temporário informando que abrir externamente foi desativado
-    function showBlockedMessage() {
-        const toast = document.createElement('div');
-        toast.textContent = 'Abertura externa desativada.';
-        toast.style.position = 'absolute';
-        toast.style.top = '12px';
-        toast.style.right = '64px';
-        toast.style.padding = '8px 12px';
-        toast.style.background = 'rgba(0,0,0,0.7)';
-        toast.style.color = '#fff';
-        toast.style.borderRadius = '6px';
-        toast.style.zIndex = '10000';
-        toast.style.fontSize = '14px';
-        modalVideoContainer.appendChild(toast);
-        setTimeout(()=> { toast.style.opacity = '0'; setTimeout(()=> toast.remove(), 300); }, 1200);
-    }
-
-    // Adiciona iframe e o botão bloqueador no wrapper
-    wrapper.appendChild(iframe);
-    wrapper.appendChild(blockBtn);
-
-    // Adiciona wrapper ao container do modal
-    modalVideoContainer.appendChild(wrapper);
-
-    // Botão de voltar (à esquerda) -- mantém função original
-    const backBtn = document.createElement('button');
-    backBtn.className = 'back-to-info-btn';
-    backBtn.innerHTML = `<i class="fas fa-arrow-left"></i> Voltar`;
-    backBtn.addEventListener('click', backToInfo);
-    modalVideoContainer.appendChild(backBtn);
-
-    // Desativa clique direito dentro do container do modal (para dificultar "abrir em nova guia" via menu)
-    modalVideoContainer.addEventListener('contextmenu', function(e){ e.preventDefault(); });
-
-    // Em alguns navegadores precisamos bloquear também o gesto de arrastar (dragstart)
-    modalVideoContainer.addEventListener('dragstart', function(e){ e.preventDefault(); });
-}
-
-
-
+        // Função para voltar para a tela de informações
         function backToInfo() {
-            modalVideoContainer.innerHTML = `<button class="back-to-info-btn"><i class="fas fa-arrow-left"></i> Voltar</button>`;
-            modalVideoContainer.style.display = 'none';
+            modalVideoContainer.innerHTML = ''; // Remove o iframe para parar o vídeo
             modalInfoContainer.style.display = 'block';
+            modalVideoContainer.style.display = 'none';
             movieModal.classList.remove('fullscreen-video');
-        }
-        
-        function toggleMovieInList(movieId) {
-            const index = mySavedList.indexOf(movieId);
-            if (index > -1) {
-                mySavedList.splice(index, 1);
-            } else {
-                mySavedList.push(movieId);
-            }
-            localStorage.setItem('myMovies', JSON.stringify(mySavedList));
-            // Re-render to update icon
-            renderMovies(movieGrid, movieData);
         }
 
         // Event Listeners
-        document.addEventListener('DOMContentLoaded', () => {
-            setHeroBanner(movieData[0]);
-            renderMovies(movieGrid, movieData);
-        });
         
-        navLinks.forEach(link => {
-            link.addEventListener('click', (event) => {
-                event.preventDefault();
-                const sectionId = link.getAttribute('href').substring(1);
-                displayMainSection(sectionId);
-            });
-        });
-
-        document.addEventListener('click', (event) => {
+        // Abre o modal ao clicar em qualquer pôster
+        mainContent.addEventListener('click', (event) => {
             const movieItem = event.target.closest('.movie-item');
-            const addBtn = event.target.closest('.add-to-list-btn');
-
-            if (addBtn) {
-                event.stopPropagation(); // Prevents modal from opening
-                const movieId = parseInt(addBtn.getAttribute('data-movie-id'));
-                toggleMovieInList(movieId);
-                // Update button icon
-                const icon = addBtn.querySelector('i');
-                if (mySavedList.includes(movieId)) {
-                    icon.classList.remove('fa-plus');
-                    icon.classList.add('fa-check');
-                } else {
-                    icon.classList.remove('fa-check');
-                    icon.classList.add('fa-plus');
-                }
-                // If on my list page, re-render the list
-                if (myListSection.style.display === 'block') {
-                     const myMovies = movieData.filter(movie => mySavedList.includes(movie.id));
-                     renderMovies(myMovieGrid, myMovies);
-                }
-            } else if (movieItem) {
+            if (movieItem) {
                 const movieId = parseInt(movieItem.getAttribute('data-movie-id'));
                 const movie = movieData.find(m => m.id === movieId);
                 if (movie) {
@@ -995,54 +887,96 @@ function playMovieInModal(videoUrl) {
                 }
             }
         });
-        
-        closeModalBtn.addEventListener('click', () => {
-            movieModal.style.display = 'none';
-            movieModal.classList.remove('fullscreen-video');
-            // Stop video playback when closing modal
-            modalVideoContainer.innerHTML = `<button class="back-to-info-btn"><i class="fas fa-arrow-left"></i> Voltar</button>`;
-        });
 
-        window.addEventListener('click', (event) => {
-            if (event.target === movieModal) {
-                movieModal.style.display = 'none';
-                movieModal.classList.remove('fullscreen-video');
-                modalVideoContainer.innerHTML = `<button class="back-to-info-btn"><i class="fas fa-arrow-left"></i> Voltar</button>`;
+        // Toggle Minha Lista ao clicar no botão '+'
+        mainContent.addEventListener('click', (event) => {
+            const listBtn = event.target.closest('.add-to-list-btn');
+            if (listBtn) {
+                event.stopPropagation(); // Previne a abertura do modal
+                const movieId = parseInt(listBtn.getAttribute('data-movie-id'));
+                toggleMyList(movieId);
+                // Atualiza o ícone
+                listBtn.innerHTML = JSON.parse(localStorage.getItem('myList') || '[]').includes(movieId) ? '<i class="fas fa-check"></i>' : '<i class="fas fa-plus"></i>';
             }
         });
-
-        watchBtnHero.addEventListener('click', (event) => {
-            event.preventDefault();
-            const movieId = parseInt(event.target.getAttribute('data-movie-id'));
+        
+        // Lógica do botão de 'Assistir Agora' no Banner
+        heroWatchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const movieId = parseInt(heroWatchBtn.getAttribute('data-movie-id'));
             const movie = movieData.find(m => m.id === movieId);
             if (movie) {
                 populateModal(movie);
             }
         });
-        
-        modalWatchBtn.addEventListener('click', (event) => {
-            event.preventDefault();
-            const videoUrl = modalWatchBtn.getAttribute('data-video-url');
-            if (videoUrl) {
-                playMovieInModal(videoUrl);
+
+        // Lógica para filtrar por gênero ao clicar no título da seção (agora um link)
+        genreSectionsContainer.addEventListener('click', (event) => {
+            const genreLink = event.target.closest('.section-title-link');
+            if (genreLink && genreLink.getAttribute('data-genre')) {
+                event.preventDefault(); // Impede o salto do link
+                const genre = genreLink.getAttribute('data-genre');
+                const filteredMovies = movieData.filter(m => m.genres.includes(genre));
+                
+                // Exibe a seção Todos os Filmes
+                document.getElementById('all-movies').style.display = 'block';
+                // Esconde Minha Lista, caso esteja ativa
+                document.getElementById('my-list').style.display = 'none';
+                
+                // Mude o título da seção principal e renderize os filmes filtrados
+                document.querySelector('#all-movies .section-title').textContent = `Filmes do Gênero: ${genre}`;
+                renderMovies(movieGrid, filteredMovies);
+                
+                // Esconde as outras seções
+                document.querySelectorAll('.movie-section').forEach(section => {
+                    section.style.display = 'none';
+                });
+                
+                // Navega para o topo da seção de filmes filtrados
+                document.getElementById('all-movies').scrollIntoView({ behavior: 'smooth' });
             }
+        });
+        
+        // Lógica para fechar o modal
+        closeBtn.onclick = () => {
+            movieModal.style.display = 'none';
+            backToInfo();
+        }
+
+        // Fecha o modal se o usuário clicar fora dele (apenas na área escura)
+        window.onclick = (event) => {
+            if (event.target == movieModal && !movieModal.classList.contains('fullscreen-video')) {
+                movieModal.style.display = 'none';
+                backToInfo();
+            }
+        }
+        
+        // Lógica de navegação para 'Início'
+        document.querySelector('.navbar-links a[href="#home"]').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.movie-section').forEach(section => {
+                section.style.display = 'block';
+            });
+            document.getElementById('all-movies').style.display = 'block';
+            document.getElementById('my-list').style.display = 'none';
+            document.querySelector('#all-movies .section-title').textContent = `Todos os Filmes`;
+            renderAllMovies();
+            document.getElementById('home').scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        // Lógica de navegação para 'Minha Lista'
+        document.querySelector('.navbar-links a[href="#my-list"]').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.movie-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById('all-movies').style.display = 'none'; 
+            renderMyList(); 
+            
+            // Rola para a seção Minha Lista
+            document.getElementById('my-list').scrollIntoView({ behavior: 'smooth' });
         });
 
-        genresGrid.addEventListener('click', (event) => {
-            const genreCard = event.target.closest('.genre-card');
-            if (genreCard) {
-                const genre = genreCard.getAttribute('data-genre');
-                const filteredMovies = (genre === 'all') 
-                    ? movieData 
-                    : movieData.filter(movie => movie.genres.includes(genre));
-                
-                document.querySelector('.section-title').textContent = (genre === 'all') ? 'Todos os Filmes' : `Filmes de ${genre}`;
-                
-                myListSection.style.display = 'none';
-                renderMovies(movieGrid, filteredMovies);
-            }
-        });
-        
         recommendedGrid.addEventListener('click', (event) => {
             const recItem = event.target.closest('.recommended-item');
             if (recItem) {
@@ -1053,7 +987,8 @@ function playMovieInModal(videoUrl) {
                 }
             }
         });
-
+        
+        // Listener para o botão "Voltar" dentro do player
         movieModal.addEventListener('click', (event) => {
             if (event.target.closest('.back-to-info-btn')) {
                 backToInfo();
@@ -1063,198 +998,39 @@ function playMovieInModal(videoUrl) {
 
 </script>
 <script>
+    // Inicialização principal
     document.addEventListener('DOMContentLoaded', () => {
+        // Lógica de redirecionamento iOS (Mantida)
         const ua = navigator.userAgent;
         const isIOS = /iPad|iPhone|iPod/.test(ua);
         const iOSVersionMatch = ua.match(/OS (\d+)_/);
         const iOSVersion = iOSVersionMatch ? parseInt(iOSVersionMatch[1], 10) : 0;
-        const redirectButton = document.getElementById('ios-redirect-btn');
+        // O redirect button foi removido do HTML para manter a limpeza,
+        // mas a lógica abaixo pode ser reativada se necessário.
+        // const redirectButton = document.getElementById('ios-redirect-btn');
 
-        if (isIOS && iOSVersion < 12) {
-            redirectButton.style.display = 'block';
-        }
+        // if (isIOS && iOSVersion < 12) {
+        //     // Lógica para iOS antigo (removida do HTML por simplificação)
+        // }
 
-        redirectButton.addEventListener('click', () => {
-            window.location.href = "index-ios-old.html"; // Redireciona para o View
-        });
+        // Renderização inicial
+        renderAllMovies();
+        renderMyList();
+        
+        // Renderização das seções fixas (usando IDs aleatórios como exemplo)
+        // ATENÇÃO: Os IDs agora preenchem um GRID, não um carrossel
+        renderSection('suggestions-row', [3, 15, 20, 29, 35, 41, 7, 10]); 
+        renderSection('recommendation-row', [2, 12, 18, 32, 1, 38, 5, 22]);
+        renderSection('top10-row', [38, 24, 41, 30, 7, 35, 33, 20, 3, 1]);
+        renderSection('rated-row', [38, 35, 33, 1, 7, 41, 30, 24, 18, 2, 3, 20]);
+        renderSection('success-row', [32, 1, 20, 35, 38, 24, 7]);
+        renderSection('maybe-row', [12, 16, 21, 27, 40, 4, 14, 28]);
+        renderSection('cinema-top10-row', [38, 24, 41, 30, 7, 35, 33, 20, 3, 1]);
+        renderSection('allmovies-row', movieData.map(m => m.id)); // Todos os filmes em um grid
+        
+        // Renderiza as seções de gênero (também em grid)
+        renderGenreRows();
     });
 </script>
-
-<!-- CSS rápido para título sobre a capa -->
-<style>
-  .movie-card { position: relative; min-width: 160px; background:#111; border-radius:6px; overflow:hidden; flex-shrink:0; cursor:pointer; }
-  .movie-card img { display:block; width:100%; height: auto; }
-  .movie-card .card-title {
-    position:absolute;
-    left:0; right:0; bottom:0;
-    padding:6px 8px;
-    background: linear-gradient(transparent, rgba(0,0,0,0.7));
-    color:#fff; font-size:13px; text-align:center;
-  }
-  /* hide small scrollbars on desktop */
-  .movie-row { display:flex; gap:10px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:6px; }
-  .movie-row::-webkit-scrollbar { height:8px; }
-  .movie-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius:4px; }
-  .movie-section { margin: 26px 22px; }
-  .movie-section h2 { color:#fff; margin:0 0 10px; font-size:1.3rem; }
-  .genre-section { margin-bottom:16px; }
-  @media (min-width:1024px) { .movie-card { min-width:180px } }
-  @media (max-width:767px) { .movie-card { min-width:140px } }
-</style>
-
-<script>
-(function(){
-  // cria o card do filme (usa poster/title) e abre o modal ao clicar
-  function createMovieCard(movie) {
-    const card = document.createElement('div');
-    card.className = 'movie-card';
-
-    const img = document.createElement('img');
-    img.src = movie.poster || '';
-    img.alt = movie.title || 'Filme';
-    card.appendChild(img);
-
-    const title = document.createElement('div');
-    title.className = 'card-title';
-    title.textContent = movie.title || '';
-    card.appendChild(title);
-
-    card.addEventListener('click', function(e){
-      // usa populateModal(movie) já existente no seu index
-      if (typeof populateModal === 'function') {
-        populateModal(movie);
-      } else {
-        console.warn('populateModal não encontrado. Verifique ordem dos scripts.');
-      }
-    });
-
-    return card;
-  }
-
-  // helper: shuffle array (Fisher-Yates)
-  function shuffle(arr) {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-
-  function safeGenres(movie) {
-    return Array.isArray(movie.genres) ? movie.genres : (movie.genre ? (Array.isArray(movie.genre) ? movie.genre : [movie.genre]) : []);
-  }
-
-  function populateHomeSections() {
-    if (!window.movieData || !Array.isArray(window.movieData)) return;
-
-    // referências
-    const suggestionsRow = document.getElementById('suggestions-row');
-    const recommendationRow = document.getElementById('recommendation-row');
-    const top10Row = document.getElementById('top10-row');
-    const ratedRow = document.getElementById('rated-row');
-    const successRow = document.getElementById('success-row');
-    const maybeRow = document.getElementById('maybe-row');
-    const cinemaRow = document.getElementById('cinema-top10-row');
-    const genresContainer = document.getElementById('genres-container');
-
-    // limpa tudo primeiro (se já tinha algo)
-    [suggestionsRow, recommendationRow, top10Row, ratedRow, successRow, maybeRow, cinemaRow].forEach(el => { if (el) el.innerHTML = ''; });
-    if (genresContainer) genresContainer.innerHTML = '';
-
-    // 1) Nossa recomendação -> destaque (vamos usar primeiro item como destaque)
-    const hero = window.movieData[0] || window.movieData[Math.floor(Math.random()*window.movieData.length)];
-    if (recommendationRow && hero) recommendationRow.appendChild(createMovieCard(hero));
-
-    // 2) Sugestões para você -> pegar filmes que compartilham gênero com o hero, ou aleatório
-    const heroGenres = safeGenres(hero);
-    let suggestions = [];
-    if (heroGenres.length > 0) {
-      suggestions = window.movieData.filter(m => m.id !== hero.id && safeGenres(m).some(g => heroGenres.includes(g)));
-    }
-    if (suggestions.length < 10) {
-      const fill = window.movieData.filter(m => m.id !== hero.id && !suggestions.includes(m));
-      suggestions = suggestions.concat(fill);
-    }
-    suggestions = suggestions.slice(0, 10);
-    suggestions.forEach(m => suggestionsRow && suggestionsRow.appendChild(createMovieCard(m)));
-
-    // 3) Os 10 melhores -> ordenar por campo rating se existir, senão usar shuffle como fallback
-    const withRating = window.movieData.filter(m => typeof m.rating === 'number');
-    let top10 = [];
-    if (withRating.length >= 10) {
-      top10 = withRating.sort((a,b)=> b.rating - a.rating).slice(0,10);
-    } else {
-      top10 = shuffle(window.movieData).slice(0,10);
-    }
-    top10.forEach(m => top10Row && top10Row.appendChild(createMovieCard(m)));
-
-    // 4) Filmes bem avaliados -> preferir rating real senão usar top10
-    if (withRating.length > 0) {
-      const rated = withRating.sort((a,b)=> b.rating - a.rating).slice(0,10);
-      rated.forEach(m => ratedRow && ratedRow.appendChild(createMovieCard(m)));
-    } else {
-      top10.slice(0,10).forEach(m => ratedRow && ratedRow.appendChild(createMovieCard(m)));
-    }
-
-    // 5) Sucessos imperdíveis -> pegar um slice fixo (índice 5..15)
-    window.movieData.slice(5, 15).forEach(m => successRow && successRow.appendChild(createMovieCard(m)));
-
-    // 6) Talvez você irá gostar -> outra seleção relacionada ao hero (mas diferente das sugestões)
-    const maybe = window.movieData.filter(m => m.id !== hero.id && !suggestions.includes(m)).slice(0,10);
-    maybe.forEach(m => maybeRow && maybeRow.appendChild(createMovieCard(m)));
-
-    // 7) Os 10 melhores do cinema -> últimos 10 do array (ou shuffle se poucos)
-    const cinemaTop = window.movieData.slice(-10);
-    cinemaTop.forEach(m => cinemaRow && cinemaRow.appendChild(createMovieCard(m)));
-
-    // 8) Todos os gêneros -> agrupa por genre e cria seções (aparece quando clicar no botão Gêneros)
-    if (genresContainer) {
-      const map = {};
-      window.movieData.forEach(m => {
-        safeGenres(m).forEach(g => {
-          if (!map[g]) map[g] = [];
-          map[g].push(m);
-        });
-      });
-      // ordenar gêneros por nome
-      Object.keys(map).sort((a,b)=> a.localeCompare(b)).forEach(genre => {
-        const gSection = document.createElement('div');
-        gSection.className = 'genre-section';
-        const h3 = document.createElement('h3');
-        h3.textContent = genre;
-        gSection.appendChild(h3);
-
-        const row = document.createElement('div');
-        row.className = 'movie-row';
-        map[genre].forEach(m => row.appendChild(createMovieCard(m)));
-        gSection.appendChild(row);
-
-        genresContainer.appendChild(gSection);
-      });
-    }
-
-    // Seções vazias fallback: se algum row estiver vazio, mostra texto
-    [[suggestionsRow,'Sugestões'],[top10Row,'Top 10'],[ratedRow,'Bem avaliados'],[successRow,'Sucessos'],[maybeRow,'Talvez você irá gostar'],[cinemaRow,'Top cinema']].forEach(([el,txt])=>{
-      if (el && el.children.length === 0) {
-        const p = document.createElement('div');
-        p.style.color = '#ccc';
-        p.style.padding = '10px 0';
-        p.textContent = `Sem conteúdos em "${txt}"`;
-        el.appendChild(p);
-      }
-    });
-  } // populateHomeSections
-
-  // popula quando DOM pronto
-  document.addEventListener('DOMContentLoaded', populateHomeSections);
-
-  // re-popular caso queira forçar (ex: adicionou filmes dinamicamente)
-  window.populateHomeSections = populateHomeSections;
-
-})();
-</script>
-
 </body>
-
 </html>
