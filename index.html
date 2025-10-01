@@ -199,6 +199,35 @@
             background-color: rgba(0, 0, 0, 0.8);
         }
 
+        /* NOVO: Estilos para o Carrossel Horizontal na seção Ao Vivo */
+        #live-grid {
+            display: flex; /* Altera para layout flexível */
+            flex-wrap: nowrap; /* Não quebra a linha */
+            overflow-x: scroll; /* Permite arrastar na horizontal */
+            padding-bottom: 10px; /* Espaço para a barra de rolagem (opcional) */
+            gap: 20px; /* Espaçamento entre os cards */
+            /* Reseta o grid de 4 colunas */
+            grid-template-columns: none;
+        }
+
+        #live-grid .movie-item {
+            /* Define um tamanho fixo para os cards de TV para o carrossel */
+            min-width: 300px; 
+            max-width: 300px;
+            flex-shrink: 0; /* Impede que os itens encolham */
+        }
+
+        /* Esconde a barra de rolagem em alguns navegadores para um visual mais limpo */
+        #live-grid::-webkit-scrollbar {
+            display: none;
+        }
+        #live-grid {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        /* FIM NOVO ESTILO CARROSSEL */
+
+
         /* Modal Fichário */
         .modal {
             display: none; 
@@ -336,7 +365,7 @@
             display: none;
             position: relative;
             background-color: black;
-            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            padding-bottom: 56.25%; /* 16:9 aspect ratio (Será sobrescrito no modo fullscreen) */
         }
         
         .modal-video-container iframe {
@@ -430,6 +459,12 @@
             }
             .navbar { padding: 15px 50px; }
             .content-section, .movie-section { padding: 50px; }
+            
+            /* Ajusta o tamanho dos cards do carrossel em telas maiores */
+            #live-grid .movie-item {
+                min-width: 400px; 
+                max-width: 400px;
+            }
         }
         
         /* Mobile/iOS: 2 colunas */
@@ -446,6 +481,12 @@
             .movie-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 15px;
+            }
+            
+            /* Ajusta o tamanho dos cards do carrossel em mobile */
+            #live-grid .movie-item {
+                min-width: 250px; 
+                max-width: 250px;
             }
         }
     </style>
@@ -480,7 +521,11 @@
                 </ul>
         </section>
         
-        <div class="movie-section"><h2>📺 Assista ao vivo</h2><p style="color:#ccc;">Em breve...</p></div>
+        <section class="movie-section" id="live-section">
+            <h2>📺 Assista ao vivo (Arraste para o lado)</h2>
+            <ul class="movie-grid" id="live-grid"></ul>
+        </section>
+        
         <div class="movie-section"><h2>🎬 Sugestões para você</h2><ul class="movie-grid" id="suggestions-row"></ul></div>
         <div class="movie-section"><h2>🌟 Nossa recomendação</h2><ul class="movie-grid" id="recommendation-row"></ul></div>
         <div class="movie-section"><h2>🔥 Os 10 melhores</h2><ul class="movie-grid" id="top10-row"></ul></div>
@@ -621,12 +666,19 @@
             { id: 93, title: "The Skeleton Dance", year: "1929", description: "A famosa Silly Symphony da Disney onde esqueletos dançam e tocam música em um cemitério à meia-noite.", poster: "https://i.postimg.cc/tTh1s8hp/The-skeleton-dance.jpg", genres: ["Animação", "Terror", "Curta-metragem"], videoUrl: "https://drive.google.com/file/d/1DhttoqopOAtX0b83X7eS-vvseVn07wFj/preview" },
             { id: 94, title: "Wizard of Oz", year: "1925", description: "A versão muda do clássico conto de Dorothy, que viaja para a mágica Terra de Oz após um tornado.", poster: "https://i.postimg.cc/FRjfYw06/Wizard-of-oz-1925.jpg", genres: ["Fantasia", "Aventura"], videoUrl: "https://drive.google.com/file/d/1A7WUSFjgHXpSNHmNbGPxwigQTt7aV_8s/preview" }
         ];
-   
+        // NOVO: Canais Ao Vivo (Com Playlists do YouTube e Posters atualizados)
+        const liveChannels = [
+            { id: 'live-1', title: "Sherlock Holmes TV Show", poster: "https://i.postimg.cc/8kh3CsWs/Sherlock-holmes.jpg", playlistId: "PLi5s3-YiYzfeeWaEnMipyO_V0wMNI_voF" }, 
+            { id: 'live-2', title: "Betty Boop TV Show", poster: "https://i.postimg.cc/HWQKLj5J/Betty-boop.jpg", playlistId: "SI702KkWrD8" }, // Video ID (usado como playlistId para truque de loop)
+            { id: 'live-3', title: "The Lucy Show", poster: "https://i.postimg.cc/HWQKLj5V/The-lucy-show.jpg", playlistId: "PLFcTeSnrf5sheVQA7KnpPjtqd901-MWIc" },
+            { id: 'live-4', title: "The Beverly Hillbillies TV Show", poster: "https://i.postimg.cc/4ybF2FZj/The-beverly-hillbillies.jpg", playlistId: "PLUA9kG1DciUxRvbTCTuW83ghFA8il51t4" },
+            { id: 'live-5', title: "Bonanza TV Show", poster: "https://i.postimg.cc/LXPWL8W4/Bonanza.jpg", playlistId: "PLGiPygaAhaIKve5seNM4vgfU0Owjz6VoY" }
+        ];
 
-        
         // CORREÇÃO: movieGrid agora aponta para a ÚNICA lista de todos os filmes.
         const movieGrid = document.getElementById('movie-grid'); 
         const myListGrid = document.getElementById('my-movie-grid');
+        const liveGrid = document.getElementById('live-grid'); // Elemento do Grid Ao Vivo (Carrossel)
         const mainContent = document.querySelector('main');
         const heroWatchBtn = document.querySelector('.watch-btn-hero');
         const movieModal = document.getElementById('movie-modal');
@@ -667,6 +719,45 @@
             listItem.appendChild(img);
             listItem.appendChild(listBtn);
             return listItem;
+        }
+
+        // NOVO: Função para criar o elemento do card de canal ao vivo
+        function createLiveItem(channel) {
+            const listItem = document.createElement('li');
+            listItem.className = 'movie-item';
+            listItem.setAttribute('data-live-id', channel.id); // ID específico para canais ao vivo
+            
+            const img = document.createElement('img');
+            img.src = channel.poster;
+            img.alt = channel.title;
+            
+            // Adiciona o overlay de "Ao Vivo"
+            const liveOverlay = document.createElement('div');
+            liveOverlay.style.position = 'absolute';
+            liveOverlay.style.bottom = '10px';
+            liveOverlay.style.left = '10px';
+            liveOverlay.style.backgroundColor = 'red';
+            liveOverlay.style.color = 'white';
+            liveOverlay.style.padding = '3px 8px';
+            liveOverlay.style.borderRadius = '3px';
+            liveOverlay.style.fontSize = '0.8em';
+            liveOverlay.style.fontWeight = 'bold';
+            liveOverlay.style.zIndex = '10';
+            liveOverlay.textContent = 'AO VIVO';
+            
+            listItem.appendChild(img);
+            listItem.appendChild(liveOverlay);
+            return listItem;
+        }
+        
+        // NOVO: Função para renderizar canais ao vivo
+        function renderLiveChannels() {
+            if (liveGrid) {
+                liveGrid.innerHTML = '';
+                liveChannels.forEach(channel => {
+                    liveGrid.appendChild(createLiveItem(channel));
+                });
+            }
         }
 
         // Função para renderizar filmes em um contêiner (grid ou row)
@@ -718,7 +809,8 @@
                     sectionDiv.appendChild(ulRow);
                     genreSectionsContainer.appendChild(sectionDiv);
                     
-                    renderMovies(ulRow, genreMovies);
+                    // Renderiza apenas os 8 primeiros de cada gênero para visualização rápida
+                    renderMovies(ulRow, genreMovies.slice(0, 8));
                 }
             });
         }
@@ -776,7 +868,7 @@
             }, 1200);
         }
 
-        // Função para mudar o modal para o player de vídeo
+        // Função para mudar o modal para o player de vídeo (USADO PARA DRIVE)
         function switchToVideo(videoUrl) {
             
             modalInfoContainer.style.display = 'none';
@@ -788,7 +880,7 @@
             // Botão "Voltar" (Back-to-info-btn)
             const backBtn = document.createElement('button');
             backBtn.className = 'back-to-info-btn';
-            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Voltar';
+            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Voltar ao Catálogo';
             modalVideoContainer.appendChild(backBtn);
             
             const wrapper = document.createElement('div');
@@ -842,7 +934,82 @@
             modalVideoContainer.appendChild(wrapper);
         }
         
-        // Função para preencher o modal
+        // NOVO: Função para abrir o player YouTube (Modo Bloqueado/Playlist)
+        function openLivePlayerModal(channel) {
+            
+            // 1. Configura o modal para modo vídeo em tela cheia
+            modalInfoContainer.style.display = 'none';
+            modalVideoContainer.style.display = 'block';
+            movieModal.classList.add('fullscreen-video');
+            
+            // 2. Limpa e adiciona o botão de voltar/fechar
+            modalVideoContainer.innerHTML = ''; 
+            
+            // Botão Voltar (mostra o título do canal)
+            const backBtn = document.createElement('button');
+            backBtn.className = 'back-to-info-btn';
+            backBtn.innerHTML = `<i class="fas fa-arrow-left"></i> Voltar ao Catálogo`; 
+            modalVideoContainer.appendChild(backBtn);
+            
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative'; 
+            wrapper.style.width = '100%';
+            wrapper.style.height = '100%';
+
+            // 3. Lógica do URL para playlist ou vídeo em loop
+            const isSingleVideoLoop = channel.playlistId.length < 24;
+            
+            let youtubeUrl;
+            
+            if (isSingleVideoLoop) {
+                // Truque para loop em vídeo único: usar o ID do vídeo como playlist também.
+                youtubeUrl = `https://www.youtube.com/embed/${channel.playlistId}?autoplay=1&modestbranding=1&rel=0&showinfo=0&fs=0&controls=0&disablekb=1&enablejsapi=1&loop=1&playlist=${channel.playlistId}`;
+            } else {
+                // Playlists: usa o caminho videoseries e o list parameter.
+                youtubeUrl = `https://www.youtube.com/embed/videoseries?list=${channel.playlistId}&autoplay=1&modestbranding=1&rel=0&showinfo=0&fs=0&controls=0&disablekb=1&enablejsapi=1&loop=1`;
+            }
+
+
+            const iframe = document.createElement('iframe');
+            iframe.src = youtubeUrl;
+            iframe.allow = 'autoplay; encrypted-media';
+            iframe.allowFullscreen = false; // Desativa o fullscreen no iframe
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.style.display = 'block';
+
+            // 4. Cria um botão invisível/transparente para bloquear o clique no ícone "Abrir no YouTube"
+            const blockBtn = document.createElement('button');
+            blockBtn.className = 'block-newtab-btn';
+            blockBtn.title = 'Abertura externa desativada';
+            // Posiciona o botão no canto superior direito (onde fica o ícone de abrir em nova aba no player)
+            blockBtn.style.position = 'absolute';
+            blockBtn.style.top = '12px'; 
+            blockBtn.style.right = '12px'; 
+            blockBtn.style.width = '44px';
+            blockBtn.style.height = '44px';
+            blockBtn.style.border = 'none';
+            blockBtn.style.background = 'transparent'; // Oculta o fundo
+            blockBtn.style.cursor = 'default';
+            blockBtn.style.zIndex = '9999'; 
+            
+            // Mostra uma mensagem ao clicar no bloqueador
+            blockBtn.addEventListener('click', function(e){
+                e.stopPropagation();
+                e.preventDefault();
+                showBlockedMessage();
+            });
+
+            // 5. Adiciona elementos e abre o modal
+            wrapper.appendChild(iframe);
+            wrapper.appendChild(blockBtn); 
+            modalVideoContainer.appendChild(wrapper);
+
+            movieModal.style.display = 'flex';
+        }
+
+        // Função para preencher o modal (USADO APENAS PARA FILMES NORMAIS)
         function populateModal(movie) {
             modalTitle.textContent = movie.title;
             modalYear.textContent = movie.year;
@@ -874,9 +1041,16 @@
             movieModal.style.display = 'flex';
         }
         
-        // Função para voltar para a tela de informações
+        // Função para voltar para a tela de informações (ou fechar o player no modo fullscreen)
         function backToInfo() {
             modalVideoContainer.innerHTML = ''; // Remove o iframe para parar o vídeo
+            
+            // Se estava no modo fullscreen (player aberto), fecha o modal completamente
+            if (movieModal.classList.contains('fullscreen-video')) {
+                movieModal.style.display = 'none';
+            }
+            
+            // Reseta o estado para a tela de informações
             modalInfoContainer.style.display = 'block';
             modalVideoContainer.style.display = 'none';
             movieModal.classList.remove('fullscreen-video');
@@ -911,8 +1085,22 @@
 
         // Event Listeners
         
-        // Abre o modal ao clicar em qualquer pôster
+        // Abre o modal ao clicar em qualquer pôster (AGORA TRATA FILMES NORMAIS E AO VIVO)
         mainContent.addEventListener('click', (event) => {
+            
+            // Lógica para Canais Ao Vivo (NOVO)
+            const liveItem = event.target.closest('[data-live-id]');
+            if (liveItem) {
+                const liveId = liveItem.getAttribute('data-live-id');
+                const channel = liveChannels.find(c => c.id === liveId);
+                if (channel) {
+                    // Abre o player em modo bloqueado
+                    openLivePlayerModal(channel);
+                    return; // Sai da função para não processar como filme normal
+                }
+            }
+            
+            // Lógica para Filmes Normais (EXISTENTE)
             const movieItem = event.target.closest('.movie-item');
             if (movieItem) {
                 const movieId = parseInt(movieItem.getAttribute('data-movie-id'));
@@ -958,17 +1146,16 @@
                 // Exibe a seção Todos os Filmes master
                 const masterSection = document.getElementById('all-movies-master');
                 masterSection.style.display = 'block';
-                // Esconde Minha Lista, caso esteja ativa
+                
+                // Esconde as outras seções (incluindo Ao Vivo e Minha Lista)
+                document.querySelectorAll('.movie-section').forEach(section => {
+                    section.style.display = 'none';
+                });
                 document.getElementById('my-list').style.display = 'none';
                 
                 // Mude o título da seção principal e renderize os filmes filtrados
                 document.querySelector('#all-movies-master .section-title').textContent = `Filmes do Gênero: ${genre}`;
                 renderMovies(movieGrid, filteredMovies);
-                
-                // Esconde as outras seções
-                document.querySelectorAll('.movie-section').forEach(section => {
-                    section.style.display = 'none';
-                });
                 
                 // Navega para o topo da seção de filmes filtrados
                 masterSection.scrollIntoView({ behavior: 'smooth' });
@@ -978,10 +1165,10 @@
         // Lógica para fechar o modal
         closeBtn.onclick = () => {
             movieModal.style.display = 'none';
-            backToInfo();
+            backToInfo(); // Garante que o player pare se estiver aberto
         }
 
-        // Fecha o modal se o usuário clicar fora dele (apenas na área escura)
+        // Fecha o modal se o usuário clicar fora dele (apenas na área escura e se não estiver em fullscreen)
         window.onclick = (event) => {
             if (event.target == movieModal && !movieModal.classList.contains('fullscreen-video')) {
                 movieModal.style.display = 'none';
@@ -992,6 +1179,8 @@
         // Lógica de navegação para 'Início'
         document.querySelector('.navbar-links a[href="#home"]').addEventListener('click', (e) => {
             e.preventDefault();
+            
+            // Mostra todas as seções (incluindo Ao Vivo)
             document.querySelectorAll('.movie-section').forEach(section => {
                 section.style.display = 'block';
             });
@@ -1007,10 +1196,14 @@
         // Lógica de navegação para 'Minha Lista'
         document.querySelector('.navbar-links a[href="#my-list"]').addEventListener('click', (e) => {
             e.preventDefault();
+            
+            // Esconde todas as seções (incluindo Ao Vivo e Gêneros)
             document.querySelectorAll('.movie-section').forEach(section => {
                 section.style.display = 'none';
             });
             document.getElementById('all-movies-master').style.display = 'none'; 
+            
+            // Renderiza e mostra Minha Lista
             renderMyList(); 
             
             // Rola para a seção Minha Lista
@@ -1053,6 +1246,7 @@
         
         // 2. Renderização das listas
         renderMyList();
+        renderLiveChannels(); // Renderiza os canais Ao Vivo (Carrossel)
         
         // Renderização das seções fixas (usando IDs aleatórios como exemplo)
         renderSection('suggestions-row', [3, 15, 20, 29, 35, 41, 7, 10]); 
