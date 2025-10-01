@@ -396,7 +396,7 @@
             background-color: rgba(0, 0, 0, 0.8);
         }
 
-        /* --- Estilos para o modo de vídeo em tela cheia (Live) --- */
+        /* --- Estilos para o modo de vídeo em tela cheia --- */
         .modal.fullscreen-video {
             padding: 0; 
             backdrop-filter: none; 
@@ -428,7 +428,7 @@
         .modal.fullscreen-video .modal-video-container > div { 
             width: 100%;
             height: 100%;
-            position: relative; 
+            position: relative; /* Garante que o blockBtn se posicione corretamente */
         }
 
         .modal.fullscreen-video .modal-video-container iframe {
@@ -440,12 +440,10 @@
             border: none;
         }
         
-        /* Aumenta o botão e o coloca em primeiro plano */
         .modal.fullscreen-video .back-to-info-btn {
             padding: 12px 20px;
             font-size: 1.2em;
             background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1000; /* Garante que fique acima do iframe */
         }
         
         .modal.fullscreen-video .close-btn {
@@ -679,272 +677,563 @@
         ];
 
 
-    // ===============================================
-    // VARIÁVEIS DO DOM
-    // ===============================================
-    const movieModal = document.getElementById('movie-modal');
-    const modalInfoContainer = document.getElementById('modal-info-container');
-    const modalVideoContainer = document.getElementById('modal-video-container');
-    const modalPoster = document.getElementById('modal-poster');
-    const modalTitle = document.getElementById('modal-title');
-    const modalYear = document.getElementById('modal-year');
-    const modalGenres = document.getElementById('modal-genres');
-    const modalDescription = document.getElementById('modal-description');
-    const modalWatchBtn = document.getElementById('modal-watch-btn');
-    const movieGrid = document.getElementById('movie-grid');
-    const heroBanner = document.querySelector('.hero-banner');
-    const heroTitle = document.querySelector('.hero-content .title');
-    const heroDescription = document.querySelector('.hero-content .description');
-    const heroWatchBtn = document.querySelector('.watch-btn-hero');
-    const myListGrid = document.getElementById('my-movie-grid');
-    const myListSection = document.getElementById('my-list');
-    const liveGrid = document.getElementById('live-grid');
-    const recommendedGrid = document.getElementById('recommended-grid');
-    const genreSectionsContainer = document.getElementById('genre-sections-container');
+        // CORREÇÃO: movieGrid agora aponta para a ÚNICA lista de todos os filmes.
+        const movieGrid = document.getElementById('movie-grid'); 
+        const myListGrid = document.getElementById('my-movie-grid');
+        const liveGrid = document.getElementById('live-grid'); // Elemento do Grid Ao Vivo (Carrossel)
+        const mainContent = document.querySelector('main');
+        const heroWatchBtn = document.querySelector('.watch-btn-hero');
+        const movieModal = document.getElementById('movie-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalYear = document.getElementById('modal-year');
+        const modalGenres = document.getElementById('modal-genres');
+        const modalDescription = document.getElementById('modal-description');
+        const modalPoster = document.getElementById('modal-poster');
+        const modalWatchBtn = document.getElementById('modal-watch-btn');
+        const modalVideoContainer = document.getElementById('modal-video-container');
+        const modalInfoContainer = document.getElementById('modal-info-container');
+        const recommendedGrid = document.getElementById('recommended-grid');
+        const closeBtn = document.querySelector('.close-btn');
+        
+        // Contêiner para as seções de gênero geradas dinamicamente
+        const genreSectionsContainer = document.getElementById('genre-sections-container');
+        
+        // Função para criar o elemento do pôster do filme (item de lista)
+        function createMovieItem(movie) {
+            const listItem = document.createElement('li');
+            listItem.className = 'movie-item';
+            listItem.setAttribute('data-movie-id', movie.id);
+            
+            const img = document.createElement('img');
+            img.src = movie.poster;
+            img.alt = movie.title;
+            
+            // Botão Adicionar à Lista
+            const listBtn = document.createElement('button');
+            listBtn.className = 'add-to-list-btn';
+            
+            // Verifica se o filme está na lista para definir o ícone
+            const myList = JSON.parse(localStorage.getItem('myList') || '[]');
+            listBtn.innerHTML = myList.includes(movie.id) ? '<i class="fas fa-check"></i>' : '<i class="fas fa-plus"></i>'; 
+            
+            listBtn.setAttribute('data-movie-id', movie.id);
 
-
-    // ===============================================
-    // FUNÇÕES DE UTILIDADE
-    // ===============================================
-    function getMyList() {
-        try {
-            return JSON.parse(localStorage.getItem('myList')) || [];
-        } catch (e) {
-            console.error("Erro ao carregar lista do localStorage:", e);
-            return [];
-        }
-    }
-
-    function toggleInList(movieId) {
-        let myList = getMyList();
-        const index = myList.indexOf(movieId);
-
-        if (index > -1) {
-            myList.splice(index, 1);
-            alert('Removido da Minha Lista!');
-        } else {
-            myList.push(movieId);
-            alert('Adicionado à Minha Lista!');
+            listItem.appendChild(img);
+            listItem.appendChild(listBtn);
+            return listItem;
         }
 
-        localStorage.setItem('myList', JSON.stringify(myList));
-        renderMyList(); // Atualiza a seção da lista
-        renderAllMovies(); // Atualiza os ícones
-    }
-    
-    function getRandomMovie(arr) {
-        return arr[Math.floor(Math.random() * arr.length)];
-    }
-
-    function updateHeroBanner(movie) {
-        heroBanner.style.backgroundImage = `url('${movie.poster}')`;
-        heroTitle.textContent = movie.title;
-        heroDescription.textContent = movie.description;
-        heroWatchBtn.setAttribute('data-movie-id', movie.id);
-    }
-    
-    function getEmbedUrl(url) {
-        // Padrão para Google Drive: d/FILE_ID/preview -> embed/FILE_ID
-        if (url.includes('drive.google.com/file/d/')) {
-            const match = url.match(/d\/([a-zA-Z0-9_-]+)\/preview/);
-            if (match && match[1]) {
-                return `https://drive.google.com/file/d/${match[1]}/preview`; // Mantendo o preview para iframe simples
+        // NOVO: Função para criar o elemento do card de canal ao vivo
+        function createLiveItem(channel) {
+            const listItem = document.createElement('li');
+            listItem.className = 'movie-item';
+            listItem.setAttribute('data-live-id', channel.id); // ID específico para canais ao vivo
+            
+            const img = document.createElement('img');
+            img.src = channel.poster;
+            img.alt = channel.title;
+            
+            // Adiciona o overlay de "Ao Vivo"
+            const liveOverlay = document.createElement('div');
+            liveOverlay.style.position = 'absolute';
+            liveOverlay.style.bottom = '10px';
+            liveOverlay.style.left = '10px';
+            liveOverlay.style.backgroundColor = 'red';
+            liveOverlay.style.color = 'white';
+            liveOverlay.style.padding = '3px 8px';
+            liveOverlay.style.borderRadius = '3px';
+            liveOverlay.style.fontSize = '0.8em';
+            liveOverlay.style.fontWeight = 'bold';
+            liveOverlay.style.zIndex = '10';
+            liveOverlay.textContent = 'AO VIVO';
+            
+            listItem.appendChild(img);
+            listItem.appendChild(liveOverlay);
+            return listItem;
+        }
+        
+        // NOVO: Função para renderizar canais ao vivo
+        function renderLiveChannels() {
+            if (liveGrid) {
+                liveGrid.innerHTML = '';
+                liveChannels.forEach(channel => {
+                    liveGrid.appendChild(createLiveItem(channel));
+                });
             }
         }
-        // Padrão para YouTube (se for o caso, embora lives usem a função dedicada):
-        if (url.includes('youtube.com/watch?v=')) {
-            const match = url.match(/v=([a-zA-Z0-9_-]+)/);
-            if (match && match[1]) {
-                return `https://www.youtube.com/embed/${match[1]}`;
-            }
+
+        // Função para renderizar filmes em um contêiner (grid ou row)
+        function renderMovies(container, movies) {
+            container.innerHTML = '';
+            movies.forEach(movie => {
+                container.appendChild(createMovieItem(movie));
+            });
         }
-        return url; // Retorna a URL original se não for reconhecida
-    }
 
-
-    // ===============================================
-    // FUNÇÕES DE RENDERIZAÇÃO
-    // ===============================================
-    function renderMovieItem(movie) {
-        const myList = getMyList();
-        const isInList = myList.includes(movie.id);
-        const iconClass = isInList ? 'fa-check' : 'fa-plus';
-
-        const item = document.createElement('li');
-        item.className = 'movie-item';
-        item.setAttribute('data-movie-id', movie.id);
-        
-        // Adiciona um atributo para diferenciar se é Live ou VOD
-        item.setAttribute('data-is-live', movie.isLive ? 'true' : 'false');
-
-        item.innerHTML = `
-            <img src="${movie.poster}" alt="${movie.title}">
-            <button class="add-to-list-btn" data-movie-id="${movie.id}">
-                <i class="fas ${iconClass}"></i>
-            </button>
-        `;
-        return item;
-    }
-
-    function renderMovies(container, movies) {
-        container.innerHTML = '';
-        movies.forEach(movie => {
-            const item = renderMovieItem(movie);
-            container.appendChild(item);
-        });
-    }
-
-    function renderMyList() {
-        const myListIds = getMyList();
-        const myMovies = movieData.filter(movie => myListIds.includes(movie.id));
-        
-        if (myMovies.length > 0) {
-            myListSection.style.display = 'block';
+        // Função para preencher a lista do usuário
+        function renderMyList() {
+            const myList = JSON.parse(localStorage.getItem('myList')) || [];
+            const myMovies = movieData.filter(m => myList.includes(m.id));
             renderMovies(myListGrid, myMovies);
-        } else {
-            myListSection.style.display = 'none';
+            
+            const myListSection = document.getElementById('my-list');
+            myListSection.style.display = myList.length > 0 ? 'block' : 'none';
         }
-    }
-    
-    function renderLiveChannels() {
-        // Use a função de renderização padrão, mas com os dados de liveChannels
-        renderMovies(liveGrid, liveChannels);
-    }
-    
-    function renderSection(containerId, movieIds) {
-        const container = document.getElementById(containerId);
-        const movies = movieIds.map(id => movieData.find(m => m.id === id)).filter(m => m);
-        renderMovies(container, movies);
-    }
 
-    function renderAllMovies() {
-        renderMovies(movieGrid, movieData);
-        // Garante que o ícone do banner principal também é atualizado
-        const heroMovieId = parseInt(heroWatchBtn.getAttribute('data-movie-id'));
-        if (heroMovieId) {
-            const heroMovie = movieData.find(m => m.id === heroMovieId);
-            updateHeroBanner(heroMovie); 
+        // Função para preencher as seções laterais (grid)
+        function renderSection(rowId, ids) {
+            const row = document.getElementById(rowId);
+            const sectionMovies = movieData.filter(m => ids.includes(m.id));
+            renderMovies(row, sectionMovies); 
         }
-    }
-    
-    function renderGenreSections() {
-        const allGenres = [...new Set(movieData.flatMap(m => m.genres))].sort();
-        genreSectionsContainer.innerHTML = '';
         
-        allGenres.forEach(genre => {
-            const sectionId = `genre-section-${genre.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
-            const filteredMovies = movieData.filter(m => m.genres.includes(genre));
+        // Função para renderizar as linhas de filmes por Gênero
+        function renderGenreRows() {
+            const allGenres = [...new Set(movieData.flatMap(m => m.genres))].sort();
+            genreSectionsContainer.innerHTML = ''; 
+
+            allGenres.forEach(genre => {
+                const genreMovies = movieData.filter(m => m.genres.includes(genre));
+                if (genreMovies.length > 0) {
+                    
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'movie-section';
+                    
+                    const title = document.createElement('h2');
+                    // CORREÇÃO: Link agora aponta para a única seção de todos os filmes master
+                    title.innerHTML = `<a href="#all-movies-master" class="section-title-link" data-genre="${genre}">🍿 Gênero: ${genre}</a>`;
+                    
+                    const ulRow = document.createElement('ul');
+                    ulRow.className = 'movie-grid'; 
+                    ulRow.id = `genre-row-${genre.replace(/\s+/g, '-').toLowerCase()}`;
+                    
+                    sectionDiv.appendChild(title);
+                    sectionDiv.appendChild(ulRow);
+                    genreSectionsContainer.appendChild(sectionDiv);
+                    
+                    // Renderiza apenas os 8 primeiros de cada gênero para visualização rápida
+                    renderMovies(ulRow, genreMovies.slice(0, 8));
+                }
+            });
+        }
+        
+        // Função para adicionar/remover da lista
+        function toggleMyList(movieId) {
+            let myList = JSON.parse(localStorage.getItem('myList')) || [];
+            const index = myList.indexOf(movieId);
+
+            if (index > -1) {
+                myList.splice(index, 1);
+            } else {
+                myList.push(movieId);
+            }
+
+            localStorage.setItem('myList', JSON.stringify(myList));
+            renderMyList();
+        }
+
+        // Função para encontrar filmes relacionados (simplesmente busca por um gênero em comum)
+        function getRecommendedMovies(currentMovie) {
+            const currentGenres = currentMovie.genres;
             
-            const sectionHtml = `
-                <div class="movie-section" id="${sectionId}">
-                    <h2><a href="#" class="section-title-link" data-genre="${genre}">Gênero: ${genre}</a></h2>
-                    <ul class="movie-grid" id="grid-${sectionId}"></ul>
-                </div>
-            `;
-            genreSectionsContainer.insertAdjacentHTML('beforeend', sectionHtml);
+            // Encontra 4 filmes aleatórios que compartilham pelo menos um gênero, excluindo o atual
+            const recommended = movieData
+                .filter(m => m.id !== currentMovie.id)
+                .filter(m => m.genres.some(g => currentGenres.includes(g)))
+                .sort(() => 0.5 - Math.random()) // Shuffle
+                .slice(0, 4); 
+
+            return recommended;
+        }
+        
+        // FUNÇÃO QUE MOSTRA O TOAST TEMPORÁRIO (USADO NO PLAYER)
+        function showBlockedMessage() {
+            const toast = document.createElement('div');
+            toast.textContent = 'Abertura externa desativada.';
+            toast.style.position = 'absolute';
+            toast.style.top = '12px';
+            toast.style.right = '64px';
+            toast.style.padding = '8px 12px';
+            toast.style.background = 'rgba(0,0,0,0.7)';
+            toast.style.color = '#fff';
+            toast.style.borderRadius = '6px';
+            toast.style.zIndex = '10000';
+            toast.style.fontSize = '14px';
+            // Adiciona o toast ao container de vídeo (que está em fullscreen)
+            document.querySelector('.modal.fullscreen-video .modal-video-container').appendChild(toast); 
             
-            // Renderiza apenas 8 filmes por gênero
-            renderMovies(document.getElementById(`grid-${sectionId}`), filteredMovies.slice(0, 8));
+            // Remove o toast após um tempo
+            setTimeout(()=> { 
+                toast.style.opacity = '0'; 
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(()=> toast.remove(), 300); 
+            }, 1200);
+        }
+
+        // Função para mudar o modal para o player de vídeo (USADO PARA DRIVE)
+        function switchToVideo(videoUrl) {
+            
+            modalInfoContainer.style.display = 'none';
+            modalVideoContainer.style.display = 'block';
+            movieModal.classList.add('fullscreen-video');
+            
+            modalVideoContainer.innerHTML = ''; // Limpa o container
+            
+            // Botão "Voltar" (Back-to-info-btn)
+            const backBtn = document.createElement('button');
+            backBtn.className = 'back-to-info-btn';
+            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Voltar ao Catálogo';
+            modalVideoContainer.appendChild(backBtn);
+            
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative'; 
+            wrapper.style.width = '100%';
+            wrapper.style.height = '100%';
+            
+            // iframe do Google Drive
+            const iframe = document.createElement('iframe');
+            iframe.src = videoUrl;
+            iframe.allow = 'autoplay; encrypted-media';
+            iframe.allowFullscreen = true;
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.style.display = 'block';
+
+            // Pequeno botão cobrindo a área do "abrir em nova guia" (top-right)
+            const blockBtn = document.createElement('button');
+            blockBtn.className = 'block-newtab-btn';
+            blockBtn.title = 'Abertura externa desativada';
+            blockBtn.style.position = 'absolute';
+            blockBtn.style.top = '12px';
+            blockBtn.style.right = '12px';
+            blockBtn.style.width = '44px';
+            blockBtn.style.height = '44px';
+            blockBtn.style.border = 'none';
+            blockBtn.style.background = 'rgba(0,0,0,0.15)';
+            blockBtn.style.color = '#fff';
+            blockBtn.style.borderRadius = '8px';
+            blockBtn.style.zIndex = '9999';
+            blockBtn.style.cursor = 'pointer';
+            blockBtn.style.display = 'flex';
+            blockBtn.style.alignItems = 'center';
+            blockBtn.style.justifyContent = 'center';
+            blockBtn.style.backdropFilter = 'blur(2px)';
+            blockBtn.innerHTML = '<i class="fas fa-link"></i>';
+
+            // Ao clicar no blockBtn, impede a ação e mostra uma mensagem rápida
+            blockBtn.addEventListener('click', function(e){
+                e.stopPropagation();
+                e.preventDefault();
+                showBlockedMessage();
+            });
+
+            // Adiciona iframe e o botão bloqueador no wrapper
+            wrapper.appendChild(iframe);
+            wrapper.appendChild(blockBtn);
+
+            // Adiciona wrapper ao container do modal
+            modalVideoContainer.appendChild(wrapper);
+        }
+        
+        // NOVO: Função para abrir o player YouTube (Modo Bloqueado/Playlist)
+        function openLivePlayerModal(channel) {
+            
+            // 1. Configura o modal para modo vídeo em tela cheia
+            modalInfoContainer.style.display = 'none';
+            modalVideoContainer.style.display = 'block';
+            movieModal.classList.add('fullscreen-video');
+            
+            // 2. Limpa e adiciona o botão de voltar/fechar
+            modalVideoContainer.innerHTML = ''; 
+            
+            // Botão Voltar (mostra o título do canal)
+            const backBtn = document.createElement('button');
+            backBtn.className = 'back-to-info-btn';
+            backBtn.innerHTML = `<i class="fas fa-arrow-left"></i> Voltar ao Catálogo`; 
+            modalVideoContainer.appendChild(backBtn);
+            
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative'; 
+            wrapper.style.width = '100%';
+            wrapper.style.height = '100%';
+
+            // 3. Lógica do URL para playlist ou vídeo em loop
+            const isSingleVideoLoop = channel.playlistId.length < 24;
+            
+            let youtubeUrl;
+            
+            if (isSingleVideoLoop) {
+                // Truque para loop em vídeo único: usar o ID do vídeo como playlist também.
+                youtubeUrl = `https://www.youtube.com/embed/${channel.playlistId}?autoplay=1&modestbranding=1&rel=0&showinfo=0&fs=0&controls=0&disablekb=1&enablejsapi=1&loop=1&playlist=${channel.playlistId}`;
+            } else {
+                // Playlists: usa o caminho videoseries e o list parameter.
+                youtubeUrl = `https://www.youtube.com/embed/videoseries?list=${channel.playlistId}&autoplay=1&modestbranding=1&rel=0&showinfo=0&fs=0&controls=0&disablekb=1&enablejsapi=1&loop=1`;
+            }
+
+
+            const iframe = document.createElement('iframe');
+            iframe.src = youtubeUrl;
+            iframe.allow = 'autoplay; encrypted-media';
+            iframe.allowFullscreen = false; // Desativa o fullscreen no iframe
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.style.display = 'block';
+
+            // 4. Cria um botão invisível/transparente para bloquear o clique no ícone "Abrir no YouTube"
+            const blockBtn = document.createElement('button');
+            blockBtn.className = 'block-newtab-btn';
+            blockBtn.title = 'Abertura externa desativada';
+            // Posiciona o botão no canto superior direito (onde fica o ícone de abrir em nova aba no player)
+            blockBtn.style.position = 'absolute';
+            blockBtn.style.top = '12px'; 
+            blockBtn.style.right = '12px'; 
+            blockBtn.style.width = '44px';
+            blockBtn.style.height = '44px';
+            blockBtn.style.border = 'none';
+            blockBtn.style.background = 'transparent'; // Oculta o fundo
+            blockBtn.style.cursor = 'default';
+            blockBtn.style.zIndex = '9999'; 
+            
+            // Mostra uma mensagem ao clicar no bloqueador
+            blockBtn.addEventListener('click', function(e){
+                e.stopPropagation();
+                e.preventDefault();
+                showBlockedMessage();
+            });
+
+            // 5. Adiciona elementos e abre o modal
+            wrapper.appendChild(iframe);
+            wrapper.appendChild(blockBtn); 
+            modalVideoContainer.appendChild(wrapper);
+
+            movieModal.style.display = 'flex';
+        }
+
+        // Função para preencher o modal (USADO APENAS PARA FILMES NORMAIS)
+        function populateModal(movie) {
+            modalTitle.textContent = movie.title;
+            modalYear.textContent = movie.year;
+            modalGenres.textContent = `Gêneros: ${movie.genres.join(', ')}`;
+            modalDescription.textContent = movie.description;
+            modalPoster.src = movie.poster;
+            
+            // Atualiza o botão 'Assistir Já' com o link do vídeo
+            modalWatchBtn.onclick = (e) => {
+                e.preventDefault();
+                switchToVideo(movie.videoUrl);
+            };
+
+            // Preenche a seção de recomendados
+            const recommended = getRecommendedMovies(movie);
+            recommendedGrid.innerHTML = '';
+            recommended.forEach(recMovie => {
+                const recItem = document.createElement('div');
+                recItem.className = 'recommended-item';
+                recItem.setAttribute('data-movie-id', recMovie.id);
+                recItem.innerHTML = `<img src="${recMovie.poster}" alt="${recMovie.title}">`;
+                recommendedGrid.appendChild(recItem);
+            });
+            
+            // Reseta para o modo de informações
+            modalInfoContainer.style.display = 'block';
+            modalVideoContainer.style.display = 'none';
+            movieModal.classList.remove('fullscreen-video');
+            movieModal.style.display = 'flex';
+        }
+        
+        // Função para voltar para a tela de informações (ou fechar o player no modo fullscreen)
+        function backToInfo() {
+            modalVideoContainer.innerHTML = ''; // Remove o iframe para parar o vídeo
+            
+            // Se estava no modo fullscreen (player aberto), fecha o modal completamente
+            if (movieModal.classList.contains('fullscreen-video')) {
+                movieModal.style.display = 'none';
+            }
+            
+            // Reseta o estado para a tela de informações
+            modalInfoContainer.style.display = 'block';
+            modalVideoContainer.style.display = 'none';
+            movieModal.classList.remove('fullscreen-video');
+        }
+        
+        // --- NOVAS FUNÇÕES PARA O BANNER ALEATÓRIO ---
+        
+        // 1. Função para selecionar um filme aleatório
+        function getRandomMovie(movies) {
+            const randomIndex = Math.floor(Math.random() * movies.length);
+            return movies[randomIndex];
+        }
+
+        // 2. Função para atualizar o banner principal
+        function updateHeroBanner(movie) {
+            const heroBanner = document.querySelector('.hero-banner');
+            const heroContentTitle = document.querySelector('.hero-content .title');
+            const heroContentDescription = document.querySelector('.hero-content .description');
+            const heroWatchBtn = document.querySelector('.watch-btn-hero');
+            
+            // Atualiza a imagem de fundo
+            heroBanner.style.backgroundImage = `url('${movie.poster}')`;
+            
+            // Atualiza o conteúdo textual e o botão de assistir
+            heroWatchBtn.setAttribute('data-movie-id', movie.id);
+            heroContentTitle.textContent = movie.title;
+            heroContentDescription.textContent = movie.description;
+        }
+
+        // --- FIM NOVAS FUNÇÕES ---
+
+
+        // Event Listeners
+        
+        // Abre o modal ao clicar em qualquer pôster (AGORA TRATA FILMES NORMAIS E AO VIVO)
+        mainContent.addEventListener('click', (event) => {
+            
+            // Lógica para Canais Ao Vivo (NOVO)
+            const liveItem = event.target.closest('[data-live-id]');
+            if (liveItem) {
+                const liveId = liveItem.getAttribute('data-live-id');
+                const channel = liveChannels.find(c => c.id === liveId);
+                if (channel) {
+                    // Abre o player em modo bloqueado
+                    openLivePlayerModal(channel);
+                    return; // Sai da função para não processar como filme normal
+                }
+            }
+            
+            // Lógica para Filmes Normais (EXISTENTE)
+            const movieItem = event.target.closest('.movie-item');
+            if (movieItem) {
+                const movieId = parseInt(movieItem.getAttribute('data-movie-id'));
+                const movie = movieData.find(m => m.id === movieId);
+                if (movie) {
+                    populateModal(movie);
+                }
+            }
         });
-    }
 
-    // ===============================================
-    // FUNÇÕES DO MODAL (VOD)
-    // ===============================================
+        // Toggle Minha Lista ao clicar no botão '+'
+        mainContent.addEventListener('click', (event) => {
+            const listBtn = event.target.closest('.add-to-list-btn');
+            if (listBtn) {
+                event.stopPropagation(); // Previne a abertura do modal
+                const movieId = parseInt(listBtn.getAttribute('data-movie-id'));
+                toggleMyList(movieId);
+                
+                // Atualiza o ícone
+                const myList = JSON.parse(localStorage.getItem('myList') || '[]');
+                listBtn.innerHTML = myList.includes(movieId) ? '<i class="fas fa-check"></i>' : '<i class="fas fa-plus"></i>';
+            }
+        });
+        
+        // Lógica do botão de 'Assistir Agora' no Banner
+        heroWatchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const movieId = parseInt(heroWatchBtn.getAttribute('data-movie-id'));
+            const movie = movieData.find(m => m.id === movieId);
+            if (movie) {
+                populateModal(movie);
+            }
+        });
 
-    function closeModal() {
-        movieModal.style.display = 'none';
-        // Remove iframe para parar o vídeo
-        modalVideoContainer.innerHTML = '';
-        // Limpa classes de fullscreen
-        movieModal.classList.remove('fullscreen-video');
-        // Garante que a seção de info está visível
-        modalInfoContainer.style.display = 'block'; 
-        // Esconde o player de vídeo
-        modalVideoContainer.style.display = 'none';
-    }
+        // Lógica para filtrar por gênero ao clicar no título da seção (agora um link)
+        genreSectionsContainer.addEventListener('click', (event) => {
+            const genreLink = event.target.closest('.section-title-link');
+            if (genreLink && genreLink.getAttribute('data-genre')) {
+                event.preventDefault(); // Impede o salto do link
+                const genre = genreLink.getAttribute('data-genre');
+                const filteredMovies = movieData.filter(m => m.genres.includes(genre));
+                
+                // Exibe a seção Todos os Filmes master
+                const masterSection = document.getElementById('all-movies-master');
+                masterSection.style.display = 'block';
+                
+                // Esconde as outras seções (incluindo Ao Vivo e Minha Lista)
+                document.querySelectorAll('.movie-section').forEach(section => {
+                    section.style.display = 'none';
+                });
+                document.getElementById('my-list').style.display = 'none';
+                
+                // Mude o título da seção principal e renderize os filmes filtrados
+                document.querySelector('#all-movies-master .section-title').textContent = `Filmes do Gênero: ${genre}`;
+                renderMovies(movieGrid, filteredMovies);
+                
+                // Navega para o topo da seção de filmes filtrados
+                masterSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+        
+        // Lógica para fechar o modal
+        closeBtn.onclick = () => {
+            movieModal.style.display = 'none';
+            backToInfo(); // Garante que o player pare se estiver aberto
+        }
 
-    function populateModal(movie) {
-        // Limpa estado anterior (importante para o player)
-        closeModal(); 
+        // Fecha o modal se o usuário clicar fora dele (apenas na área escura e se não estiver em fullscreen)
+        window.onclick = (event) => {
+            if (event.target == movieModal && !movieModal.classList.contains('fullscreen-video')) {
+                movieModal.style.display = 'none';
+                backToInfo();
+            }
+        }
         
-        modalPoster.src = movie.poster;
-        modalPoster.alt = movie.title;
-        modalTitle.textContent = movie.title;
-        modalYear.textContent = movie.year;
-        modalGenres.textContent = movie.genres.join(', ');
-        modalDescription.textContent = movie.description;
-        
-        modalWatchBtn.onclick = () => openVideoPlayerModal(movie.videoUrl);
-        
-        // Renderiza recomendados (exemplo simples: pega 4 filmes aleatórios diferentes)
-        const recommendedMovies = movieData
-            .filter(m => m.id !== movie.id)
-            .sort(() => 0.5 - Math.random())
-            .slice(0, 4);
+        // Lógica de navegação para 'Início'
+        document.querySelector('.navbar-links a[href="#home"]').addEventListener('click', (e) => {
+            e.preventDefault();
             
-        renderMovies(recommendedGrid, recommendedMovies);
-
-        movieModal.style.display = 'flex';
-    }
-    
-    function openVideoPlayerModal(videoUrl) {
-        // Esta função é para VOD, usa a proporção 16:9
-        const embedUrl = getEmbedUrl(videoUrl);
+            // Mostra todas as seções (incluindo Ao Vivo)
+            document.querySelectorAll('.movie-section').forEach(section => {
+                section.style.display = 'block';
+            });
+            
+            const masterSection = document.getElementById('all-movies-master');
+            masterSection.style.display = 'block';
+            document.getElementById('my-list').style.display = 'none';
+            document.querySelector('#all-movies-master .section-title').textContent = `📂 Todos os Filmes`; // Restaura título original
+            renderMovies(movieGrid, movieData); // Re-render all movies
+            document.getElementById('home').scrollIntoView({ behavior: 'smooth' });
+        });
         
-        modalInfoContainer.style.display = 'none';
-        modalVideoContainer.style.display = 'block';
+        // Lógica de navegação para 'Minha Lista'
+        document.querySelector('.navbar-links a[href="#my-list"]').addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Esconde todas as seções (incluindo Ao Vivo e Gêneros)
+            document.querySelectorAll('.movie-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById('all-movies-master').style.display = 'none'; 
+            
+            // Renderiza e mostra Minha Lista
+            renderMyList(); 
+            
+            // Rola para a seção Minha Lista
+            document.getElementById('my-list').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        recommendedGrid.addEventListener('click', (event) => {
+            const recItem = event.target.closest('.recommended-item');
+            if (recItem) {
+                const movieId = parseInt(recItem.getAttribute('data-movie-id'));
+                const movie = movieData.find(m => m.id === movieId);
+                if (movie) {
+                    populateModal(movie);
+                }
+            }
+        });
         
-        // Adiciona botão "Voltar às informações"
-        modalVideoContainer.innerHTML = `
-            <button class="back-to-info-btn" onclick="backToInfo()">Voltar às informações</button>
-            <iframe src="${embedUrl}" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
-        `;
-    }
-    
-    function backToInfo() {
-        // Remove iframe para parar o vídeo e volta para o modo info
-        modalVideoContainer.innerHTML = '';
-        modalVideoContainer.style.display = 'none';
-        modalInfoContainer.style.display = 'block';
-        movieModal.classList.remove('fullscreen-video');
-    }
-    
-    // ===============================================
-    // FUNÇÃO DO MODAL (LIVE) - NOVO COM PARÂMETROS YOUTUBE
-    // ===============================================
-
-    function openLivePlayerModal(youtubeId) {
-        // 1. Esconde a info e mostra o player
-        modalInfoContainer.style.display = 'none';
-        modalVideoContainer.style.display = 'block';
-
-        // 2. Adiciona classe de fullscreen ao modal
-        movieModal.classList.add('fullscreen-video');
-        
-        // 3. Gera o iframe com parâmetros de live e autoplay (SEM CONTROLES)
-        const embedUrl = `https://www.youtube.com/embed/${youtubeId};
-        
-        modalVideoContainer.innerHTML = `
-            <button class="back-to-info-btn" onclick="backToCatalog()">Voltar ao Catálogo</button>
-            <iframe src="${embedUrl}" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
-        `;
-
-        // 4. Abre o modal
-        movieModal.style.display = 'flex';
-    }
-    
-    // Função dedicada para sair do modo Live
-    function backToCatalog() {
-        // A função closeModal() já faz o trabalho de limpar e fechar
-        closeModal();
-    }
+        // Listener para o botão "Voltar" dentro do player
+        movieModal.addEventListener('click', (event) => {
+            if (event.target.closest('.back-to-info-btn')) {
+                backToInfo();
+            }
+        });
 
 
-    // ===============================================
-    // EVENT LISTENERS
-    // ===============================================
-
+</script>
+<script>
+    // Inicialização principal
     document.addEventListener('DOMContentLoaded', () => {
         // Lógica de redirecionamento iOS (Mantida)
         const ua = navigator.userAgent;
@@ -965,101 +1254,17 @@
         renderSection('suggestions-row', [3, 15, 20, 29, 35, 41, 7, 10]); 
         renderSection('recommendation-row', [2, 12, 18, 32, 1, 38, 5, 22]);
         renderSection('top10-row', [38, 24, 41, 30, 7, 35, 33, 20, 3, 1]);
-        renderSection('rated-row', [38, 35, 33, 1, 7, 41, 30, 24, 13, 2]);
+        renderSection('rated-row', [38, 35, 33, 1, 7, 41, 30, 24, 18, 2, 3, 20]);
+        renderSection('success-row', [32, 1, 20, 35, 38, 24, 7]);
+        renderSection('maybe-row', [12, 16, 21, 27, 40, 4, 14, 28]);
+        renderSection('cinema-top10-row', [38, 24, 41, 30, 7, 35, 33, 20, 3, 1]);
         
-        renderGenreSections(); // Renderiza as seções por Gênero
+        // Renderiza a única lista de todos os filmes
+        renderMovies(movieGrid, movieData); 
         
-        renderSection('success-row', [11, 23, 26, 31, 36, 40, 42, 19]); 
-        renderSection('maybe-row', [13, 14, 16, 17, 21, 25, 27, 28]);
-        renderSection('cinema-top10-row', [38, 41, 30, 7, 3, 39, 24, 40, 22, 12]);
-        
-        renderAllMovies(); // Renderiza a lista mestre (Todos os Filmes)
+        // Renderiza as seções de gênero
+        renderGenreRows();
     });
-
-
-    // Event listener principal para cliques nos filmes (seja VOD ou Live)
-    document.addEventListener('click', (event) => {
-        const item = event.target.closest('.movie-item');
-        
-        if (event.target.closest('.close-btn') || event.target === movieModal) {
-            closeModal();
-            return;
-        }
-
-        if (event.target.closest('.back-to-info-btn')) {
-            // A função correta será chamada dependendo do contexto do botão
-            return;
-        }
-
-        if (event.target.closest('.add-to-list-btn')) {
-            const movieId = parseInt(event.target.closest('.add-to-list-btn').getAttribute('data-movie-id'));
-            toggleInList(movieId);
-            event.stopPropagation(); // Impede que o clique no botão abra o modal
-            return;
-        }
-
-        if (item) {
-            const movieId = parseInt(item.getAttribute('data-movie-id'));
-            const isLive = item.getAttribute('data-is-live') === 'true';
-            
-            if (isLive) {
-                // Se for Live, busca nos canais ao vivo e abre direto o player fullscreen
-                const liveChannel = liveChannels.find(m => m.id === movieId);
-                if (liveChannel) {
-                    openLivePlayerModal(liveChannel.youtubeId);
-                }
-            } else {
-                // Se for VOD, busca nos filmes e abre o fichário
-                const movie = movieData.find(m => m.id === movieId);
-                if (movie) {
-                    populateModal(movie);
-                }
-            }
-        }
-        
-        // Lógica do botão Assistir Agora do Banner
-        const heroBtn = event.target.closest('.watch-btn-hero');
-        if (heroBtn) {
-            event.preventDefault();
-            const movieId = parseInt(heroBtn.getAttribute('data-movie-id'));
-            const movie = movieData.find(m => m.id === movieId);
-            if (movie) {
-                populateModal(movie);
-            }
-        }
-        
-        // Lógica dos links de Gênero
-        const genreLink = event.target.closest('.section-title-link');
-        if (genreLink && genreLink.getAttribute('data-genre')) {
-            event.preventDefault();
-            const genre = genreLink.getAttribute('data-genre');
-            
-            // Re-renderiza a grade de todos os filmes com o filtro
-            const allMoviesSection = document.getElementById('all-movies-master');
-            allMoviesSection.scrollIntoView({ behavior: 'smooth' });
-            
-            const filteredMovies = movieData.filter(m => m.genres.includes(genre));
-            document.querySelector('#all-movies-master h2').textContent = `📂 Todos os Filmes > Gênero: ${genre}`;
-            
-            myListSection.style.display = 'none';
-            renderMovies(movieGrid, filteredMovies);
-        }
-    });
-    
-    // Event listener para cliques dentro do modal de info (Recomendados)
-    recommendedGrid.addEventListener('click', (event) => {
-        const recItem = event.target.closest('.movie-item'); // Usa .movie-item, pois renderMovies é chamado
-        if (recItem) {
-            const movieId = parseInt(recItem.getAttribute('data-movie-id'));
-            const movie = movieData.find(m => m.id === movieId);
-            if (movie) {
-                populateModal(movie);
-            }
-        }
-    });
-
-    
 </script>
-
 </body>
 </html>
