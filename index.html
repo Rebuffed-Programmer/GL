@@ -490,6 +490,55 @@
             }
         }
     </style>
+
+<!-- YouTube UI blocker CSS (injected) -->
+<style>
+.live-block {
+  position: absolute;
+  background: transparent;
+  z-index: 9998;
+}
+.live-block-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px; /* barra superior título/canal */
+}
+.live-block-bottom-left {
+  bottom: 0;
+  left: 0;
+  width: 80px;
+  height: 60px; /* botão compartilhar */
+}
+.live-block-bottom-right {
+  bottom: 0;
+  right: 0;
+  width: 120px;
+  height: 60px; /* botão YouTube */
+}
+.live-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 20px;
+  z-index: 9999;
+  pointer-events: auto;
+}
+.live-overlay .live-overlay-inner{
+  padding: 12px 18px;
+  background: rgba(0,0,0,0.45);
+  border-radius: 8px;
+  font-weight: 600;
+  text-align:center;
+}
+</style>
+
 </head>
 
 <body>
@@ -675,7 +724,6 @@
             { id: 'live-4', title: "The Beverly Hillbillies TV Show", poster: "https://i.postimg.cc/4ybF2FZj/The-beverly-hillbillies.jpg", playlistId: "PLUA9kG1DciUxRvbTCTuW83ghFA8il51t4" },
             { id: 'live-5', title: "Bonanza TV Show", poster: "https://i.postimg.cc/LXPWL8W4/Bonanza.jpg", playlistId: "PLGiPygaAhaIKve5seNM4vgfU0Owjz6VoY" }
         ];
-
 
         // CORREÇÃO: movieGrid agora aponta para a ÚNICA lista de todos os filmes.
         const movieGrid = document.getElementById('movie-grid'); 
@@ -1230,6 +1278,72 @@
             }
         });
 
+
+
+
+function openLive(url){
+  try {
+    var livePlayer = document.getElementById("livePlayer");
+    if(!livePlayer) {
+      document.getElementById("liveModal").style.display = "flex";
+      document.getElementById("livePlayer").innerHTML = '<iframe src="'+url+'" width="100%" height="500" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen muted></iframe>';
+      return;
+    }
+    livePlayer.innerHTML = "";
+
+    var wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+    wrapper.style.width = '100%';
+    wrapper.style.height = '100%';
+    wrapper.style.cursor = 'pointer';
+
+    var iframe = document.createElement('iframe');
+    iframe.src = url;
+    iframe.width = '100%';
+    iframe.height = '500';
+    iframe.frameBorder = '0';
+    iframe.setAttribute('allow', 'autoplay; encrypted-media');
+    iframe.setAttribute('allowfullscreen', '');
+    iframe.muted = true;
+    iframe.style.display = 'block';
+
+    // Overlay de mensagem
+    var overlay = document.createElement('div');
+    overlay.className = 'live-overlay';
+    var inner = document.createElement('div');
+    inner.className = 'live-overlay-inner';
+    inner.textContent = 'Conteúdo ao vivo sendo exibido';
+    overlay.appendChild(inner);
+
+    // Bloqueadores fixos
+    var topBlock = document.createElement('div');
+    topBlock.className = 'live-block live-block-top';
+    var bottomLeft = document.createElement('div');
+    bottomLeft.className = 'live-block live-block-bottom-left';
+    var bottomRight = document.createElement('div');
+    bottomRight.className = 'live-block live-block-bottom-right';
+
+    // Clique mostra overlay por ~2.8s
+    var clickHandler = function(e){
+      e.stopPropagation();
+      overlay.style.display = 'flex';
+      setTimeout(function(){
+        overlay.style.display = 'none';
+      }, 2800);
+    };
+    wrapper.addEventListener('click', clickHandler, true);
+
+    wrapper.appendChild(iframe);
+    wrapper.appendChild(overlay);
+    wrapper.appendChild(topBlock);
+    wrapper.appendChild(bottomLeft);
+    wrapper.appendChild(bottomRight);
+
+    livePlayer.appendChild(wrapper);
+    var modal = document.getElementById('liveModal');
+    if(modal) modal.style.display = 'flex';
+  } catch(err){ console.error('openLive error', err); }
+}
 
 </script>
 <script>
