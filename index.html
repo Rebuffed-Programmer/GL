@@ -491,34 +491,14 @@
         }
     </style>
 
-<!-- YouTube UI blocker CSS (injected) -->
+<!-- Live overlay CSS (injected) -->
 <style>
-.live-block {
+.live-overlay {
   position: absolute;
-  background: transparent;
-  z-index: 9998;
-}
-.live-block-top {
   top: 0;
   left: 0;
   right: 0;
-  height: 60px; /* barra superior título/canal */
-}
-.live-block-bottom-left {
   bottom: 0;
-  left: 0;
-  width: 80px;
-  height: 60px; /* botão compartilhar */
-}
-.live-block-bottom-right {
-  bottom: 0;
-  right: 0;
-  width: 120px;
-  height: 60px; /* botão YouTube */
-}
-.live-overlay {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
   display: none;
   align-items: center;
   justify-content: center;
@@ -529,54 +509,57 @@
   font-size: 20px;
   z-index: 9999;
   pointer-events: auto;
+  transition: opacity 0.3s ease;
+  opacity: 1;
 }
 .live-overlay .live-overlay-inner{
   padding: 12px 18px;
   background: rgba(0,0,0,0.45);
   border-radius: 8px;
   font-weight: 600;
+  letter-spacing: .2px;
   text-align:center;
 }
 </style>
 
 
-<!-- PWA Meta Tags (injected) -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="GL+">
-<meta name="mobile-web-app-capable" content="yes">
-
-
-<!-- Bottom Navigation CSS -->
+<!-- GL+ top rounded menu and movies grid (injected) -->
 <style>
-@media (max-width: 768px) {
-  .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 60px;
-    background: #000;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    border-top: 1px solid #222;
-    z-index: 9999;
-  }
-  .bottom-nav a {
-    color: #aaa;
-    text-align: center;
-    font-size: 12px;
-    text-decoration: none;
-    flex-grow: 1;
-  }
-  .bottom-nav a.active {
-    color: #fff;
-  }
-  .bottom-nav i {
-    display: block;
-    font-size: 20px;
-  }
+/* Top rounded menu */
+.top-nav {
+  position: fixed;
+  top: 78px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.75);
+  border-radius: 40px;
+  padding: 8px 22px;
+  z-index: 9999;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+}
+.menu-rounded { list-style:none; display:flex; gap:20px; margin:0; padding:0; align-items:center; }
+.menu-rounded li a{ color:#fff; font-weight:600; text-decoration:none; font-size:15px; padding:6px 8px; display:block; }
+.menu-rounded li a.active, .menu-rounded li a:hover { color:#1db954; }
+
+/* New movies grid */
+#new-movies { padding:28px 20px; margin-top:40px; }
+#new-movies h2 { margin:0 0 14px; font-size:20px; color:#fff; }
+.movies-grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(180px,1fr)); gap:16px; }
+.movie-card { background:#0f0f0f; padding:12px; border-radius:8px; color:#fff; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+.movie-card img{ width:100%; height:auto; border-radius:6px; display:block; margin-bottom:8px; }
+.movie-card h3{ margin:6px 0; font-size:16px; }
+.movie-card p{ margin:6px 0; font-size:13px; color:#ccc; }
+.movie-card button{ margin-top:8px; background:#1db954; color:#000; border:none; padding:10px 12px; border-radius:6px; font-weight:700; cursor:pointer; }
+
+/* Plus section */
+.plus-section{ padding:22px; background:rgba(255,255,255,0.02); margin:18px 20px; border-radius:8px; color:#fff; }
+
+@media (max-width:768px){
+  .top-nav { top:64px; padding:6px 14px; }
+  .menu-rounded li a{ font-size:14px; }
+  .movies-grid { grid-template-columns: repeat(auto-fill,minmax(140px,1fr)); gap:12px; }
+  #new-movies { padding:18px 12px; }
 }
 </style>
 
@@ -586,11 +569,6 @@
     <nav class="navbar">
         <div class="logo">
             <img src="https://a.imagem.app/BC6eOG.png" alt="GL+ Plus" class="logo-img">
-        </div>
-        <div class="navbar-links">
-            <a href="#home">Início</a>
-            <a href="#my-list">Minha Lista</a>
-            <a href="#genre-sections-container">Gêneros</a>
         </div>
     </nav>
 
@@ -603,6 +581,16 @@
             <a href="#" class="btn watch-btn-hero" data-movie-id="0">Assistir Agora</a>
         </div>
     </header>
+<!-- Top rounded menu -->
+<div class="top-nav" id="gl-top-nav" role="navigation" aria-label="GL Plus menu">
+  <ul class="menu-rounded">
+    <li><a href="#home" class="nav-link">Home</a></li>
+    <li><a href="#mylist" class="nav-link">Minha lista</a></li>
+    <li><a href="#genres" class="nav-link">Gêneros</a></li>
+    <li><a href="#plus" class="nav-link">Plus+</a></li>
+  </ul>
+</div>
+
 
     <main>
         <section class="content-section" id="my-list" style="display: none;">
@@ -754,7 +742,13 @@
             { id: 91, title: "Rabo de Foguete", year: "1950", description: "Uma aventura cheia de ação com um foguete, explorando o espaço ou os perigos da alta velocidade. (Ano 1950 é um palpite)", poster: "https://i.postimg.cc/hjFzPKQ5/Rabo-de-foguete.jpg", genres: ["Aventura", "Ficção Científica"], videoUrl: "https://drive.google.com/file/d/1mksv3t0aBrWA7Mz6K2C3ouDeJRlZytJR/preview" },
             { id: 92, title: "Sonhos Dourados", year: "1946", description: "Um clássico que explora o poder da esperança e a busca por uma vida melhor, mesmo diante das adversidades.", poster: "https://i.postimg.cc/tTh1s8Fm/Sonhos-dourados.jpg", genres: ["Drama", "Romance"], videoUrl: "https://drive.google.com/file/d/1BmwZtm39svuev-NVWv5uFmYgQaiWXfpL/preview" },
             { id: 93, title: "The Skeleton Dance", year: "1929", description: "A famosa Silly Symphony da Disney onde esqueletos dançam e tocam música em um cemitério à meia-noite.", poster: "https://i.postimg.cc/tTh1s8hp/The-skeleton-dance.jpg", genres: ["Animação", "Terror", "Curta-metragem"], videoUrl: "https://drive.google.com/file/d/1DhttoqopOAtX0b83X7eS-vvseVn07wFj/preview" },
-            { id: 94, title: "Wizard of Oz", year: "1925", description: "A versão muda do clássico conto de Dorothy, que viaja para a mágica Terra de Oz após um tornado.", poster: "https://i.postimg.cc/FRjfYw06/Wizard-of-oz-1925.jpg", genres: ["Fantasia", "Aventura"], videoUrl: "https://drive.google.com/file/d/1A7WUSFjgHXpSNHmNbGPxwigQTt7aV_8s/preview" }
+            { id: 94, title: "Wizard of Oz", year: "1925", description: "A versão muda do clássico conto de Dorothy, que viaja para a mágica Terra de Oz após um tornado.", poster: "https://i.postimg.cc/FRjfYw06/Wizard-of-oz-1925.jpg", genres: ["Fantasia", "Aventura"], videoUrl: "https://drive.google.com/file/d/1A7WUSFjgHXpSNHmNbGPxwigQTt7aV_8s/preview" },
+            { id: 95, title: "Susie, o Pequeno Coupé Azul", year: "1952", description: "Um curta animado da Disney que conta a história de Susie, um pequeno coupé azul que sonha em ser amado e útil, até enfrentar os desafios da vida urbana.", poster: "https://i.postimg.cc/cJJkvtnX/Susie-o-pequeno-cupe-azul.jpg", genres: ["curta", "Animação"], videoUrl: "https://drive.google.com/file/d/1AOMeF8_fWHfrnbCk6e_gAXNLLI21t72/preview" },
+            { id: 96, title: "The Mad Doctor Mickey Mouse", year: "1933", description: "Mickey entra em um castelo sombrio para resgatar Pluto das garras de um cientista maluco.", poster: "https://i.postimg.cc/wBB41RmF/The-mad-doctor.jpg", genres: ["curta", "Animação"], videoUrl: "https://drive.google.com/file/d/1RcSJSP3oPksUTdnrT8K7VDhSc82nVQan/preview" },
+            { id: 97, title: "Pato Donald – O Espírito de 43", year: "1943", description: "Produzido durante a Segunda Guerra, mostra Donald Duck dividido entre gastar seu dinheiro ou apoiar o esforço de guerra.", poster: "https://i.postimg.cc/KYYp13MP/Esp-rito-de-43.jpg", genres: ["curta", "propaganda"], videoUrl: "https://drive.google.com/file/d/1IUIKWf1yNJcxoMdlMJJDDRDsfirsT9Mu/preview" },
+            { id: 98, title: "Superman (1941–1943)", year: "1941-1943", description: "A famosa série animada dos irmãos Fleischer que consolidou a imagem do Superman no cinema, com visuais impressionantes para a época.", poster: "https://i.postimg.cc/tggvsnxP/Superman-1941-1943.jpg", genres: ["aventura", "Animação"], videoUrl: "https://drive.google.com/file/d/1yL-rpp5K9r5Z6Oqw7EWNMSq2cZ2c2ifz/preview" },
+            { id: 99, title: "o filho de kong (1933)", year: "1933", description: "Continuação direta de King Kong (1933), acompanhando a expedição de Carl Denham de volta à Ilha da Caveira, onde encontra o filho bondoso de Kong.", poster: "https://i.postimg.cc/tggvsnxv/O-filho-de-Kong.jpg", genres: ["aventura", "fantasia"], videoUrl: "https://drive.google.com/file/d/1vFevLHDYzlKu-7PYj3rQVu8Id6OXfHJH/preview" }
+
         ];
         
         // NOVO: Canais Ao Vivo (Com Playlists do YouTube e Posters atualizados)
@@ -1327,7 +1321,7 @@ function openLive(url){
     var livePlayer = document.getElementById("livePlayer");
     if(!livePlayer) {
       document.getElementById("liveModal").style.display = "flex";
-      document.getElementById("livePlayer").innerHTML = '<iframe src="'+url+'" width="100%" height="500" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen muted></iframe>';
+      document.getElementById("livePlayer").innerHTML = '<iframe src="'+url+'" width="100%" height="500" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
       return;
     }
     livePlayer.innerHTML = "";
@@ -1337,6 +1331,7 @@ function openLive(url){
     wrapper.style.width = '100%';
     wrapper.style.height = '100%';
     wrapper.style.cursor = 'pointer';
+    wrapper.className = 'live-wrapper';
 
     var iframe = document.createElement('iframe');
     iframe.src = url;
@@ -1345,42 +1340,34 @@ function openLive(url){
     iframe.frameBorder = '0';
     iframe.setAttribute('allow', 'autoplay; encrypted-media');
     iframe.setAttribute('allowfullscreen', '');
-    iframe.muted = true;
     iframe.style.display = 'block';
 
-    // Overlay de mensagem
     var overlay = document.createElement('div');
     overlay.className = 'live-overlay';
     var inner = document.createElement('div');
     inner.className = 'live-overlay-inner';
     inner.textContent = 'Conteúdo ao vivo sendo exibido';
     overlay.appendChild(inner);
+    overlay.style.display = 'none';
+    overlay.style.opacity = '1';
 
-    // Bloqueadores fixos
-    var topBlock = document.createElement('div');
-    topBlock.className = 'live-block live-block-top';
-    var bottomLeft = document.createElement('div');
-    bottomLeft.className = 'live-block live-block-bottom-left';
-    var bottomRight = document.createElement('div');
-    bottomRight.className = 'live-block live-block-bottom-right';
-
-    // Clique mostra overlay por ~2.8s
     var clickHandler = function(e){
       e.stopPropagation();
-      overlay.style.display = 'flex';
-      setTimeout(function(){
-        overlay.style.display = 'none';
-      }, 2800);
+      try {
+        overlay.style.display = 'flex';
+        setTimeout(function(){
+          overlay.style.opacity = '0';
+          setTimeout(function(){ overlay.style.display = 'none'; overlay.style.opacity = '1'; }, 300);
+        }, 2800);
+      } catch(err){ console.error(err); }
     };
+
     wrapper.addEventListener('click', clickHandler, true);
 
     wrapper.appendChild(iframe);
     wrapper.appendChild(overlay);
-    wrapper.appendChild(topBlock);
-    wrapper.appendChild(bottomLeft);
-    wrapper.appendChild(bottomRight);
-
     livePlayer.appendChild(wrapper);
+
     var modal = document.getElementById('liveModal');
     if(modal) modal.style.display = 'flex';
   } catch(err){ console.error('openLive error', err); }
@@ -1422,29 +1409,52 @@ function openLive(url){
     });
 </script>
 
-<!-- Force Landscape Script -->
-<script>
-function forceLandscape() {
-  let elem = document.documentElement;
-  if (elem.requestFullscreen) {
-    elem.requestFullscreen();
-  } else if (elem.webkitRequestFullscreen) {
-    elem.webkitRequestFullscreen();
-  }
-  if (screen.orientation && screen.orientation.lock) {
-    screen.orientation.lock("landscape").catch(()=>{});
-  }
-}
-// Integrar ao player
-function assistirAgora(url) {
-  if (typeof openLive === "function") {
-    openLive(url);
-  } else if (typeof openPlayer === "function") {
-    openPlayer(url);
-  }
-  forceLandscape();
-}
-</script>
+<!-- Novos Conteúdos adicionados -->
+<section id="new-movies" aria-label="Novos Conteúdos">
+  <h2>🎬 Novos Conteúdos</h2>
+  <div class="movies-grid">
+    <div class="movie-card">
+      <img src="https://i.postimg.cc/cJJkvtnX/Susie-o-pequeno-cupe-azul.jpg" alt="Susie, o Pequeno Coupé Azul (1952)">
+      <h3>Susie, o Pequeno Coupé Azul (1952)</h3>
+      <p><strong>Gênero:</strong> Animação, Curta</p>
+      <p>Um curta animado da Disney que conta a história de Susie, um pequeno coupé azul que sonha em ser amado e útil, até enfrentar os desafios da vida urbana.</p>
+      <button onclick="(typeof assistirAgora==='function'?assistirAgora:openPlayer)('https://drive.google.com/file/d/1AOMeF8_fWHfrnbCk6e_gAXNLLI21t72/preview')">Assistir Agora</button>
+    </div>
+    <div class="movie-card">
+      <img src="https://i.postimg.cc/wBB41RmF/The-mad-doctor.jpg" alt="The Mad Doctor (Mickey Mouse, 1933)">
+      <h3>The Mad Doctor (Mickey Mouse, 1933)</h3>
+      <p><strong>Gênero:</strong> Animação, Terror cômico</p>
+      <p>Mickey entra em um castelo sombrio para resgatar Pluto das garras de um cientista maluco.</p>
+      <button onclick="(typeof assistirAgora==='function'?assistirAgora:openPlayer)('https://drive.google.com/file/d/1RcSJSP3oPksUTdnrT8K7VDhSc82nVQan/preview')">Assistir Agora</button>
+    </div>
+    <div class="movie-card">
+      <img src="https://i.postimg.cc/KYYp13MP/Esp-rito-de-43.jpg" alt="Pato Donald – O Espírito de 43 (1943)">
+      <h3>Pato Donald – O Espírito de 43 (1943)</h3>
+      <p><strong>Gênero:</strong> Animação, Propaganda histórica</p>
+      <p>Produzido durante a Segunda Guerra, mostra Donald Duck dividido entre gastar seu dinheiro ou apoiar o esforço de guerra.</p>
+      <button onclick="(typeof assistirAgora==='function'?assistirAgora:openPlayer)('https://drive.google.com/file/d/1IUIKWf1yNJcxoMdlMJJDDRDsfirsT9Mu/preview')">Assistir Agora</button>
+    </div>
+    <div class="movie-card">
+      <img src="https://i.postimg.cc/tggvsnxP/Superman-1941-1943.jpg" alt="Superman (1941-1943)">
+      <h3>Superman (1941–1943)</h3>
+      <p><strong>Gênero:</strong> Aventura, Super-herói, Animação</p>
+      <p>A famosa série animada dos irmãos Fleischer que consolidou a imagem do Superman no cinema, com visuais impressionantes para a época.</p>
+      <button onclick="(typeof assistirAgora==='function'?assistirAgora:openPlayer)('https://drive.google.com/file/d/1yL-rpp5K9r5Z6Oqw7EWNMSq2cZ2c2ifz/preview')">Assistir Agora</button>
+    </div>
+    <div class="movie-card">
+      <img src="https://i.postimg.cc/tggvsnxv/O-filho-de-Kong.jpg" alt="O Filho de Kong (1933)">
+      <h3>O Filho de Kong (1933)</h3>
+      <p><strong>Gênero:</strong> Aventura, Fantasia</p>
+      <p>Continuação direta de King Kong (1933), acompanhando a expedição de Carl Denham de volta à Ilha da Caveira, onde encontra o filho bondoso de Kong.</p>
+      <button onclick="(typeof assistirAgora==='function'?assistirAgora:openPlayer)('https://drive.google.com/file/d/1vFevLHDYzlKu-7PYj3rQVu8Id6OXfHJH/preview')">Assistir Agora</button>
+    </div>
+  </div>
+</section>
+
+<section id="plus" class="plus-section" aria-label="Catálogo Plus+">
+  <h2>➕ Catálogo Plus+</h2>
+  <p>Em breve: catálogo exclusivo para assinantes com os maiores clássicos e filmes lendários.</p>
+</section>
 
 </body>
 </html>
