@@ -539,6 +539,47 @@
 }
 </style>
 
+
+<!-- PWA Meta Tags (injected) -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GL+">
+<meta name="mobile-web-app-capable" content="yes">
+
+
+<!-- Bottom Navigation CSS -->
+<style>
+@media (max-width: 768px) {
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: #000;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid #222;
+    z-index: 9999;
+  }
+  .bottom-nav a {
+    color: #aaa;
+    text-align: center;
+    font-size: 12px;
+    text-decoration: none;
+    flex-grow: 1;
+  }
+  .bottom-nav a.active {
+    color: #fff;
+  }
+  .bottom-nav i {
+    display: block;
+    font-size: 20px;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -1380,5 +1421,30 @@ function openLive(url){
         renderGenreRows();
     });
 </script>
+
+<!-- Force Landscape Script -->
+<script>
+function forceLandscape() {
+  let elem = document.documentElement;
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen();
+  } else if (elem.webkitRequestFullscreen) {
+    elem.webkitRequestFullscreen();
+  }
+  if (screen.orientation && screen.orientation.lock) {
+    screen.orientation.lock("landscape").catch(()=>{});
+  }
+}
+// Integrar ao player
+function assistirAgora(url) {
+  if (typeof openLive === "function") {
+    openLive(url);
+  } else if (typeof openPlayer === "function") {
+    openPlayer(url);
+  }
+  forceLandscape();
+}
+</script>
+
 </body>
 </html>
