@@ -1478,34 +1478,5 @@ function assistirAgora(url) {
   forceLandscape();
 }
 </script>
-<script>
-(function(){
-  var menu=document.getElementById('gl-top-nav');
-  function hideMenu(){if(menu)menu.classList.add('hidden');}
-  function showMenu(){if(menu)menu.classList.remove('hidden');}
-  var opens=['openPlayer','assistirAgora','openLive'];
-  var closes=['backToInfo','voltarCatalogo','closeLive'];
-  function wrap(list,before,after){
-    list.forEach(function(n){
-      var fn=window[n];
-      if(typeof fn==='function'&&!fn.__wrapped){
-        window[n]=function(){
-          if(before)before();
-          var r=fn.apply(this,arguments);
-          if(after)after();
-          return r;
-        };
-        window[n].__wrapped=true;
-      }
-    });
-  }
-  function init(){
-    wrap(opens,hideMenu);
-    wrap(closes,null,showMenu);
-  }
-  init();
-  setInterval(init,300);
-})();
-</script>
 </body>
 </html>
