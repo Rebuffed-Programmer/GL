@@ -1484,7 +1484,7 @@ function assistirAgora(url) {
   function hideMenu(){if(menu)menu.classList.add('hidden');}
   function showMenu(){if(menu)menu.classList.remove('hidden');}
   var opens=['openPlayer','assistirAgora','openLive'];
-  var closes=['closePlayer','voltarCatalogo','closeLive'];
+  var closes=['backToInfo','voltarCatalogo','closeLive'];
   function wrap(list,before,after){
     list.forEach(function(n){
       var fn=window[n];
