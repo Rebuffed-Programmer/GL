@@ -549,34 +549,75 @@
 
 <!-- Bottom Navigation CSS -->
 <style>
-@media (max-width: 768px) {
+/* Bottom nav: translucent rounded (visible on mobile, TV and small screens) */
+.bottom-nav {
+  display: none;
+}
+@media (max-width: 1280px) {
   .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 60px;
-    background: #000;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    border-top: 1px solid #222;
-    z-index: 9999;
-  }
-  .bottom-nav a {
-    color: #aaa;
-    text-align: center;
-    font-size: 12px;
-    text-decoration: none;
-    flex-grow: 1;
-  }
-  .bottom-nav a.active {
-    color: #fff;
-  }
-  .bottom-nav i {
-    display: block;
-    font-size: 20px;
-  }
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 980px;
+  width: calc(100% - 40px);
+  height: 66px;
+  background: rgba(0,0,0,0.42);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 20px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 10000;
+  padding: 6px 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+.bottom-nav.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(12px) scale(0.995);
+}
+.bottom-nav a {
+  color: #d0d0d0;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  min-width: 64px;
+  outline: none;
+}
+.bottom-nav a i { font-size: 20px; margin-bottom: 2px; }
+.bottom-nav a span { font-size: 11px; line-height: 1; }
+.bottom-nav a:focus, .bottom-nav a.active {
+  background: rgba(255,255,255,0.04);
+  color: #fff;
+  transform: translateY(-3px);
+}
+
+/* Focus styles for TV / remote */
+.movie-item:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(72,201,72,0.08), 0 14px 30px rgba(0,0,0,0.6);
+  transform: translateY(-6px);
+  z-index: 5;
+}
+
+/* make sure the add-to-list button doesn't steal remote focus */
+.add-to-list-btn { outline: none; }
+
+/* small screens adjustments */
+@media (max-width: 520px) {
+  .bottom-nav {
+  display: none;
+}
+@media (max-width: 1280px) {
+  .bottom-nav { left: 8px; right: 8px; width: calc(100% - 16px); max-width: none; bottom: 8px; height: 64px; }
+  .bottom-nav a span { display: block; font-size: 10px; }
 }
 </style>
 
@@ -798,6 +839,9 @@
             const listItem = document.createElement('li');
             listItem.className = 'movie-item';
             listItem.setAttribute('data-movie-id', movie.id);
+            // Tornar o item focável (suporta TV remotes / teclado)
+            listItem.tabIndex = 0;
+            listItem.setAttribute('role', 'button');
             
             const img = document.createElement('img');
             img.src = movie.poster;
@@ -822,7 +866,10 @@
         function createLiveItem(channel) {
             const listItem = document.createElement('li');
             listItem.className = 'movie-item';
-            listItem.setAttribute('data-live-id', channel.id); // ID específico para canais ao vivo
+            listItem.setAttribute('data-live-id', channel.id);
+            // Tornar o item focável (suporta TV remotes / teclado)
+            listItem.tabIndex = 0;
+            listItem.setAttribute('role', 'button'); // ID específico para canais ao vivo
             
             const img = document.createElement('img');
             img.src = channel.poster;
@@ -967,8 +1014,18 @@
 
         // Função para mudar o modal para o player de vídeo (USADO PARA DRIVE)
         function switchToVideo(videoUrl) {
-            
-            modalInfoContainer.style.display = 'none';
+            // Esconde o menu inferior (se existir)
+            try { if (typeof bottomNav !== 'undefined' && bottomNav) bottomNav.classList.add('hidden'); } catch(e){}
+            // Tenta forçar o modo paisagem: fullscreen + Screen Orientation API (fallbacks tolerantes)
+            try {
+                const root = document.documentElement;
+                if (root.requestFullscreen) root.requestFullscreen();
+                else if (root.webkitRequestFullscreen) root.webkitRequestFullscreen();
+            } catch(e){}
+            try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape'); } catch(e){}
+
+            // mantém o comportamento anterior (cria player em fullscreen)
+modalInfoContainer.style.display = 'none';
             modalVideoContainer.style.display = 'block';
             movieModal.classList.add('fullscreen-video');
             
@@ -1030,8 +1087,8 @@
             // Adiciona wrapper ao container do modal
             modalVideoContainer.appendChild(wrapper);
         }
-        
-        // NOVO: Função para abrir o player YouTube (Modo Bloqueado/Playlist)
+
+// NOVO: Função para abrir o player YouTube (Modo Bloqueado/Playlist)
         function openLivePlayerModal(channel) {
             
             // 1. Configura o modal para modo vídeo em tela cheia
@@ -1140,13 +1197,17 @@
         
         // Função para voltar para a tela de informações (ou fechar o player no modo fullscreen)
         function backToInfo() {
-            modalVideoContainer.innerHTML = ''; // Remove o iframe para parar o vídeo
+modalVideoContainer.innerHTML = ''; // Remove o iframe para parar o vídeo
             
             // Se estava no modo fullscreen (player aberto), fecha o modal completamente
             if (movieModal.classList.contains('fullscreen-video')) {
-                movieModal.style.display = 'none';
-            }
-            
+                movieModal.style.display = 'none';            // Mostra o menu inferior de volta
+            try { if (typeof bottomNav !== 'undefined' && bottomNav) bottomNav.classList.remove('hidden'); } catch(e){}
+            // Tenta sair do fullscreen e desbloquear a orientação (tolerante a erros)
+            try { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); } catch(e){}
+            try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch(e){}
+        }
+
             // Reseta o estado para a tela de informações
             modalInfoContainer.style.display = 'block';
             modalVideoContainer.style.display = 'none';
@@ -1452,5 +1513,34 @@ function assistirAgora(url) {
 }
 </script>
 
+
+<!-- Bottom navigation (translucent, rounded). Kept minimal so it integrates with the existing layout. -->
+<nav id="bottomNav" class="bottom-nav" role="navigation" aria-label="Menu inferior">
+  <a href="#home" class="bn-item" data-target="home"><i class="fas fa-home" aria-hidden="true"></i><span>Home</span></a>
+  <a href="#my-list" class="bn-item" data-target="my-list"><i class="fas fa-list" aria-hidden="true"></i><span>Minha Lista</span></a>
+  <a href="#genre-sections-container" class="bn-item" data-target="genre-sections-container"><i class="fas fa-th-large" aria-hidden="true"></i><span>Gêneros</span></a>
+  <a href="#plus" class="bn-item" data-target="plus"><i class="fas fa-plus-circle" aria-hidden="true"></i><span>Plus+</span></a>
+</nav>
+
+
+<script>
+</script>
+
+
+<script>
+// Garante que o menu inferior apareça apenas em mobile e PC, não em modo TV
+if (window.innerWidth <= 1280) {
+  document.getElementById('bottomNav')?.classList.remove('hidden');
+} else {
+  document.getElementById('bottomNav')?.classList.add('hidden');
+}
+window.addEventListener('resize', () => {
+  if (window.innerWidth <= 1280) {
+    document.getElementById('bottomNav')?.classList.remove('hidden');
+  } else {
+    document.getElementById('bottomNav')?.classList.add('hidden');
+  }
+});
+</script>
 </body>
 </html>
