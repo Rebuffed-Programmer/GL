@@ -551,12 +551,8 @@
 <style>
 /* Bottom nav: translucent rounded (visible on mobile, TV and small screens) */
 .bottom-nav {
-  display: none;
-}
-@media (max-width: 1280px) {
-  .bottom-nav {
   position: fixed;
-  bottom: 18px;
+  bottom: 14px;
   left: 50%;
   transform: translateX(-50%);
   max-width: 980px;
@@ -565,7 +561,7 @@
   background: rgba(0,0,0,0.42);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border-radius: 20px;
+  border-radius: 14px;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -612,10 +608,6 @@
 
 /* small screens adjustments */
 @media (max-width: 520px) {
-  .bottom-nav {
-  display: none;
-}
-@media (max-width: 1280px) {
   .bottom-nav { left: 8px; right: 8px; width: calc(100% - 16px); max-width: none; bottom: 8px; height: 64px; }
   .bottom-nav a span { display: block; font-size: 10px; }
 }
@@ -1524,23 +1516,100 @@ function assistirAgora(url) {
 
 
 <script>
-</script>
+// -------------------- Remote & Keyboard navigation (TV friendly) --------------------
+(function(){
+  const bottomNav = document.getElementById('bottomNav');
+  // Expose bottomNav to other functions (used in switchToVideo/backToInfo modifications)
+  window.bottomNav = bottomNav;
 
-
-<script>
-// Garante que o menu inferior apareça apenas em mobile e PC, não em modo TV
-if (window.innerWidth <= 1280) {
-  document.getElementById('bottomNav')?.classList.remove('hidden');
-} else {
-  document.getElementById('bottomNav')?.classList.add('hidden');
-}
-window.addEventListener('resize', () => {
-  if (window.innerWidth <= 1280) {
-    document.getElementById('bottomNav')?.classList.remove('hidden');
-  } else {
-    document.getElementById('bottomNav')?.classList.add('hidden');
+  // Simple grid navigation: left/right/up/down across elements with .movie-item
+  function getItems() {
+    return Array.from(document.querySelectorAll('.movie-item'));
   }
-});
+  function getColumns() {
+    // Matches CSS breakpoints: mobile: 2 columns, desktop/tablet: 4 columns
+    return (window.innerWidth >= 768) ? 4 : 2;
+  }
+
+  document.addEventListener('keydown', function(e){
+    const items = getItems();
+    if (!items.length) return;
+
+    const active = document.activeElement;
+    const idx = items.indexOf(active);
+
+    // If focus is inside bottom nav, leave behavior mostly to native tabbing
+    if (active && active.closest && active.closest('#bottomNav')) {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        const links = Array.from(document.querySelectorAll('#bottomNav .bn-item'));
+        const i = links.indexOf(active);
+        let newIndex = (e.key === 'ArrowRight') ? (i+1) % links.length : (i-1 + links.length) % links.length;
+        links[newIndex].focus();
+      }
+      return;
+    }
+
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      if (idx === -1) { items[0].focus(); return; }
+      const next = items[(idx + 1) % items.length];
+      if (next) next.focus();
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      if (idx === -1) { items[0].focus(); return; }
+      const prev = items[(idx - 1 + items.length) % items.length];
+      if (prev) prev.focus();
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const cols = getColumns();
+      if (idx === -1) { items[0].focus(); return; }
+      let targetIdx = Math.min(items.length - 1, idx + cols);
+      items[targetIdx].focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const cols = getColumns();
+      if (idx === -1) { items[0].focus(); return; }
+      let targetIdx = Math.max(0, idx - cols);
+      items[targetIdx].focus();
+    } else if (e.key === 'Enter') {
+      // Activate focused item (open modal / play)
+      if (active && typeof active.click === 'function') {
+        active.click();
+      }
+    } else if (e.key === 'Escape') {
+      // Close player / modal if open
+      if (typeof backToInfo === 'function') backToInfo();
+      // if modal visible, hide it
+      const movieModal = document.getElementById('movie-modal');
+      if (movieModal && movieModal.style.display === 'flex') movieModal.style.display = 'none';
+    }
+  });
+
+  // Make bottom nav links work with remote "Enter"
+  document.getElementById('bottomNav')?.addEventListener('click', function(e){
+    const a = e.target.closest('.bn-item');
+    if (!a) return;
+    const target = a.getAttribute('data-target');
+    if (!target) return;
+    const el = document.getElementById(target);
+    if (el) {
+      // Hide other sections like nav menu does
+      if (target === 'my-list') {
+        document.querySelectorAll('.movie-section').forEach(section => section.style.display = 'none');
+        document.getElementById('all-movies-master').style.display = 'none';
+        renderMyList();
+        el.scrollIntoView({behavior:'smooth'});
+      } else {
+        // Show main home and scroll to section target
+        document.querySelectorAll('.movie-section').forEach(section => section.style.display = 'block');
+        document.getElementById('all-movies-master').style.display = 'block';
+        el.scrollIntoView({behavior:'smooth'});
+      }
+    }
+  });
+})();
 </script>
+
 </body>
 </html>
