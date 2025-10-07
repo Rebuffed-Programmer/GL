@@ -549,66 +549,76 @@
 
 <!-- Bottom Navigation CSS -->
 <style>
-/* Bottom nav: translucent rounded (visible on mobile, TV and small screens) */
+/* Bottom nav: translúcido e arredondado - compatível com todos os celulares */
 .bottom-nav {
   position: fixed;
-  bottom: 14px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  max-width: 980px;
-  width: calc(100% - 40px);
-  height: 66px;
-  background: rgba(0,0,0,0.42);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-radius: 14px;
+  width: 94%;
+  max-width: 480px;
+  height: 68px;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 18px;
   display: flex;
   justify-content: space-around;
   align-items: center;
   z-index: 10000;
-  padding: 6px 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-  transition: opacity 220ms ease, transform 220ms ease;
+  padding: 8px 10px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
+
 .bottom-nav.hidden {
   opacity: 0;
   pointer-events: none;
-  transform: translateX(-50%) translateY(12px) scale(0.995);
+  transform: translateX(-50%) translateY(12px);
 }
+
 .bottom-nav a {
-  color: #d0d0d0;
+  color: #f0f0f0;
   text-decoration: none;
   display: flex;
   flex-direction: column;
   align-items: center;
   font-size: 12px;
   padding: 6px 10px;
-  border-radius: 8px;
-  min-width: 64px;
-  outline: none;
+  border-radius: 10px;
+  flex: 1;
+  text-align: center;
 }
-.bottom-nav a i { font-size: 20px; margin-bottom: 2px; }
-.bottom-nav a span { font-size: 11px; line-height: 1; }
-.bottom-nav a:focus, .bottom-nav a.active {
-  background: rgba(255,255,255,0.04);
+
+.bottom-nav a i {
+  font-size: 20px;
+  margin-bottom: 3px;
+}
+
+.bottom-nav a span {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.bottom-nav a:focus,
+.bottom-nav a.active {
+  background: rgba(255,255,255,0.08);
   color: #fff;
   transform: translateY(-3px);
 }
 
-/* Focus styles for TV / remote */
-.movie-item:focus {
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(72,201,72,0.08), 0 14px 30px rgba(0,0,0,0.6);
-  transform: translateY(-6px);
-  z-index: 5;
+/* Ajustes extras para iPhones (safe area) */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .bottom-nav {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
+  }
 }
 
-/* make sure the add-to-list button doesn't steal remote focus */
-.add-to-list-btn { outline: none; }
-
-/* small screens adjustments */
-@media (max-width: 520px) {
-  .bottom-nav { left: 8px; right: 8px; width: calc(100% - 16px); max-width: none; bottom: 8px; height: 64px; }
+/* Ajuste de layout para telas muito pequenas */
+@media (max-width: 360px) {
+  .bottom-nav a span { font-size: 10px; }
+  .bottom-nav { height: 64px; }
+}
   .bottom-nav a span { display: block; font-size: 10px; }
 }
 </style>
@@ -1506,13 +1516,15 @@ function assistirAgora(url) {
 </script>
 
 
-<!-- Bottom navigation (translucent, rounded). Kept minimal so it integrates with the existing layout. -->
+
+<!-- Bottom navigation translúcido - compatível com iPhones e Android -->
 <nav id="bottomNav" class="bottom-nav" role="navigation" aria-label="Menu inferior">
   <a href="#home" class="bn-item" data-target="home"><i class="fas fa-home" aria-hidden="true"></i><span>Home</span></a>
   <a href="#my-list" class="bn-item" data-target="my-list"><i class="fas fa-list" aria-hidden="true"></i><span>Minha Lista</span></a>
   <a href="#genre-sections-container" class="bn-item" data-target="genre-sections-container"><i class="fas fa-th-large" aria-hidden="true"></i><span>Gêneros</span></a>
   <a href="#plus" class="bn-item" data-target="plus"><i class="fas fa-plus-circle" aria-hidden="true"></i><span>Plus+</span></a>
 </nav>
+
 
 
 <script>
