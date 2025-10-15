@@ -637,7 +637,7 @@
 <body>
     <nav class="navbar">
         <div class="logo">
-            <img src="https://a.imagem.app/BC6eOG.png" alt="GL+ Plus" class="logo-img">
+            <img src="https://i.postimg.cc/fbm60y7Q/logo.png" alt="GL+ Plus" class="logo-img">
         </div>
         <div class="navbar-links">
             <a href="#home">Início</a>
@@ -1108,6 +1108,49 @@ modalInfoContainer.style.display = 'none';
                 e.preventDefault();
                 showBlockedMessage();
             });
+
+          // --- BLOQUEADOR VISÍVEL PARA O BOTÃO DE "TELA CHEIA (F)" ---
+// Este bloco cria um botão idêntico ao de "nova guia", mas posicionado embaixo.
+const blockFullscreenBtn = document.createElement('button');
+blockFullscreenBtn.className = 'block-fullscreen-btn';
+blockFullscreenBtn.title = 'Tela cheia desativada';
+blockFullscreenBtn.style.position = 'absolute';
+blockFullscreenBtn.style.bottom = '12px';   // Fica na parte inferior
+blockFullscreenBtn.style.right = '12px';    // Alinhado à direita, igual ao outro
+blockFullscreenBtn.style.width = '44px';
+blockFullscreenBtn.style.height = '44px';
+blockFullscreenBtn.style.border = 'none';
+blockFullscreenBtn.style.background = 'rgba(0,0,0,0.15)';
+blockFullscreenBtn.style.color = '#fff';
+blockFullscreenBtn.style.borderRadius = '8px';
+blockFullscreenBtn.style.zIndex = '9999';
+blockFullscreenBtn.style.cursor = 'pointer';
+blockFullscreenBtn.style.display = 'flex';
+blockFullscreenBtn.style.alignItems = 'center';
+blockFullscreenBtn.style.justifyContent = 'center';
+blockFullscreenBtn.style.backdropFilter = 'blur(2px)';
+blockFullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+
+// Mesmo comportamento do botão original
+blockFullscreenBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    e.preventDefault();
+    showBlockedMessage();
+});
+
+// Adiciona ao mesmo container do vídeo, junto com o outro botão
+try {
+    videoContainer.appendChild(blockFullscreenBtn);
+} catch (err) {
+    console.warn('Não foi possível anexar blockFullscreenBtn:', err);
+}
+
+// Ao clicar no blockBtn, impede a ação e mostra uma mensagem rápida
+blockBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    e.preventDefault();
+    showBlockedMessage();
+});
 
             // Adiciona iframe e o botão bloqueador no wrapper
             wrapper.appendChild(iframe);
