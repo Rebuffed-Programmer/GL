@@ -1109,56 +1109,51 @@ modalInfoContainer.style.display = 'none';
                 showBlockedMessage();
             });
 
-          // --- BLOQUEADOR VISÍVEL PARA O BOTÃO DE "TELA CHEIA (F)" ---
-// Este bloco cria um botão idêntico ao de "nova guia", mas posicionado embaixo.
-const blockFullscreenBtn = document.createElement('button');
-blockFullscreenBtn.className = 'block-fullscreen-btn';
-blockFullscreenBtn.title = 'Tela cheia desativada';
-blockFullscreenBtn.style.position = 'absolute';
-blockFullscreenBtn.style.bottom = '12px';   // Fica na parte inferior
-blockFullscreenBtn.style.right = '12px';    // Alinhado à direita, igual ao outro
-blockFullscreenBtn.style.width = '44px';
-blockFullscreenBtn.style.height = '44px';
-blockFullscreenBtn.style.border = 'none';
-blockFullscreenBtn.style.background = 'rgba(0,0,0,0.15)';
-blockFullscreenBtn.style.color = '#fff';
-blockFullscreenBtn.style.borderRadius = '8px';
-blockFullscreenBtn.style.zIndex = '9999';
-blockFullscreenBtn.style.cursor = 'pointer';
-blockFullscreenBtn.style.display = 'flex';
-blockFullscreenBtn.style.alignItems = 'center';
-blockFullscreenBtn.style.justifyContent = 'center';
-blockFullscreenBtn.style.backdropFilter = 'blur(2px)';
-blockFullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
-
-// Mesmo comportamento do botão original
-blockFullscreenBtn.addEventListener('click', function(e){
-    e.stopPropagation();
-    e.preventDefault();
-    showBlockedMessage();
-});
-
-// Adiciona ao mesmo container do vídeo, junto com o outro botão
-try {
-    videoContainer.appendChild(blockFullscreenBtn);
-} catch (err) {
-    console.warn('Não foi possível anexar blockFullscreenBtn:', err);
-}
-
-// Ao clicar no blockBtn, impede a ação e mostra uma mensagem rápida
-blockBtn.addEventListener('click', function(e){
-    e.stopPropagation();
-    e.preventDefault();
-    showBlockedMessage();
-});
-
             // Adiciona iframe e o botão bloqueador no wrapper
             wrapper.appendChild(iframe);
             wrapper.appendChild(blockBtn);
 
             // Adiciona wrapper ao container do modal
             modalVideoContainer.appendChild(wrapper);
+      
+              // Adiciona iframe e o botão bloqueador no wrapper
+wrapper.appendChild(iframe);
+wrapper.appendChild(blockBtn);
+
+// === Duplicado embaixo (seguro, sem interferir no player) ===
+setTimeout(() => {
+  const blockBtnBottom = document.createElement('button');
+  blockBtnBottom.className = 'block-newtab-btn';
+  blockBtnBottom.title = 'Abertura externa desativada';
+  blockBtnBottom.style.position = 'absolute';
+  blockBtnBottom.style.bottom = '20px'; // logo acima do botão F
+  blockBtnBottom.style.right = '28px';
+  blockBtnBottom.style.width = '60px';
+  blockBtnBottom.style.height = '59px';
+  blockBtnBottom.style.border = 'none';
+  blockBtnBottom.style.background = 'rgba(0,0,0,0.15)';
+  blockBtnBottom.style.color = '#fff';
+  blockBtnBottom.style.borderRadius = '0.1px';
+  blockBtnBottom.style.zIndex = '9999';
+  blockBtnBottom.style.cursor = 'pointer';
+  blockBtnBottom.style.display = 'flex';
+  blockBtnBottom.style.alignItems = 'center';
+  blockBtnBottom.style.justifyContent = 'center';
+  blockBtnBottom.style.backdropFilter = 'blur(2px)';
+  blockBtnBottom.innerHTML = '<i class="fas fa-link"></i>';
+
+  // Mesmo comportamento do botão original
+  blockBtnBottom.addEventListener('click', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    showBlockedMessage();
+  });
+
+  // Adiciona dentro do wrapper, sem interferir
+  wrapper.appendChild(blockBtnBottom);
+}, 200);
         }
+
 
 // NOVO: Função para abrir o player YouTube (Modo Bloqueado/Playlist)
         function openLivePlayerModal(channel) {
