@@ -1708,332 +1708,422 @@ function assistirAgora(url) {
   });
 })();
 </script>
-<!-- ======= INÍCIO: Sistema Plus+ (colar antes de </body>) ======= -->
+<!-- === INÍCIO: Plus+ (modal, seção e scripts) - COLE ISTO ANTES DE </body> === -->
 
-<!-- Modal Plus+ (igual estilo modal de filme, usa seu backdrop) -->
-<div id="plusModal" class="modal" style="display:none;">
-  <div class="modal-content" style="max-width:900px; width:95%; padding:18px;">
+<style>
+/* Estilos específicos para Plus+ (respeita o estilo atual) */
+.plus-modal .modal-content {
+  max-width: 980px;
+  width: 95%;
+  background: linear-gradient(180deg,#111,#0f1111);
+  padding: 18px;
+  border-radius: 10px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  flex-direction: column;
+}
+.plus-modal .plus-poster {
+  width: 100%;
+  max-width: 520px;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
+}
+.plus-modal .plus-actions { display:flex; gap:12px; justify-content:center; margin-top:6px; }
+.plus-modal .plus-actions button { padding:10px 16px; border-radius:8px; border:none; cursor:pointer; font-weight:600; }
+.plus-modal .btn-primary { background:#48c948; color:#fff; }
+.plus-modal .btn-secondary { background:rgba(255,255,255,0.06); color:#fff; }
+
+/* Cards dos planos */
+.plus-plans { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:12px; }
+.plus-plan { width:260px; border-radius:10px; overflow:hidden; background:#151718; border:1px solid #222; cursor:pointer; transition:transform .12s; }
+.plus-plan img { width:100%; display:block; }
+.plus-plan .plan-body { padding:12px; color:#ddd; }
+.plus-plan:hover { transform:translateY(-6px); }
+
+/* Seção Plus+ no catálogo */
+.plus-catalog { display:none; padding:40px; }
+.plus-catalog .section-title { display:flex; align-items:center; gap:12px; justify-content:space-between; }
+#plus-movie-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; list-style:none; padding:0; margin:18px 0 0 0; }
+@media (max-width:767px) { #plus-movie-grid { grid-template-columns:repeat(2,1fr); } }
+
+/* Input token */
+.plus-token-box { display:flex; gap:8px; align-items:center; justify-content:center; margin-top:10px; }
+.plus-token-box input { padding:10px 12px; border-radius:8px; border:1px solid #2b2b2b; background:#0d0f10; color:#fff; outline:none; width:260px; }
+.plus-small { font-size:0.9em; color:#bbb; text-align:center; margin-top:8px; }
+
+/* manter z-index do modal acima */
+.plus-modal { z-index: 2200; }
+</style>
+
+<!-- Modal Plus+ (reaproveita a classe .modal do teu index) -->
+<div id="plusModal" class="modal plus-modal" style="display:none;">
+  <div class="modal-content">
     <span class="close-btn" id="plusModalClose">&times;</span>
-    <div style="display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start; justify-content:center;">
-      <div style="flex:1; min-width:280px; max-width:420px;">
-        <!-- Pôster das assinaturas -->
-        <div style="border-radius:8px; overflow:hidden; background:#111;">
-          <img id="plusPoster" src="https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg" alt="GL+ Poster" style="width:100%; height:auto; display:block;">
-        </div>
+
+    <!-- Poster / topo -->
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <img id="plusPosterImg" class="plus-poster" src="https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg" alt="Pôster Plus+">
+      <div class="plus-actions">
+        <button id="plusBtnSou" class="btn-primary">Sou assinante</button>
+        <button id="plusBtnQuero" class="btn-secondary">Quero assinar</button>
       </div>
-
-      <div style="flex:1 1 320px; min-width:280px; color:#e0e0e0;">
-        <h2 style="margin-top:0">GL+ — Assinaturas</h2>
-        <p id="plusIntro">Desbloqueie 50 conteúdos exclusivos, canais ao vivo, vantagens na VN e muito mais.</p>
-
-        <div style="display:flex; gap:10px; margin-top:18px; flex-wrap:wrap;">
-          <button id="btnSouAssinante" class="back-to-info-btn">Sou assinante</button>
-          <button id="btnQueroAssinar" class="back-to-info-btn">Quero assinar</button>
-        </div>
-
-        <div id="plusExtra" style="margin-top:16px; color:#cfcfcf; font-size:14px;">
-          <p><strong>Planos:</strong></p>
-          <ul style="margin:6px 0 0 18px; padding:0;">
-            <li>Mensal: R$ 9,90 / mês — Conta individual, 3 canais ao vivo, + conteúdos Plus+</li>
-            <li>Anual (Premium): 12x R$10,17 — Até 3 telas, compras habilitadas, conta família (2 convidados)</li>
-          </ul>
-        </div>
-
-        <!-- Área que será substituída dinamicamente (planos / token input) -->
-        <div id="plusDynamicArea" style="margin-top:18px;"></div>
-
-        <div id="adminPanel" style="margin-top:18px; display:none; border-top:1px dashed rgba(255,255,255,0.06); padding-top:12px;">
-          <p style="margin:0 0 8px 0; color:#9ad89a;"><strong>Admin (visível se ativado)</strong></p>
-          <button id="adminGenTokensBtn" class="back-to-info-btn" style="background:#3b9f3b;">Gerar tokens (ex.: 3000)</button>
-          <small style="display:block;margin-top:8px;color:#bbb">Use para gerar tokens e baixar CSV. Veja instruções abaixo.</small>
-        </div>
-      </div>
+      <div id="plusInfoText" class="plus-small">Desbloqueie 50 conteúdos exclusivos e vantagens na VN.</div>
     </div>
+
+    <!-- Container dinâmico onde aparecem as views (token input / planos / mensagens) -->
+    <div id="plusDynamic" style="width:100%;"></div>
+
   </div>
 </div>
 
-<!-- Seção Plus+ (conteúdo exclusivo) -->
-<section id="plusSection" class="movie-section" style="display:none;">
-  <h2>💎 GL+ — Exclusivo</h2>
-  <p style="color:#cfcfcf; margin-top:6px;">Conteúdos selecionados para assinantes GL+.</p>
-  <ul id="plusMovieGrid" class="movie-grid" style="margin-top:20px;"></ul>
+<!-- Seção exclusiva Plus+ (visível somente quando for assinante) -->
+<section id="plusSection" class="movie-section plus-catalog" style="display:none;">
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <h2 class="section-title">💎 GL+ Exclusivo</h2>
+    <div>
+      <button id="btnPlusSignOut" class="back-to-info-btn" style="position:static;padding:8px 12px;border-radius:8px;margin-left:10px;display:none;">Sair do GL+</button>
+    </div>
+  </div>
+
+  <p class="plus-small">Abaixo os 50 conteúdos mais aclamados do catálogo. Apenas assinantes veem esta seção.</p>
+
+  <ul id="plus-movie-grid" class="movie-grid">
+    <!-- ADICIONE OS 50 FILMES PLUS+ AQUI (serão preenchidos automaticamente com os 50 primeiros do movieData) -->
+  </ul>
 </section>
 
 <script>
-/* ====== SCRIPT: Plus+ (colar no final do index) ====== */
+/* === CONFIGURAÇÕES === */
+/* Cole aqui a lista de tokens válidos se quiser validação automática.
+   Exemplo:
+   const VALID_TOKENS = { 'GL-ABC123': {type: 'mensal'}, 'GL-PREM-0001': {type: 'anual'} };
+   Obs: por segurança, mantenha essa lista em local seguro; sem backend, a lista ficará visível no código.
+*/
+const VALID_TOKENS = {}; // <-- opcional: cole tokens aqui no formato {'TOKEN123': {type:'mensal'|'anual'}} 
 
-/* Utilidades gerais */
-function qs(sel){ return document.querySelector(sel); }
-function qsa(sel){ return Array.from(document.querySelectorAll(sel)); }
+/* Insira seus links do Mercado Pago aqui (substitua os placeholders abaixo) */
+const LINK_PAGAMENTO_MENSAL = '<!-- ADICIONE O LINK DE PAGAMENTO MENSAL AQUI -->';
+const LINK_PAGAMENTO_ANUAL  = '<!-- ADICIONE O LINK DE PAGAMENTO ANUAL AQUI -->';
 
-/* --------------- Configuração --------------- */
-const PLUS_TOKEN_KEY = 'GLPLUS_ACTIVE_TOKEN';      // token ativo neste dispositivo
-const PLUS_EXP_KEY = 'GLPLUS_EXPIRA';              // data de expiração ISO string
-const PLUS_DB_KEY = 'GLPLUS_VALID_TOKENS';         // base de tokens válidos (armazenada localmente no navegador - ADMIN)
-const PLUS_ADMIN_FLAG = 'GLPLUS_ADMIN_ENABLED';    // habilita painel admin (defina manualmente no console)
-const PLUS_MAX_DEFAULT = { mensal:1, anual:3 };    // usos permitidos por plano (mensal:1, anual(premium):3)
-const PLUS_COUNT_SHOW = 50;                        // quantos filmes mostrar no catálogo Plus+
+/* === UTILIDADES === */
+function isSubscriptionActive() {
+  const exp = localStorage.getItem('GLPLUS_EXPIRA');
+  if (!exp) return false;
+  const now = new Date();
+  return new Date(exp) > now;
+}
+function clearSubscription() {
+  localStorage.removeItem('GLPLUS_TOKEN');
+  localStorage.removeItem('GLPLUS_EXPIRA');
+  localStorage.removeItem('GLPLUS_PREMIUM');
+}
 
-/* --------------- Inicialização --------------- */
-document.addEventListener('DOMContentLoaded', ()=>{
-
-  // Fecha modal quando clicar no X
-  qs('#plusModalClose').addEventListener('click', closePlusModal);
-
-  // Se o botão "Plus+" já existe no seu layout (texto ou atributo), liga o evento
-  bindPlusTrigger();
-
-  // Botões do modal
-  qs('#btnSouAssinante').addEventListener('click', openSouAssinante);
-  qs('#btnQueroAssinar').addEventListener('click', openQueroAssinar);
-
-  // Mostra admin panel se flag estiver ativa (defina no console: localStorage.setItem('GLPLUS_ADMIN_ENABLED','1'))
-  if(localStorage.getItem(PLUS_ADMIN_FLAG) === '1') {
-    qs('#adminPanel').style.display = 'block';
-    qs('#adminGenTokensBtn').addEventListener('click', ()=> {
-      const n = parseInt(prompt('Quantos tokens deseja gerar?', '3000'),10) || 3000;
-      const tipo = prompt('Tipo de token: "mensal" ou "anual"?', 'mensal') || 'mensal';
-      const maxUses = tipo === 'anual' ? 3 : 1;
-      const generated = adminGenerateTokens(n, tipo, maxUses); // gera e baixa CSV
-      alert('Gerados e baixados ' + generated.length + ' tokens. Verifique o arquivo .csv baixado.');
-    });
+/* Checa expiração no carregamento */
+(function(){
+  const exp = localStorage.getItem('GLPLUS_EXPIRA');
+  if (exp && new Date() <= new Date(exp)) {
+    // assinatura válida: deixa como está
+  } else {
+    // expirou ou não existe
+    if (exp) {
+      clearSubscription();
+      // opcional: notifica usuário
+      // alert('Sua assinatura GL+ expirou. Renove para continuar assistindo.');
+    }
   }
+})();
 
-  // Ao carregar a página, checar expiração e atualizar visibilidade do catálogo Plus+
-  checkAndExpire();
-  updatePlusVisibility();
+/* === ABRIR / FECHAR MODAL === */
+function openPlusModal() {
+  const modal = document.getElementById('plusModal');
+  document.body.style.overflow = 'hidden';
+  modal.style.display = 'flex';
+  renderPlusDefault();
+}
+function closePlusModal() {
+  const modal = document.getElementById('plusModal');
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+/* Fecha ao clicar no X */
+document.getElementById('plusModalClose').addEventListener('click', closePlusModal);
+
+/* === RENDER VIEWS DENTRO DO MODAL === */
+function renderPlusDefault(){
+  const dyn = document.getElementById('plusDynamic');
+  dyn.innerHTML = `
+    <div style="text-align:center;margin-top:8px;">
+      <p class="plus-small">Escolha uma opção para prosseguir</p>
+    </div>
+  `;
+}
+
+/* VIEW: Sou assinante (input token) */
+function renderSouAssinante(){
+  const dyn = document.getElementById('plusDynamic');
+  dyn.innerHTML = `
+    <div style="text-align:center;">
+      <div class="plus-token-box">
+        <input id="plusTokenInput" placeholder="Cole seu código de ativação GL+">
+        <button id="plusActivateBtn" class="btn-primary">Ativar</button>
+      </div>
+      <div style="margin-top:8px;">
+        <button id="plusAskManual" class="btn-secondary">Não tenho código (ver instruções)</button>
+      </div>
+      <p class="plus-small" style="margin-top:10px;">Se você já recebeu o token após o pagamento, cole aqui para ativar.</p>
+    </div>
+  `;
+  document.getElementById('plusActivateBtn').addEventListener('click', () => {
+    const code = document.getElementById('plusTokenInput').value.trim();
+    if (!code) { alert('Digite um token válido'); return; }
+    // validação opcional via lista de tokens (se preenchida)
+    if (Object.keys(VALID_TOKENS).length > 0) {
+      if (!VALID_TOKENS[code]) { alert('Token inválido.'); return; }
+      // token válido conforme a lista: detecta tipo
+      const info = VALID_TOKENS[code];
+      activateTokenLocal(code, info.type === 'anual' ? 'anual' : 'mensal');
+      return;
+    }
+    // se não há lista de tokens no código: aceita qualquer token e pergunta tipo (mensal/anual)
+    const escolha = prompt('Qual plano este token representa? digite "mensal" ou "anual" (sem aspas):');
+    if (!escolha) return;
+    const tipo = escolha.toLowerCase().includes('anu') ? 'anual' : 'mensal';
+    activateTokenLocal(code, tipo);
+  });
+  document.getElementById('plusAskManual').addEventListener('click', () => {
+    alert('Após efetuar o pagamento, envie a solicitação de ativação com o comprovante para que possamos fornecer o token. (ou cole o token que recebeu)');
+  });
+}
+
+/* VIEW: Quero assinar (mostra planos com imagens) */
+function renderQueroAssinar(){
+  const dyn = document.getElementById('plusDynamic');
+  dyn.innerHTML = `
+    <div style="text-align:center;">
+      <h3>Escolha o plano</h3>
+      <div class="plus-plans">
+        <div class="plus-plan" id="plan-mensal" title="Plano Mensal">
+          <img src="https://i.postimg.cc/1zVykNFc/Plano-b-sico-mensal.jpg" alt="Mensal">
+          <div class="plan-body">
+            <strong>Básico - R$9,90/mês</strong>
+            <p class="plus-small" style="margin-top:8px;">
+              • até 8% de desconto na VN<br>
+              • 3 canais ao vivo<br>
+              • Conteúdos Plus+ (resolução melhorada)<br>
+              • Conta individual<br>
+              • Compras indisponíveis
+            </p>
+          </div>
+        </div>
+
+        <div class="plus-plan" id="plan-anual" title="Plano Anual">
+          <img src="https://i.postimg.cc/9fbhYKqn/Plano-anual.jpg" alt="Anual">
+          <div class="plan-body">
+            <strong>Premium - 12xR$10,17 (R$99,90)</strong>
+            <p class="plus-small" style="margin-top:8px;">
+              • até 15% de desconto na VN<br>
+              • +6 canais ao vivo<br>
+              • Resolução até Full HD<br>
+              • Até 3 telas simultâneas<br>
+              • Compras disponíveis (exclusivo)<br>
+              • Conta para família (2 convidados)
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <p class="plus-small" style="margin-top:12px;">Ao confirmar você será levado ao pagamento. Após concluir, volte e use "Sou assinante" para ativar o token.</p>
+    </div>
+  `;
+  // eventos
+  document.getElementById('plan-mensal').addEventListener('click', () => confirmPlan('mensal'));
+  document.getElementById('plan-anual').addEventListener('click', () => confirmPlan('anual'));
+}
+
+/* CONFIRMAÇÃO e abertura do link de pagamento (apenas abre a URL; substitua as constantes) */
+function confirmPlan(tipo) {
+  const texto = tipo === 'anual' ?
+    'Plano Premium Anual (R$99,90). Vantagens: resol. Full HD, até 3 telas, compras disponíveis, família (2 convidados). Deseja prosseguir?' :
+    'Plano Básico Mensal (R$9,90). Vantagens: 3 canais, conteúdos Plus+, conta individual. Deseja prosseguir?';
+  if (!confirm(texto)) return;
+  if (tipo === 'mensal') {
+    // Abra o link mensal (colar o link real no topo da configuração)
+    if (LINK_PAGAMENTO_MENSAL.includes('ADICIONE')) {
+      alert('Coloque o link de pagamento mensal no código (const LINK_PAGAMENTO_MENSAL).');
+    } else {
+      window.open(LINK_PAGAMENTO_MENSAL, '_blank');
+    }
+  } else {
+    // Anual
+    if (LINK_PAGAMENTO_ANUAL.includes('ADICIONE')) {
+      alert('Coloque o link de pagamento anual no código (const LINK_PAGAMENTO_ANUAL).');
+    } else {
+      window.open(LINK_PAGAMENTO_ANUAL, '_blank');
+    }
+  }
+}
+
+/* Ativa o token localmente (gera expiração dependendo do tipo) */
+function activateTokenLocal(code, tipo) {
+  const now = new Date();
+  const exp = new Date(now);
+  if (tipo === 'anual') {
+    exp.setFullYear(now.getFullYear() + 1);
+    localStorage.setItem('GLPLUS_PREMIUM', 'true');
+  } else {
+    exp.setDate(now.getDate() + 30);
+  }
+  localStorage.setItem('GLPLUS_TOKEN', code);
+  localStorage.setItem('GLPLUS_EXPIRA', exp.toISOString());
+  alert('Assinatura ativada com sucesso!');
+  closePlusModal();
+  renderPlusCatalog(); // mostra catálogo
+}
+
+/* === mostre a seção Plus+ (catalogo) e esconda as outras === */
+function hideAllMainSections(){
+  // esconde as seções principais (movie-section e content-section)
+  document.querySelectorAll('.movie-section, .content-section').forEach(el => el.style.display = 'none');
+}
+function renderPlusCatalog(){
+  if (!isSubscriptionActive()) {
+    alert('Assinatura não ativa ou expirada. Ative para ver conteúdos Plus+.');
+    return;
+  }
+  // exibe só a seção Plus+
+  hideAllMainSections();
+  document.getElementById('plusSection').style.display = 'block';
+  // mostra botão sair GL+
+  const btnOut = document.getElementById('btnPlusSignOut');
+  btnOut.style.display = 'inline-block';
+  btnOut.onclick = () => {
+    if (!confirm('Deseja sair da assinatura local neste dispositivo?')) return;
+    clearSubscription();
+    btnOut.style.display = 'none';
+    document.getElementById('plusSection').style.display = 'none';
+    // opcional: volta para home
+    document.getElementById('home')?.scrollIntoView();
+  };
+
+  // popula os 50 primeiros filmes do movieData (se existir)
+  const grid = document.getElementById('plus-movie-grid');
+  grid.innerHTML = '';
+  if (!window.movieData || !Array.isArray(window.movieData)) {
+    grid.innerHTML = '<li class="movie-item">Nenhum conteúdo encontrado.</li>';
+    return;
+  }
+  const items = window.movieData.slice(0,50); // pega os 50 primeiros
+  items.forEach(m => {
+    const li = document.createElement('li');
+    li.className = 'movie-item';
+    li.style.cursor = 'pointer';
+    li.innerHTML = `
+      <img src="${m.poster || ''}" alt="${m.title}">
+      <button class="add-to-list-btn" title="Adicionar à minha lista"><i class="fa fa-plus"></i></button>
+    `;
+    li.addEventListener('click', () => openMovieModal(m));
+    // add-to-list handler (mesma lógica que você usa)
+    const addBtn = li.querySelector('.add-to-list-btn');
+    addBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // lógica simples de adicionar na minha lista (salva por id)
+      const myList = JSON.parse(localStorage.getItem('GL_MY_LIST') || '[]');
+      if (!myList.includes(m.id)) {
+        myList.push(m.id);
+        localStorage.setItem('GL_MY_LIST', JSON.stringify(myList));
+        addBtn.innerHTML = '<i class="fa fa-check"></i>';
+      } else {
+        // remover
+        const idx = myList.indexOf(m.id);
+        if (idx > -1) myList.splice(idx,1);
+        localStorage.setItem('GL_MY_LIST', JSON.stringify(myList));
+        addBtn.innerHTML = '<i class="fa fa-plus"></i>';
+      }
+    });
+    grid.appendChild(li);
+  });
+}
+
+/* abre o modal do filme reutilizando o modal existente (movie-modal) */
+function openMovieModal(movie) {
+  // reusa estrutura do seu #movie-modal para exibir info do filme selecionado
+  const modal = document.getElementById('movie-modal');
+  if (!modal) return;
+  document.getElementById('modal-poster').src = movie.poster || '';
+  document.getElementById('modal-title').textContent = movie.title || '';
+  document.getElementById('modal-year').textContent = movie.year || '';
+  document.getElementById('modal-genres').textContent = (movie.genres || []).join(' • ');
+  document.getElementById('modal-description').textContent = movie.description || '';
+  // mostra modal
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+/* evento de fechar do movie-modal (já existe na página, mas garantir) */
+document.querySelectorAll('.close-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+    document.body.style.overflow = '';
+  });
 });
 
-/* --------------- BIND do gatilho Plus+ --------------- */
-function bindPlusTrigger(){
-  // tenta achar elementos do menu que tenham texto 'Plus' (ou 'Plus+')
-  const candidates = Array.from(document.querySelectorAll('a,button,div,span'));
-  for(const el of candidates){
-    try{
-      const txt = (el.textContent||'').trim().toLowerCase();
-      if(txt === 'plus+' || txt === 'plus' || txt === 'gl+') {
-        el.addEventListener('click', (e)=>{ e.preventDefault(); openPlusModal(); });
-        // também marca um atributo para referência futura
-        el.setAttribute('data-plus-trigger','1');
-      }
-    }catch(err){}
-  }
-  // fallback: se tiver bottom-nav com link "Plus+", tenta selecionar
-  const bottom = document.querySelector('.bottom-nav a');
-  if(bottom && (bottom.textContent||'').toLowerCase().includes('plus')) {
-    bottom.addEventListener('click', (e)=>{ e.preventDefault(); openPlusModal(); });
-  }
-}
+/* === LIGAÇÕES DE BOTÕES === */
+document.getElementById('plusBtnSou').addEventListener('click', renderSouAssinante);
+document.getElementById('plusBtnQuero').addEventListener('click', renderQueroAssinar);
 
-/* --------------- Modal / UI --------------- */
-function openPlusModal(){
-  // abre modal (mantém o estilo do seu modal)
-  qs('#plusModal').style.display = 'flex';
-  // Renderiza conteúdo padrão (pôster + botões)
-  renderPlusDefault();
-}
-
-function closePlusModal(){
-  qs('#plusModal').style.display = 'none';
-  // restaura conteúdo padrão se foi alterado
-  renderPlusDefault();
-}
-
-function renderPlusDefault(){
-  const container = qs('#plusDynamicArea');
-  container.innerHTML = '<p style="color:#ddd">Escolha uma opção para ativar seu acesso GL+.</p>';
-}
-
-/* --------------- Sou Assinante --------------- */
-function openSouAssinante(){
-  const dyn = qs('#plusDynamicArea');
-  dyn.innerHTML = `
-    <div style="display:flex;flex-direction:column; gap:10px; margin-top:6px;">
-      <input id="plusTokenInput" placeholder="Cole seu token aqui" style="padding:10px;border-radius:6px;border:1px solid #2b2b2b;background:#0f0f0f;color:#fff;">
-      <div style="display:flex;gap:8px;">
-        <button id="btnAtivarToken" class="back-to-info-btn">Ativar</button>
-        <button id="btnVerStatus" class="back-to-info-btn" style="background:#333">Verificar status</button>
-      </div>
-      <small style="color:#bbb">Se não tiver token, clique em "Quero assinar".</small>
-    </div>
-  `;
-  qs('#btnAtivarToken').addEventListener('click', ()=> {
-    const code = qs('#plusTokenInput').value.trim();
-    if(!code) { alert('Insira um token.'); return; }
-    const result = redeemToken(code);
-    if(result.ok){
-      alert('Token válido! Assinatura ativada.');
-      closePlusModal();
-      updatePlusVisibility();
-    } else {
-      alert('Token inválido ou já usado no máximo permitido.');
+/* Faz com que o clique na aba Plus+ do bottom nav abra o modal ou vá pro catálogo */
+(function attachPlusNav() {
+  // procura qualquer item do bottom-nav com texto 'plus' (insensível)
+  const navAnchors = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+  navAnchors.forEach(a => {
+    if ((a.textContent || '').toLowerCase().includes('plus')) {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        // se tem assinatura ativa, abre catálogo; senão, abre modal
+        if (isSubscriptionActive()) {
+          renderPlusCatalog();
+        } else {
+          openPlusModal();
+        }
+      });
     }
   });
+})();
 
-  qs('#btnVerStatus').addEventListener('click', ()=> {
-    const active = localStorage.getItem(PLUS_TOKEN_KEY);
-    const exp = localStorage.getItem(PLUS_EXP_KEY);
-    if(active && exp) {
-      alert('Ativo: ' + active + '\nExpira em: ' + new Date(exp).toLocaleString());
-    } else {
-      alert('Nenhuma assinatura ativa neste dispositivo.');
-    }
-  });
-}
+/* Quando o usuário fechar qualquer modal com click fora, garante fechar */
+window.addEventListener('click', (ev) => {
+  const plusModal = document.getElementById('plusModal');
+  if (ev.target === plusModal) closePlusModal();
+});
 
-/* --------------- Quero Assinar --------------- */
-function openQueroAssinar(){
-  const dyn = qs('#plusDynamicArea');
-  dyn.innerHTML = `
-    <div style="display:flex;flex-direction:column; gap:12px;">
-      <p style="margin:0;color:#ddd">Escolha um plano:</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <div style="flex:1; min-width:140px; max-width:220px; background:#111; padding:10px; border-radius:8px; text-align:center;">
-          <img src="https://i.postimg.cc/1zVykNFc/Plano-b-sico-mensal.jpg" alt="Mensal" style="width:100%; height:auto; border-radius:6px;">
-          <p style="margin:8px 0 4px 0; font-weight:bold;">Mensal — R$9,90</p>
-          <button id="chooseMensal" class="back-to-info-btn" style="width:100%;">Selecionar</button>
-        </div>
-
-        <div style="flex:1; min-width:140px; max-width:220px; background:#111; padding:10px; border-radius:8px; text-align:center;">
-          <img src="https://i.postimg.cc/9fbhYKqn/Plano-anual.jpg" alt="Anual" style="width:100%; height:auto; border-radius:6px;">
-          <p style="margin:8px 0 4px 0; font-weight:bold;">Anual — R$99,90</p>
-          <button id="chooseAnual" class="back-to-info-btn" style="width:100%;">Selecionar</button>
-        </div>
-      </div>
-      <small style="color:#bbb">Ao confirmar, você será redirecionado para o pagamento. Depois, retorne aqui em "Sou assinante" e cole o token que você receber.</small>
-    </div>
-  `;
-
-  qs('#chooseMensal').addEventListener('click', ()=> confirmPlan('mensal'));
-  qs('#chooseAnual').addEventListener('click', ()=> confirmPlan('anual'));
-}
-
-function confirmPlan(tipo){
-  // mostra vantagens e confirma
-  let vantagens = '';
-  if(tipo === 'mensal'){
-    vantagens = `Básico — R$ 9,90/mês\n\n• até 8% de desconto na VN\n• 3 canais ao vivo e programas\n• Resolução melhorada em conteúdos Plus+\n• Conteúdos Plus+\n• Conta individual\n• Compra indisponível`;
-  } else {
-    vantagens = `Premium (Anual) — R$99,90\n\n• até 15% de desconto na VN\n• +6 canais ao vivo e programas\n• Resolução até Full HD\n• Conteúdos Plus+\n• até 3 telas simultâneas\n• Compras disponíveis\n• Conta para Família (adicione até 2 familiares)\n• Parcele o plano anual em até 12x`;
+/* Renderiza automaticamente o catálogo se assinatura ativa ao carregar */
+window.addEventListener('load', () => {
+  if (isSubscriptionActive()) {
+    // não abrir modal automaticamente, mas deixa a aba visível quando o usuário clicar
+    // opcional: comentar a próxima linha se não quiser abrir direto
+    // renderPlusCatalog();
   }
+});
 
-  if(confirm(`Plano ${tipo.toUpperCase()}\n\n${vantagens}\n\nDeseja prosseguir para o pagamento?`)){
-    // AQUI VOCÊ COLE O LINK DO MERCADO PAGO correspondente ao plano
-    if(tipo === 'mensal'){
-      // window.open('COLE_AQUI_LINK_MENSAL', '_blank');
-      alert('ABRIR LINK DO PAGAMENTO MENSAL (COLE O LINK NO CÓDIGO).');
-    } else {
-      // window.open('COLE_AQUI_LINK_ANUAL', '_blank');
-      alert('ABRIR LINK DO PAGAMENTO ANUAL (COLE O LINK NO CÓDIGO).');
-    }
-    // Instrução para admin: ao confirmar pagamento, envie um token ao comprador.
+/* Função utilitária: caso queira gerar tokens de teste localmente (uso offline)
+   NÃO salve tokens reais no código de produção.
+function generateTestTokens(n) {
+  const arr = [];
+  for (let i=0;i<n;i++){
+    const t = 'GLP-' + Math.random().toString(36).slice(2,10).toUpperCase();
+    arr.push(t);
   }
+  console.log('Tokens gerados:', arr);
+  return arr;
 }
+*/
 
-/* --------------- Token DB & Admin functions --------------- */
+</script>
 
-/**
- * Gera tokens administrativos e baixa CSV.
- * Uso (admin): adminGenerateTokens(3000,'mensal',1)
- */
-function adminGenerateTokens(count=1000, plan='mensal', maxUses=1){
-  const out = [];
-  const now = Date.now();
-  // carrega DB existente (obj: { token: {plan, maxUses, uses: [ {deviceId, when} ], created } })
-  const db = JSON.parse(localStorage.getItem(PLUS_DB_KEY) || '{}');
-
-  for(let i=0;i<count;i++){
-    // formato: GL-<planprefix>-<timestamp>-<rand>
-    const prefix = plan === 'anual' ? 'A' : 'M';
-    const token = `GL-${prefix}-${(now + i).toString(36)}-${Math.random().toString(36).slice(2,8).toUpperCase()}`;
-    db[token] = { plan: plan, maxUses: maxUses, uses: [], created: new Date().toISOString() };
-    out.push({ token, plan, maxUses });
-  }
-  localStorage.setItem(PLUS_DB_KEY, JSON.stringify(db));
-  // baixa CSV
-  const csv = out.map(r => `${r.token},${r.plan},${r.maxUses}`).join('\n');
-  const blob = new Blob([ 'token,plan,maxUses\n' + csv ], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `glplus_tokens_${new Date().toISOString().slice(0,10)}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-  return out;
-}
-
-/**
- * Tenta consumir (usar) um token:
- * - valida existência
- * - valida se ainda tem uso disponível
- * - registra uso com deviceId e atribui expiração no dispositivo
- */
-function redeemToken(tokenStr){
-  const token = (tokenStr||'').trim();
-  if(!token) return { ok:false, msg:'vazio' };
-
-  const db = JSON.parse(localStorage.getItem(PLUS_DB_KEY) || '{}');
-  if(!db[token]) return { ok:false, msg:'nao_encontrado' };
-
-  const rec = db[token];
-  // device identifier (gera e salva id no localStorage se não existir)
-  let devId = localStorage.getItem('GL_DEVICE_ID');
-  if(!devId){
-    devId = 'DEV-' + Math.random().toString(36).slice(2,10).toUpperCase();
-    localStorage.setItem('GL_DEVICE_ID', devId);
-  }
-
-  // verifica se esse dispositivo já usou este token
-  const usedByThis = rec.uses.find(u => u.deviceId === devId);
-  if(usedByThis){
-    // permite re-ativar e renovar expiração: atribui nova validade conforme plano
-    const durationDays = rec.plan === 'anual' ? 365 : 30;
-    const exp = new Date(); exp.setDate(exp.getDate() + durationDays);
-    localStorage.setItem(PLUS_TOKEN_KEY, token);
-    localStorage.setItem(PLUS_EXP_KEY, exp.toISOString());
-    return { ok:true, msg:'reativado' };
-  }
-
-  // se não usado por esse device, checar se há vagas (maxUses)
-  if(rec.uses.length >= rec.maxUses) return { ok:false, msg:'sem_usos' };
-
-  // registrar uso
-  rec.uses.push({ deviceId: devId, when: new Date().toISOString() });
-  db[token] = rec;
-  localStorage.setItem(PLUS_DB_KEY, JSON.stringify(db));
-
-  // ativa token nesse dispositivo com validade
-  const durationDays = rec.plan === 'anual' ? 365 : 30;
-  const exp = new Date(); exp.setDate(exp.getDate() + durationDays);
-  localStorage.setItem(PLUS_TOKEN_KEY, token);
-  localStorage.setItem(PLUS_EXP_KEY, exp.toISOString());
-
-  return { ok:true, msg:'ativado', plan: rec.plan };
-}
-
-/* --------------- Verificação automática de expiração --------------- */
-function checkAndExpire(){
-  const exp = localStorage.getItem(PLUS_EXP_KEY);
-  if(!exp) return;
-  const now = new Date();
-  if(new Date(exp) <= now){
-    // remove token e expiração
-    localStorage.removeItem(PLUS_TOKEN_KEY);
-    localStorage.removeItem(PLUS_EXP_KEY);
-    // opcional: avisar
-    // alert('Sua assinatura GL+ expirou. Renove para continuar assistindo.');
-  }
-}
-
-/* --------------- Visibilidade do catálogo Plus+ --------------- */
-function updatePlusVisibility(){
-  checkAndExpire();
-  const token = localStorage.getItem(PLUS_TOKEN_KEY);
-  const exp = localStorage.getItem(PLUS_EXP_KEY);
-  const plusSection = qs('#plusSection');
-  if(token && exp && new Date() < new Date(exp)){
-    // mostra a seção plus (
+<!-- === FIM: Plus+ === -->
 </body>
 </html>
