@@ -2148,97 +2148,68 @@ const VALID_TOKENS = (function(){
 /* ----- UTILS ----- */
 function wait(ms){ return new Promise(res=>setTimeout(res,ms)); }
 
-/* ----- Função principal: seleciona os 50 primeiros e os remove do Home ----- */
-async function moveTopToPlus(){
-// seleciona exatamente os 50 filmes exclusivos definidos manualmente
-const plusTitles = [
-  "Os Dez Mandamentos", "O Grande Ditador", "Tempos Modernos", "Metropolis", "O Garoto",
-  "O Circo", "Luzes da Cidade", "Em Busca do Ouro", "O Retrato de Jennie", "O Homem que eu Deveria Odiar",
-  "O Anjo e o Bandido", "Missão Perigosa", "O Terceiro Tiro", "Interlúdio", "Nada de Novo no Front",
-  "A Nave da Revolta", "Cidade Nua", "Farrapo Humano", "A Sombra da Morte", "Mistério na Casa de Bambu",
-  "As Neves do Kilimanjaro", "Sob o Signo de Capricórnio", "O Tesouro do Condor de Ouro", "O Rio da Navalha", "Rochedos da Morte",
-  "A Paixão de Joana d’Arc", "O Gabinete do Dr. Caligari", "Nosferatu", "Frankenstein", "Carnival of Souls",
-  "O Fantasma da Ópera", "Rebecca", "Charada", "O Cisne Negro", "As Três Faces de Eva",
-  "Aconteceu num Apartamento", "Amar foi uma Ruína", "A Dama de Shanghai", "A Última Vez que Vi Paris", "A Caldeira do Diabo",
-  "Zaroff, o Caçador de Vidas", "The Lost World", "A Vila dos Insetos", "João e o Pé de Feijão", "O Pássaro Azul",
-  "Viagem à Lua", "Popeye encontra o Marinheiro Sindbad", "Superman", "O Inventor da Mocidade", "As Viagens de Gulliver"
-];
-const plusItems = window.movieData.filter(m => plusTitles.includes(m.title));
-  if(!window.movieData || !Array.isArray(window.movieData) || window.movieData.length === 0) {
+/* ----- Função principal: move os 50 filmes específicos para a Plus+ ----- */
+async function moveTopToPlus() {
+  // garante que movieData exista
+  if (!window.movieData || !Array.isArray(window.movieData) || window.movieData.length === 0) {
     console.warn('movieData não encontrado ou vazio — movendo Plus+ cancelado.');
     return;
   }
 
-
   // seleciona exatamente os 50 filmes exclusivos definidos manualmente
-const plusTitles = [
-  "Os Dez Mandamentos", "O Grande Ditador", "Tempos Modernos", "Metropolis", "O Garoto",
-  "O Circo", "Luzes da Cidade", "Em Busca do Ouro", "O Retrato de Jennie", "O Homem que eu Deveria Odiar",
-  "O Anjo e o Bandido", "Missão Perigosa", "O Terceiro Tiro", "Interlúdio", "Nada de Novo no Front",
-  "A Nave da Revolta", "Cidade Nua", "Farrapo Humano", "A Sombra da Morte", "Mistério na Casa de Bambu",
-  "As Neves do Kilimanjaro", "Sob o Signo de Capricórnio", "O Tesouro do Condor de Ouro", "O Rio da Navalha", "Rochedos da Morte",
-  "A Paixão de Joana d’Arc", "O Gabinete do Dr. Caligari", "Nosferatu", "Frankenstein", "Carnival of Souls",
-  "O Fantasma da Ópera", "Rebecca", "Charada", "O Cisne Negro", "As Três Faces de Eva",
-  "Aconteceu num Apartamento", "Amar foi uma Ruína", "A Dama de Shanghai", "A Última Vez que Vi Paris", "A Caldeira do Diabo",
-  "Zaroff, o Caçador de Vidas", "The Lost World", "A Vila dos Insetos", "João e o Pé de Feijão", "O Pássaro Azul",
-  "Viagem à Lua", "Popeye encontra o Marinheiro Sindbad", "Superman", "O Inventor da Mocidade", "As Viagens de Gulliver"
-];
-const plusItems = window.movieData.filter(m => plusTitles.includes(m.title));
+  const plusTitles = [
+    "Os Dez Mandamentos", "O Grande Ditador", "Tempos Modernos", "Metropolis", "O Garoto",
+    "O Circo", "Luzes da Cidade", "Em Busca do Ouro", "O Retrato de Jennie", "O Homem que eu Deveria Odiar",
+    "O Anjo e o Bandido", "Missão Perigosa", "O Terceiro Tiro", "Interlúdio", "Nada de Novo no Front",
+    "A Nave da Revolta", "Cidade Nua", "Farrapo Humano", "A Sombra da Morte", "Mistério na Casa de Bambu",
+    "As Neves do Kilimanjaro", "Sob o Signo de Capricórnio", "O Tesouro do Condor de Ouro", "O Rio da Navalha", "Rochedos da Morte",
+    "A Paixão de Joana d’Arc", "O Gabinete do Dr. Caligari", "Nosferatu", "Frankenstein", "Carnival of Souls",
+    "O Fantasma da Ópera", "Rebecca", "Charada", "O Cisne Negro", "As Três Faces de Eva",
+    "Aconteceu num Apartamento", "Amar foi uma Ruína", "A Dama de Shanghai", "A Última Vez que Vi Paris", "A Caldeira do Diabo",
+    "Zaroff, o Caçador de Vidas", "The Lost World", "A Vila dos Insetos", "João e o Pé de Feijão", "O Pássaro Azul",
+    "Viagem à Lua", "Popeye encontra o Marinheiro Sindbad", "Superman", "O Inventor da Mocidade", "As Viagens de Gulliver"
+  ];
 
-    
+  const plusItems = window.movieData.filter(m => plusTitles.includes(m.title));
+
   // grava lista no localStorage pra referência futura
-  localStorage.setItem('GLPLUS_IDS', JSON.stringify(plusItems.map(p=>p.id)));
+  localStorage.setItem('GLPLUS_IDS', JSON.stringify(plusItems.map(p => p.id)));
 
-  // aguarda renderização inicial (se seu código popula o DOM assincronamente)
-  await wait(400); // se achar necessário, aumente p/800
+  // aguarda renderização inicial
+  await new Promise(res => setTimeout(res, 400));
 
-  // remove dos grids existentes procurando por imagens com alt == título
+  // remove os selecionados do catálogo normal (Home)
   plusItems.forEach(p => {
-    // procura por imagens com alt exato
     const imgs = document.querySelectorAll(`img[alt="${CSS.escape ? CSS.escape(p.title) : p.title}"]`);
     imgs.forEach(img => {
-      // caminha até o elemento 'movie-item' pai e remove
-      let parent = img.closest('.movie-item');
-      if(parent) parent.remove();
-      else {
-        // tenta remover o li que contenha a imagem
-        let li = img.closest('li');
-        if(li) li.remove();
-      }
-    });
-
-    // também tenta remover por src caso alt não bata (algumas entradas podem não ter alt consistente)
-    const imgsBySrc = document.querySelectorAll(`img[src*="${p.id}"], img[src*="${encodeURIComponent(p.title)}"]`);
-    imgsBySrc.forEach(img => {
-      let parent = img.closest('.movie-item');
-      if(parent) parent.remove();
+      const parent = img.closest('.movie-item') || img.closest('li');
+      if (parent) parent.remove();
     });
   });
 
-  // popula a seção Plus+ usando o próprio movieData (pega os objetos completos)
+  // popula a seção Plus+
   const plusGrid = document.getElementById('plus-movie-grid');
-  if(!plusGrid) {
+  if (!plusGrid) {
     console.warn('plus-movie-grid não encontrado no DOM.');
     return;
   }
+
   plusGrid.innerHTML = '';
-  const items = window.movieData.slice(0, PLUS_COUNT);
-  items.forEach(m => {
+  plusItems.forEach(m => {
     const li = document.createElement('li');
     li.className = 'movie-item';
     li.style.cursor = 'pointer';
     li.dataset.movieId = m.id;
     li.innerHTML = `
-      <img src="${m.poster || ''}" alt="${(m.title||'').replace(/"/g,'&quot;')}">
+      <img src="${m.poster || ''}" alt="${(m.title || '').replace(/"/g, '&quot;')}">
       <button class="add-to-list-btn" title="Adicionar à minha lista"><i class="fa fa-plus"></i></button>
     `;
-    // clique abre modal (reaproveita função já existente se houver)
     li.addEventListener('click', () => {
       if (typeof openMovieModal === 'function') openMovieModal(m);
       else console.log('Abra modal do filme (falta openMovieModal):', m.title);
     });
 
-    // add-to-list handler (mesma lógica já usada no index)
+    // botão "adicionar à minha lista"
     const addBtn = li.querySelector('.add-to-list-btn');
     addBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -2249,7 +2220,7 @@ const plusItems = window.movieData.filter(m => plusTitles.includes(m.title));
         addBtn.innerHTML = '<i class="fa fa-check"></i>';
       } else {
         const idx = myList.indexOf(m.id);
-        if (idx > -1) myList.splice(idx,1);
+        if (idx > -1) myList.splice(idx, 1);
         localStorage.setItem('GL_MY_LIST', JSON.stringify(myList));
         addBtn.innerHTML = '<i class="fa fa-plus"></i>';
       }
@@ -2258,7 +2229,7 @@ const plusItems = window.movieData.filter(m => plusTitles.includes(m.title));
     plusGrid.appendChild(li);
   });
 
-  console.log(`Movidos ${items.length} itens para Plus+ e removidos da visualização padrão (se encontrados).`);
+  console.log(`Movidos ${plusItems.length} filmes exclusivos para Plus+ e removidos do Home.`);
 }
 
 /* ----- Chamadas automatizadas no load ----- */
