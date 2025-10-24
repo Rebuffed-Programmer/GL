@@ -2150,7 +2150,7 @@ function wait(ms){ return new Promise(res=>setTimeout(res,ms)); }
 
 /* ----- Função principal: seleciona os 50 primeiros e os remove do Home ----- */
 async function moveTopToPlus(){
-    // seleciona exatamente os 50 filmes exclusivos definidos manualmente
+// seleciona exatamente os 50 filmes exclusivos definidos manualmente
 const plusTitles = [
   "Os Dez Mandamentos", "O Grande Ditador", "Tempos Modernos", "Metropolis", "O Garoto",
   "O Circo", "Luzes da Cidade", "Em Busca do Ouro", "O Retrato de Jennie", "O Homem que eu Deveria Odiar",
@@ -2164,7 +2164,6 @@ const plusTitles = [
   "Viagem à Lua", "Popeye encontra o Marinheiro Sindbad", "Superman", "O Inventor da Mocidade", "As Viagens de Gulliver"
 ];
 const plusItems = window.movieData.filter(m => plusTitles.includes(m.title));
-  // garante que movieData exista
   if(!window.movieData || !Array.isArray(window.movieData) || window.movieData.length === 0) {
     console.warn('movieData não encontrado ou vazio — movendo Plus+ cancelado.');
     return;
