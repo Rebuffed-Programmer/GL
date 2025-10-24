@@ -1793,7 +1793,7 @@ function assistirAgora(url) {
 <ul id="plus-movie-grid" class="movie-grid"></ul>
 
 <script>
-const moveTopToPlus = [
+const plusData = [
 { id: 128, title: "Os Dez Mandamentos", year: "1956", description: "A grandiosa história de Moisés, desde seu nascimento no Egito até libertar os hebreus da escravidão e receber os Dez Mandamentos no Monte Sinai. Dirigido por Cecil B. DeMille.", poster: "https://i.postimg.cc/0QSXwLHk/Os-10-Mandamentos.jpg", genres: ["Bíblico", "Drama"], videoUrl: "https://drive.google.com/file/d/1X1rFI59rqPfwKomSfM-VkyrHjJSxuaqy/preview" },
 { id: 127, title: "O Anjo e Bandido", year: "1947", description: "Após ser ferido em um tiroteio, o pistoleiro Quirt Evans (John Wayne) é acolhido por uma família de quacres. O modo de vida pacífico deles e o amor de Penelope o fazem repensar seu passado violento.", poster: "https://i.postimg.cc/SK3tjyVR/o-anjo-e-o-bandido.png", genres: ["Faroeste", "Ação"], videoUrl: "https://drive.google.com/file/d/1eRlXsd6LMvOKpiQCjBjnGZXSVdq1T3kY/preview" },
 { id: 130, title: "O retrato de jennie", year: "1948", description: "Um pintor sem inspiração conhece uma garota misteriosa que parece envelhecer a cada encontro. Ele se apaixona por ela, sem saber que Jennie pertence a outro tempo.", poster: "https://i.postimg.cc/FRSCL2nm/o-retrato-de-jennie-1948.png", genres: ["Drama", "Romance"], videoUrl: "https://drive.google.com/file/d/1Kc4Isipv_3V_429UW_v04b5LE7iBVZYX/preview" },
@@ -2226,36 +2226,6 @@ function validateTokenServerless(code){
      if(!tipo) { alert('Token inválido'); return; }
      activateTokenLocal(code, tipo);
 */
-</script>
-<script>
-const plusData = [
-{ id: 128, title: "Os Dez Mandamentos", year: "1956", description: "A grandiosa história de Moisés, desde seu nascimento no Egito até libertar os hebreus da escravidão e receber os Dez Mandamentos no Monte Sinai. Dirigido por Cecil B. DeMille.", poster: "https://i.postimg.cc/0QSXwLHk/Os-10-Mandamentos.jpg", genres: ["Bíblico", "Drama"], videoUrl: "https://drive.google.com/file/d/1X1rFI59rqPfwKomSfM-VkyrHjJSxuaqy/preview" },
-{ id: 127, title: "O Anjo e Bandido", year: "1947", description: "Após ser ferido em um tiroteio, o pistoleiro Quirt Evans (John Wayne) é acolhido por uma família de quacres. O modo de vida pacífico deles e o amor de Penelope o fazem repensar seu passado violento.", poster: "https://i.postimg.cc/SK3tjyVR/o-anjo-e-o-bandido.png", genres: ["Faroeste", "Ação"], videoUrl: "https://drive.google.com/file/d/1eRlXsd6LMvOKpiQCjBjnGZXSVdq1T3kY/preview" },
-{ id: 130, title: "O retrato de jennie", year: "1948", description: "Um pintor sem inspiração conhece uma garota misteriosa que parece envelhecer a cada encontro. Ele se apaixona por ela, sem saber que Jennie pertence a outro tempo.", poster: "https://i.postimg.cc/FRSCL2nm/o-retrato-de-jennie-1948.png", genres: ["Drama", "Romance"], videoUrl: "https://drive.google.com/file/d/1Kc4Isipv_3V_429UW_v04b5LE7iBVZYX/preview" },
-{ id: 131, title: "O terceiro tiro", year: "1955", description: "Um homem testemunha um assassinato e ouve um terceiro tiro, que muda o rumo da investigação. Mistérios e reviravoltas marcam essa trama policial clássica.", poster: "https://i.postimg.cc/hjmZdH34/o-terceiro-tiro-1955.png", genres: ["Drama", "Suspense"], videoUrl: "https://drive.google.com/file/d/1uZ4nRFgKXXFBkEZ9QprwgzkbJtBtEled/preview" },
-{ id: 133, title: "Missão Perigosa", year: "1948", description: "Durante o pós-guerra, um agente americano é enviado à América do Sul para investigar e eliminar uma rede de espiões nazistas fugitivos.", poster: "https://i.postimg.cc/CKX6dFJh/miss-o-perigosa.jpg", genres: ["Drama", "Suspense"], videoUrl: "https://drive.google.com/file/d/1ZKKOe022V9vW0QvG-Jk9qTD2QTEpGtS6/preview" },
-{ id: 134, title: "Mickey Mouse – The Barn Dance", year: "1929", description: "Mickey convida Minnie para um baile no celeiro, mas precisa enfrentar Pete, seu rival. A dança se transforma em uma disputa cômica pelo coração dela.", poster: "https://i.postimg.cc/R0ybqMGv/Mickey-Mouse-The-Barn-Dance-1929.jpg", genres: ["Animação", "Curta-metragem"], videoUrl: "https://drive.google.com/file/d/1nq9nTzRHUpqBeIozbdPiYLiOywnazZ8L/preview" }
-];
-
-function moveTopToPlus() {
-  const grid = document.getElementById('plus-movie-grid');
-  if (!grid) return;
-  grid.innerHTML = '';
-  if (!plusData.length) {
-    grid.innerHTML = '<li style="color:#aaa;">Nenhum conteúdo encontrado.</li>';
-    return;
-  }
-  plusData.forEach(movie => {
-    const li = document.createElement('li');
-    li.className = 'movie-item';
-    li.innerHTML = `<img src="${movie.poster}" alt="${movie.title}" style="width:100%;height:auto;object-fit:cover;border-radius:8px;">`;
-    li.addEventListener('click', () => {
-      if (typeof openMovieModal === 'function') openMovieModal(movie);
-    });
-    grid.appendChild(li);
-  });
-}
-window.addEventListener('load', moveTopToPlus);
 </script>
 </body>
 </html>
