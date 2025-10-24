@@ -2127,7 +2127,7 @@ function generateTestTokens(n) {
 /* ----- CONFIG ----- */
 /* QUANTOS FILMES PEGAR (dos movieData existentes) */
 const PLUS_COUNT = 100;
-{ id: 1, title: "Os Dez Mandamentos", year: "1956", description: "A grandiosa história de Moisés, desde seu nascimento no Egito até libertar os hebreus da escravidão e receber os Dez Mandamentos no Monte Sinai. Dirigido por Cecil B. DeMille.", poster: "https://i.postimg.cc/0QSXwLHk/Os-10-Mandamentos.jpg", genres: ["Bíblico", "Drama"], videoUrl: "https://drive.google.com/file/d/1X1rFI59rqPfwKomSfM-VkyrHjJSxuaqy/preview" },
+
 /* LISTA DE TOKENS PRÉ-GERADOS (Exemplo) - 100 mensais e 100 anuais
    ATENÇÃO: esta lista fica visível no código. Para produção, migre para backend. */
 const VALID_TOKENS = (function(){
@@ -2158,7 +2158,9 @@ async function moveTopToPlus(){
 
   // seleciona os 50 primeiros (ou menos se não tiver)
   const plusItems = window.movieData.slice(0, PLUS_COUNT).map(m => ({ id: m.id, title: m.title }));
+{ id: 1, title: "Os Dez Mandamentos", year: "1956", description: "A grandiosa história de Moisés, desde seu nascimento no Egito até libertar os hebreus da escravidão e receber os Dez Mandamentos no Monte Sinai. Dirigido por Cecil B. DeMille.", poster: "https://i.postimg.cc/0QSXwLHk/Os-10-Mandamentos.jpg", genres: ["Bíblico", "Drama"], videoUrl: "https://drive.google.com/file/d/1X1rFI59rqPfwKomSfM-VkyrHjJSxuaqy/preview" },
 
+    
   // grava lista no localStorage pra referência futura
   localStorage.setItem('GLPLUS_IDS', JSON.stringify(plusItems.map(p=>p.id)));
 
