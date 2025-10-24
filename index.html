@@ -2150,13 +2150,18 @@ function wait(ms){ return new Promise(res=>setTimeout(res,ms)); }
 
 /* ----- Função principal: move os 50 filmes específicos para a Plus+ ----- */
 async function moveTopToPlus() {
-  // garante que movieData exista
-  if (!window.movieData || !Array.isArray(window.movieData) || window.movieData.length === 0) {
-    console.warn('movieData não encontrado ou vazio — movendo Plus+ cancelado.');
+  // aguarda o movieData carregar de verdade
+  let tentativas = 0;
+  while ((!window.movieData || !Array.isArray(window.movieData) || window.movieData.length === 0) && tentativas < 20) {
+    await new Promise(r => setTimeout(r, 300));
+    tentativas++;
+  }
+  if (!window.movieData || window.movieData.length === 0) {
+    console.warn('movieData não encontrado — cancelado.');
     return;
   }
 
-  // seleciona exatamente os 50 filmes exclusivos definidos manualmente
+  // lista de títulos Plus+
   const plusTitles = [
     "Os Dez Mandamentos", "O Grande Ditador", "Tempos Modernos", "Metropolis", "O Garoto",
     "O Circo", "Luzes da Cidade", "Em Busca do Ouro", "O Retrato de Jennie", "O Homem que eu Deveria Odiar",
@@ -2170,17 +2175,27 @@ async function moveTopToPlus() {
     "Viagem à Lua", "Popeye encontra o Marinheiro Sindbad", "Superman", "O Inventor da Mocidade", "As Viagens de Gulliver"
   ];
 
-  const plusItems = window.movieData.filter(m => plusTitles.includes(m.title));
+  // função para normalizar (remove acentos e caixa)
+  const normalize = s => s.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, '');
 
-  // grava lista no localStorage pra referência futura
+  // encontra os filmes correspondentes
+  const plusItems = window.movieData.filter(m => {
+    const mt = normalize(m.title || '');
+    return plusTitles.some(t => mt.includes(normalize(t)));
+  });
+
+  if (plusItems.length === 0) {
+    console.warn('Nenhum filme correspondente aos 50 títulos foi encontrado no movieData.');
+  }
+
+  // salva IDs
   localStorage.setItem('GLPLUS_IDS', JSON.stringify(plusItems.map(p => p.id)));
 
-  // aguarda renderização inicial
+  // remove eles da Home
   await new Promise(res => setTimeout(res, 400));
-
-  // remove os selecionados do catálogo normal (Home)
   plusItems.forEach(p => {
-    const imgs = document.querySelectorAll(`img[alt="${CSS.escape ? CSS.escape(p.title) : p.title}"]`);
+    const imgs = document.querySelectorAll(`img[alt*="${p.title.split(' ')[0]}"]`);
     imgs.forEach(img => {
       const parent = img.closest('.movie-item') || img.closest('li');
       if (parent) parent.remove();
@@ -2189,12 +2204,9 @@ async function moveTopToPlus() {
 
   // popula a seção Plus+
   const plusGrid = document.getElementById('plus-movie-grid');
-  if (!plusGrid) {
-    console.warn('plus-movie-grid não encontrado no DOM.');
-    return;
-  }
-
+  if (!plusGrid) return;
   plusGrid.innerHTML = '';
+
   plusItems.forEach(m => {
     const li = document.createElement('li');
     li.className = 'movie-item';
@@ -2204,12 +2216,8 @@ async function moveTopToPlus() {
       <img src="${m.poster || ''}" alt="${(m.title || '').replace(/"/g, '&quot;')}">
       <button class="add-to-list-btn" title="Adicionar à minha lista"><i class="fa fa-plus"></i></button>
     `;
-    li.addEventListener('click', () => {
-      if (typeof openMovieModal === 'function') openMovieModal(m);
-      else console.log('Abra modal do filme (falta openMovieModal):', m.title);
-    });
+    li.addEventListener('click', () => typeof openMovieModal === 'function' && openMovieModal(m));
 
-    // botão "adicionar à minha lista"
     const addBtn = li.querySelector('.add-to-list-btn');
     addBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -2229,9 +2237,8 @@ async function moveTopToPlus() {
     plusGrid.appendChild(li);
   });
 
-  console.log(`Movidos ${plusItems.length} filmes exclusivos para Plus+ e removidos do Home.`);
+  console.log(`✅ ${plusItems.length} filmes exclusivos movidos para Plus+ e removidos do catálogo padrão.`);
 }
-
 /* ----- Chamadas automatizadas no load ----- */
 window.addEventListener('load', () => {
   // muda os 50 conteúdos para Plus+
