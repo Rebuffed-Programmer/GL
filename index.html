@@ -1791,6 +1791,7 @@ function assistirAgora(url) {
   <p class="plus-small">Abaixo os conteúdos mais aclamados do catálogo. Apenas assinantes veem esta seção.</p>
 
 <ul id="plus-movie-grid" class="movie-grid"></ul>
+
 <script>
 const plusData = [
 { id: 128, title: "Os Dez Mandamentos", year: "1956", description: "A grandiosa história de Moisés, desde seu nascimento no Egito até libertar os hebreus da escravidão e receber os Dez Mandamentos no Monte Sinai. Dirigido por Cecil B. DeMille.", poster: "https://i.postimg.cc/0QSXwLHk/Os-10-Mandamentos.jpg", genres: ["Bíblico", "Drama"], videoUrl: "https://drive.google.com/file/d/1X1rFI59rqPfwKomSfM-VkyrHjJSxuaqy/preview" },
@@ -1801,18 +1802,24 @@ const plusData = [
 { id: 134, title: "Mickey Mouse – The Barn Dance", year: "1929", description: "Mickey convida Minnie para um baile no celeiro, mas precisa enfrentar Pete, seu rival. A dança se transforma em uma disputa cômica pelo coração dela.", poster: "https://i.postimg.cc/R0ybqMGv/Mickey-Mouse-The-Barn-Dance-1929.jpg", genres: ["Animação", "Curta-metragem"], videoUrl: "https://drive.google.com/file/d/1nq9nTzRHUpqBeIozbdPiYLiOywnazZ8L/preview" }
 ];
 
+/* renderiza os conteúdos da aba Plus+ */
 function moveTopToPlus() {
   const grid = document.getElementById('plus-movie-grid');
   if (!grid) return;
+
   grid.innerHTML = '';
+
   if (!plusData.length) {
     grid.innerHTML = '<li style="color:#aaa;">Nenhum conteúdo encontrado.</li>';
     return;
   }
+
   plusData.forEach(movie => {
     const li = document.createElement('li');
     li.className = 'movie-item';
-    li.innerHTML = `<img src="${movie.poster}" alt="${movie.title}" style="width:100%;height:auto;object-fit:cover;border-radius:8px;">`;
+    li.innerHTML = `
+      <img src="${movie.poster}" alt="${movie.title}" style="width:100%;height:auto;object-fit:cover;border-radius:8px;">
+    `;
     li.addEventListener('click', () => {
       if (typeof openMovieModal === 'function') openMovieModal(movie);
     });
