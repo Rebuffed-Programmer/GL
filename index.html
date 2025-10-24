@@ -2150,13 +2150,27 @@ function wait(ms){ return new Promise(res=>setTimeout(res,ms)); }
 
 /* ----- Função principal: seleciona os 50 primeiros e os remove do Home ----- */
 async function moveTopToPlus(){
+    // seleciona exatamente os 50 filmes exclusivos definidos manualmente
+const plusTitles = [
+  "Os Dez Mandamentos", "O Grande Ditador", "Tempos Modernos", "Metropolis", "O Garoto",
+  "O Circo", "Luzes da Cidade", "Em Busca do Ouro", "O Retrato de Jennie", "O Homem que eu Deveria Odiar",
+  "O Anjo e o Bandido", "Missão Perigosa", "O Terceiro Tiro", "Interlúdio", "Nada de Novo no Front",
+  "A Nave da Revolta", "Cidade Nua", "Farrapo Humano", "A Sombra da Morte", "Mistério na Casa de Bambu",
+  "As Neves do Kilimanjaro", "Sob o Signo de Capricórnio", "O Tesouro do Condor de Ouro", "O Rio da Navalha", "Rochedos da Morte",
+  "A Paixão de Joana d’Arc", "O Gabinete do Dr. Caligari", "Nosferatu", "Frankenstein", "Carnival of Souls",
+  "O Fantasma da Ópera", "Rebecca", "Charada", "O Cisne Negro", "As Três Faces de Eva",
+  "Aconteceu num Apartamento", "Amar foi uma Ruína", "A Dama de Shanghai", "A Última Vez que Vi Paris", "A Caldeira do Diabo",
+  "Zaroff, o Caçador de Vidas", "The Lost World", "A Vila dos Insetos", "João e o Pé de Feijão", "O Pássaro Azul",
+  "Viagem à Lua", "Popeye encontra o Marinheiro Sindbad", "Superman", "O Inventor da Mocidade", "As Viagens de Gulliver"
+];
+const plusItems = window.movieData.filter(m => plusTitles.includes(m.title));
   // garante que movieData exista
   if(!window.movieData || !Array.isArray(window.movieData) || window.movieData.length === 0) {
     console.warn('movieData não encontrado ou vazio — movendo Plus+ cancelado.');
     return;
   }
 
-  // seleciona os 50 primeiros (ou menos se não tiver)
+
   // seleciona exatamente os 50 filmes exclusivos definidos manualmente
 const plusTitles = [
   "Os Dez Mandamentos", "O Grande Ditador", "Tempos Modernos", "Metropolis", "O Garoto",
