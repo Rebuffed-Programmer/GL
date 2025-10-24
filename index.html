@@ -2157,8 +2157,20 @@ async function moveTopToPlus(){
   }
 
   // seleciona os 50 primeiros (ou menos se não tiver)
-  const plusItems = window.movieData.slice(0, PLUS_COUNT).map(m => ({ id: m.id, title: m.title }));
-{ id: 1, title: "Os Dez Mandamentos", year: "1956", description: "A grandiosa história de Moisés, desde seu nascimento no Egito até libertar os hebreus da escravidão e receber os Dez Mandamentos no Monte Sinai. Dirigido por Cecil B. DeMille.", poster: "https://i.postimg.cc/0QSXwLHk/Os-10-Mandamentos.jpg", genres: ["Bíblico", "Drama"], videoUrl: "https://drive.google.com/file/d/1X1rFI59rqPfwKomSfM-VkyrHjJSxuaqy/preview" },
+  // seleciona exatamente os 50 filmes exclusivos definidos manualmente
+const plusTitles = [
+  "Os Dez Mandamentos", "O Grande Ditador", "Tempos Modernos", "Metropolis", "O Garoto",
+  "O Circo", "Luzes da Cidade", "Em Busca do Ouro", "O Retrato de Jennie", "O Homem que eu Deveria Odiar",
+  "O Anjo e o Bandido", "Missão Perigosa", "O Terceiro Tiro", "Interlúdio", "Nada de Novo no Front",
+  "A Nave da Revolta", "Cidade Nua", "Farrapo Humano", "A Sombra da Morte", "Mistério na Casa de Bambu",
+  "As Neves do Kilimanjaro", "Sob o Signo de Capricórnio", "O Tesouro do Condor de Ouro", "O Rio da Navalha", "Rochedos da Morte",
+  "A Paixão de Joana d’Arc", "O Gabinete do Dr. Caligari", "Nosferatu", "Frankenstein", "Carnival of Souls",
+  "O Fantasma da Ópera", "Rebecca", "Charada", "O Cisne Negro", "As Três Faces de Eva",
+  "Aconteceu num Apartamento", "Amar foi uma Ruína", "A Dama de Shanghai", "A Última Vez que Vi Paris", "A Caldeira do Diabo",
+  "Zaroff, o Caçador de Vidas", "The Lost World", "A Vila dos Insetos", "João e o Pé de Feijão", "O Pássaro Azul",
+  "Viagem à Lua", "Popeye encontra o Marinheiro Sindbad", "Superman", "O Inventor da Mocidade", "As Viagens de Gulliver"
+];
+const plusItems = window.movieData.filter(m => plusTitles.includes(m.title));
 
     
   // grava lista no localStorage pra referência futura
