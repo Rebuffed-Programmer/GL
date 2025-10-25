@@ -2183,7 +2183,7 @@ function wait(ms){ return new Promise(res=>setTimeout(res,ms)); }
 /* ----- Chamadas automatizadas no load ----- */
 window.addEventListener('load', () => {
   // muda os 50 conteúdos para Plus+
-  moveTopToPlus().catch(console.error);
+  moveTopToPlus();
 
   // se o usuário já tem assinatura válida, mostra o catálogo automaticamente (reaproveita função)
   if (typeof isSubscriptionActive === 'function' && isSubscriptionActive()) {
