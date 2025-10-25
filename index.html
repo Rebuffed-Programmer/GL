@@ -1822,6 +1822,23 @@ const VALID_TOKENS = (() => {
   return obj;
 })();
 </script>
-<!-- === FIM: Plus+ === -->
+<script>
+/* === CORREÇÃO: comportamento da aba Plus+ === */
+(function attachPlusNav() {
+  const navAnchors = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+  navAnchors.forEach(a => {
+    if ((a.textContent || '').toLowerCase().includes('plus')) {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (isSubscriptionActive && isSubscriptionActive()) {
+          renderPlusCatalog(); // mostra catálogo se token válido
+        } else {
+          openPlusModal(); // abre o modal se não for assinante
+        }
+      });
+    }
+  });
+})();
+</script>
 </body>
 </html>
