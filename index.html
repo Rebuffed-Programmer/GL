@@ -2283,5 +2283,49 @@ function renderPlusCatalog() {
   });
 }
 </script>
+    <script>
+// --- SISTEMA DO PLAYER PARA O PLUS+ ---
+document.addEventListener('click', function(e) {
+  const watchBtn = e.target.closest('#modal-watch-btn');
+  if (!watchBtn) return;
+  e.preventDefault();
+
+  const modal = document.getElementById('movie-modal');
+  const videoContainer = document.getElementById('modal-video-container');
+  const infoContainer = document.getElementById('modal-info-container');
+  
+  // Pega o filme ativo
+  const title = document.getElementById('modal-title').textContent.trim();
+  const movie = (window.plusData || []).find(m => m.title === title) 
+             || (window.movieData || []).find(m => m.title === title);
+  
+  if (!movie || !movie.videoUrl) {
+    alert('Não foi possível iniciar este conteúdo.');
+    return;
+  }
+
+  // Substitui a área de informações pelo player
+  infoContainer.style.display = 'none';
+  videoContainer.innerHTML = `
+    <iframe 
+      src="${movie.videoUrl}" 
+      width="100%" 
+      height="480" 
+      frameborder="0" 
+      allowfullscreen
+      allow="autoplay">
+    </iframe>
+    <button id="backToInfo" class="back-to-info-btn">Voltar ao catálogo</button>
+  `;
+  videoContainer.style.display = 'block';
+
+  // Botão "Voltar ao catálogo"
+  document.getElementById('backToInfo').addEventListener('click', () => {
+    videoContainer.innerHTML = '';
+    videoContainer.style.display = 'none';
+    infoContainer.style.display = 'block';
+  });
+});
+</script>
 </body>
 </html>
