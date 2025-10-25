@@ -1840,5 +1840,28 @@ const VALID_TOKENS = (() => {
   });
 })();
 </script>
+    <script>
+/* === REATIVAR CLIQUE NA ABA "PLUS+" === */
+window.addEventListener("load", () => {
+  // Procura o botão da barra inferior ou do menu que contenha o texto "Plus"
+  const navItems = document.querySelectorAll(".bottom-nav a, .bottom-nav button, nav a, nav button");
+  navItems.forEach(btn => {
+    const txt = (btn.textContent || "").trim().toLowerCase();
+    if (txt.includes("plus")) {
+      btn.style.pointerEvents = "auto"; // garante que seja clicável
+      btn.style.cursor = "pointer";
+      btn.addEventListener("click", e => {
+        e.preventDefault();
+        // Se o usuário já tiver assinatura ativa, abre o catálogo
+        if (typeof isSubscriptionActive === "function" && isSubscriptionActive()) {
+          renderPlusCatalog();
+        } else {
+          openPlusModal(); // caso contrário, mostra o modal de login/assinatura
+        }
+      });
+    }
+  });
+});
+</script>
 </body>
 </html>
