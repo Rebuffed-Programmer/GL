@@ -2327,5 +2327,61 @@ document.addEventListener('click', function(e) {
   });
 });
 </script>
+    <script>
+// --- PLAYER CORRIGIDO PARA PLUS+ ---
+let currentMovie = null; // variável global pra guardar o filme atual
+
+// sobrescreve o openMovieModal para registrar o filme atual
+function openMovieModal(movie) {
+  currentMovie = movie; // guarda o filme atual
+  const modal = document.getElementById('movie-modal');
+  if (!modal) return;
+  document.getElementById('modal-poster').src = movie.poster || '';
+  document.getElementById('modal-title').textContent = movie.title || '';
+  document.getElementById('modal-year').textContent = movie.year || '';
+  document.getElementById('modal-genres').textContent = (movie.genres || []).join(' • ');
+  document.getElementById('modal-description').textContent = movie.description || '';
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+// controle do botão "Assistir Já"
+document.addEventListener('click', function(e) {
+  const watchBtn = e.target.closest('#modal-watch-btn');
+  if (!watchBtn) return;
+  e.preventDefault();
+
+  if (!currentMovie || !currentMovie.videoUrl) {
+    alert('Não foi possível iniciar este conteúdo.');
+    return;
+  }
+
+  const modal = document.getElementById('movie-modal');
+  const videoContainer = document.getElementById('modal-video-container');
+  const infoContainer = document.getElementById('modal-info-container');
+
+  // esconde as infos e mostra o player
+  infoContainer.style.display = 'none';
+  videoContainer.innerHTML = `
+    <iframe 
+      src="${currentMovie.videoUrl}" 
+      width="100%" 
+      height="480" 
+      frameborder="0" 
+      allowfullscreen 
+      allow="autoplay">
+    </iframe>
+    <button id="backToInfo" class="back-to-info-btn">Voltar ao catálogo</button>
+  `;
+  videoContainer.style.display = 'block';
+
+  // botão de voltar
+  document.getElementById('backToInfo').addEventListener('click', () => {
+    videoContainer.innerHTML = '';
+    videoContainer.style.display = 'none';
+    infoContainer.style.display = 'block';
+  });
+});
+</script>
 </body>
 </html>
