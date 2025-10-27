@@ -2228,160 +2228,161 @@ function validateTokenServerless(code){
 */
 </script>
     <script>
-/* ===============================
-   RENDERIZA CONTEÚDOS PLUS+
-   (usa o mesmo estilo da Home)
-   =============================== */
-function renderPlusCatalog() {
-  if (!isSubscriptionActive()) {
-    alert("Assinatura não ativa ou expirada. Ative para ver conteúdos Plus+.");
-    return;
-  }
+/* === SUBSTITUIÇÃO MINIMAL: moveTopToPlus baseado em títulos (cole sobre o bloco antigo da Plus+) ===
+   - Cole este script substituindo qualquer bloco antigo 'moveTopToPlus' ou 'plusData' que esteja duplicado.
+   - Não altera menu ou player — usa openMovieModal(movie) se existir.
+*/
 
-  // Oculta outras seções (Home, Minha Lista, etc.)
-  document.querySelectorAll(".movie-section, .content-section").forEach(el => el.style.display = "none");
+(function(){
+  // Lista dos 50 títulos que você pediu (exatamente como fornecido — correspondência case-insensitive)
+  const PLUS_TITLES = [
+    "Os Dez Mandamentos","O Grande Ditador","Tempos Modernos","Metropolis","O Garoto","O Circo",
+    "Luzes da Cidade","Em Busca do Ouro","O Retrato de Jennie","O Homem que eu Deveria Odiar",
+    "O Anjo e o Bandido","Missão Perigosa","O Terceiro Tiro","Interlúdio","Nada de Novo no Front",
+    "A Nave da Revolta","Cidade Nua","Farrapo Humano","A Sombra da Morte","Mistério na Casa de Bambu",
+    "As Neves do Kilimanjaro","Sob o Signo de Capricórnio","O Tesouro do Condor de Ouro","O Rio da Navalha",
+    "Rochedos da Morte","A Paixão de Joana d’Arc","O Gabinete do Dr. Caligari","Nosferatu","Frankenstein",
+    "Carnival of Souls","O Fantasma da Ópera","Rebecca","Charada","O Cisne Negro","As Três Faces de Eva",
+    "Aconteceu num Apartamento","Amar foi uma Ruína","A Dama de Shanghai","A Última Vez que Vi Paris",
+    "A Caldeira do Diabo","Zaroff, o Caçador de Vidas","The Lost World","A Vila dos Insetos","João e o Pé de Feijão",
+    "O Pássaro Azul","Viagem à Lua","Popeye encontra o Marinheiro Sindbad","Superman","O Inventor da Mocidade",
+    "As Viagens de Gulliver"
+  ].map(s => s.toLowerCase().trim());
 
-  // Mostra a aba Plus+
-  const plusSection = document.getElementById("plusSection");
-  if (!plusSection) return;
-  plusSection.style.display = "block";
-
-  // Botão de sair do Plus+
-  const btnOut = document.getElementById("btnPlusSignOut");
-  btnOut.style.display = "inline-block";
-  btnOut.onclick = () => {
-    if (confirm("Deseja sair da assinatura local neste dispositivo?")) {
-      clearSubscription();
-      btnOut.style.display = "none";
-      plusSection.style.display = "none";
-      alert("Você saiu da Plus+.");
+  // Util: encontra filmes em movieData por título (case-insensitive)
+  function findPlusMoviesFromMovieData() {
+    if (!window.movieData || !Array.isArray(window.movieData)) return [];
+    const found = [];
+    const md = window.movieData;
+    for (let t of PLUS_TITLES) {
+      const m = md.find(x => (x.title || '').toString().toLowerCase().trim() === t);
+      if (m) found.push(m);
+      else {
+        // tenta encontrar por título que contenha (fallback)
+        const m2 = md.find(x => (x.title || '').toString().toLowerCase().trim().includes(t));
+        if (m2) found.push(m2);
+        else console.warn('Plus+ not found in movieData for title:', t);
+      }
     }
-  };
-
-  // Preenche os conteúdos da aba Plus+
-  const grid = document.getElementById("plus-movie-grid");
-  grid.innerHTML = "";
-
-  const plusMovies = [
-    { id: 1, title: "Os Dez Mandamentos", year: "1956", poster: "https://i.postimg.cc/0QSXwLHk/Os-10-Mandamentos.jpg", videoUrl: "https://drive.google.com/file/d/1X1rFI59rqPfwKomSfM-VkyrHjJSxuaqy/preview" },
-    { id: 2, title: "O Grande Ditador", year: "1940", description: "O barbeiro judeu Adenoid Hynkel, o ditador de Tomania, tenta dominar o mundo com a ajuda de seus seguidores.", poster: "https://a.imagem.app/BC1RYX.jpeg", genres: ["Comédia", "Drama"], videoUrl: "https://drive.google.com/file/d/1xHwYNzqojd4imMIDhezSgYsq_f5Li0Hv/preview" },
-    { id: 3, title: "Os Dez Mandamentos", year: "1956", description: "A grandiosa história de Moisés, desde seu nascimento no Egito até libertar os hebreus da escravidão e receber os Dez Mandamentos no Monte Sinai. Dirigido por Cecil B. DeMille.", poster: "https://i.postimg.cc/0QSXwLHk/Os-10-Mandamentos.jpg", genres: ["Bíblico", "Drama"], videoUrl: "https://drive.google.com/file/d/1X1rFI59rqPfwKomSfM-VkyrHjJSxuaqy/preview" },
-    { id: 4, title: "O Homem que eu deveria odiar", year: "1961", description: "O sargento Yankee da Guerra Civil Yankee Yellowleg salva o trapaceiro Turquia de ser enforcado depois de um jogo de cartas, e junto com o amigo pistoleiro turco Billy Keplinger, eles cavalgam juntos para Gila City com a intenção de assaltar um banco. Quando outros bandidos roubam uma loja, Yellowleg atira nos bandidos e acidentalmente mata o filho do dançarino de cabaré Kit Tilden e a mulher de luto decide enterrar seu filho na cidade de Siringo, no país Apache, onde seu marido está enterrado. Yellowleg Enlista Billy e Turquia para escoltar Kitty e o caixão através da terra perigosa.", poster: "https://i.postimg.cc/CKX6dFJK/o-homem-que-eu-deveria-odiar-1961.png", genres: ["Faroeste", "Ação"], videoUrl: "https://drive.google.com/file/d/1L6zycEQYRj5XaRllyym0Y8VrXb6mQh3S/preview" },
-    { id: 5, title: "O Garoto", year: "1921", poster: "https://i.postimg.cc/hGsvZLbs/O-Garoto.jpg", videoUrl: "https://drive.google.com/file/d/1hPHzW3_Rn5XzHws0A0F4zzyU39b0e2xd/preview" },
-    // (adicione aqui os outros 45 filmes no mesmo formato)
-  ];
-
-  plusMovies.forEach(movie => {
-    const li = document.createElement("li");
-    li.className = "movie-item";
-    li.innerHTML = `
-      <img src="${movie.poster}" alt="${movie.title}" 
-           style="width:100%;height:auto;object-fit:cover;border-radius:8px;">
-    `;
-    li.addEventListener("click", () => openMovieModal(movie));
-    grid.appendChild(li);
-  });
-}
-</script>
-    <script>
-// --- SISTEMA DO PLAYER PARA O PLUS+ ---
-document.addEventListener('click', function(e) {
-  const watchBtn = e.target.closest('#modal-watch-btn');
-  if (!watchBtn) return;
-  e.preventDefault();
-
-  const modal = document.getElementById('movie-modal');
-  const videoContainer = document.getElementById('modal-video-container');
-  const infoContainer = document.getElementById('modal-info-container');
-  
-  // Pega o filme ativo
-  const title = document.getElementById('modal-title').textContent.trim();
-  const movie = (window.plusData || []).find(m => m.title === title) 
-             || (window.movieData || []).find(m => m.title === title);
-  
-  if (!movie || !movie.videoUrl) {
-    alert('Não foi possível iniciar este conteúdo.');
-    return;
+    // remove duplicados mantendo ordem
+    const unique = [];
+    const ids = new Set();
+    found.forEach(f => { if(f && !ids.has(f.id)){ ids.add(f.id); unique.push(f); } });
+    return unique;
   }
 
-  // Substitui a área de informações pelo player
-  infoContainer.style.display = 'none';
-  videoContainer.innerHTML = `
-    <iframe 
-      src="${movie.videoUrl}" 
-      width="100%" 
-      height="480" 
-      frameborder="0" 
-      allowfullscreen
-      allow="autoplay">
-    </iframe>
-    <button id="backToInfo" class="back-to-info-btn">Voltar ao catálogo</button>
-  `;
-  videoContainer.style.display = 'block';
-
-  // Botão "Voltar ao catálogo"
-  document.getElementById('backToInfo').addEventListener('click', () => {
-    videoContainer.innerHTML = '';
-    videoContainer.style.display = 'none';
-    infoContainer.style.display = 'block';
-  });
-});
-</script>
-    <script>
-// --- PLAYER CORRIGIDO PARA PLUS+ ---
-let currentMovie = null; // variável global pra guardar o filme atual
-
-// sobrescreve o openMovieModal para registrar o filme atual
-function openMovieModal(movie) {
-  currentMovie = movie; // guarda o filme atual
-  const modal = document.getElementById('movie-modal');
-  if (!modal) return;
-  document.getElementById('modal-poster').src = movie.poster || '';
-  document.getElementById('modal-title').textContent = movie.title || '';
-  document.getElementById('modal-year').textContent = movie.year || '';
-  document.getElementById('modal-genres').textContent = (movie.genres || []).join(' • ');
-  document.getElementById('modal-description').textContent = movie.description || '';
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-
-// controle do botão "Assistir Já"
-document.addEventListener('click', function(e) {
-  const watchBtn = e.target.closest('#modal-watch-btn');
-  if (!watchBtn) return;
-  e.preventDefault();
-
-  if (!currentMovie || !currentMovie.videoUrl) {
-    alert('Não foi possível iniciar este conteúdo.');
-    return;
+  // remove os pôsteres Plus+ da visualização Home (procura imgs com alt == title)
+  function removePlusFromHome(plusMovies) {
+    if (!plusMovies || !plusMovies.length) return;
+    const titlesSet = new Set(plusMovies.map(m => (m.title||'').toString().toLowerCase().trim()));
+    // procura por imagens em todo o DOM com alt que combine e remove o nó pai .movie-item
+    document.querySelectorAll('img').forEach(img => {
+      const alt = (img.getAttribute('alt') || '').toString().toLowerCase().trim();
+      if (titlesSet.has(alt)) {
+        const parentItem = img.closest('.movie-item') || img.closest('li') || img.parentElement;
+        if (parentItem && parentItem.parentElement) parentItem.remove();
+      }
+    });
   }
 
-  const modal = document.getElementById('movie-modal');
-  const videoContainer = document.getElementById('modal-video-container');
-  const infoContainer = document.getElementById('modal-info-container');
+  // renderiza a grade Plus+ apenas com a imagem (landscape), mantendo evento de click para abrir modal do Home
+  function renderPlusGrid(plusMovies) {
+    const grid = document.getElementById('plus-movie-grid');
+    if (!grid) {
+      console.warn('plus-movie-grid não encontrado no DOM.');
+      return;
+    }
+    grid.innerHTML = '';
+    if (!plusMovies.length) {
+      grid.innerHTML = '<li class="movie-item" style="color:#aaa;">Nenhum conteúdo encontrado.</li>';
+      return;
+    }
+    plusMovies.forEach(m => {
+      const li = document.createElement('li');
+      li.className = 'movie-item';
+      li.style.cursor = 'pointer';
+      // cria imagem com estilo simples (mantém seu CSS global para .movie-item img)
+      const img = document.createElement('img');
+      img.src = m.poster || '';
+      img.alt = m.title || '';
+      img.style.width = '100%';
+      img.style.height = 'auto';
+      img.style.objectFit = 'cover';
+      img.style.borderRadius = '8px';
+      li.appendChild(img);
 
-  // esconde as infos e mostra o player
-  infoContainer.style.display = 'none';
-  videoContainer.innerHTML = `
-    <iframe 
-      src="${currentMovie.videoUrl}" 
-      width="100%" 
-      height="480" 
-      frameborder="0" 
-      allowfullscreen 
-      allow="autoplay">
-    </iframe>
-    <button id="backToInfo" class="back-to-info-btn">Voltar ao catálogo</button>
-  `;
-  videoContainer.style.display = 'block';
+      // click abre o modal do player (reaproveita openMovieModal existente)
+      li.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        if (typeof openMovieModal === 'function') {
+          openMovieModal(m);
+        } else {
+          // fallback: tenta abrir link de video diretamente
+          if (m.videoUrl) window.open(m.videoUrl, '_blank');
+          else console.log('Abrir filme:', m.title);
+        }
+      });
 
-  // botão de voltar
-  document.getElementById('backToInfo').addEventListener('click', () => {
-    videoContainer.innerHTML = '';
-    videoContainer.style.display = 'none';
-    infoContainer.style.display = 'block';
+      // add-to-list button (se quiser manter, com o mesmo estilo)
+      const addBtn = document.createElement('button');
+      addBtn.className = 'add-to-list-btn';
+      addBtn.title = 'Adicionar à minha lista';
+      addBtn.innerHTML = '<i class="fa fa-plus"></i>';
+      addBtn.style.position = 'absolute';
+      addBtn.style.right = '10px';
+      addBtn.style.top = '10px';
+      addBtn.style.zIndex = '5';
+      addBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const myList = JSON.parse(localStorage.getItem('GL_MY_LIST') || '[]');
+        if (!myList.includes(m.id)) {
+          myList.push(m.id);
+          localStorage.setItem('GL_MY_LIST', JSON.stringify(myList));
+          addBtn.innerHTML = '<i class="fa fa-check"></i>';
+        } else {
+          const idx = myList.indexOf(m.id);
+          if (idx > -1) myList.splice(idx,1);
+          localStorage.setItem('GL_MY_LIST', JSON.stringify(myList));
+          addBtn.innerHTML = '<i class="fa fa-plus"></i>';
+        }
+      });
+      // embrulho para posicionamento relativo
+      const wrapper = document.createElement('div');
+      wrapper.style.position = 'relative';
+      wrapper.appendChild(img);
+      wrapper.appendChild(addBtn);
+      li.innerHTML = '';
+      li.appendChild(wrapper);
+
+      grid.appendChild(li);
+    });
+  }
+
+  // função principal: encontra filmes, remove da home e popula plus grid
+  function populatePlusFromMovieData() {
+    try {
+      const plusMovies = findPlusMoviesFromMovieData();
+      // guarda lista de ids no localStorage para referência futura
+      localStorage.setItem('GLPLUS_IDS', JSON.stringify(plusMovies.map(p => p.id)));
+      // remove do home (garante que home não mostre esses posters)
+      removePlusFromHome(plusMovies);
+      // popula a grade
+      renderPlusGrid(plusMovies);
+      console.log('[Plus+] Populados', plusMovies.length, 'filmes a partir de movieData.');
+    } catch (err) {
+      console.error('Erro ao popular Plus+:', err);
+    }
+  }
+
+  // Executa no load (mas não remove/invade nada antes do DOM estar pronto)
+  window.addEventListener('load', () => {
+    // executa com pequeno delay para garantir renderizações dinâmicas
+    setTimeout(populatePlusFromMovieData, 200);
   });
-});
+
+  // também expõe função global para testes/manutenção
+  window.populatePlusFromMovieData = populatePlusFromMovieData;
+})();
 </script>
 </body>
 </html>
