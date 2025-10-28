@@ -1827,5 +1827,43 @@ window.addEventListener('load', () => {
   }
 });
 </script>
+    <script>
+// === CORREÇÃO DO BOTÃO TRANSLÚCIDO DA ABA PLUS+ ===
+// Este script garante que o botão translúcido "Plus+" do menu volte a funcionar.
+
+(function fixPlusButton(){
+  // aguarda o DOM estar pronto
+  document.addEventListener('DOMContentLoaded', () => {
+    // procura qualquer botão ou link do menu inferior que tenha "plus" no nome
+    const navAnchors = document.querySelectorAll('.bottom-nav a, .bottom-nav button, nav a, nav button');
+    navAnchors.forEach(a => {
+      const text = (a.textContent || a.getAttribute('aria-label') || '').toLowerCase();
+      if (text.includes('plus')) {
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          // verifica se o usuário tem assinatura ativa
+          if (typeof isSubscriptionActive === 'function' && isSubscriptionActive()) {
+            // mostra o catálogo Plus+
+            if (typeof renderPlusCatalog === 'function') {
+              renderPlusCatalog();
+            } else if (typeof moveTopToPlus === 'function') {
+              moveTopToPlus();
+              document.getElementById('plusSection').style.display = 'block';
+            }
+          } else {
+            // abre o modal de login/assinatura
+            if (typeof openPlusModal === 'function') {
+              openPlusModal();
+            } else {
+              alert('Recarregue a página e tente novamente.');
+            }
+          }
+        });
+      }
+    });
+  });
+})();
+</script>
 </body>
 </html>
