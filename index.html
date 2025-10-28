@@ -2375,5 +2375,53 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 </script>
+    <script>
+/* ============
+   CORREÇÃO: BOTÃO "ASSISTIR JÁ" (Plus+)
+   Usa o mesmo player da Home
+   ============ */
+
+document.addEventListener("DOMContentLoaded", () => {
+  // verifica se o botão existe
+  const btnAssistir = document.querySelector("#plusModal .btn-watch, #modal-watch-btn");
+
+  if (btnAssistir) {
+    btnAssistir.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      try {
+        // tenta obter o último filme clicado ou mostrado
+        const titulo = document.getElementById("modal-title")?.textContent?.trim();
+        let filmeAtual = null;
+
+        if (window.plusData && titulo) {
+          filmeAtual = plusData.find(f => f.title.trim() === titulo);
+        }
+
+        if (!filmeAtual) {
+          alert("Filme não encontrado. Tente novamente.");
+          return;
+        }
+
+        // fecha o modal da Plus+
+        const plusModal = document.getElementById("plusModal");
+        if (plusModal) plusModal.style.display = "none";
+
+        // abre o player da Home (reaproveita o modal padrão)
+        if (typeof openMovieModal === "function") {
+          openMovieModal(filmeAtual);
+        } else {
+          alert("O player principal não foi encontrado.");
+        }
+
+      } catch (err) {
+        console.error("Erro ao iniciar o player Plus+:", err);
+        alert("Não foi possível iniciar este conteúdo.");
+      }
+    });
+  }
+});
+</script>
 </body>
 </html>
