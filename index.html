@@ -1865,5 +1865,96 @@ window.addEventListener('load', () => {
   });
 })();
 </script>
+    <script>
+// === RESTAURAÇÃO ROBUSTA DO BOTÃO PLUS+ (cole antes de </body>) ===
+(function(){
+  let tries = 0, maxTries = 80; // tenta por ~8s (80 * 100ms)
+  const iv = setInterval(() => {
+    tries++;
+    const plusModal       = document.getElementById('plusModal');
+    const plusBtnSou      = document.getElementById('plusBtnSou');
+    const plusBtnQuero    = document.getElementById('plusBtnQuero');
+    const plusModalClose  = document.getElementById('plusModalClose') || document.querySelector('#plusModal .close-btn');
+    const plusSection     = document.getElementById('plusSection');
+    const navAnchors      = document.querySelectorAll('.bottom-nav a, .bottom-nav button, nav a, nav button');
+
+    // Se não encontrar os elementos ainda, espera
+    if (!plusModal || !plusBtnSou || !plusBtnQuero) {
+      if (tries >= maxTries) {
+        clearInterval(iv);
+        console.warn('fixPlus: elementos Plus+ não encontrados (timeout).');
+      }
+      return;
+    }
+
+    // helpers
+    function openPlusUI(viewFn) {
+      try {
+        document.body.style.overflow = 'hidden';
+        plusModal.style.display = 'flex';
+        if (typeof viewFn === 'function') viewFn();
+        else if (typeof renderPlusDefault === 'function') renderPlusDefault();
+      } catch(e){ console.warn('openPlusUI erro', e); }
+    }
+    function closePlusUI() {
+      try {
+        plusModal.style.display = 'none';
+        document.body.style.overflow = '';
+      } catch(e){ console.warn('closePlusUI erro', e); }
+    }
+    function showPlusCatalogFallback(){
+      try {
+        if (plusSection) plusSection.style.display = 'block';
+        if (typeof moveTopToPlus === 'function') moveTopToPlus();
+      } catch(e){ console.warn('showPlusCatalogFallback erro', e); }
+    }
+
+    // ligações idempotentes (substitui handlers apenas deste script)
+    plusBtnSou.onclick = (e) => { e && e.preventDefault && e.preventDefault(); openPlusUI(typeof renderSouAssinante === 'function' ? renderSouAssinante : null); };
+    plusBtnQuero.onclick = (e) => { e && e.preventDefault && e.preventDefault(); openPlusUI(typeof renderQueroAssinar === 'function' ? renderQueroAssinar : null); };
+    if (plusModalClose) plusModalClose.onclick = (e) => { e && e.preventDefault && e.preventDefault(); closePlusUI(); };
+
+    // attach nav button(s) that contenham "plus" no texto / aria-label
+    navAnchors.forEach(a => {
+      const txt = ((a.textContent || '') + ' ' + (a.getAttribute && (a.getAttribute('aria-label') || ''))).toLowerCase();
+      if (txt.includes('plus')) {
+        a.onclick = (ev) => {
+          ev && ev.preventDefault && ev.preventDefault();
+          ev && ev.stopPropagation && ev.stopPropagation();
+          try {
+            if (typeof isSubscriptionActive === 'function' && isSubscriptionActive()) {
+              // usuário assinante -> abre catálogo (prioriza sua função)
+              if (typeof renderPlusCatalog === 'function') renderPlusCatalog();
+              else showPlusCatalogFallback();
+            } else {
+              // não assinante -> abre modal na view "Sou assinante" (ou default)
+              openPlusUI(typeof renderSouAssinante === 'function' ? renderSouAssinante : null);
+            }
+          } catch(err) {
+            console.warn('plus nav click erro', err);
+            // fallback simples
+            openPlusUI(typeof renderSouAssinante === 'function' ? renderSouAssinante : null);
+          }
+        };
+      }
+    });
+
+    // Se tiver assinatura ativa ao carregar, mostra catálogo (com segurança)
+    try {
+      if (typeof isSubscriptionActive === 'function' && isSubscriptionActive()) {
+        if (typeof renderPlusCatalog === 'function') {
+          // não chamar automaticamente se você não quiser auto-open (mantive seguro)
+          // renderPlusCatalog();
+        } else if (typeof moveTopToPlus === 'function' && plusSection) {
+          // apenas prepara os itens (sem forçar scroll)
+          moveTopToPlus();
+        }
+      }
+    } catch(e){ /* ignore */ }
+
+    clearInterval(iv); // sucesso -> para de tentar
+  }, 100);
+})();
+</script>
 </body>
 </html>
