@@ -1709,7 +1709,12 @@ function assistirAgora(url) {
 })();
 <!-- === INÍCIO: Plus+ (modal, seção e scripts) - COLE ISTO ANTES DE </body> === -->
 
+</script>
+
+  <!-- === INÍCIO: Plus+ (modal, seção e scripts) - COLE ISTO ANTES DE </body> === -->
+
 <style>
+/* Estilos específicos para Plus+ (respeita o estilo atual) */
 .plus-modal .modal-content {
   max-width: 980px;
   width: 95%;
@@ -1733,25 +1738,35 @@ function assistirAgora(url) {
 .plus-modal .plus-actions button { padding:10px 16px; border-radius:8px; border:none; cursor:pointer; font-weight:600; }
 .plus-modal .btn-primary { background:#48c948; color:#fff; }
 .plus-modal .btn-secondary { background:rgba(255,255,255,0.06); color:#fff; }
+
+/* Cards dos planos */
 .plus-plans { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:12px; }
 .plus-plan { width:260px; border-radius:10px; overflow:hidden; background:#151718; border:1px solid #222; cursor:pointer; transition:transform .12s; }
 .plus-plan img { width:100%; display:block; }
 .plus-plan .plan-body { padding:12px; color:#ddd; }
 .plus-plan:hover { transform:translateY(-6px); }
+
+/* Seção Plus+ no catálogo */
 .plus-catalog { display:none; padding:40px; }
 .plus-catalog .section-title { display:flex; align-items:center; gap:12px; justify-content:space-between; }
 #plus-movie-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; list-style:none; padding:0; margin:18px 0 0 0; }
 @media (max-width:767px) { #plus-movie-grid { grid-template-columns:repeat(2,1fr); } }
+
+/* Input token */
 .plus-token-box { display:flex; gap:8px; align-items:center; justify-content:center; margin-top:10px; }
 .plus-token-box input { padding:10px 12px; border-radius:8px; border:1px solid #2b2b2b; background:#0d0f10; color:#fff; outline:none; width:260px; }
 .plus-small { font-size:0.9em; color:#bbb; text-align:center; margin-top:8px; }
+
+/* manter z-index do modal acima */
 .plus-modal { z-index: 2200; }
 </style>
 
-<!-- Modal Plus+ -->
+<!-- Modal Plus+ (reaproveita a classe .modal do teu index) -->
 <div id="plusModal" class="modal plus-modal" style="display:none;">
   <div class="modal-content">
     <span class="close-btn" id="plusModalClose">&times;</span>
+
+    <!-- Poster / topo -->
     <div style="display:flex;flex-direction:column;align-items:center;">
       <img id="plusPosterImg" class="plus-poster" src="https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg" alt="Pôster Plus+">
       <div class="plus-actions">
@@ -1760,225 +1775,585 @@ function assistirAgora(url) {
       </div>
       <div id="plusInfoText" class="plus-small">Desbloqueie conteúdos exclusivos, conteúdos originais e vantagens da Plus+.</div>
     </div>
+
+    <!-- Container dinâmico onde aparecem as views (token input / planos / mensagens) -->
     <div id="plusDynamic" style="width:100%;"></div>
+
   </div>
 </div>
 
-<!-- Seção Plus+ -->
+<!-- Seção exclusiva Plus+ (visível somente quando for assinante) -->
 <section id="plusSection" class="movie-section plus-catalog" style="display:none;">
   <div style="display:flex;align-items:center;justify-content:space-between;">
     <h2 class="section-title">💎 Plus+ Exclusivo</h2>
-    <button id="btnPlusSignOut" class="back-to-info-btn" style="position:static;padding:8px 12px;border-radius:8px;margin-left:10px;display:none;">Sair do Plus+</button>
+    <div>
+      <button id="btnPlusSignOut" class="back-to-info-btn" style="position:static;padding:8px 12px;border-radius:8px;margin-left:10px;display:none;">Sair do Plus+</button>
+    </div>
   </div>
-  <p class="plus-small">Abaixo os conteúdos mais aclamados do catálogo. Apenas assinantes veem esta seção.</p>
-  <ul id="plus-movie-grid" class="movie-grid"></ul>
-</section>
 
+  <p class="plus-small">Abaixo os conteúdos mais aclamados do catálogo. Apenas assinantes veem esta seção.</p>
+
+<ul id="plus-movie-grid" class="movie-grid"></ul>
 <script>
-/* =========================
-   DADOS DOS FILMES PLUS+
-========================= */
 const plusData = [
-  { id: 128, title: "Os Dez Mandamentos", year: "1956", description: "A grandiosa história de Moisés, desde seu nascimento no Egito até libertar os hebreus da escravidão.", poster: "https://i.postimg.cc/0QSXwLHk/Os-10-Mandamentos.jpg", genres: ["Bíblico", "Drama"], videoUrl: "https://drive.google.com/file/d/1X1rFI59rqPfwKomSfM-VkyrHjJSxuaqy/preview" },
-  { id: 127, title: "O Retrato de Jennie", year: "1948", description: "Um pintor conhece uma garota misteriosa que envelhece a cada encontro.", poster: "https://i.postimg.cc/FRSCL2nm/o-retrato-de-jennie-1948.png", genres: ["Drama", "Romance"], videoUrl: "https://drive.google.com/file/d/1Kc4Isipv_3V_429UW_v04b5LE7iBVZYX/preview" },
-  { id: 126, title: "O Anjo e o Bandido", year: "1947", description: "Um pistoleiro é acolhido por uma família pacífica e muda sua vida.", poster: "https://i.postimg.cc/SK3tjyVR/o-anjo-e-o-bandido.png", genres: ["Faroeste", "Ação"], videoUrl: "https://drive.google.com/file/d/1eRlXsd6LMvOKpiQCjBjnGZXSVdq1T3kY/preview" },
-  { id: 125, title: "Missão Perigosa", year: "1948", description: "Um agente americano enfrenta uma rede de espiões nazistas.", poster: "https://i.postimg.cc/CKX6dFJh/miss-o-perigosa.jpg", genres: ["Drama", "Suspense"], videoUrl: "https://drive.google.com/file/d/1ZKKOe022V9vW0QvG-Jk9qTD2QTEpGtS6/preview" },
-  { id: 124, title: "O Terceiro Tiro", year: "1955", description: "Um mistério policial com reviravoltas e suspense.", poster: "https://i.postimg.cc/hjmZdH34/o-terceiro-tiro-1955.png", genres: ["Drama", "Suspense"], videoUrl: "https://drive.google.com/file/d/1uZ4nRFgKXXFBkEZ9QprwgzkbJtBtEled/preview" }
+{ id: 128, title: "Os Dez Mandamentos", year: "1956", description: "A grandiosa história de Moisés, desde seu nascimento no Egito até libertar os hebreus da escravidão e receber os Dez Mandamentos no Monte Sinai. Dirigido por Cecil B. DeMille.", poster: "https://i.postimg.cc/0QSXwLHk/Os-10-Mandamentos.jpg", genres: ["Bíblico", "Drama"], videoUrl: "https://drive.google.com/file/d/1X1rFI59rqPfwKomSfM-VkyrHjJSxuaqy/preview" },
+{ id: 127, title: "O Anjo e Bandido", year: "1947", description: "Após ser ferido em um tiroteio, o pistoleiro Quirt Evans (John Wayne) é acolhido por uma família de quacres. O modo de vida pacífico deles e o amor de Penelope o fazem repensar seu passado violento.", poster: "https://i.postimg.cc/SK3tjyVR/o-anjo-e-o-bandido.png", genres: ["Faroeste", "Ação"], videoUrl: "https://drive.google.com/file/d/1eRlXsd6LMvOKpiQCjBjnGZXSVdq1T3kY/preview" },
+{ id: 130, title: "O retrato de jennie", year: "1948", description: "Um pintor sem inspiração conhece uma garota misteriosa que parece envelhecer a cada encontro. Ele se apaixona por ela, sem saber que Jennie pertence a outro tempo.", poster: "https://i.postimg.cc/FRSCL2nm/o-retrato-de-jennie-1948.png", genres: ["Drama", "Romance"], videoUrl: "https://drive.google.com/file/d/1Kc4Isipv_3V_429UW_v04b5LE7iBVZYX/preview" },
+{ id: 131, title: "O terceiro tiro", year: "1955", description: "Um homem testemunha um assassinato e ouve um terceiro tiro, que muda o rumo da investigação. Mistérios e reviravoltas marcam essa trama policial clássica.", poster: "https://i.postimg.cc/hjmZdH34/o-terceiro-tiro-1955.png", genres: ["Drama", "Suspense"], videoUrl: "https://drive.google.com/file/d/1uZ4nRFgKXXFBkEZ9QprwgzkbJtBtEled/preview" },
+{ id: 133, title: "Missão Perigosa", year: "1948", description: "Durante o pós-guerra, um agente americano é enviado à América do Sul para investigar e eliminar uma rede de espiões nazistas fugitivos.", poster: "https://i.postimg.cc/CKX6dFJh/miss-o-perigosa.jpg", genres: ["Drama", "Suspense"], videoUrl: "https://drive.google.com/file/d/1ZKKOe022V9vW0QvG-Jk9qTD2QTEpGtS6/preview" },
+{ id: 134, title: "Mickey Mouse – The Barn Dance", year: "1929", description: "Mickey convida Minnie para um baile no celeiro, mas precisa enfrentar Pete, seu rival. A dança se transforma em uma disputa cômica pelo coração dela.", poster: "https://i.postimg.cc/R0ybqMGv/Mickey-Mouse-The-Barn-Dance-1929.jpg", genres: ["Animação", "Curta-metragem"], videoUrl: "https://drive.google.com/file/d/1nq9nTzRHUpqBeIozbdPiYLiOywnazZ8L/preview" }
 ];
 
-/* =========================
-   FUNÇÃO DE RENDERIZAÇÃO
-========================= */
+/* renderiza os conteúdos da aba Plus+ */
 function moveTopToPlus() {
   const grid = document.getElementById('plus-movie-grid');
   if (!grid) return;
+
   grid.innerHTML = '';
 
-  // Checa se há assinatura ativa
-  if (typeof isSubscriptionActive !== 'function' || !isSubscriptionActive()) {
-    grid.innerHTML = '<li style="color:#aaa;text-align:center;">Faça login na sua conta Plus+ para ver os conteúdos.</li>';
+  if (!plusData.length) {
+    grid.innerHTML = '<li style="color:#aaa;">Nenhum conteúdo encontrado.</li>';
     return;
   }
 
-  // Renderiza cada pôster
   plusData.forEach(movie => {
     const li = document.createElement('li');
     li.className = 'movie-item';
     li.innerHTML = `
-      <img src="${movie.poster}" alt="${movie.title}" style="width:100%;border-radius:8px;cursor:pointer;">
+      <img src="${movie.poster}" alt="${movie.title}" style="width:100%;height:auto;object-fit:cover;border-radius:8px;">
     `;
     li.addEventListener('click', () => {
-      if (typeof openMovieModal === 'function') {
-        openMovieModal(movie); // usa o mesmo player da Home
+      if (typeof openMovieModal === 'function') openMovieModal(movie);
+    });
+    grid.appendChild(li);
+  });
+}
+window.addEventListener('load', moveTopToPlus);
+</script>
+  </ul>
+</section>
+
+<script>
+/* === CONFIGURAÇÕES === */
+/* Cole aqui a lista de tokens válidos se quiser validação automática.
+   Exemplo:
+   const VALID_TOKENS = { 'GL-ABC123': {type: 'mensal'}, 'GL-PREM-0001': {type: 'anual'} };
+   Obs: por segurança, mantenha essa lista em local seguro; sem backend, a lista ficará visível no código.
+*/
+const VALID_TOKENS = {}; // <-- opcional: cole tokens aqui no formato {'TOKEN123': {type:'mensal'|'anual'}} 
+
+/* Insira seus links do Mercado Pago aqui (substitua os placeholders abaixo) */
+const LINK_PAGAMENTO_MENSAL = 'https://mpago.la/2SRyqam';
+const LINK_PAGAMENTO_ANUAL  = 'https://mpago.la/2SRyqam';
+
+/* === UTILIDADES === */
+function isSubscriptionActive() {
+  const exp = localStorage.getItem('GLPLUS_EXPIRA');
+  if (!exp) return false;
+  const now = new Date();
+  return new Date(exp) > now;
+}
+function clearSubscription() {
+  localStorage.removeItem('GLPLUS_TOKEN');
+  localStorage.removeItem('GLPLUS_EXPIRA');
+  localStorage.removeItem('GLPLUS_PREMIUM');
+}
+
+/* Checa expiração no carregamento */
+(function(){
+  const exp = localStorage.getItem('GLPLUS_EXPIRA');
+  if (exp && new Date() <= new Date(exp)) {
+    // assinatura válida: deixa como está
+  } else {
+    // expirou ou não existe
+    if (exp) {
+      clearSubscription();
+      // opcional: notifica usuário
+      // alert('Sua assinatura GL+ expirou. Renove para continuar assistindo.');
+    }
+  }
+})();
+
+/* === ABRIR / FECHAR MODAL === */
+function openPlusModal() {
+  const modal = document.getElementById('plusModal');
+  document.body.style.overflow = 'hidden';
+  modal.style.display = 'flex';
+  renderPlusDefault();
+}
+function closePlusModal() {
+  const modal = document.getElementById('plusModal');
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+/* Fecha ao clicar no X */
+document.getElementById('plusModalClose').addEventListener('click', closePlusModal);
+
+/* === RENDER VIEWS DENTRO DO MODAL === */
+function renderPlusDefault(){
+  const dyn = document.getElementById('plusDynamic');
+  dyn.innerHTML = `
+    <div style="text-align:center;margin-top:8px;">
+      <p class="plus-small">Escolha uma opção para prosseguir</p>
+    </div>
+  `;
+}
+
+/* VIEW: Sou assinante (input token) */
+function renderSouAssinante(){
+  const dyn = document.getElementById('plusDynamic');
+  dyn.innerHTML = `
+    <div style="text-align:center;">
+      <div class="plus-token-box">
+        <input id="plusTokenInput" placeholder="Cole seu código de ativação Plus+">
+        <button id="plusActivateBtn" class="btn-primary">Ativar</button>
+      </div>
+      <div style="margin-top:8px;">
+        <button id="plusAskManual" class="btn-secondary">Não tenho código (ver instruções)</button>
+      </div>
+      <p class="plus-small" style="margin-top:10px;">Se você já recebeu o token após o pagamento, cole aqui para ativar.</p>
+    </div>
+  `;
+  document.getElementById('plusActivateBtn').addEventListener('click', () => {
+    const code = document.getElementById('plusTokenInput').value.trim();
+    if (!code) { alert('Digite um token válido'); return; }
+    // validação opcional via lista de tokens (se preenchida)
+    if (Object.keys(VALID_TOKENS).length > 0) {
+      if (!VALID_TOKENS[code]) { alert('Token inválido.'); return; }
+      // token válido conforme a lista: detecta tipo
+      const info = VALID_TOKENS[code];
+      activateTokenLocal(code, info.type === 'anual' ? 'anual' : 'mensal');
+      return;
+    }
+    // se não há lista de tokens no código: aceita qualquer token e pergunta tipo (mensal/anual)
+    const escolha = prompt('Qual plano este token representa? digite "mensal" ou "anual" (sem aspas):');
+    if (!escolha) return;
+    const tipo = escolha.toLowerCase().includes('anu') ? 'anual' : 'mensal';
+    activateTokenLocal(code, tipo);
+  });
+  document.getElementById('plusAskManual').addEventListener('click', () => {
+    alert('Após efetuar o pagamento, envie a solicitação de ativação com o comprovante para que possamos fornecer o token. (ou cole o token que recebeu)');
+  });
+}
+
+/* VIEW: Quero assinar (mostra planos com imagens) */
+function renderQueroAssinar(){
+  const dyn = document.getElementById('plusDynamic');
+  dyn.innerHTML = `
+    <div style="text-align:center;">
+      <h3>Escolha o plano</h3>
+      <div class="plus-plans">
+        <div class="plus-plan" id="plan-mensal" title="Plano Mensal">
+          <img src="https://i.postimg.cc/XJ3Pgkwv/Plano-Mensal.jpg" alt="Mensal">
+          <div class="plan-body">
+            <strong>Básico - R$9,90/mês</strong>
+            <p class="plus-small" style="margin-top:8px;">
+              • até 8% de desconto na VN<br>
+              • 3 canais ao vivo<br>
+              • Conteúdos Plus+ (resolução melhorada)<br>
+              • Conta individual<br>
+              • Compras indisponíveis
+            </p>
+          </div>
+        </div>
+
+        <div class="plus-plan" id="plan-anual" title="Plano Anual">
+          <img src="https://i.postimg.cc/W3jy7wMd/Plano-Anual.jpg" alt="Anual">
+          <div class="plan-body">
+            <strong>Premium - 12xR$10,17 (R$99,90)</strong>
+            <p class="plus-small" style="margin-top:8px;">
+              • até 15% de desconto na VN<br>
+              • +6 canais ao vivo<br>
+              • Resolução até Full HD<br>
+              • Até 3 telas simultâneas<br>
+              • Compras disponíveis (exclusivo)<br>
+              • Conta para família (2 convidados)
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <p class="plus-small" style="margin-top:12px;">Ao confirmar você será levado ao pagamento. Após concluir, volte e use "Sou assinante" para ativar o token.</p>
+    </div>
+  `;
+  // eventos
+  document.getElementById('plan-mensal').addEventListener('click', () => confirmPlan('mensal'));
+  document.getElementById('plan-anual').addEventListener('click', () => confirmPlan('anual'));
+}
+
+/* CONFIRMAÇÃO e abertura do link de pagamento (apenas abre a URL; substitua as constantes) */
+function confirmPlan(tipo) {
+  const texto = tipo === 'anual' ?
+    'Plano Premium Anual (R$99,90). Vantagens: resol. Full HD, até 3 telas, compras disponíveis, família (2 convidados). Deseja prosseguir?' :
+    'Plano Básico Mensal (R$9,90). Vantagens: 3 canais, conteúdos Plus+, conta individual. Deseja prosseguir?';
+  if (!confirm(texto)) return;
+  if (tipo === 'mensal') {
+    // Abra o link mensal (colar o link real no topo da configuração)
+    if (LINK_PAGAMENTO_MENSAL.includes('ADICIONE')) {
+      alert('https://mpago.la/2SRyqam (const LINK_PAGAMENTO_MENSAL).');
+    } else {
+      window.open(LINK_PAGAMENTO_MENSAL, '_blank');
+    }
+  } else {
+    // Anual
+    if (LINK_PAGAMENTO_ANUAL.includes('ADICIONE')) {
+      alert('Coloque o link de pagamento anual no código (const LINK_PAGAMENTO_ANUAL).');
+    } else {
+      window.open(LINK_PAGAMENTO_ANUAL, '_blank');
+    }
+  }
+}
+
+/* Ativa o token localmente (gera expiração dependendo do tipo) */
+function activateTokenLocal(code, tipo) {
+  const now = new Date();
+  const exp = new Date(now);
+  if (tipo === 'anual') {
+    exp.setFullYear(now.getFullYear() + 1);
+    localStorage.setItem('GLPLUS_PREMIUM', 'true');
+  } else {
+    exp.setDate(now.getDate() + 30);
+  }
+  localStorage.setItem('GLPLUS_TOKEN', code);
+  localStorage.setItem('GLPLUS_EXPIRA', exp.toISOString());
+  alert('Assinatura ativada com sucesso!');
+  closePlusModal();
+  renderPlusCatalog(); // mostra catálogo
+}
+
+/* === mostre a seção Plus+ (catalogo) e esconda as outras === */
+function hideAllMainSections(){
+  // esconde as seções principais (movie-section e content-section)
+  document.querySelectorAll('.movie-section, .content-section').forEach(el => el.style.display = 'none');
+}
+function renderPlusCatalog(){
+  if (!isSubscriptionActive()) {
+    alert('Assinatura não ativa ou expirada. Ative para ver conteúdos Plus+.');
+    return;
+  }
+  // exibe só a seção Plus+
+  hideAllMainSections();
+  document.getElementById('plusSection').style.display = 'block';
+  // mostra botão sair GL+
+  const btnOut = document.getElementById('btnPlusSignOut');
+  btnOut.style.display = 'inline-block';
+  btnOut.onclick = () => {
+    if (!confirm('Deseja sair da assinatura local neste dispositivo?')) return;
+    clearSubscription();
+    btnOut.style.display = 'none';
+    document.getElementById('plusSection').style.display = 'none';
+    // opcional: volta para home
+    document.getElementById('home')?.scrollIntoView();
+  };
+
+  // popula os 50 primeiros filmes do movieData (se existir)
+  const grid = document.getElementById('plus-movie-grid');
+  grid.innerHTML = '';
+  if (!window.movieData || !Array.isArray(window.movieData)) {
+    grid.innerHTML = '<li class="movie-item">Nenhum conteúdo encontrado.</li>';
+    return;
+  }
+  const items = window.movieData.slice(0,50); // pega os 50 primeiros
+  items.forEach(m => {
+    const li = document.createElement('li');
+    li.className = 'movie-item';
+    li.style.cursor = 'pointer';
+    li.innerHTML = `
+      <img src="${m.poster || ''}" alt="${m.title}">
+      <button class="add-to-list-btn" title="Adicionar à minha lista"><i class="fa fa-plus"></i></button>
+    `;
+    li.addEventListener('click', () => openMovieModal(m));
+    // add-to-list handler (mesma lógica que você usa)
+    const addBtn = li.querySelector('.add-to-list-btn');
+    addBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // lógica simples de adicionar na minha lista (salva por id)
+      const myList = JSON.parse(localStorage.getItem('GL_MY_LIST') || '[]');
+      if (!myList.includes(m.id)) {
+        myList.push(m.id);
+        localStorage.setItem('GL_MY_LIST', JSON.stringify(myList));
+        addBtn.innerHTML = '<i class="fa fa-check"></i>';
       } else {
-        alert('O player não pôde ser iniciado.');
+        // remover
+        const idx = myList.indexOf(m.id);
+        if (idx > -1) myList.splice(idx,1);
+        localStorage.setItem('GL_MY_LIST', JSON.stringify(myList));
+        addBtn.innerHTML = '<i class="fa fa-plus"></i>';
       }
     });
     grid.appendChild(li);
   });
 }
 
-/* =========================
-   EXECUTA QUANDO LOGADO
-========================= */
+/* abre o modal do filme reutilizando o modal existente (movie-modal) */
+function openMovieModal(movie) {
+  // reusa estrutura do seu #movie-modal para exibir info do filme selecionado
+  const modal = document.getElementById('movie-modal');
+  if (!modal) return;
+  document.getElementById('modal-poster').src = movie.poster || '';
+  document.getElementById('modal-title').textContent = movie.title || '';
+  document.getElementById('modal-year').textContent = movie.year || '';
+  document.getElementById('modal-genres').textContent = (movie.genres || []).join(' • ');
+  document.getElementById('modal-description').textContent = movie.description || '';
+  // mostra modal
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+/* evento de fechar do movie-modal (já existe na página, mas garantir) */
+document.querySelectorAll('.close-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+    document.body.style.overflow = '';
+  });
+});
+
+/* === LIGAÇÕES DE BOTÕES === */
+document.getElementById('plusBtnSou').addEventListener('click', renderSouAssinante);
+document.getElementById('plusBtnQuero').addEventListener('click', renderQueroAssinar);
+
+/* Faz com que o clique na aba Plus+ do bottom nav abra o modal ou vá pro catálogo */
+(function attachPlusNav() {
+  // procura qualquer item do bottom-nav com texto 'plus' (insensível)
+  const navAnchors = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+  navAnchors.forEach(a => {
+    if ((a.textContent || '').toLowerCase().includes('plus')) {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        // se tem assinatura ativa, abre catálogo; senão, abre modal
+        if (isSubscriptionActive()) {
+          renderPlusCatalog();
+        } else {
+          openPlusModal();
+        }
+      });
+    }
+  });
+})();
+
+/* Quando o usuário fechar qualquer modal com click fora, garante fechar */
+window.addEventListener('click', (ev) => {
+  const plusModal = document.getElementById('plusModal');
+  if (ev.target === plusModal) closePlusModal();
+});
+
+/* Renderiza automaticamente o catálogo se assinatura ativa ao carregar */
 window.addEventListener('load', () => {
+  if (isSubscriptionActive()) {
+    // não abrir modal automaticamente, mas deixa a aba visível quando o usuário clicar
+    // opcional: comentar a próxima linha se não quiser abrir direto
+    // renderPlusCatalog();
+  }
+});
+
+/* Função utilitária: caso queira gerar tokens de teste localmente (uso offline)
+   NÃO salve tokens reais no código de produção.
+function generateTestTokens(n) {
+  const arr = [];
+  for (let i=0;i<n;i++){
+    const t = 'GLP-' + Math.random().toString(36).slice(2,10).toUpperCase();
+    arr.push(t);
+  }
+  console.log('Tokens gerados:', arr);
+  return arr;
+}
+*/
+    </script>
+<script>
+/* LISTA DE TOKENS PRÉ-GERADOS (Exemplo) - 100 mensais e 100 anuais
+   ATENÇÃO: esta lista fica visível no código. Para produção, migre para backend. */
+const VALID_TOKENS = (function(){
+  const obj = {};
+  // 100 tokens mensais
+  for(let i=0;i<100;i++){
+    const t = 'GLM-' + Math.random().toString(36).slice(2,10).toUpperCase();
+    obj[t] = { type: 'mensal' };
+  }
+  // 100 tokens anuais (premium)
+  for(let i=0;i<100;i++){
+    const t = 'GLA-' + Math.random().toString(36).slice(2,10).toUpperCase();
+    obj[t] = { type: 'anual' };
+  }
+  return obj;
+})();
+
+/* ----- UTILS ----- */
+function wait(ms){ return new Promise(res=>setTimeout(res,ms)); }
+
+
+/* ----- Chamadas automatizadas no load ----- */
+window.addEventListener('load', () => {
+  // muda os 50 conteúdos para Plus+
+  moveTopToPlus();
+
+  // se o usuário já tem assinatura válida, mostra o catálogo automaticamente (reaproveita função)
   if (typeof isSubscriptionActive === 'function' && isSubscriptionActive()) {
-    moveTopToPlus();
+    if (typeof renderPlusCatalog === 'function') renderPlusCatalog();
+  }
+});
+
+/* ----- Helpers para administração (gerar tokens extras) ----- */
+/* Gera N tokens (retorna array). Use apenas para criar tokens de teste para enviar ao cliente. */
+function generateTokens(n, tipo='mensal'){
+  const arr = [];
+  for(let i=0;i<n;i++){
+    const prefix = tipo === 'anual' ? 'GLA' : 'GLM';
+    const code = prefix + '-' + Math.random().toString(36).slice(2,10).toUpperCase();
+    VALID_TOKENS[code] = { type: tipo };
+    arr.push(code);
+  }
+  return arr;
+}
+
+/* Uso:
+   // gerar 50 tokens mensais
+   console.log(generateTokens(50,'mensal'));
+   // gerar 20 tokens anuais
+   console.log(generateTokens(20,'anual'));
+*/
+
+/* ----- Função para validar token programaticamente (usa VALID_TOKENS gerado acima) ----- */
+function validateTokenServerless(code){
+  if(!code) return null;
+  if(VALID_TOKENS[code]) return VALID_TOKENS[code].type;
+  return null;
+}
+
+/* ----- Integração com o fluxo de ativação já presente: 
+   Se você usou o bloco Plus+ que eu te passei antes, ao digitar o token ele usará
+   o prompt/validação e chamará activateTokenLocal(code,tipo).
+   Para validar automaticamente, substitua no bloco anterior a lógica de prompt por:
+     const tipo = validateTokenServerless(code);
+     if(!tipo) { alert('Token inválido'); return; }
+     activateTokenLocal(code, tipo);
+*/
+</script>
+    <script>
+// ==========================
+// SISTEMA DE CONTEÚDOS PLUS+
+// ==========================
+
+// Lista de conteúdos exclusivos Plus+
+window.plusData = [
+   { id: 1, title: "Os Dez Mandamentos", year: "1956", description: "A grandiosa história de Moisés, desde seu nascimento no Egito até libertar os hebreus da escravidão.", poster: "https://i.postimg.cc/0QSXwLHk/Os-10-Mandamentos.jpg", genres: ["Bíblico", "Drama"], videoUrl: "https://drive.google.com/file/d/1X1rFI59rqPfwKomSfM-VkyrHjJSxuaqy/preview" },
+    { id: 2, title: "O Grande Ditador", year: "1940", description: "Charlie Chaplin satiriza Hitler em um discurso histórico sobre humanidade e liberdade.", poster: "https://i.postimg.cc/6qXfWMLG/O-Grande-Ditador.jpg", genres: ["Comédia", "Drama"], videoUrl: "https://drive.google.com/file/d/1t8uZb6lABWbV9v5EYz9p9b7pLx2KMBKg/preview" },
+    { id: 3, title: "Tempos Modernos", year: "1936", description: "Chaplin luta contra a mecanização da sociedade em uma crítica social cômica e poética.", poster: "https://i.postimg.cc/h4VYTDgP/Tempos-Modernos.jpg", genres: ["Comédia", "Drama"], videoUrl: "https://drive.google.com/file/d/1eDAwKBGozwq-L8BuzMP0H7ZQk7z0L_kk/preview" },
+    { id: 4, title: "Metropolis", year: "1927", description: "Uma cidade futurista dividida entre ricos e trabalhadores — marco do cinema expressionista.", poster: "https://i.postimg.cc/nz6gN3rk/Metropolis.jpg", genres: ["Ficção científica", "Drama"], videoUrl: "https://drive.google.com/file/d/1D5hE3BBmEytf0EMzZUyW1Eo1PqSgPKZ7/preview" },
+    { id: 5, title: "O Garoto", year: "1921", description: "Um vagabundo cria um menino abandonado. Uma das obras mais emocionantes de Chaplin.", poster: "https://i.postimg.cc/1tMZwCNM/O-Garoto.jpg", genres: ["Drama", "Comédia"], videoUrl: "https://drive.google.com/file/d/1B9K5q1j3XoZUZzDoG9H9wP28S3epnTzK/preview" },
+    { id: 6, title: "O Circo", year: "1928", description: "Chaplin encontra trabalho como palhaço e se apaixona pela filha do dono do circo.", poster: "https://i.postimg.cc/QN8xyq6X/O-Circo.jpg", genres: ["Comédia", "Romance"], videoUrl: "https://drive.google.com/file/d/1pBtXkS6cL22e8VktibpMa2H35wqCs5h2/preview" },
+    { id: 7, title: "Luzes da Cidade", year: "1931", description: "O Vagabundo se apaixona por uma florista cega e tenta ajudá-la a recuperar a visão.", poster: "https://i.postimg.cc/HLkqPKsW/Luzes-da-Cidade.jpg", genres: ["Comédia", "Romance"], videoUrl: "https://drive.google.com/file/d/1p3G97nKgrw6vH7xgrq28Fupb3DGhzqWx/preview" },
+    { id: 8, title: "Em Busca do Ouro", year: "1925", description: "Chaplin viaja ao Alasca para encontrar ouro e enfrenta o frio, a fome e o amor.", poster: "https://i.postimg.cc/4dW0Yr9x/Em-Busca-do-Ouro.jpg", genres: ["Comédia", "Aventura"], videoUrl: "https://drive.google.com/file/d/1s3l7Kfo8sNfPvhFyRz5YI5DW5kQgh2Qk/preview" },
+    { id: 9, title: "O Retrato de Jennie", year: "1948", description: "Um artista conhece uma garota misteriosa que envelhece a cada encontro.", poster: "https://i.postimg.cc/FRSCL2nm/o-retrato-de-jennie-1948.png", genres: ["Drama", "Romance"], videoUrl: "https://drive.google.com/file/d/1Kc4Isipv_3V_429UW_v04b5LE7iBVZYX/preview" },
+    { id: 10, title: "O Homem que eu Deveria Odiar", year: "1961", description: "Um drama intenso sobre perdão, amor e arrependimento.", poster: "https://i.postimg.cc/7hwvFThN/O-Homem-que-eu-Deveria-Odiar.jpg", genres: ["Drama"], videoUrl: "https://drive.google.com/file/d/1YDFR4z7W3vG85QHnfb7f1Pn6W6yUZFy7/preview" }
+    // (adicione o restante dos 50 no mesmo formato)
+  ];
+
+// Função que renderiza os conteúdos na aba Plus+
+function moveTopToPlus() {
+  const grid = document.getElementById('plus-movie-grid');
+  if (!grid) return;
+
+  grid.innerHTML = ''; // limpa antes
+
+  if (!window.plusData || !plusData.length) {
+    grid.innerHTML = '<li style="color:#aaa;">Nenhum conteúdo encontrado.</li>';
+    return;
+  }
+
+  plusData.forEach(movie => {
+    const li = document.createElement('li');
+    li.className = 'movie-item';
+    li.innerHTML = `
+      <img src="${movie.poster}" alt="${movie.title}" 
+        style="width:100%;height:auto;object-fit:cover;border-radius:8px;cursor:pointer;">
+    `;
+    li.addEventListener('click', () => {
+      if (typeof openMovieModal === 'function') {
+        openMovieModal(movie);
+      } else {
+        alert("O player não pôde ser iniciado.");
+      }
+    });
+    grid.appendChild(li);
+  });
+}
+
+// Só carrega os filmes Plus+ se o token for válido
+window.addEventListener('load', () => {
+  try {
+    if (typeof isSubscriptionActive === 'function' && isSubscriptionActive()) {
+      moveTopToPlus();
+    }
+  } catch(e) {
+    console.warn("Erro ao carregar Plus+:", e);
   }
 });
 </script>
     <script>
-// === CORREÇÃO DO BOTÃO TRANSLÚCIDO DA ABA PLUS+ ===
-// Este script garante que o botão translúcido "Plus+" do menu volte a funcionar.
+/* ================================
+   PATCH CORRETIVO DO PLUS+
+   — não altera menus nem tokens —
+   — apenas garante:
+      1. exibição dos filmes Plus+
+      2. uso do player da Home
+   ================================ */
 
-(function fixPlusButton(){
-  // aguarda o DOM estar pronto
-  document.addEventListener('DOMContentLoaded', () => {
-    // procura qualquer botão ou link do menu inferior que tenha "plus" no nome
-    const navAnchors = document.querySelectorAll('.bottom-nav a, .bottom-nav button, nav a, nav button');
-    navAnchors.forEach(a => {
-      const text = (a.textContent || a.getAttribute('aria-label') || '').toLowerCase();
-      if (text.includes('plus')) {
-        a.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          // verifica se o usuário tem assinatura ativa
-          if (typeof isSubscriptionActive === 'function' && isSubscriptionActive()) {
-            // mostra o catálogo Plus+
-            if (typeof renderPlusCatalog === 'function') {
-              renderPlusCatalog();
-            } else if (typeof moveTopToPlus === 'function') {
-              moveTopToPlus();
-              document.getElementById('plusSection').style.display = 'block';
-            }
+document.addEventListener("DOMContentLoaded", () => {
+  // --- Garante que a lista Plus+ seja exibida corretamente ---
+  function carregarPlusFilmes() {
+    try {
+      const grid = document.getElementById("plus-movie-grid");
+      if (!grid) return;
+
+      grid.innerHTML = "";
+      const filmes = window.plusData || [];
+      if (!filmes.length) {
+        grid.innerHTML = '<li style="color:#aaa;">Nenhum conteúdo encontrado.</li>';
+        return;
+      }
+
+      filmes.forEach(movie => {
+        const li = document.createElement("li");
+        li.className = "movie-item";
+        li.innerHTML = `
+          <img src="${movie.poster}" alt="${movie.title}"
+            style="width:100%;height:auto;object-fit:cover;border-radius:8px;cursor:pointer;">
+        `;
+
+        li.addEventListener("click", () => {
+          // usa o player principal da Home
+          if (typeof openMovieModal === "function") {
+            openMovieModal(movie);
           } else {
-            // abre o modal de login/assinatura
-            if (typeof openPlusModal === 'function') {
-              openPlusModal();
-            } else {
-              alert('Recarregue a página e tente novamente.');
-            }
+            alert("Não foi possível abrir o player.");
           }
         });
-      }
-    });
-  });
-})();
-</script>
-    <script>
-// === RESTAURAÇÃO ROBUSTA DO BOTÃO PLUS+ (cole antes de </body>) ===
-(function(){
-  let tries = 0, maxTries = 80; // tenta por ~8s (80 * 100ms)
-  const iv = setInterval(() => {
-    tries++;
-    const plusModal       = document.getElementById('plusModal');
-    const plusBtnSou      = document.getElementById('plusBtnSou');
-    const plusBtnQuero    = document.getElementById('plusBtnQuero');
-    const plusModalClose  = document.getElementById('plusModalClose') || document.querySelector('#plusModal .close-btn');
-    const plusSection     = document.getElementById('plusSection');
-    const navAnchors      = document.querySelectorAll('.bottom-nav a, .bottom-nav button, nav a, nav button');
 
-    // Se não encontrar os elementos ainda, espera
-    if (!plusModal || !plusBtnSou || !plusBtnQuero) {
-      if (tries >= maxTries) {
-        clearInterval(iv);
-        console.warn('fixPlus: elementos Plus+ não encontrados (timeout).');
-      }
-      return;
+        grid.appendChild(li);
+      });
+    } catch (e) {
+      console.warn("Erro ao carregar filmes Plus+:", e);
     }
+  }
 
-    // helpers
-    function openPlusUI(viewFn) {
-      try {
-        document.body.style.overflow = 'hidden';
-        plusModal.style.display = 'flex';
-        if (typeof viewFn === 'function') viewFn();
-        else if (typeof renderPlusDefault === 'function') renderPlusDefault();
-      } catch(e){ console.warn('openPlusUI erro', e); }
-    }
-    function closePlusUI() {
-      try {
-        plusModal.style.display = 'none';
-        document.body.style.overflow = '';
-      } catch(e){ console.warn('closePlusUI erro', e); }
-    }
-    function showPlusCatalogFallback(){
-      try {
-        if (plusSection) plusSection.style.display = 'block';
-        if (typeof moveTopToPlus === 'function') moveTopToPlus();
-      } catch(e){ console.warn('showPlusCatalogFallback erro', e); }
-    }
-
-    // ligações idempotentes (substitui handlers apenas deste script)
-    plusBtnSou.onclick = (e) => { e && e.preventDefault && e.preventDefault(); openPlusUI(typeof renderSouAssinante === 'function' ? renderSouAssinante : null); };
-    plusBtnQuero.onclick = (e) => { e && e.preventDefault && e.preventDefault(); openPlusUI(typeof renderQueroAssinar === 'function' ? renderQueroAssinar : null); };
-    if (plusModalClose) plusModalClose.onclick = (e) => { e && e.preventDefault && e.preventDefault(); closePlusUI(); };
-
-    // attach nav button(s) that contenham "plus" no texto / aria-label
-    navAnchors.forEach(a => {
-      const txt = ((a.textContent || '') + ' ' + (a.getAttribute && (a.getAttribute('aria-label') || ''))).toLowerCase();
-      if (txt.includes('plus')) {
-        a.onclick = (ev) => {
-          ev && ev.preventDefault && ev.preventDefault();
-          ev && ev.stopPropagation && ev.stopPropagation();
-          try {
-            if (typeof isSubscriptionActive === 'function' && isSubscriptionActive()) {
-              // usuário assinante -> abre catálogo (prioriza sua função)
-              if (typeof renderPlusCatalog === 'function') renderPlusCatalog();
-              else showPlusCatalogFallback();
-            } else {
-              // não assinante -> abre modal na view "Sou assinante" (ou default)
-              openPlusUI(typeof renderSouAssinante === 'function' ? renderSouAssinante : null);
-            }
-          } catch(err) {
-            console.warn('plus nav click erro', err);
-            // fallback simples
-            openPlusUI(typeof renderSouAssinante === 'function' ? renderSouAssinante : null);
-          }
-        };
-      }
-    });
-
-    // Se tiver assinatura ativa ao carregar, mostra catálogo (com segurança)
-    try {
-      if (typeof isSubscriptionActive === 'function' && isSubscriptionActive()) {
-        if (typeof renderPlusCatalog === 'function') {
-          // não chamar automaticamente se você não quiser auto-open (mantive seguro)
-          // renderPlusCatalog();
-        } else if (typeof moveTopToPlus === 'function' && plusSection) {
-          // apenas prepara os itens (sem forçar scroll)
-          moveTopToPlus();
-        }
-      }
-    } catch(e){ /* ignore */ }
-
-    clearInterval(iv); // sucesso -> para de tentar
-  }, 100);
-})();
-</script>
-    <script>
-/* ====== REPARO: Garantir que o botão Plus+ funcione ====== */
-document.addEventListener('DOMContentLoaded', () => {
+  // --- Garante que o botão Plus+ funcione corretamente ---
   function ligarBotaoPlus() {
-    const botoes = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
-    if (!botoes.length) return;
+    const botoes = document.querySelectorAll(".bottom-nav a, .bottom-nav button");
     botoes.forEach(btn => {
-      const texto = (btn.textContent || '').toLowerCase();
-      if (texto.includes('plus')) {
-        btn.onclick = (e) => {
+      const texto = (btn.textContent || "").toLowerCase();
+      if (texto.includes("plus")) {
+        btn.onclick = e => {
           e.preventDefault();
           e.stopPropagation();
-          if (typeof isSubscriptionActive === 'function' && isSubscriptionActive()) {
-            if (typeof renderPlusCatalog === 'function') {
+          if (typeof isSubscriptionActive === "function" && isSubscriptionActive()) {
+            if (typeof renderPlusCatalog === "function") {
               renderPlusCatalog();
-            } else {
-              alert('Assinatura ativa, mas catálogo não pôde ser aberto.');
+              carregarPlusFilmes();
             }
           } else {
-            if (typeof openPlusModal === 'function') {
+            if (typeof openPlusModal === "function") {
               openPlusModal();
-            } else {
-              alert('Modal Plus+ não pôde ser aberto.');
             }
           }
         };
@@ -1986,15 +2361,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // tenta conectar o botão até encontrar a barra inferior
-  let tentativas = 0;
-  const verificar = setInterval(() => {
-    ligarBotaoPlus();
-    tentativas++;
-    if (document.querySelector('.bottom-nav') || tentativas > 50) {
-      clearInterval(verificar);
-    }
-  }, 200);
+  // tenta ativar o botão e carregar filmes
+  ligarBotaoPlus();
+
+  // se o usuário já tiver assinatura ativa
+  if (typeof isSubscriptionActive === "function" && isSubscriptionActive()) {
+    carregarPlusFilmes();
+  }
 });
 </script>
 </body>
