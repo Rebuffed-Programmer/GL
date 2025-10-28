@@ -2384,5 +2384,44 @@ function validateTokenServerless(code){
   window.populatePlusFromMovieData = populatePlusFromMovieData;
 })();
 </script>
+    <script>
+/* ===== RENDERIZAÇÃO DOS FILMES DA ABA PLUS+ ===== */
+function moveTopToPlus() {
+  const grid = document.getElementById('plus-movie-grid');
+  if (!grid) return;
+
+  const plusMovies = [
+    { id: 1, title: "Os Dez Mandamentos", year: "1956", description: "A grandiosa história de Moisés, desde seu nascimento no Egito até libertar os hebreus da escravidão.", poster: "https://i.postimg.cc/0QSXwLHk/Os-10-Mandamentos.jpg", genres: ["Bíblico", "Drama"], videoUrl: "https://drive.google.com/file/d/1X1rFI59rqPfwKomSfM-VkyrHjJSxuaqy/preview" },
+    { id: 2, title: "O Grande Ditador", year: "1940", description: "Charlie Chaplin satiriza Hitler em um discurso histórico sobre humanidade e liberdade.", poster: "https://i.postimg.cc/6qXfWMLG/O-Grande-Ditador.jpg", genres: ["Comédia", "Drama"], videoUrl: "https://drive.google.com/file/d/1t8uZb6lABWbV9v5EYz9p9b7pLx2KMBKg/preview" },
+    { id: 3, title: "Tempos Modernos", year: "1936", description: "Chaplin luta contra a mecanização da sociedade em uma crítica social cômica e poética.", poster: "https://i.postimg.cc/h4VYTDgP/Tempos-Modernos.jpg", genres: ["Comédia", "Drama"], videoUrl: "https://drive.google.com/file/d/1eDAwKBGozwq-L8BuzMP0H7ZQk7z0L_kk/preview" },
+    { id: 4, title: "Metropolis", year: "1927", description: "Uma cidade futurista dividida entre ricos e trabalhadores — marco do cinema expressionista.", poster: "https://i.postimg.cc/nz6gN3rk/Metropolis.jpg", genres: ["Ficção científica", "Drama"], videoUrl: "https://drive.google.com/file/d/1D5hE3BBmEytf0EMzZUyW1Eo1PqSgPKZ7/preview" },
+    { id: 5, title: "O Garoto", year: "1921", description: "Um vagabundo cria um menino abandonado. Uma das obras mais emocionantes de Chaplin.", poster: "https://i.postimg.cc/1tMZwCNM/O-Garoto.jpg", genres: ["Drama", "Comédia"], videoUrl: "https://drive.google.com/file/d/1B9K5q1j3XoZUZzDoG9H9wP28S3epnTzK/preview" },
+    { id: 6, title: "O Circo", year: "1928", description: "Chaplin encontra trabalho como palhaço e se apaixona pela filha do dono do circo.", poster: "https://i.postimg.cc/QN8xyq6X/O-Circo.jpg", genres: ["Comédia", "Romance"], videoUrl: "https://drive.google.com/file/d/1pBtXkS6cL22e8VktibpMa2H35wqCs5h2/preview" },
+    { id: 7, title: "Luzes da Cidade", year: "1931", description: "O Vagabundo se apaixona por uma florista cega e tenta ajudá-la a recuperar a visão.", poster: "https://i.postimg.cc/HLkqPKsW/Luzes-da-Cidade.jpg", genres: ["Comédia", "Romance"], videoUrl: "https://drive.google.com/file/d/1p3G97nKgrw6vH7xgrq28Fupb3DGhzqWx/preview" },
+    { id: 8, title: "Em Busca do Ouro", year: "1925", description: "Chaplin viaja ao Alasca para encontrar ouro e enfrenta o frio, a fome e o amor.", poster: "https://i.postimg.cc/4dW0Yr9x/Em-Busca-do-Ouro.jpg", genres: ["Comédia", "Aventura"], videoUrl: "https://drive.google.com/file/d/1s3l7Kfo8sNfPvhFyRz5YI5DW5kQgh2Qk/preview" },
+    { id: 9, title: "O Retrato de Jennie", year: "1948", description: "Um artista conhece uma garota misteriosa que envelhece a cada encontro.", poster: "https://i.postimg.cc/FRSCL2nm/o-retrato-de-jennie-1948.png", genres: ["Drama", "Romance"], videoUrl: "https://drive.google.com/file/d/1Kc4Isipv_3V_429UW_v04b5LE7iBVZYX/preview" },
+    { id: 10, title: "O Homem que eu Deveria Odiar", year: "1961", description: "Um drama intenso sobre perdão, amor e arrependimento.", poster: "https://i.postimg.cc/7hwvFThN/O-Homem-que-eu-Deveria-Odiar.jpg", genres: ["Drama"], videoUrl: "https://drive.google.com/file/d/1YDFR4z7W3vG85QHnfb7f1Pn6W6yUZFy7/preview" }
+    // (adicione o restante dos 50 no mesmo formato)
+  ];
+
+  grid.innerHTML = "";
+
+  plusMovies.forEach(movie => {
+    const li = document.createElement("li");
+    li.className = "movie-item";
+    li.innerHTML = `
+      <img src="${movie.poster}" alt="${movie.title}" 
+           style="width:100%;height:auto;object-fit:cover;border-radius:8px;">
+    `;
+    li.addEventListener("click", () => {
+      // Reusa o mesmo modal e player do Home
+      if (typeof openMovieModal === "function") openMovieModal(movie);
+      else console.warn("openMovieModal não encontrado no escopo global.");
+    });
+    grid.appendChild(li);
+  });
+}
+window.addEventListener("load", moveTopToPlus);
+</script>
 </body>
 </html>
