@@ -2421,5 +2421,70 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 </script>
+    <script>
+/* =====================================
+   CORREÇÃO DEFINITIVA: "Assistir Já" (Plus+)
+   Usa o mesmo player do Home (openMovieModal)
+   ===================================== */
+
+document.addEventListener("click", function (e) {
+  // se o botão clicado tem classe btn-watch (ou id modal-watch-btn)
+  if (e.target.matches(".btn-watch, #modal-watch-btn")) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    try {
+      // tenta pegar o título do modal atual (Plus+)
+      const titulo = document.getElementById("modal-title")?.textContent?.trim() ||
+                     document.querySelector("#plusModal h2")?.textContent?.trim();
+
+      let filmeAtual = null;
+
+      // tenta encontrar o filme no plusData
+      if (window.plusData && titulo) {
+        filmeAtual = plusData.find(f => f.title.trim().toLowerCase() === titulo.toLowerCase());
+      }
+
+      // se não achou pelo título, tenta pegar o último filme clicado armazenado
+      if (!filmeAtual && window.ultimoFilmeClicado) {
+        filmeAtual = window.ultimoFilmeClicado;
+      }
+
+      // se ainda não achou, mostra erro
+      if (!filmeAtual) {
+        alert("Não foi possível identificar o filme.");
+        return;
+      }
+
+      // fecha o modal da Plus+
+      const plusModal = document.getElementById("plusModal");
+      if (plusModal) plusModal.style.display = "none";
+
+      // abre o player principal (Home)
+      if (typeof openMovieModal === "function") {
+        openMovieModal(filmeAtual);
+      } else {
+        alert("Player principal não encontrado (openMovieModal).");
+      }
+
+    } catch (err) {
+      console.error("Erro ao abrir o player Plus+:", err);
+      alert("Não foi possível iniciar este conteúdo.");
+    }
+  }
+});
+
+// garante que cada clique em filme da Plus+ salve o filme atual
+document.addEventListener("click", function (e) {
+  const item = e.target.closest("#plus-movie-grid .movie-item");
+  if (item && item.querySelector("img")) {
+    const titulo = item.querySelector("img").alt.trim();
+    if (window.plusData && titulo) {
+      const filme = plusData.find(f => f.title.trim().toLowerCase() === titulo.toLowerCase());
+      if (filme) window.ultimoFilmeClicado = filme;
+    }
+  }
+});
+</script>
 </body>
 </html>
