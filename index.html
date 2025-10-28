@@ -2486,5 +2486,103 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
+    <script>
+/* ======================================================
+   SISTEMA: "Assistir Já" (Plus+) → Player principal
+   ====================================================== */
+
+document.addEventListener("click", function (e) {
+  if (e.target.matches(".btn-watch, #modal-watch-btn")) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    try {
+      // Obtém o título do modal atual
+      const titulo =
+        document.getElementById("modal-title")?.textContent?.trim() ||
+        document.querySelector("#plusModal h2")?.textContent?.trim();
+
+      // Procura o filme correspondente
+      let filme = null;
+      if (window.plusData && titulo) {
+        filme = plusData.find(
+          (f) => f.title.trim().toLowerCase() === titulo.toLowerCase()
+        );
+      }
+      if (!filme && window.ultimoFilmeClicado) {
+        filme = window.ultimoFilmeClicado;
+      }
+      if (!filme) {
+        alert("Não foi possível identificar o filme.");
+        return;
+      }
+
+      // Fecha o modal da Plus+
+      const plusModal = document.getElementById("plusModal");
+      if (plusModal) plusModal.style.display = "none";
+
+      // Esconde todas as seções principais
+      document
+        .querySelectorAll(".movie-section, .content-section")
+        .forEach((sec) => (sec.style.display = "none"));
+
+      // Mostra o player principal do Home (já existente)
+      const playerModal = document.getElementById("movie-modal");
+      if (playerModal) {
+        // Preenche dados do modal
+        document.getElementById("modal-poster").src = filme.poster || "";
+        document.getElementById("modal-title").textContent = filme.title || "";
+        document.getElementById("modal-year").textContent = filme.year || "";
+        document.getElementById("modal-genres").textContent = (
+          filme.genres || []
+        ).join(" • ");
+        document.getElementById("modal-description").textContent =
+          filme.description || "";
+
+        // Substitui o vídeo
+        const container = document.getElementById("modal-video-container");
+        if (container) {
+          container.innerHTML = `
+            <iframe id="drivePlayer" src="${filme.videoUrl}" 
+              frameborder="0" allowfullscreen allow="autoplay"></iframe>
+          `;
+        }
+
+        // Mostra o player
+        playerModal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+
+        // Garante que os botões do player original sejam mantidos
+        const voltar = document.querySelector(".back-to-info-btn");
+        if (voltar) voltar.style.display = "block";
+
+        // Garante que o fullscreen modificado funcione (do Home)
+        if (typeof setupFullScreen === "function") {
+          setupFullScreen();
+        }
+      } else {
+        alert("Player principal não encontrado (movie-modal).");
+      }
+    } catch (err) {
+      console.error("Erro ao abrir player Plus+:", err);
+      alert("Não foi possível iniciar este conteúdo.");
+    }
+  }
+});
+
+// Salva o último filme clicado na Plus+
+document.addEventListener("click", function (e) {
+  const item = e.target.closest("#plus-movie-grid .movie-item");
+  if (item && item.querySelector("img")) {
+    const titulo = item.querySelector("img").alt.trim();
+    if (window.plusData && titulo) {
+      const filme = plusData.find(
+        (f) => f.title.trim().toLowerCase() === titulo.toLowerCase()
+      );
+      if (filme) window.ultimoFilmeClicado = filme;
+    }
+  }
+});
+</script>
 </body>
 </html>
