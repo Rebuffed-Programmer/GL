@@ -2584,5 +2584,354 @@ document.addEventListener("click", function (e) {
   }
 });
 </script>
+    <!-- ========================== -->
+<!-- PLAYER EXCLUSIVO DO PLUS+ -->
+<!-- ========================== -->
+<div id="plus-movie-modal" class="modal plus-video-modal" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-video-container" id="plusVideoContainer"></div>
+  </div>
+</div>
+
+<style>
+/* PLAYER PLUS+ (idêntico ao da Home) */
+.plus-video-modal {
+  padding: 0;
+  backdrop-filter: none;
+  background-color: black;
+}
+
+.plus-video-modal .modal-content {
+  max-width: 100%;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border-radius: 0;
+  overflow: hidden;
+  background-color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plus-video-modal .modal-video-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.plus-video-modal .modal-video-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.plus-video-modal .back-to-info-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  font-size: 1em;
+  cursor: pointer;
+  z-index: 10;
+  transition: background-color 0.3s;
+}
+.plus-video-modal .back-to-info-btn:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+</style>
+
+<script>
+// === PLAYER PLUS+ (baseado no da Home) ===
+function showBlockedMessagePlus() {
+  const toast = document.createElement('div');
+  toast.textContent = 'Abertura externa desativada.';
+  toast.style.position = 'absolute';
+  toast.style.top = '12px';
+  toast.style.right = '64px';
+  toast.style.padding = '8px 12px';
+  toast.style.background = 'rgba(0,0,0,0.7)';
+  toast.style.color = '#fff';
+  toast.style.borderRadius = '6px';
+  toast.style.zIndex = '10000';
+  toast.style.fontSize = '14px';
+  document.querySelector('.plus-video-modal .modal-video-container').appendChild(toast); 
+  setTimeout(()=> { 
+    toast.style.opacity = '0'; 
+    toast.style.transition = 'opacity 0.3s ease';
+    setTimeout(()=> toast.remove(), 300); 
+  }, 1200);
+}
+
+function switchToVideoPlus(videoUrl) {
+  const modal = document.getElementById('plus-movie-modal');
+  const container = document.getElementById('plusVideoContainer');
+  if (!modal || !container) return;
+
+  // fecha o catálogo e mostra só o player
+  document.querySelectorAll('.movie-section, .content-section').forEach(el => el.style.display = 'none');
+  modal.style.display = 'flex';
+  modal.classList.add('fullscreen-video');
+
+  // fullscreen + bloqueios
+  try {
+    const root = document.documentElement;
+    if (root.requestFullscreen) root.requestFullscreen();
+    else if (root.webkitRequestFullscreen) root.webkitRequestFullscreen();
+    if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape');
+  } catch(e){}
+
+  container.innerHTML = ''; // limpa player anterior
+
+  // botão voltar
+  const backBtn = document.createElement('button');
+  backBtn.className = 'back-to-info-btn';
+  backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Voltar ao Catálogo';
+  backBtn.onclick = () => {
+    modal.style.display = 'none';
+    document.exitFullscreen?.();
+    document.getElementById('plusSection').style.display = 'block';
+  };
+  container.appendChild(backBtn);
+
+  // cria wrapper do vídeo
+  const wrapper = document.createElement('div');
+  wrapper.style.position = 'relative';
+  wrapper.style.width = '100%';
+  wrapper.style.height = '100%';
+
+  // iframe do drive
+  const iframe = document.createElement('iframe');
+  iframe.src = videoUrl;
+  iframe.allow = 'autoplay; encrypted-media';
+  iframe.allowFullscreen = true;
+  iframe.style.width = '100%';
+  iframe.style.height = '100%';
+  iframe.style.border = 'none';
+  wrapper.appendChild(iframe);
+
+  // botão de bloqueio superior
+  const blockTop = document.createElement('button');
+  blockTop.className = 'block-newtab-btn';
+  blockTop.title = 'Abertura externa desativada';
+  Object.assign(blockTop.style, {
+    position: 'absolute',
+    top: '12px',
+    right: '12px',
+    width: '44px',
+    height: '44px',
+    border: 'none',
+    background: 'rgba(0,0,0,0.15)',
+    color: '#fff',
+    borderRadius: '8px',
+    zIndex: '9999',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backdropFilter: 'blur(2px)'
+  });
+  blockTop.innerHTML = '<i class="fas fa-link"></i>';
+  blockTop.onclick = e => { e.preventDefault(); e.stopPropagation(); showBlockedMessagePlus(); };
+  wrapper.appendChild(blockTop);
+
+  // botão de bloqueio inferior
+  setTimeout(() => {
+    const blockBottom = document.createElement('button');
+    blockBottom.className = 'block-newtab-btn';
+    blockBottom.title = 'Abertura externa desativada';
+    Object.assign(blockBottom.style, {
+      position: 'absolute',
+      bottom: '20px',
+      right: '28px',
+      width: '60px',
+      height: '59px',
+      border: 'none',
+      background: 'rgba(0,0,0,0.15)',
+      color: '#fff',
+      borderRadius: '0.1px',
+      zIndex: '9999',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backdropFilter: 'blur(2px)'
+    });
+    blockBottom.innerHTML = '<i class="fas fa-link"></i>';
+    blockBottom.onclick = e => { e.preventDefault(); e.stopPropagation(); showBlockedMessagePlus(); };
+    wrapper.appendChild(blockBottom);
+  }, 200);
+
+  // adiciona tudo
+  container.appendChild(wrapper);
+}
+
+// Clicar em "Assistir já" (Plus+) → usar este player
+function attachPlusPlayerButtons() {
+  document.querySelectorAll('.plus-watch-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const video = btn.dataset.video;
+      if (video) switchToVideoPlus(video);
+    });
+  });
+}
+window.addEventListener('load', attachPlusPlayerButtons);
+</script>
+    <script>
+// ==========================
+// CORREÇÃO DO PLAYER PLUS+
+// ==========================
+
+// --- Função que mostra mensagem do bloqueio (mantém o mesmo visual do Home)
+function showBlockedMessage() {
+  const toast = document.createElement('div');
+  toast.textContent = 'Abertura externa desativada.';
+  Object.assign(toast.style, {
+    position: 'absolute',
+    top: '12px',
+    right: '64px',
+    padding: '8px 12px',
+    background: 'rgba(0,0,0,0.7)',
+    color: '#fff',
+    borderRadius: '6px',
+    zIndex: '10000',
+    fontSize: '14px',
+    transition: 'opacity 0.3s ease'
+  });
+  document.querySelector('.modal.fullscreen-video .modal-video-container')?.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 300);
+  }, 1200);
+}
+
+// --- Função que abre o player (usa o mesmo modal da Home)
+function switchToVideoPlus(videoUrl) {
+  if (!videoUrl) {
+    alert('Vídeo indisponível.');
+    return;
+  }
+
+  // Força fullscreen e modo paisagem (idêntico ao Home)
+  try {
+    const root = document.documentElement;
+    if (root.requestFullscreen) root.requestFullscreen();
+    else if (root.webkitRequestFullscreen) root.webkitRequestFullscreen();
+  } catch(e){}
+  try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape'); } catch(e){}
+
+  const movieModal = document.getElementById('movie-modal');
+  const modalInfoContainer = document.querySelector('.modal-info-container');
+  const modalVideoContainer = document.querySelector('.modal-video-container');
+  if (!movieModal || !modalVideoContainer) return;
+
+  // Mostra o player
+  modalInfoContainer.style.display = 'none';
+  modalVideoContainer.style.display = 'block';
+  movieModal.classList.add('fullscreen-video');
+  modalVideoContainer.innerHTML = '';
+
+  // Botão voltar
+  const backBtn = document.createElement('button');
+  backBtn.className = 'back-to-info-btn';
+  backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Voltar ao Catálogo';
+  backBtn.addEventListener('click', () => {
+    movieModal.classList.remove('fullscreen-video');
+    modalVideoContainer.innerHTML = '';
+    modalVideoContainer.style.display = 'none';
+    modalInfoContainer.style.display = 'block';
+    document.exitFullscreen?.();
+  });
+
+  // Wrapper e iframe
+  const wrapper = document.createElement('div');
+  wrapper.style.position = 'relative';
+  wrapper.style.width = '100%';
+  wrapper.style.height = '100%';
+
+  const iframe = document.createElement('iframe');
+  iframe.src = videoUrl;
+  iframe.allow = 'autoplay; encrypted-media';
+  iframe.allowFullscreen = true;
+  Object.assign(iframe.style, {
+    width: '100%',
+    height: '100%',
+    border: 'none',
+    display: 'block'
+  });
+
+  // Botão bloqueador (canto superior direito)
+  const blockBtn = document.createElement('button');
+  Object.assign(blockBtn.style, {
+    position: 'absolute',
+    top: '12px',
+    right: '12px',
+    width: '44px',
+    height: '44px',
+    border: 'none',
+    background: 'rgba(0,0,0,0.15)',
+    color: '#fff',
+    borderRadius: '8px',
+    zIndex: '9999',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backdropFilter: 'blur(2px)'
+  });
+  blockBtn.innerHTML = '<i class="fas fa-link"></i>';
+  blockBtn.title = 'Abertura externa desativada';
+  blockBtn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); showBlockedMessage(); };
+
+  // Botão bloqueador inferior (acima do botão F)
+  const blockBtnBottom = blockBtn.cloneNode(true);
+  Object.assign(blockBtnBottom.style, {
+    top: '',
+    bottom: '20px',
+    right: '28px',
+    width: '60px',
+    height: '59px',
+    borderRadius: '0.1px'
+  });
+
+  // Monta o player
+  wrapper.appendChild(iframe);
+  wrapper.appendChild(blockBtn);
+  wrapper.appendChild(blockBtnBottom);
+  modalVideoContainer.appendChild(backBtn);
+  modalVideoContainer.appendChild(wrapper);
+}
+
+// --- Corrige e ativa botões "Assistir já" da Plus+
+function attachPlusPlayerButtons() {
+  const buttons = document.querySelectorAll('.plus-watch-btn, .assistir-ja, [data-video]');
+  buttons.forEach(btn => {
+    if (btn.dataset.bound) return; // evita duplicar evento
+    btn.dataset.bound = 'true';
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const videoUrl = e.target.dataset.video || btn.getAttribute('data-video');
+      switchToVideoPlus(videoUrl);
+    });
+  });
+}
+
+// --- Executa no carregamento e também após renderização dos filmes Plus+
+window.addEventListener('load', () => {
+  attachPlusPlayerButtons();
+
+  // Se filmes são renderizados dinamicamente
+  const grid = document.getElementById('plus-movie-grid');
+  if (grid) {
+    const observer = new MutationObserver(() => attachPlusPlayerButtons());
+    observer.observe(grid, { childList: true, subtree: true });
+  }
+});
+</script>
 </body>
 </html>
