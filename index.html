@@ -2228,13 +2228,13 @@ function validateTokenServerless(code){
 */
 </script>
     <script>
-/* ===== RENDERIZAÇÃO DOS FILMES DA ABA PLUS+ ===== */
-function moveTopToPlus() {
-  const grid = document.getElementById('plus-movie-grid');
-  if (!grid) return;
+// ==========================
+// SISTEMA DE CONTEÚDOS PLUS+
+// ==========================
 
-  const plusMovies = [
-    { id: 1, title: "Os Dez Mandamentos", year: "1956", description: "A grandiosa história de Moisés, desde seu nascimento no Egito até libertar os hebreus da escravidão.", poster: "https://i.postimg.cc/0QSXwLHk/Os-10-Mandamentos.jpg", genres: ["Bíblico", "Drama"], videoUrl: "https://drive.google.com/file/d/1X1rFI59rqPfwKomSfM-VkyrHjJSxuaqy/preview" },
+// Lista de conteúdos exclusivos Plus+
+window.plusData = [
+   { id: 1, title: "Os Dez Mandamentos", year: "1956", description: "A grandiosa história de Moisés, desde seu nascimento no Egito até libertar os hebreus da escravidão.", poster: "https://i.postimg.cc/0QSXwLHk/Os-10-Mandamentos.jpg", genres: ["Bíblico", "Drama"], videoUrl: "https://drive.google.com/file/d/1X1rFI59rqPfwKomSfM-VkyrHjJSxuaqy/preview" },
     { id: 2, title: "O Grande Ditador", year: "1940", description: "Charlie Chaplin satiriza Hitler em um discurso histórico sobre humanidade e liberdade.", poster: "https://i.postimg.cc/6qXfWMLG/O-Grande-Ditador.jpg", genres: ["Comédia", "Drama"], videoUrl: "https://drive.google.com/file/d/1t8uZb6lABWbV9v5EYz9p9b7pLx2KMBKg/preview" },
     { id: 3, title: "Tempos Modernos", year: "1936", description: "Chaplin luta contra a mecanização da sociedade em uma crítica social cômica e poética.", poster: "https://i.postimg.cc/h4VYTDgP/Tempos-Modernos.jpg", genres: ["Comédia", "Drama"], videoUrl: "https://drive.google.com/file/d/1eDAwKBGozwq-L8BuzMP0H7ZQk7z0L_kk/preview" },
     { id: 4, title: "Metropolis", year: "1927", description: "Uma cidade futurista dividida entre ricos e trabalhadores — marco do cinema expressionista.", poster: "https://i.postimg.cc/nz6gN3rk/Metropolis.jpg", genres: ["Ficção científica", "Drama"], videoUrl: "https://drive.google.com/file/d/1D5hE3BBmEytf0EMzZUyW1Eo1PqSgPKZ7/preview" },
@@ -2247,24 +2247,46 @@ function moveTopToPlus() {
     // (adicione o restante dos 50 no mesmo formato)
   ];
 
-  grid.innerHTML = "";
+// Função que renderiza os conteúdos na aba Plus+
+function moveTopToPlus() {
+  const grid = document.getElementById('plus-movie-grid');
+  if (!grid) return;
 
-  plusMovies.forEach(movie => {
-    const li = document.createElement("li");
-    li.className = "movie-item";
+  grid.innerHTML = ''; // limpa antes
+
+  if (!window.plusData || !plusData.length) {
+    grid.innerHTML = '<li style="color:#aaa;">Nenhum conteúdo encontrado.</li>';
+    return;
+  }
+
+  plusData.forEach(movie => {
+    const li = document.createElement('li');
+    li.className = 'movie-item';
     li.innerHTML = `
       <img src="${movie.poster}" alt="${movie.title}" 
-           style="width:100%;height:auto;object-fit:cover;border-radius:8px;">
+        style="width:100%;height:auto;object-fit:cover;border-radius:8px;cursor:pointer;">
     `;
-    li.addEventListener("click", () => {
-      // Reusa o mesmo modal e player do Home
-      if (typeof openMovieModal === "function") openMovieModal(movie);
-      else console.warn("openMovieModal não encontrado no escopo global.");
+    li.addEventListener('click', () => {
+      if (typeof openMovieModal === 'function') {
+        openMovieModal(movie);
+      } else {
+        alert("O player não pôde ser iniciado.");
+      }
     });
     grid.appendChild(li);
   });
 }
-window.addEventListener("load", moveTopToPlus);
+
+// Só carrega os filmes Plus+ se o token for válido
+window.addEventListener('load', () => {
+  try {
+    if (typeof isSubscriptionActive === 'function' && isSubscriptionActive()) {
+      moveTopToPlus();
+    }
+  } catch(e) {
+    console.warn("Erro ao carregar Plus+:", e);
+  }
+});
 </script>
 </body>
 </html>
