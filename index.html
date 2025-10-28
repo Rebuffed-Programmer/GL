@@ -2933,5 +2933,211 @@ window.addEventListener('load', () => {
   }
 });
 </script>
+    <script>
+// ======= PATCH SEGURO PARA PLUS+ (colar antes do </body>) =======
+
+// 1) Substitua/cole esta versão segura da função moveTopToPlus
+//    Ela cria um botão "Assistir Já" exclusivo para Plus+ com data-plus-video
+function moveTopToPlus_safe() {
+  const grid = document.getElementById('plus-movie-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  if (!window.plusData || !Array.isArray(window.plusData) || !plusData.length) {
+    grid.innerHTML = '<li style="color:#aaa;">Nenhum conteúdo encontrado.</li>';
+    return;
+  }
+
+  plusData.forEach(movie => {
+    const li = document.createElement('li');
+    li.className = 'movie-item';
+    li.style.cursor = 'pointer';
+    li.style.position = 'relative';
+    li.innerHTML = `
+      <img src="${movie.poster}" alt="${movie.title}" style="width:100%;height:auto;object-fit:cover;border-radius:8px;">
+    `;
+
+    // cria botão exclusivo da Plus+ (não usa data-video para não conflitar com Home)
+    const playBtn = document.createElement('button');
+    playBtn.className = 'plus-watch-btn';
+    playBtn.type = 'button';
+    playBtn.title = 'Assistir Já (Plus+)';
+    playBtn.dataset.plusVideo = movie.videoUrl || '';
+    // estilo mínimo para aparecer sobre a imagem (ajusta conforme teu CSS)
+    Object.assign(playBtn.style, {
+      position: 'absolute',
+      bottom: '10px',
+      left: '10px',
+      padding: '8px 10px',
+      background: 'rgba(0,0,0,0.6)',
+      color: '#fff',
+      border: 'none',
+      borderRadius: '6px',
+      cursor: 'pointer',
+      zIndex: 5,
+      fontWeight: 700,
+      fontSize: '0.9em'
+    });
+    playBtn.textContent = 'Assistir Já';
+
+    // comportamento ao clicar no card (abre info modal) - mantemos igual ao que já fazes:
+    li.addEventListener('click', (e) => {
+      // evita cliques do botão de play caírem aqui (o botão tem zIndex)
+      if (e.target === playBtn) return;
+      if (typeof openMovieModal === 'function') {
+        openMovieModal(movie);
+      } else {
+        // fallback: tenta abrir modal próprio
+        alert('Abrir info do filme (player não disponível).');
+      }
+    });
+
+    // botão de play apenas chama a função de player específico da Plus (seguro)
+    playBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const url = playBtn.dataset.plusVideo || '';
+      // se existir função pública do Home (ex: playVideo / switchToVideo), tenta usar
+      if (typeof switchToVideo === 'function') {
+        // se teu index tiver switchToVideo global, usa ele (compatibilidade)
+        try { switchToVideo(url); return; } catch(e){}
+      }
+      if (typeof openPlayer === 'function') {
+        try { openPlayer(url); return; } catch(e){}
+      }
+      // fallback interno (não interfere no Home)
+      switchToVideoPlus_local(url);
+    });
+
+    li.appendChild(playBtn);
+    grid.appendChild(li);
+  });
+}
+
+// 2) Função de player local apenas para Plus+ (não mexe no player do Home)
+function switchToVideoPlus_local(videoUrl) {
+  if (!videoUrl) { alert('Vídeo indisponível.'); return; }
+
+  const movieModal = document.getElementById('movie-modal');
+  const modalInfoContainer = document.querySelector('.modal-info-container');
+  const modalVideoContainer = document.querySelector('.modal-video-container');
+  if (!movieModal || !modalVideoContainer || !modalInfoContainer) {
+    alert('Player não configurado corretamente.');
+    return;
+  }
+
+  // Oculta info e prepara vídeo (local, safe)
+  modalInfoContainer.style.display = 'none';
+  modalVideoContainer.style.display = 'block';
+  movieModal.classList.add('fullscreen-video');
+  modalVideoContainer.innerHTML = '';
+
+  // Botão voltar (reaproveita tua classe visual)
+  const backBtn = document.createElement('button');
+  backBtn.className = 'back-to-info-btn';
+  backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Voltar ao Catálogo';
+  backBtn.addEventListener('click', () => {
+    movieModal.classList.remove('fullscreen-video');
+    modalVideoContainer.innerHTML = '';
+    modalVideoContainer.style.display = 'none';
+    modalInfoContainer.style.display = 'block';
+    // não força exitFullscreen se outra coisa estiver fullscreen
+    try { if (document.fullscreenElement) document.exitFullscreen(); } catch(e){}
+  });
+
+  const wrapper = document.createElement('div');
+  wrapper.style.position = 'relative';
+  wrapper.style.width = '100%';
+  wrapper.style.height = '100%';
+
+  const iframe = document.createElement('iframe');
+  iframe.src = videoUrl;
+  iframe.allow = 'autoplay; encrypted-media';
+  iframe.allowFullscreen = true;
+  Object.assign(iframe.style, { width: '100%', height: '100%', border: 'none', display: 'block' });
+
+  // bloqueadores (não mudam Home)
+  const topBlock = document.createElement('button');
+  Object.assign(topBlock.style, {
+    position: 'absolute', top: '12px', right: '12px', width: '44px', height: '44px',
+    border: 'none', background: 'rgba(0,0,0,0.15)', color: '#fff',
+    borderRadius: '8px', zIndex: '9999', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+  });
+  topBlock.innerHTML = '<i class="fas fa-link"></i>';
+  topBlock.title = 'Abertura externa desativada';
+  topBlock.onclick = (e) => { e.preventDefault(); e.stopPropagation(); showBlockedMessage_local(); };
+
+  const bottomBlock = topBlock.cloneNode(true);
+  Object.assign(bottomBlock.style, { top: '', bottom: '20px', right: '28px', width: '60px', height: '59px' });
+
+  wrapper.appendChild(iframe);
+  wrapper.appendChild(topBlock);
+  wrapper.appendChild(bottomBlock);
+  modalVideoContainer.appendChild(backBtn);
+  modalVideoContainer.appendChild(wrapper);
+
+  // tenta fullscreen sem interferir se o Home já usa outra lógica
+  try { const root = document.documentElement; if (root.requestFullscreen) root.requestFullscreen(); } catch(e){}
+}
+
+// mensagem rápida (local)
+function showBlockedMessage_local() {
+  const container = document.querySelector('.modal.fullscreen-video .modal-video-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.textContent = 'Abertura externa desativada.';
+  Object.assign(toast.style, {
+    position: 'absolute', top: '12px', right: '64px', padding: '8px 12px',
+    background: 'rgba(0,0,0,0.7)', color: '#fff', borderRadius: '6px',
+    zIndex: '10000', fontSize: '14px', transition: 'opacity 0.3s'
+  });
+  container.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; setTimeout(()=>toast.remove(),300); }, 1200);
+}
+
+// 3) Função que liga apenas os botões da Plus+ (NÃO toca no Home)
+function attachPlusOnlyButtons() {
+  const plusGrid = document.getElementById('plus-movie-grid');
+  if (!plusGrid) return;
+  // Seleciona só botões criados para Plus+ (class .plus-watch-btn)
+  const buttons = plusGrid.querySelectorAll('.plus-watch-btn');
+  buttons.forEach(btn => {
+    if (btn.dataset.bound === 'true') return;
+    btn.dataset.bound = 'true';
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const url = btn.dataset.plusVideo || '';
+      // tenta usar funções do Home se existirem (compatível)
+      if (typeof switchToVideo === 'function') {
+        try { switchToVideo(url); return; } catch(e){}
+      }
+      if (typeof openPlayer === 'function') {
+        try { openPlayer(url); return; } catch(e){}
+      }
+      switchToVideoPlus_local(url);
+    });
+  });
+}
+
+// 4) Ativa tudo com segurança no load e observa alterações dinâmicas
+window.addEventListener('load', () => {
+  // substitui a função antiga de render (se já existir)
+  try { window.moveTopToPlus = moveTopToPlus_safe; } catch(e){}
+  // chama a nova
+  try { moveTopToPlus_safe(); } catch(e){}
+
+  // observa grid pra ligar botões quando conteúdo for injetado
+  const grid = document.getElementById('plus-movie-grid');
+  if (grid) {
+    const obs = new MutationObserver(() => {
+      attachPlusOnlyButtons();
+    });
+    obs.observe(grid, { childList: true, subtree: true });
+    // attach inicial
+    attachPlusOnlyButtons();
+  }
+});
+</script>
 </body>
 </html>
