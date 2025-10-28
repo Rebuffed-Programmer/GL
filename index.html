@@ -1956,5 +1956,46 @@ window.addEventListener('load', () => {
   }, 100);
 })();
 </script>
+    <script>
+/* ====== REPARO: Garantir que o botão Plus+ funcione ====== */
+document.addEventListener('DOMContentLoaded', () => {
+  function ligarBotaoPlus() {
+    const botoes = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+    if (!botoes.length) return;
+    botoes.forEach(btn => {
+      const texto = (btn.textContent || '').toLowerCase();
+      if (texto.includes('plus')) {
+        btn.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (typeof isSubscriptionActive === 'function' && isSubscriptionActive()) {
+            if (typeof renderPlusCatalog === 'function') {
+              renderPlusCatalog();
+            } else {
+              alert('Assinatura ativa, mas catálogo não pôde ser aberto.');
+            }
+          } else {
+            if (typeof openPlusModal === 'function') {
+              openPlusModal();
+            } else {
+              alert('Modal Plus+ não pôde ser aberto.');
+            }
+          }
+        };
+      }
+    });
+  }
+
+  // tenta conectar o botão até encontrar a barra inferior
+  let tentativas = 0;
+  const verificar = setInterval(() => {
+    ligarBotaoPlus();
+    tentativas++;
+    if (document.querySelector('.bottom-nav') || tentativas > 50) {
+      clearInterval(verificar);
+    }
+  }, 200);
+});
+</script>
 </body>
 </html>
