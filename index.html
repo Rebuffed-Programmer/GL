@@ -2665,5 +2665,44 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 </script>
+<script>
+// ==============================
+// CONTROLE DE EXIBIÇÃO DO PLUS+
+// ==============================
+
+// Garante que o catálogo Plus+ apareça apenas se assinatura ativa
+function updatePlusCatalogVisibility() {
+  const plusSection = document.getElementById('plusSection');
+  const grid = document.getElementById('plus-movie-grid');
+
+  if (!plusSection || !grid) return;
+
+  // se assinatura ativa → mostra seção + filmes
+  if (typeof isSubscriptionActive === 'function' && isSubscriptionActive()) {
+    plusSection.style.display = 'block';
+    renderPlusMovies(); // renderiza os conteúdos exclusivos
+  } 
+  // se assinatura inativa → esconde tudo
+  else {
+    plusSection.style.display = 'none';
+    grid.innerHTML = '<li style="color:#aaa;">Nenhum conteúdo encontrado.</li>';
+  }
+}
+
+// Garante atualização imediata ao abrir página
+window.addEventListener('load', () => {
+  updatePlusCatalogVisibility();
+});
+
+// Garante atualização sempre que o usuário ativa ou sai da conta
+window.addEventListener('storage', (event) => {
+  if (event.key === 'GLPLUS_TOKEN' || event.key === 'GLPLUS_EXPIRA') {
+    updatePlusCatalogVisibility();
+  }
+});
+
+// Reforço manual (caso precise chamar de outro script)
+window.refreshPlusCatalog = updatePlusCatalogVisibility;
+</script>
 </body>
 </html>
