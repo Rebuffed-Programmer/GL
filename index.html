@@ -2752,5 +2752,280 @@ window.addEventListener('storage', (event) => {
   }
 });
 </script>
+<script>
+/* ======= GL: Fix Plus+ render & player hookup (colar antes de </body>) ======= */
+
+/* safe-guard: não redefine se já existir uma versão nossa */
+if (!window.gl_plus_loaded) {
+  window.gl_plus_loaded = true;
+
+  // UTIL: checa assinatura ativa (usa sua função se existir)
+  function gl_isPlusActive() {
+    try {
+      if (typeof isSubscriptionActive === 'function') return isSubscriptionActive();
+      const exp = localStorage.getItem('GLPLUS_EXPIRA');
+      return !!exp && new Date(exp) > new Date();
+    } catch(e) { return false; }
+  }
+
+  // POPULA grade Plus+ (fonte: window.plusData ou window.movieData filtrado por .plus)
+  function gl_moveTopToPlus() {
+    const grid = document.getElementById('plus-movie-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    let source = [];
+    if (Array.isArray(window.plusData) && window.plusData.length) {
+      source = window.plusData;
+    } else if (Array.isArray(window.movieData) && window.movieData.length) {
+      source = window.movieData.filter(m => m.plus === true);
+    }
+
+    if (!source || !source.length) {
+      grid.innerHTML = '<li style="color:#aaa;">Nenhum conteúdo encontrado.</li>';
+      return;
+    }
+
+    source.forEach(movie => {
+      const li = document.createElement('li');
+      li.className = 'movie-item';
+      li.style.listStyle = 'none';
+      li.style.cursor = 'pointer';
+      li.style.padding = '6px';
+      li.innerHTML = `
+        <div style="border-radius:8px;overflow:hidden;background:#0f0f0f;">
+          <img src="${movie.poster || ''}" alt="${movie.title || ''}" style="width:100%;height:180px;object-fit:cover;display:block;">
+          <div style="padding:8px;color:#e6e6e6;">
+            <strong style="display:block">${movie.title || ''}</strong>
+            <small style="color:#bbb">${movie.year || ''} • ${(movie.genres||[]).slice(0,2).join(', ')}</small>
+          </div>
+        </div>
+      `;
+      li.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        gl_openMovieModalWithPlayer(movie);
+      });
+      grid.appendChild(li);
+    });
+  }
+
+  // HOOK: abre modal (reusa openMovieModal se existir) e prepara botão assistir
+  function gl_openMovieModalWithPlayer(movie) {
+    // Reutiliza sua função de abrir modal se existir
+    if (typeof openMovieModal === 'function') {
+      try { openMovieModal(movie); } catch(e){ console.warn('openMovieModal error', e); }
+    } else {
+      // fallback: preenche elementos do modal se existirem
+      const modal = document.getElementById('movie-modal');
+      if (modal) {
+        const mp = document.getElementById('modal-poster'); if (mp) mp.src = movie.poster || '';
+        const mt = document.getElementById('modal-title'); if (mt) mt.textContent = movie.title || '';
+        const my = document.getElementById('modal-year'); if (my) my.textContent = movie.year || '';
+        const mg = document.getElementById('modal-genres'); if (mg) mg.textContent = (movie.genres||[]).join(' • ');
+        const md = document.getElementById('modal-description'); if (md) md.textContent = movie.description || '';
+        modal.style.display = 'flex'; document.body.style.overflow = 'hidden';
+      }
+    }
+
+    // liga o botão de assistir dentro do modal (procura por #modal-watch-btn ou .btn-watch)
+    setTimeout(() => {
+      const watchBtn = document.getElementById('modal-watch-btn') || document.querySelector('#movie-modal .btn-watch');
+      if (!watchBtn) {
+        // se não existir, chama direto o player fallback
+        gl_playMovieFallback(movie);
+        return;
+      }
+
+      // remove listeners antigos substituindo pelo clone (garante um handler limpo)
+      const cloneBtn = watchBtn.cloneNode(true);
+      watchBtn.parentNode.replaceChild(cloneBtn, watchBtn);
+
+      cloneBtn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        // tenta usar funções já existentes no seu projeto (ordem de tentativa)
+        try {
+          if (typeof switchToVideo === 'function') return switchToVideo(movie.videoUrl || movie.url || movie.video || '');
+          if (typeof playMovie === 'function') return playMovie(movie);
+          if (typeof startPlayer === 'function') return startPlayer(movie);
+          if (typeof openDrivePlayer === 'function') return openDrivePlayer(movie.videoUrl || movie.url || movie.video || '');
+        } catch(err){
+          console.warn('player reuse error', err);
+        }
+        // fallback prático
+        gl_playMovieFallback(movie);
+      });
+    }, 60);
+  }
+
+  // FALBACK: monta player fullscreen com iframe + bloqueadores + botão voltar
+  function gl_playMovieFallback(movie) {
+    // elementos existentes do modal
+    let movieModal = document.getElementById('movie-modal');
+    let modalInfoContainer = document.getElementById('modal-info-container');
+    let modalVideoContainer = document.getElementById('modal-video-container');
+
+    // se modal inexistente, cria um modal mínimo
+    if (!movieModal) {
+      movieModal = document.createElement('div');
+      movieModal.id = 'movie-modal';
+      movieModal.className = 'modal fullscreen-video';
+      Object.assign(movieModal.style, { display:'flex', position:'fixed', inset:0, zIndex:99999, background:'#000', alignItems:'center', justifyContent:'center' });
+      const content = document.createElement('div');
+      content.className = 'modal-content';
+      Object.assign(content.style, { width:'100%', height:'100%', padding:0, background:'#000' });
+      movieModal.appendChild(content);
+      modalVideoContainer = document.createElement('div');
+      modalVideoContainer.id = 'modal-video-container';
+      modalVideoContainer.className = 'modal-video-container';
+      content.appendChild(modalVideoContainer);
+      document.body.appendChild(movieModal);
+    } else {
+      movieModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      if (modalInfoContainer) modalInfoContainer.style.display = 'none';
+      if (!modalVideoContainer) {
+        modalVideoContainer = document.createElement('div');
+        modalVideoContainer.id = 'modal-video-container';
+        modalVideoContainer.className = 'modal-video-container';
+        movieModal.appendChild(modalVideoContainer);
+      }
+    }
+
+    movieModal.classList.add('fullscreen-video');
+    modalVideoContainer.innerHTML = ''; // limpa
+
+    // botão voltar
+    const backBtn = document.createElement('button');
+    backBtn.className = 'back-to-info-btn';
+    backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Voltar ao Catálogo';
+    Object.assign(backBtn.style, { position:'absolute', top:'10px', left:'10px', zIndex:999999 });
+    backBtn.addEventListener('click', () => {
+      if (modalInfoContainer) modalInfoContainer.style.display = '';
+      movieModal.style.display = 'none';
+      document.body.style.overflow = '';
+      try { // limpa iframe
+        if (modalVideoContainer) modalVideoContainer.innerHTML = '';
+      } catch(e){}
+    });
+    modalVideoContainer.appendChild(backBtn);
+
+    // wrapper + iframe
+    const wrapper = document.createElement('div');
+    Object.assign(wrapper.style, { position:'relative', width:'100%', height:'100%' });
+
+    const iframe = document.createElement('iframe');
+    iframe.src = movie.videoUrl || movie.url || movie.video || '';
+    iframe.allow = 'autoplay; encrypted-media';
+    iframe.allowFullscreen = true;
+    Object.assign(iframe.style, { width:'100%', height:'100%', border:'none', display:'block' });
+    wrapper.appendChild(iframe);
+
+    // função de criar botão bloqueador
+    function createBlockBtn(opts){
+      const btn = document.createElement('button');
+      btn.className = 'gl-block-newtab-btn';
+      btn.title = 'Abertura externa desativada';
+      Object.assign(btn.style, {
+        position:'absolute',
+        [opts.y]: opts.yOffset,
+        [opts.x]: opts.xOffset,
+        width: opts.w + 'px',
+        height: opts.h + 'px',
+        border:'none',
+        background:'rgba(0,0,0,0.15)',
+        color:'#fff',
+        borderRadius:'8px',
+        zIndex:999999,
+        cursor:'pointer',
+        display:'flex',
+        alignItems:'center',
+        justifyContent:'center',
+        backdropFilter:'blur(2px)'
+      });
+      btn.innerHTML = '<i class="fas fa-link"></i>';
+      btn.addEventListener('click', (e)=>{ e.stopPropagation(); e.preventDefault(); gl_showBlockedToast(modalVideoContainer); });
+      return btn;
+    }
+
+    wrapper.appendChild(createBlockBtn({ x:'right', xOffset:'12px', y:'top', yOffset:'12px', w:44, h:44 }));
+    setTimeout(()=> wrapper.appendChild(createBlockBtn({ x:'right', xOffset:'28px', y:'bottom', yOffset:'20px', w:60, h:59 })), 140);
+
+    modalVideoContainer.appendChild(wrapper);
+  }
+
+  // pequeno toast de bloqueio
+  function gl_showBlockedToast(container) {
+    try {
+      const toast = document.createElement('div');
+      toast.textContent = 'Abertura externa desativada.';
+      Object.assign(toast.style, {
+        position:'absolute', top:'12px', right:'64px', padding:'8px 12px', background:'rgba(0,0,0,0.7)',
+        color:'#fff', borderRadius:'6px', zIndex:1000000, fontSize:'14px'
+      });
+      (container || document.body).appendChild(toast);
+      setTimeout(()=> { toast.style.opacity='0'; toast.style.transition='opacity .25s'; setTimeout(()=> toast.remove(),250); }, 1200);
+    } catch(e){ console.warn('toast err', e); }
+  }
+
+  // Atualiza visibilidade da seção Plus+ (chamada quando token muda)
+  function gl_updatePlusVisibility() {
+    const plusSection = document.getElementById('plusSection');
+    if (!plusSection) return;
+    if (gl_isPlusActive()) {
+      plusSection.style.display = 'block';
+      try { gl_moveTopToPlus(); } catch(e){ console.warn(e); }
+    } else {
+      plusSection.style.display = 'none';
+      const grid = document.getElementById('plus-movie-grid');
+      if (grid) grid.innerHTML = '<li style="color:#aaa;">Nenhum conteúdo encontrado.</li>';
+    }
+  }
+
+  // Ativa o nav plus clicável e sem pointer-events none
+  (function gl_activatePlusNav(){
+    try {
+      const navAnchors = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+      navAnchors.forEach(a => {
+        if ((a.textContent || '').toLowerCase().includes('plus')) {
+          a.style.pointerEvents = 'auto';
+          a.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            if (gl_isPlusActive()) {
+              const fn = window.renderPlusCatalog || gl_moveTopToPlus;
+              try { fn(); } catch(e){ gl_updatePlusVisibility(); }
+            } else {
+              const modal = document.getElementById('plusModal');
+              if (modal) { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; if (typeof renderPlusDefault === 'function') renderPlusDefault(); }
+            }
+          });
+        }
+      });
+    } catch(e){ console.warn('gl_activatePlusNav', e); }
+  })();
+
+  // observa mudanças no localStorage e atualiza
+  window.addEventListener('storage', (ev) => {
+    if (ev.key === 'GLPLUS_TOKEN' || ev.key === 'GLPLUS_EXPIRA' || ev.key === 'GLPLUS_PREMIUM') {
+      setTimeout(gl_updatePlusVisibility, 60);
+    }
+  });
+
+  // also run on load
+  window.addEventListener('load', () => { setTimeout(gl_updatePlusVisibility, 120); });
+
+  // monkey-patch leve: se sua função activateTokenLocal existe, faz com que atualize a grade logo após ativar
+  if (typeof activateTokenLocal === 'function' && !activateTokenLocal.__glWrapped) {
+    const original = activateTokenLocal;
+    activateTokenLocal = function(){ const res = original.apply(this, arguments); setTimeout(gl_updatePlusVisibility, 80); return res; };
+    activateTokenLocal.__glWrapped = true;
+  }
+
+  // expõe funções para debug no console
+  window.gl_moveTopToPlus = gl_moveTopToPlus;
+  window.gl_openMovieModalWithPlayer = gl_openMovieModalWithPlayer;
+  window.gl_playMovieFallback = gl_playMovieFallback;
+  window.gl_updatePlusVisibility = gl_updatePlusVisibility;
+}
+</script>
 </body>
 </html>
