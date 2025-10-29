@@ -2261,5 +2261,197 @@ function moveTopToPlus() {
     return;
   }
 </script>
+    <script>
+// ==============================
+// PLAYER EXCLUSIVO - GL Plus+
+// ==============================
+
+// Mostra aviso temporário no player
+function showBlockedMessagePlus() {
+  const toast = document.createElement('div');
+  toast.textContent = 'Abertura externa desativada.';
+  toast.style.position = 'absolute';
+  toast.style.top = '12px';
+  toast.style.right = '64px';
+  toast.style.padding = '8px 12px';
+  toast.style.background = 'rgba(0,0,0,0.7)';
+  toast.style.color = '#fff';
+  toast.style.borderRadius = '6px';
+  toast.style.zIndex = '10000';
+  toast.style.fontSize = '14px';
+  document.querySelector('.plusplayer-modal .modal-video-container').appendChild(toast);
+  setTimeout(()=> {
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity 0.3s ease';
+    setTimeout(()=> toast.remove(), 300);
+  }, 1200);
+}
+
+// Função que cria e abre o player Plus+
+function openPlusPlayer(videoUrl) {
+  // se já existir, remove
+  let modal = document.getElementById('plusPlayerModal');
+  if (modal) modal.remove();
+
+  // cria modal
+  modal = document.createElement('div');
+  modal.id = 'plusPlayerModal';
+  modal.className = 'modal plusplayer-modal fullscreen-video';
+  modal.style.display = 'flex';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-video-container"></div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  document.body.style.overflow = 'hidden';
+
+  const container = modal.querySelector('.modal-video-container');
+  const wrapper = document.createElement('div');
+  wrapper.style.position = 'relative';
+  wrapper.style.width = '100%';
+  wrapper.style.height = '100%';
+
+  // cria iframe do vídeo
+  const iframe = document.createElement('iframe');
+  iframe.src = videoUrl;
+  iframe.allow = 'autoplay; encrypted-media';
+  iframe.allowFullscreen = true;
+  iframe.style.width = '100%';
+  iframe.style.height = '100%';
+  iframe.style.border = 'none';
+  iframe.style.display = 'block';
+
+  // botão "voltar ao catálogo"
+  const backBtn = document.createElement('button');
+  backBtn.className = 'back-to-info-btn';
+  backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Voltar ao Catálogo';
+  backBtn.onclick = () => {
+    modal.remove();
+    document.body.style.overflow = '';
+  };
+
+  // botão de bloqueio (topo)
+  const blockBtnTop = document.createElement('button');
+  blockBtnTop.className = 'block-newtab-btn';
+  blockBtnTop.title = 'Abertura externa desativada';
+  Object.assign(blockBtnTop.style, {
+    position: 'absolute',
+    top: '12px',
+    right: '12px',
+    width: '44px',
+    height: '44px',
+    border: 'none',
+    background: 'rgba(0,0,0,0.15)',
+    color: '#fff',
+    borderRadius: '8px',
+    zIndex: '9999',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backdropFilter: 'blur(2px)'
+  });
+  blockBtnTop.innerHTML = '<i class="fas fa-link"></i>';
+  blockBtnTop.onclick = (e) => { e.preventDefault(); e.stopPropagation(); showBlockedMessagePlus(); };
+
+  // botão de bloqueio (embaixo)
+  const blockBtnBottom = blockBtnTop.cloneNode(true);
+  blockBtnBottom.style.top = '';
+  blockBtnBottom.style.bottom = '20px';
+  blockBtnBottom.style.right = '28px';
+  blockBtnBottom.style.width = '60px';
+  blockBtnBottom.style.height = '59px';
+  blockBtnBottom.style.borderRadius = '0.1px';
+
+  blockBtnBottom.onclick = (e) => { e.preventDefault(); e.stopPropagation(); showBlockedMessagePlus(); };
+
+  // adiciona tudo
+  wrapper.appendChild(iframe);
+  wrapper.appendChild(blockBtnTop);
+  wrapper.appendChild(blockBtnBottom);
+  container.appendChild(backBtn);
+  container.appendChild(wrapper);
+
+  // tenta fullscreen
+  try {
+    const root = document.documentElement;
+    if (root.requestFullscreen) root.requestFullscreen();
+    else if (root.webkitRequestFullscreen) root.webkitRequestFullscreen();
+  } catch(e){}
+  try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape'); } catch(e){}
+}
+
+/* CSS do player Plus+ */
+const style = document.createElement('style');
+style.textContent = `
+.plusplayer-modal {
+  z-index: 2500;
+  background-color: black;
+}
+.plusplayer-modal .modal-content {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border-radius: 0;
+  overflow: hidden;
+  background-color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.plusplayer-modal .modal-video-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.plusplayer-modal iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.plusplayer-modal .back-to-info-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: rgba(0,0,0,0.5);
+  color: #fff;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  font-size: 1em;
+  cursor: pointer;
+  z-index: 10;
+  transition: background-color 0.3s;
+}
+.plusplayer-modal .back-to-info-btn:hover {
+  background-color: rgba(0,0,0,0.8);
+}
+`;
+document.head.appendChild(style);
+
+// ==============================
+// LIGAÇÃO COM OS FILMES PLUS+
+// ==============================
+function enablePlusPlayerSystem() {
+  const grid = document.getElementById('plus-movie-grid');
+  if (!grid) return;
+  const items = grid.querySelectorAll('.movie-item');
+  items.forEach((item, i) => {
+    item.addEventListener('click', () => {
+      const movie = plusData[i];
+      if (movie && movie.videoUrl) openPlusPlayer(movie.videoUrl);
+      else alert("Vídeo não encontrado.");
+    });
+  });
+}
+
+// ativa ao carregar
+window.addEventListener('load', () => {
+  setTimeout(enablePlusPlayerSystem, 800);
+});
+</script>
 </body>
 </html>
