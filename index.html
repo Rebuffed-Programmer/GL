@@ -2704,5 +2704,29 @@ window.addEventListener('storage', (event) => {
 // Reforço manual (caso precise chamar de outro script)
 window.refreshPlusCatalog = updatePlusCatalogVisibility;
 </script>
+<script>
+function updatePlusCatalogVisibility() {
+  const plusSection = document.getElementById('plusSection');
+  const grid = document.getElementById('plus-movie-grid');
+
+  if (!plusSection || !grid) return;
+
+  // assinatura ativa → mostra catálogo e carrega filmes
+  if (typeof isSubscriptionActive === 'function' && isSubscriptionActive()) {
+    plusSection.style.display = 'block';
+    moveTopToPlus(); // função original que carrega os filmes
+  } else {
+    plusSection.style.display = 'none';
+    grid.innerHTML = '<li style="color:#aaa;">Nenhum conteúdo encontrado.</li>';
+  }
+}
+
+window.addEventListener('load', updatePlusCatalogVisibility);
+window.addEventListener('storage', (event) => {
+  if (event.key === 'GLPLUS_TOKEN' || event.key === 'GLPLUS_EXPIRA') {
+    updatePlusCatalogVisibility();
+  }
+});
+</script>
 </body>
 </html>
