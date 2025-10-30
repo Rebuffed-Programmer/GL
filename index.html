@@ -2186,6 +2186,36 @@ window.PLUS = {
   closePlusPlayer
 };
 </script>
+    <script>
+// === CORREÇÃO: BOTÃO TRANSLÚCIDO "PLUS+" FUNCIONAL ===
+document.addEventListener('DOMContentLoaded', () => {
+  function attachPlusNavButton() {
+    const nav = document.querySelector('.bottom-nav');
+    if (!nav) return console.warn('Bottom nav não encontrado.');
+    
+    const plusBtn = Array.from(nav.querySelectorAll('*')).find(el => 
+      (el.textContent || '').toLowerCase().includes('plus')
+    );
+    if (!plusBtn) return console.warn('Botão Plus+ não encontrado.');
+
+    // Evita duplicar evento
+    plusBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof isSubscriptionActive === 'function' && isSubscriptionActive()) {
+        // Usuário já logado → abre catálogo
+        if (typeof renderPlusCatalog === 'function') renderPlusCatalog();
+      } else {
+        // Não logado → abre modal
+        if (typeof openPlusModal === 'function') openPlusModal();
+      }
+    };
+  }
+
+  // Aguarda um pouquinho pro menu ser renderizado
+  setTimeout(attachPlusNavButton, 800);
+});
+</script>
 <!-- === FIM: Plus+ (modal, seção e scripts) === -->
 </body>
 </html>
