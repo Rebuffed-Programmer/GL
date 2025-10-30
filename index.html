@@ -3027,5 +3027,124 @@ if (!window.gl_plus_loaded) {
   window.gl_updatePlusVisibility = gl_updatePlusVisibility;
 }
 </script>
+    <script>
+/* ====== SISTEMA PLUS+ CORRIGIDO PARA CELULAR ====== */
+
+document.addEventListener('DOMContentLoaded', () => {
+  const plusSection = document.getElementById('plusSection');
+  const grid = document.getElementById('plus-movie-grid');
+
+  // --- Dados dos filmes Plus+ (editáveis) ---
+  const plusData = [
+    { title: "Os Dez Mandamentos", year: "1956", description: "A grandiosa história de Moisés libertando os hebreus.", poster: "https://i.postimg.cc/0QSXwLHk/Os-10-Mandamentos.jpg", genres: ["Bíblico", "Drama"], videoUrl: "https://drive.google.com/file/d/1X1rFI59rqPfwKomSfM-VkyrHjJSxuaqy/preview" },
+    { title: "O Anjo e o Bandido", year: "1947", description: "John Wayne em um clássico faroeste de redenção.", poster: "https://i.postimg.cc/SK3tjyVR/o-anjo-e-o-bandido.png", genres: ["Faroeste", "Ação"], videoUrl: "https://drive.google.com/file/d/1eRlXsd6LMvOKpiQCjBjnGZXSVdq1T3kY/preview" },
+    { title: "O Retrato de Jennie", year: "1948", description: "Um pintor encontra uma garota que pertence a outro tempo.", poster: "https://i.postimg.cc/FRSCL2nm/o-retrato-de-jennie-1948.png", genres: ["Romance", "Drama"], videoUrl: "https://drive.google.com/file/d/1Kc4Isipv_3V_429UW_v04b5LE7iBVZYX/preview" }
+  ];
+
+  // --- Verifica se o usuário tem assinatura ativa ---
+  function isPlusAtivo() {
+    const exp = localStorage.getItem('GLPLUS_EXPIRA');
+    return exp && new Date(exp) > new Date();
+  }
+
+  // --- Renderiza os filmes Plus+ ---
+  function renderPlusFilmes() {
+    if (!grid) return;
+    grid.innerHTML = "";
+
+    if (!isPlusAtivo()) {
+      plusSection.style.display = "none";
+      return;
+    }
+
+    plusSection.style.display = "block";
+
+    plusData.forEach(filme => {
+      const card = document.createElement('li');
+      card.className = 'movie-item';
+      card.style.listStyle = "none";
+      card.style.cursor = "pointer";
+      card.innerHTML = `
+        <img src="${filme.poster}" alt="${filme.title}" style="width:100%;border-radius:8px;">
+      `;
+      card.addEventListener('click', () => abrirFilmePlus(filme));
+      grid.appendChild(card);
+    });
+  }
+
+  // --- Abre modal e o player igual ao da Home ---
+  function abrirFilmePlus(filme) {
+    const modal = document.getElementById('movie-modal');
+    const poster = document.getElementById('modal-poster');
+    const title = document.getElementById('modal-title');
+    const year = document.getElementById('modal-year');
+    const genres = document.getElementById('modal-genres');
+    const desc = document.getElementById('modal-description');
+    const assistir = document.getElementById('modal-watch-btn');
+
+    if (!modal || !assistir) return alert('Player não encontrado.');
+
+    poster.src = filme.poster;
+    title.textContent = filme.title;
+    year.textContent = filme.year;
+    genres.textContent = (filme.genres || []).join(' • ');
+    desc.textContent = filme.description;
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    // Remove eventos antigos
+    const novoBtn = assistir.cloneNode(true);
+    assistir.parentNode.replaceChild(novoBtn, assistir);
+
+    // Inicia o player
+    novoBtn.addEventListener('click', () => {
+      if (typeof switchToVideo === 'function') {
+        switchToVideo(filme.videoUrl);
+      } else {
+        playerFallback(filme.videoUrl);
+      }
+    });
+  }
+
+  // --- Player reserva (caso o do Home não carregue) ---
+  function playerFallback(videoUrl) {
+    const modal = document.getElementById('movie-modal');
+    const modalInfo = document.getElementById('modal-info-container');
+    const modalVideo = document.getElementById('modal-video-container');
+
+    if (modalInfo) modalInfo.style.display = 'none';
+    if (modalVideo) modalVideo.style.display = 'block';
+    modal.classList.add('fullscreen-video');
+    modalVideo.innerHTML = "";
+
+    const backBtn = document.createElement('button');
+    backBtn.className = 'back-to-info-btn';
+    backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Voltar';
+    backBtn.onclick = () => {
+      modalVideo.innerHTML = "";
+      modalInfo.style.display = 'flex';
+      modal.classList.remove('fullscreen-video');
+    };
+    modalVideo.appendChild(backBtn);
+
+    const iframe = document.createElement('iframe');
+    iframe.src = videoUrl;
+    iframe.allow = "autoplay; encrypted-media";
+    iframe.allowFullscreen = true;
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.style.border = "none";
+
+    modalVideo.appendChild(iframe);
+  }
+
+  // --- Atualiza automaticamente ---
+  renderPlusFilmes();
+
+  // Atualiza quando o token for ativado
+  window.addEventListener('storage', renderPlusFilmes);
+});
+</script>
 </body>
 </html>
