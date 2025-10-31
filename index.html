@@ -1927,5 +1927,37 @@ window.addEventListener('load',()=>{
   if(isSubscriptionActive()) renderPlusCatalog();
 });
 </script>
+    <script>
+// === CORREÇÃO DO BOTÃO TRANSLÚCIDO "PLUS+" ===
+// Garante que o clique seja detectado mesmo que o nav seja recriado dinamicamente.
+
+function attachPlusNavFix() {
+  // Espera o nav estar no DOM
+  const tryAttach = setInterval(() => {
+    const nav = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+    if (!nav.length) return;
+
+    nav.forEach(a => {
+      const text = (a.textContent || '').trim().toLowerCase();
+      if (text.includes('plus')) {
+        a.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          // Checa se o usuário tem assinatura
+          if (typeof isSubscriptionActive === 'function' && isSubscriptionActive()) {
+            if (typeof renderPlusCatalog === 'function') renderPlusCatalog();
+          } else {
+            if (typeof openPlusModal === 'function') openPlusModal();
+          }
+        };
+      }
+    });
+    clearInterval(tryAttach);
+  }, 400);
+}
+
+// Garante rechecagem após load completo
+window.addEventListener('load', attachPlusNavFix);
+</script>
 </body>
 </html>
