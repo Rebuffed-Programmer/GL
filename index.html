@@ -1707,8 +1707,10 @@ function assistirAgora(url) {
     }
   });
 })();
-<!-- === GL+ SISTEMA COMPLETO === -->
+<!-- === INÍCIO: Plus+ (modal, seção e scripts) - COLE ISTO ANTES DE </body> === -->
+
 <style>
+/* Estilos específicos para Plus+ (respeita o estilo atual) */
 .plus-modal .modal-content {
   max-width: 980px;
   width: 95%;
@@ -1716,89 +1718,76 @@ function assistirAgora(url) {
   padding: 18px;
   border-radius: 10px;
   display: flex;
+  gap: 20px;
+  align-items: flex-start;
   flex-direction: column;
-  align-items: center;
 }
-.plus-poster { width:100%; max-width:520px; border-radius:8px; margin:0 auto; }
-.plus-actions { display:flex; gap:12px; justify-content:center; margin-top:10px; }
-.plus-actions button { padding:10px 16px; border:none; border-radius:8px; font-weight:600; cursor:pointer; }
-.btn-primary { background:#48c948; color:#fff; }
-.btn-secondary { background:rgba(255,255,255,0.1); color:#fff; }
-.plus-plans { display:flex; flex-wrap:wrap; justify-content:center; gap:14px; margin-top:12px; }
-.plus-plan { width:260px; background:#151718; border:1px solid #222; border-radius:10px; overflow:hidden; cursor:pointer; transition:.15s; }
-.plus-plan:hover { transform:translateY(-4px); }
+.plus-modal .plus-poster {
+  width: 100%;
+  max-width: 520px;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
+}
+.plus-modal .plus-actions { display:flex; gap:12px; justify-content:center; margin-top:6px; }
+.plus-modal .plus-actions button { padding:10px 16px; border-radius:8px; border:none; cursor:pointer; font-weight:600; }
+.plus-modal .btn-primary { background:#48c948; color:#fff; }
+.plus-modal .btn-secondary { background:rgba(255,255,255,0.06); color:#fff; }
+
+/* Cards dos planos */
+.plus-plans { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:12px; }
+.plus-plan { width:260px; border-radius:10px; overflow:hidden; background:#151718; border:1px solid #222; cursor:pointer; transition:transform .12s; }
 .plus-plan img { width:100%; display:block; }
 .plus-plan .plan-body { padding:12px; color:#ddd; }
+.plus-plan:hover { transform:translateY(-6px); }
+
+/* Seção Plus+ no catálogo */
 .plus-catalog { display:none; padding:40px; }
-.plus-catalog .section-title { display:flex; justify-content:space-between; align-items:center; }
-#plus-movie-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; list-style:none; padding:0; margin:20px 0; }
-.plus-token-box { display:flex; justify-content:center; gap:8px; margin-top:10px; }
-.plus-token-box input { padding:10px; width:260px; border:1px solid #2b2b2b; border-radius:8px; background:#0d0f10; color:#fff; outline:none; }
-.plus-small { font-size:.9em; color:#bbb; text-align:center; margin-top:8px; }
+.plus-catalog .section-title { display:flex; align-items:center; gap:12px; justify-content:space-between; }
+#plus-movie-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; list-style:none; padding:0; margin:18px 0 0 0; }
+@media (max-width:767px) { #plus-movie-grid { grid-template-columns:repeat(2,1fr); } }
+
+/* Input token */
+.plus-token-box { display:flex; gap:8px; align-items:center; justify-content:center; margin-top:10px; }
+.plus-token-box input { padding:10px 12px; border-radius:8px; border:1px solid #2b2b2b; background:#0d0f10; color:#fff; outline:none; width:260px; }
+.plus-small { font-size:0.9em; color:#bbb; text-align:center; margin-top:8px; }
+
+/* manter z-index do modal acima */
+.plus-modal { z-index: 2200; }
 </style>
 
-<!-- Modal da Assinatura -->
+<!-- Modal Plus+ (reaproveita a classe .modal do teu index) -->
 <div id="plusModal" class="modal plus-modal" style="display:none;">
   <div class="modal-content">
     <span class="close-btn" id="plusModalClose">&times;</span>
-    <img class="plus-poster" src="https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg" alt="Poster GL+">
-    <div class="plus-actions">
-      <button id="plusBtnSou" class="btn-primary">Sou assinante</button>
-      <button id="plusBtnQuero" class="btn-secondary">Quero assinar</button>
+
+    <!-- Poster / topo -->
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <img id="plusPosterImg" class="plus-poster" src="https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg" alt="Pôster Plus+">
+      <div class="plus-actions">
+        <button id="plusBtnSou" class="btn-primary">Sou assinante</button>
+        <button id="plusBtnQuero" class="btn-secondary">Quero assinar</button>
+      </div>
+      <div id="plusInfoText" class="plus-small">Desbloqueie conteúdos exclusivos, conteúdos originais e vantagens da Plus+.</div>
     </div>
-    <div id="plusDynamic" style="width:100%;text-align:center;margin-top:10px;"></div>
+
+    <!-- Container dinâmico onde aparecem as views (token input / planos / mensagens) -->
+    <div id="plusDynamic" style="width:100%;"></div>
+
   </div>
 </div>
 
-<!-- Catálogo Plus+ -->
-<section id="plusSection" class="plus-catalog">
-  <div class="section-title">
-    <h2>💎 Plus+ Exclusivo</h2>
-    <button id="btnPlusSignOut" class="btn-secondary" style="display:none;">Sair</button>
+<!-- Seção exclusiva Plus+ (visível somente quando for assinante) -->
+<section id="plusSection" class="movie-section plus-catalog" style="display:none;">
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <h2 class="section-title">💎 Plus+ Exclusivo</h2>
+    <div>
+      <button id="btnPlusSignOut" class="back-to-info-btn" style="position:static;padding:8px 12px;border-radius:8px;margin-left:10px;display:none;">Sair do Plus+</button>
+    </div>
   </div>
-  <p class="plus-small">Assinantes têm acesso completo a conteúdos exclusivos.</p>
-  <ul id="plus-movie-grid"></ul>
-</section>
 
-<!-- Player Exclusivo GL+ -->
-<div id="plusPlayerModal" class="modal fullscreen-video" style="display:none;">
-  <div class="modal-content">
-    <div class="modal-video-container" id="plusVideoContainer"></div>
-  </div>
-</div>
-
-<script>
-/* ==============================
-   🔐 SISTEMA DE TOKEN GL+ 
-============================== */
-function isSubscriptionActive() {
-  const token = localStorage.getItem('GLPLUS_TOKEN');
-  if (!token) return false;
-  return /^GLM-\d{3}$/.test(token) && parseInt(token.slice(4)) <= 200 ||
-         /^GLA-\d{3}$/.test(token) && parseInt(token.slice(4)) <= 200;
-}
-function activateToken(code){
-  if (!/^GL[MA]-\d{3}$/.test(code)) return alert("Token inválido!");
-  const num = parseInt(code.slice(4));
-  if (num < 1 || num > 200) return alert("Token fora da faixa permitida.");
-  localStorage.setItem('GLPLUS_TOKEN', code);
-  alert('Assinatura ativada com sucesso!');
-  closePlusModal();
-  renderPlusCatalog();
-}
-function clearSubscription(){
-  localStorage.removeItem('GLPLUS_TOKEN');
-  document.getElementById('plusSection').style.display = 'none';
-}
-
-/* ==============================
-   🎞️ DADOS DOS FILMES PLUS+
-============================== */
-const plusData = [
-{ id:1, title:"Os Dez Mandamentos", year:"1956", description:"A grandiosa história de Moisés...", poster:"https://i.postimg.cc/0QSXwLHk/Os-10-Mandamentos.jpg", genres:["Bíblico","Drama"], videoUrl:"https://drive.google.com/file/d/1X1rFI59rqPfwKomSfM-VkyrHjJSxuaqy/preview"},
-{ id:2, title:"O Grande Ditador", year:"1940", description:"Chaplin satiriza Hitler...", poster:"https://i.postimg.cc/6qXfWMLG/O-Grande-Ditador.jpg", genres:["Comédia","Drama"], videoUrl:"https://drive.google.com/file/d/1t8uZb6lABWbV9v5EYz9p9b7pLx2KMBKg/preview"},
-{ id:3, title:"O Retrato de Jennie", year:"1948", description:"Um pintor conhece uma garota misteriosa...", poster:"https://i.postimg.cc/FRSCL2nm/o-retrato-de-jennie-1948.png", genres:["Drama","Romance"], videoUrl:"https://drive.google.com/file/d/1Kc4Isipv_3V_429UW_v04b5LE7iBVZYX/preview"}
-];
+  <p class="plus-small">Abaixo os conteúdos mais aclamados do catálogo. Apenas assinantes veem esta seção.</p>
 
 /* ==============================
    🧠 FUNÇÕES PRINCIPAIS
