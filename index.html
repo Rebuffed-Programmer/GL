@@ -1870,6 +1870,169 @@ function clearSubscription() {
     }
   }
 })();
+</script>
+      <!-- === INÍCIO: Plus+ (modal, seção e scripts) - COLE ISTO ANTES DE </body> === -->
+
+<style>
+/* Estilos específicos para Plus+ (respeita o estilo atual) */
+.plus-modal .modal-content {
+  max-width: 980px;
+  width: 95%;
+  background: linear-gradient(180deg,#111,#0f1111);
+  padding: 18px;
+  border-radius: 10px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  flex-direction: column;
+}
+.plus-modal .plus-poster {
+  width: 100%;
+  max-width: 520px;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
+}
+.plus-modal .plus-actions { display:flex; gap:12px; justify-content:center; margin-top:6px; }
+.plus-modal .plus-actions button { padding:10px 16px; border-radius:8px; border:none; cursor:pointer; font-weight:600; }
+.plus-modal .btn-primary { background:#48c948; color:#fff; }
+.plus-modal .btn-secondary { background:rgba(255,255,255,0.06); color:#fff; }
+
+/* Cards dos planos */
+.plus-plans { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:12px; }
+.plus-plan { width:260px; border-radius:10px; overflow:hidden; background:#151718; border:1px solid #222; cursor:pointer; transition:transform .12s; }
+.plus-plan img { width:100%; display:block; }
+.plus-plan .plan-body { padding:12px; color:#ddd; }
+.plus-plan:hover { transform:translateY(-6px); }
+
+/* Seção Plus+ no catálogo */
+.plus-catalog { display:none; padding:40px; }
+.plus-catalog .section-title { display:flex; align-items:center; gap:12px; justify-content:space-between; }
+#plus-movie-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; list-style:none; padding:0; margin:18px 0 0 0; }
+@media (max-width:767px) { #plus-movie-grid { grid-template-columns:repeat(2,1fr); } }
+
+/* Input token */
+.plus-token-box { display:flex; gap:8px; align-items:center; justify-content:center; margin-top:10px; }
+.plus-token-box input { padding:10px 12px; border-radius:8px; border:1px solid #2b2b2b; background:#0d0f10; color:#fff; outline:none; width:260px; }
+.plus-small { font-size:0.9em; color:#bbb; text-align:center; margin-top:8px; }
+
+/* manter z-index do modal acima */
+.plus-modal { z-index: 2200; }
+</style>
+
+<!-- Modal Plus+ (reaproveita a classe .modal do teu index) -->
+<div id="plusModal" class="modal plus-modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close-btn" id="plusModalClose">&times;</span>
+
+    <!-- Poster / topo -->
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <img id="plusPosterImg" class="plus-poster" src="https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg" alt="Pôster Plus+">
+      <div class="plus-actions">
+        <button id="plusBtnSou" class="btn-primary">Sou assinante</button>
+        <button id="plusBtnQuero" class="btn-secondary">Quero assinar</button>
+      </div>
+      <div id="plusInfoText" class="plus-small">Desbloqueie conteúdos exclusivos, conteúdos originais e vantagens da Plus+.</div>
+    </div>
+
+    <!-- Container dinâmico onde aparecem as views (token input / planos / mensagens) -->
+    <div id="plusDynamic" style="width:100%;"></div>
+
+  </div>
+</div>
+
+<!-- Seção exclusiva Plus+ (visível somente quando for assinante) -->
+<section id="plusSection" class="movie-section plus-catalog" style="display:none;">
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <h2 class="section-title">💎 Plus+ Exclusivo</h2>
+    <div>
+      <button id="btnPlusSignOut" class="back-to-info-btn" style="position:static;padding:8px 12px;border-radius:8px;margin-left:10px;display:none;">Sair do Plus+</button>
+    </div>
+  </div>
+
+  <p class="plus-small">Abaixo os conteúdos mais aclamados do catálogo. Apenas assinantes veem esta seção.</p>
+
+<ul id="plus-movie-grid" class="movie-grid"></ul>
+<script>
+const plusData = [
+{ id: 128, title: "Os Dez Mandamentos", year: "1956", description: "A grandiosa história de Moisés, desde seu nascimento no Egito até libertar os hebreus da escravidão e receber os Dez Mandamentos no Monte Sinai. Dirigido por Cecil B. DeMille.", poster: "https://i.postimg.cc/0QSXwLHk/Os-10-Mandamentos.jpg", genres: ["Bíblico", "Drama"], videoUrl: "https://drive.google.com/file/d/1X1rFI59rqPfwKomSfM-VkyrHjJSxuaqy/preview" },
+{ id: 127, title: "O Anjo e Bandido", year: "1947", description: "Após ser ferido em um tiroteio, o pistoleiro Quirt Evans (John Wayne) é acolhido por uma família de quacres. O modo de vida pacífico deles e o amor de Penelope o fazem repensar seu passado violento.", poster: "https://i.postimg.cc/SK3tjyVR/o-anjo-e-o-bandido.png", genres: ["Faroeste", "Ação"], videoUrl: "https://drive.google.com/file/d/1eRlXsd6LMvOKpiQCjBjnGZXSVdq1T3kY/preview" },
+{ id: 130, title: "O retrato de jennie", year: "1948", description: "Um pintor sem inspiração conhece uma garota misteriosa que parece envelhecer a cada encontro. Ele se apaixona por ela, sem saber que Jennie pertence a outro tempo.", poster: "https://i.postimg.cc/FRSCL2nm/o-retrato-de-jennie-1948.png", genres: ["Drama", "Romance"], videoUrl: "https://drive.google.com/file/d/1Kc4Isipv_3V_429UW_v04b5LE7iBVZYX/preview" },
+{ id: 131, title: "O terceiro tiro", year: "1955", description: "Um homem testemunha um assassinato e ouve um terceiro tiro, que muda o rumo da investigação. Mistérios e reviravoltas marcam essa trama policial clássica.", poster: "https://i.postimg.cc/hjmZdH34/o-terceiro-tiro-1955.png", genres: ["Drama", "Suspense"], videoUrl: "https://drive.google.com/file/d/1uZ4nRFgKXXFBkEZ9QprwgzkbJtBtEled/preview" },
+{ id: 133, title: "Missão Perigosa", year: "1948", description: "Durante o pós-guerra, um agente americano é enviado à América do Sul para investigar e eliminar uma rede de espiões nazistas fugitivos.", poster: "https://i.postimg.cc/CKX6dFJh/miss-o-perigosa.jpg", genres: ["Drama", "Suspense"], videoUrl: "https://drive.google.com/file/d/1ZKKOe022V9vW0QvG-Jk9qTD2QTEpGtS6/preview" },
+{ id: 134, title: "Mickey Mouse – The Barn Dance", year: "1929", description: "Mickey convida Minnie para um baile no celeiro, mas precisa enfrentar Pete, seu rival. A dança se transforma em uma disputa cômica pelo coração dela.", poster: "https://i.postimg.cc/R0ybqMGv/Mickey-Mouse-The-Barn-Dance-1929.jpg", genres: ["Animação", "Curta-metragem"], videoUrl: "https://drive.google.com/file/d/1nq9nTzRHUpqBeIozbdPiYLiOywnazZ8L/preview" }
+];
+
+/* renderiza os conteúdos da aba Plus+ */
+function moveTopToPlus() {
+  const grid = document.getElementById('plus-movie-grid');
+  if (!grid) return;
+
+  grid.innerHTML = '';
+
+  if (!plusData.length) {
+    grid.innerHTML = '<li style="color:#aaa;">Nenhum conteúdo encontrado.</li>';
+    return;
+  }
+
+  plusData.forEach(movie => {
+    const li = document.createElement('li');
+    li.className = 'movie-item';
+    li.innerHTML = `
+      <img src="${movie.poster}" alt="${movie.title}" style="width:100%;height:auto;object-fit:cover;border-radius:8px;">
+    `;
+    li.addEventListener('click', () => {
+      if (typeof openMovieModal === 'function') openMovieModal(movie);
+    });
+    grid.appendChild(li);
+  });
+}
+window.addEventListener('load', moveTopToPlus);
+</script>
+  </ul>
+</section>
+
+<script>
+/* === CONFIGURAÇÕES === */
+/* Cole aqui a lista de tokens válidos se quiser validação automática.
+   Exemplo:
+   const VALID_TOKENS = { 'GL-ABC123': {type: 'mensal'}, 'GL-PREM-0001': {type: 'anual'} };
+   Obs: por segurança, mantenha essa lista em local seguro; sem backend, a lista ficará visível no código.
+*/
+const VALID_TOKENS = {}; // <-- opcional: cole tokens aqui no formato {'TOKEN123': {type:'mensal'|'anual'}} 
+
+/* Insira seus links do Mercado Pago aqui (substitua os placeholders abaixo) */
+const LINK_PAGAMENTO_MENSAL = 'https://mpago.la/2SRyqam';
+const LINK_PAGAMENTO_ANUAL  = 'https://mpago.la/2SRyqam';
+
+/* === UTILIDADES === */
+function isSubscriptionActive() {
+  const exp = localStorage.getItem('GLPLUS_EXPIRA');
+  if (!exp) return false;
+  const now = new Date();
+  return new Date(exp) > now;
+}
+function clearSubscription() {
+  localStorage.removeItem('GLPLUS_TOKEN');
+  localStorage.removeItem('GLPLUS_EXPIRA');
+  localStorage.removeItem('GLPLUS_PREMIUM');
+}
+
+/* Checa expiração no carregamento */
+(function(){
+  const exp = localStorage.getItem('GLPLUS_EXPIRA');
+  if (exp && new Date() <= new Date(exp)) {
+    // assinatura válida: deixa como está
+  } else {
+    // expirou ou não existe
+    if (exp) {
+      clearSubscription();
+      // opcional: notifica usuário
+      // alert('Sua assinatura GL+ expirou. Renove para continuar assistindo.');
+    }
+  }
+})();
 
 /* === ABRIR / FECHAR MODAL === */
 function openPlusModal() {
