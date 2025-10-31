@@ -1929,35 +1929,35 @@ window.addEventListener('load',()=>{
 </script>
     <script>
 // === CORREÇÃO DO BOTÃO TRANSLÚCIDO "PLUS+" ===
-// Garante que o clique seja detectado mesmo que o nav seja recriado dinamicamente.
-
-function attachPlusNavFix() {
-  // Espera o nav estar no DOM
-  const tryAttach = setInterval(() => {
-    const nav = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
-    if (!nav.length) return;
-
-    nav.forEach(a => {
-      const text = (a.textContent || '').trim().toLowerCase();
-      if (text.includes('plus')) {
-        a.onclick = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          // Checa se o usuário tem assinatura
-          if (typeof isSubscriptionActive === 'function' && isSubscriptionActive()) {
-            if (typeof renderPlusCatalog === 'function') renderPlusCatalog();
-          } else {
-            if (typeof openPlusModal === 'function') openPlusModal();
-          }
-        };
-      }
-    });
-    clearInterval(tryAttach);
-  }, 400);
+function attachPlusNavFixed() {
+  const navAnchors = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+  navAnchors.forEach(a => {
+    if ((a.textContent || '').toLowerCase().includes('plus')) {
+      a.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (isSubscriptionActive()) {
+          renderPlusCatalog();
+        } else {
+          openPlusModal();
+        }
+      };
+    }
+  });
 }
 
-// Garante rechecagem após load completo
-window.addEventListener('load', attachPlusNavFix);
+// tenta até encontrar o menu
+let tries = 0;
+const interval = setInterval(() => {
+  const nav = document.querySelector('.bottom-nav');
+  if (nav || tries > 20) {
+    clearInterval(interval);
+    attachPlusNavFixed();
+  }
+  tries++;
+}, 400);
+
+window.addEventListener('load', attachPlusNavFixed);
 </script>
 </body>
 </html>
