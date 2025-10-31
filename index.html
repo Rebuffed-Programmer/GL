@@ -1928,36 +1928,24 @@ window.addEventListener('load',()=>{
 });
 </script>
     <script>
-// === CORREÇÃO DO BOTÃO TRANSLÚCIDO "PLUS+" ===
-function attachPlusNavFixed() {
+/* Faz com que o clique na aba Plus+ do bottom nav abra o modal ou vá pro catálogo */
+(function attachPlusNav() {
+  // procura qualquer item do bottom-nav com texto 'plus' (insensível)
   const navAnchors = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
   navAnchors.forEach(a => {
     if ((a.textContent || '').toLowerCase().includes('plus')) {
-      a.onclick = (e) => {
+      a.addEventListener('click', (e) => {
         e.preventDefault();
-        e.stopPropagation();
+        // se tem assinatura ativa, abre catálogo; senão, abre modal
         if (isSubscriptionActive()) {
           renderPlusCatalog();
         } else {
           openPlusModal();
         }
-      };
+      });
     }
   });
-}
-
-// tenta até encontrar o menu
-let tries = 0;
-const interval = setInterval(() => {
-  const nav = document.querySelector('.bottom-nav');
-  if (nav || tries > 20) {
-    clearInterval(interval);
-    attachPlusNavFixed();
-  }
-  tries++;
-}, 400);
-
-window.addEventListener('load', attachPlusNavFixed);
+})();
 </script>
 </body>
 </html>
