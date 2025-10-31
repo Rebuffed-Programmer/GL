@@ -1707,515 +1707,446 @@ function assistirAgora(url) {
     }
   });
 })();
-<!-- === INÍCIO: Plus+ (modal, seção e scripts) - COLE ISTO ANTES DE </body> === -->
-<style>
-/* ---------- Plus+ Styles (prefixado para evitar conflito) ---------- */
-.plus-modal .modal-content {
-  max-width: 980px;
-  width: 95%;
-  background: linear-gradient(180deg,#111,#0f1111);
-  padding: 18px;
-  border-radius: 10px;
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
-  flex-direction: column;
-}
-.plus-modal .plus-poster {
-  width: 100%;
-  max-width: 520px;
-  border-radius: 8px;
-  object-fit: cover;
-  display: block;
-  margin: 0 auto;
-}
-.plus-modal .plus-actions { display:flex; gap:12px; justify-content:center; margin-top:6px; }
-.plus-modal .plus-actions button { padding:10px 16px; border-radius:8px; border:none; cursor:pointer; font-weight:600; }
-.plus-modal .btn-primary { background:#48c948; color:#fff; }
-.plus-modal .btn-secondary { background:rgba(255,255,255,0.06); color:#fff; }
-
-/* Cards dos planos */
-.plus-plans { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:12px; }
-.plus-plan { width:260px; border-radius:10px; overflow:hidden; background:#151718; border:1px solid #222; cursor:pointer; transition:transform .12s; }
-.plus-plan img { width:100%; display:block; }
-.plus-plan .plan-body { padding:12px; color:#ddd; }
-.plus-plan:hover { transform:translateY(-6px); }
-
-/* Seção Plus+ no catálogo */
-.plus-catalog { display:none; padding:20px 40px; }
-.plus-catalog .section-title { display:flex; align-items:center; gap:12px; justify-content:space-between; color:#fff; }
-#plus-movie-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; list-style:none; padding:0; margin:18px 0 0 0; }
-#plus-movie-grid .movie-item img { width:100%; height:220px; object-fit:cover; border-radius:8px; display:block; }
-#plus-movie-grid .movie-item { background:transparent; color:#fff; padding:6px; border-radius:8px; }
-@media (max-width:767px) { #plus-movie-grid { grid-template-columns:repeat(2,1fr); } #plus-movie-grid .movie-item img{height:140px;} }
-
-/* Input token */
-.plus-token-box { display:flex; gap:8px; align-items:center; justify-content:center; margin-top:10px; }
-.plus-token-box input { padding:10px 12px; border-radius:8px; border:1px solid #2b2b2b; background:#0d0f10; color:#fff; outline:none; width:260px; }
-.plus-small { font-size:0.9em; color:#bbb; text-align:center; margin-top:8px; }
-
-/* manter z-index do modal acima */
-.plus-modal { z-index: 2200; }
-
-/* ---------- Plus player styles (isolado) ---------- */
-.plus-player-modal { display:none; align-items:center; justify-content:center; position:fixed; inset:0; z-index:99999; }
-.plus-player-modal .modal-content { width:100%; max-width:1100px; height:80vh; background:#000; padding:0; border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
-.plus-player-modal.fullscreen { width:100%; height:100%; border-radius:0; padding:0; }
-.plus-player-modal .plus-player-top { position:relative; flex:1; background:black; display:flex; align-items:center; justify-content:center; }
-.plus-player-modal .back-to-plus { position:absolute; top:12px; left:12px; z-index:11000; background:rgba(0,0,0,0.6); color:#fff; border:none; padding:10px 14px; border-radius:6px; cursor:pointer; }
-.plus-player-modal .block-newtab-btn { position:absolute; top:12px; right:12px; z-index:11000; width:44px; height:44px; border-radius:8px; border:none; background:rgba(0,0,0,0.15); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; }
-.plus-player-modal .block-bottom-btn { position:absolute; bottom:20px; right:28px; z-index:11000; width:60px; height:59px; border-radius:6px; border:none; background:rgba(0,0,0,0.15); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; }
-.plus-player-modal iframe { width:100%; height:100%; border:0; display:block; }
-
-/* small toast */
-.plus-toast { position:absolute; top:12px; right:64px; padding:8px 12px; background:rgba(0,0,0,0.7); color:#fff; border-radius:6px; z-index:12000; font-size:14px; }
-
-/* hide helpers */
-.hidden { display:none !important; }
-</style>
-
-<!-- Modal Plus+ (assinatura) -->
-<div id="plusModal" class="modal plus-modal" style="display:none;align-items:center;justify-content:center;">
-  <div class="modal-content">
-    <span class="close-btn" id="plusModalClose" style="cursor:pointer;position:absolute;right:12px;top:8px;font-size:22px;color:#fff;">&times;</span>
-
-    <div style="display:flex;flex-direction:column;align-items:center;">
-      <img id="plusPosterImg" class="plus-poster" src="https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg" alt="Pôster Plus+">
-      <div class="plus-actions">
-        <button id="plusBtnSou" class="btn-primary">Sou assinante</button>
-        <button id="plusBtnQuero" class="btn-secondary">Quero assinar</button>
-      </div>
-      <div id="plusInfoText" class="plus-small">Desbloqueie conteúdos exclusivos, conteúdos originais e vantagens da Plus+.</div>
-    </div>
-
-    <div id="plusDynamic" style="width:100%;"></div>
-  </div>
-</div>
-
-<!-- Seção exclusiva Plus+ (catalogo) -->
-<section id="plusSection" class="movie-section plus-catalog" style="display:none;color:#fff;">
-  <div style="display:flex;align-items:center;justify-content:space-between;">
-    <h2 class="section-title">💎 Plus+ Exclusivo</h2>
-    <div>
-      <button id="btnPlusSignOut" class="back-to-info-btn" style="position:static;padding:8px 12px;border-radius:8px;margin-left:10px;display:none;">Sair do Plus+</button>
-    </div>
-  </div>
-
-  <p class="plus-small">Abaixo os conteúdos exclusivos. Apenas assinantes veem esta seção.</p>
-
-  <ul id="plus-movie-grid" class="movie-grid"></ul>
-</section>
-
-<!-- Player exclusivo Plus+ (separado do player home) -->
-<div id="plusPlayerModal" class="plus-player-modal" aria-hidden="true">
-  <div class="modal-content" id="plusPlayerContent" role="dialog">
-    <div class="plus-player-top" id="plusPlayerTop">
-      <button class="back-to-plus" id="plusPlayerBack"><i class="fa fa-arrow-left"></i> Voltar</button>
-      <button class="block-newtab-btn" id="plusPlayerBlockTop" title="Abertura externa desativada"><i class="fa fa-link"></i></button>
-      <div id="plusPlayerWrapper" style="width:100%;height:100%;"></div>
-      <button class="block-bottom-btn" id="plusPlayerBlockBottom" title="Abertura externa desativada"><i class="fa fa-link"></i></button>
-    </div>
-  </div>
-</div>
-
 <script>
-/* ========== Plus+ Script (único bloco) ========== */
-/* Configs (atualize links se quiser) */
-const LINK_PAGAMENTO_MENSAL = 'https://mpago.la/2SRyqam';
-const LINK_PAGAMENTO_ANUAL = 'https://mpago.la/2SRyqam';
+/* === Plus+ all-in-one: ligador de menu, validação tokens e player compatível ===
+   Cole este script no final do index (antes do </body>).
+*/
 
-/* --- Dados default (se não houver window.movieData) --- */
-const localPlusData = [
-  { id: 128, title: "Os Dez Mandamentos", year: "1956", description: "A grandiosa história de Moisés...", poster: "https://i.postimg.cc/0QSXwLHk/Os-10-Mandamentos.jpg", genres:["Bíblico","Drama"], videoUrl: "https://drive.google.com/file/d/1X1rFI59rqPfwKomSfM-VkyrHjJSxuaqy/preview", plus: true },
-  { id: 127, title: "O Anjo e Bandido", year: "1947", description: "Após ser ferido...", poster: "https://i.postimg.cc/SK3tjyVR/o-anjo-e-o-bandido.png", genres:["Faroeste","Ação"], videoUrl: "https://drive.google.com/file/d/1eRlXsd6LMvOKpiQCjBjnGZXSVdq1T3kY/preview", plus: true },
-  { id: 130, title: "O retrato de jennie", year: "1948", description: "Um pintor sem inspiração...", poster: "https://i.postimg.cc/FRSCL2nm/o-retrato-de-jennie-1948.png", genres:["Drama","Romance"], videoUrl: "https://drive.google.com/file/d/1Kc4Isipv_3V_429UW_v04b5LE7iBVZYX/preview", plus: true },
-  { id: 131, title: "O terceiro tiro", year: "1955", description: "Um homem testemunha um assassinato...", poster: "https://i.postimg.cc/hjmZdH34/o-terceiro-tiro-1955.png", genres:["Drama","Suspense"], videoUrl: "https://drive.google.com/file/d/1uZ4nRFgKXXFBkEZ9QprwgzkbJtBtEled/preview", plus: true },
-  { id: 133, title: "Missão Perigosa", year: "1948", description: "Durante o pós-guerra...", poster: "https://i.postimg.cc/CKX6dFJh/miss-o-perigosa.jpg", genres:["Drama","Suspense"], videoUrl: "https://drive.google.com/file/d/1ZKKOe022V9vW0QvG-Jk9qTD2QTEpGtS6/preview", plus: true },
-  { id: 134, title: "Mickey Mouse – The Barn Dance", year: "1929", description: "Mickey convida Minnie...", poster: "https://i.postimg.cc/R0ybqMGv/Mickey-Mouse-The-Barn-Dance-1929.jpg", genres:["Animação","Curta-metragem"], videoUrl: "https://drive.google.com/file/d/1nq9nTzRHUpqBeIozbdPiYLiOywnazZ8L/preview", plus: true }
-];
+(function(){
+  /* ---------- Configurações ---------- */
+  const TOKEN_PREFIX_M = 'GLM-';
+  const TOKEN_PREFIX_A = 'GLA-';
+  const TOKEN_MAX = 200;
 
-/* --- Helper: recuperar fonte de dados (se você tiver window.movieData, filtra por campo `plus:true`) --- */
-function getPlusSource() {
-  if (window.movieData && Array.isArray(window.movieData)) {
-    // Prioriza filmes com flag plus===true
-    const fromMovieData = window.movieData.filter(m => m.plus === true);
-    if (fromMovieData.length) return fromMovieData;
-    // fallback: se movieData existir mas sem flags, tenta ids conhecidos (opcional)
+  /* ---------- Utilitários ---------- */
+  function isValidTokenFormat(code){
+    if(!code || typeof code !== 'string') return false;
+    code = code.trim().toUpperCase();
+    const m = code.match(/^GL([MA])-(\d{1,3})$/i);
+    if(!m) return false;
+    const kind = m[1]; // M or A
+    const num = parseInt(m[2],10);
+    return num >= 1 && num <= TOKEN_MAX;
   }
-  return localPlusData;
-}
-
-/* --- Token validator: só aceita GLM-001..200 e GLA-001..200 (case-insensitive) --- */
-function validateTokenStrict(code) {
-  if (!code || typeof code !== 'string') return null;
-  const c = code.trim().toUpperCase();
-  // GLM-001..GLM-200
-  let m = c.match(/^GLM-(\d{1,3})$/i);
-  if (m) {
-    const n = parseInt(m[1],10);
-    if (n >= 1 && n <= 200) return 'mensal';
+  function getTokenType(code){
+    if(!code) return null;
+    const up = code.trim().toUpperCase();
+    if(up.startsWith(TOKEN_PREFIX_M)) return 'mensal';
+    if(up.startsWith(TOKEN_PREFIX_A)) return 'anual';
+    return null;
   }
-  m = c.match(/^GLA-(\d{1,3})$/i);
-  if (m) {
-    const n = parseInt(m[1],10);
-    if (n >= 1 && n <= 200) return 'anual';
+  function isSubscriptionActive(){
+    const exp = localStorage.getItem('GLPLUS_EXPIRA');
+    if(!exp) return false;
+    return new Date(exp) > new Date();
   }
-  return null;
-}
+  function clearSubscription(){
+    localStorage.removeItem('GLPLUS_TOKEN');
+    localStorage.removeItem('GLPLUS_EXPIRA');
+    localStorage.removeItem('GLPLUS_PREMIUM');
+  }
+  function activateTokenLocal(code){
+    if(!isValidTokenFormat(code)) { alert('Token inválido. Use formato GLM-001 até GLM-200 ou GLA-001 até GLA-200'); return false; }
+    const tipo = getTokenType(code);
+    const now = new Date();
+    const exp = new Date(now);
+    if(tipo === 'anual'){ exp.setFullYear(now.getFullYear()+1); localStorage.setItem('GLPLUS_PREMIUM','true'); }
+    else { exp.setDate(now.getDate()+30); }
+    localStorage.setItem('GLPLUS_TOKEN', code.trim().toUpperCase());
+    localStorage.setItem('GLPLUS_EXPIRA', exp.toISOString());
+    return true;
+  }
 
-/* --- Subscription helpers --- */
-function isSubscriptionActive() {
-  const exp = localStorage.getItem('GLPLUS_EXPIRA');
-  if (!exp) return false;
-  return new Date(exp) > new Date();
-}
-function clearSubscription() {
-  localStorage.removeItem('GLPLUS_TOKEN');
-  localStorage.removeItem('GLPLUS_EXPIRA');
-  localStorage.removeItem('GLPLUS_PREMIUM');
-}
+  /* ---------- UI helpers ---------- */
+  function safeQuery(selector, parent=document){ try{ return parent.querySelector(selector); }catch(e){return null;} }
+  function createEl(tag, props={}, children=[]){
+    const el = document.createElement(tag);
+    Object.entries(props).forEach(([k,v])=>{
+      if(k==='class') el.className = v;
+      else if(k==='html') el.innerHTML = v;
+      else el.setAttribute(k,v);
+    });
+    children.forEach(c => el.appendChild(c));
+    return el;
+  }
 
-/* --- Render views inside plus modal --- */
-function renderPlusDefault(){
-  const dyn = document.getElementById('plusDynamic');
-  if(!dyn) return;
-  dyn.innerHTML = `
-    <div style="text-align:center;margin-top:8px;">
-      <p class="plus-small">Escolha uma opção para prosseguir</p>
-      <div style="display:flex;gap:10px;justify-content:center;margin-top:8px;">
-        <button id="plusOpenSou" class="btn-primary">Sou assinante</button>
-        <button id="plusOpenQuero" class="btn-secondary">Quero assinar</button>
-      </div>
-    </div>
-  `;
-  document.getElementById('plusOpenSou').addEventListener('click', renderSouAssinante);
-  document.getElementById('plusOpenQuero').addEventListener('click', renderQueroAssinar);
-}
-
-function renderSouAssinante(){
-  const dyn = document.getElementById('plusDynamic');
-  dyn.innerHTML = `
-    <div style="text-align:center;">
-      <div class="plus-token-box">
-        <input id="plusTokenInput" placeholder="Cole seu código de ativação Plus+">
-        <button id="plusActivateBtn" class="btn-primary">Ativar</button>
-      </div>
-      <div style="margin-top:8px;">
-        <button id="plusAskManual" class="btn-secondary">Não tenho código (ver instruções)</button>
-      </div>
-      <p class="plus-small" style="margin-top:10px;">Cole um token válido: GLM-001..GLM-200 ou GLA-001..GLA-200</p>
-    </div>
-  `;
-  document.getElementById('plusActivateBtn').addEventListener('click', () => {
-    const code = document.getElementById('plusTokenInput').value.trim();
-    if (!code) { alert('Digite um token.'); return; }
-    const tipo = validateTokenStrict(code);
-    if (!tipo) { alert('Token inválido.'); return; }
-    activateTokenLocal(code, tipo);
-  });
-  document.getElementById('plusAskManual').addEventListener('click', () => {
-    alert('Para assinar: escolha "Quero assinar" e siga para o pagamento. Após pagar, você receberá o token.');
-  });
-}
-
-function renderQueroAssinar(){
-  const dyn = document.getElementById('plusDynamic');
-  dyn.innerHTML = `
-    <div style="text-align:center;">
-      <h3>Escolha o plano</h3>
-      <div class="plus-plans">
-        <div class="plus-plan" id="plan-mensal" title="Plano Mensal">
-          <img src="https://i.postimg.cc/XJ3Pgkwv/Plano-Mensal.jpg" alt="Mensal">
-          <div class="plan-body">
-            <strong>Básico - R$9,90/mês</strong>
-            <p class="plus-small" style="margin-top:8px;">• até 8% de desconto<br>• 3 canais ao vivo<br>• Conteúdos Plus+</p>
+  /* ---------- Plus+ rendering (modal + catalog) ---------- */
+  // Recria renderers apenas se não existirem (para não duplicar se usuário já tem)
+  function ensurePlusModalExists(){
+    if(document.getElementById('plusModal')) return;
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = `
+      <div id="plusModal" class="modal plus-modal" style="display:none;">
+        <div class="modal-content">
+          <span class="close-btn" id="plusModalClose" style="cursor:pointer;font-size:28px;align-self:flex-end">&times;</span>
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <img id="plusPosterImg" class="plus-poster" src="https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg" alt="Pôster Plus+" style="max-width:520px;width:100%;border-radius:8px;">
+            <div class="plus-actions" style="margin-top:10px;">
+              <button id="plusBtnSou" class="btn-primary">Sou assinante</button>
+              <button id="plusBtnQuero" class="btn-secondary">Quero assinar</button>
+            </div>
+            <div id="plusInfoText" class="plus-small" style="margin-top:8px;color:#bbb;">Desbloqueie conteúdos exclusivos, conteúdos originais e vantagens da Plus+.</div>
           </div>
+          <div id="plusDynamic" style="width:100%;margin-top:12px;"></div>
         </div>
-        <div class="plus-plan" id="plan-anual" title="Plano Anual">
-          <img src="https://i.postimg.cc/W3jy7wMd/Plano-Anual.jpg" alt="Anual">
-          <div class="plan-body">
-            <strong>Premium - R$99,90/ano</strong>
-            <p class="plus-small" style="margin-top:8px;">• Full HD<br>• Até 3 telas<br>• Compras disponíveis</p>
-          </div>
-        </div>
-      </div>
-      <p class="plus-small" style="margin-top:12px;">Ao confirmar será aberto o link de pagamento. Após pagar, volte e use "Sou assinante".</p>
-    </div>
-  `;
-  document.getElementById('plan-mensal').addEventListener('click', () => {
-    if (!confirm('Deseja prosseguir para pagamento mensal?')) return;
-    window.open(LINK_PAGAMENTO_MENSAL, '_blank');
-  });
-  document.getElementById('plan-anual').addEventListener('click', () => {
-    if (!confirm('Deseja prosseguir para pagamento anual?')) return;
-    window.open(LINK_PAGAMENTO_ANUAL, '_blank');
-  });
-}
-
-/* --- activate token locally --- */
-function activateTokenLocal(code, tipo) {
-  const now = new Date();
-  const exp = new Date(now);
-  if (tipo === 'anual') {
-    exp.setFullYear(now.getFullYear() + 1);
-    localStorage.setItem('GLPLUS_PREMIUM','true');
-  } else {
-    exp.setDate(now.getDate() + 30);
-  }
-  localStorage.setItem('GLPLUS_TOKEN', code.toUpperCase());
-  localStorage.setItem('GLPLUS_EXPIRA', exp.toISOString());
-  alert('Assinatura ativada!');
-  closePlusModal();
-  renderPlusCatalog();
-}
-
-/* --- plus modal open/close --- */
-function openPlusModal() {
-  const modal = document.getElementById('plusModal');
-  if(!modal) return;
-  modal.style.display = 'flex';
-  modal.style.alignItems = 'center';
-  modal.style.justifyContent = 'center';
-  document.body.style.overflow = 'hidden';
-  renderPlusDefault();
-}
-function closePlusModal() {
-  const modal = document.getElementById('plusModal');
-  if(!modal) return;
-  modal.style.display = 'none';
-  document.body.style.overflow = '';
-}
-
-/* close X */
-document.getElementById('plusModalClose').addEventListener('click', closePlusModal);
-
-/* --- Render Plus Catalog (aparece somente se token ativo) --- */
-function renderPlusCatalog() {
-  if (!isSubscriptionActive()) {
-    alert('Assinatura não ativa ou expirada. Ative para ver conteúdos Plus+.');
-    return;
-  }
-
-  // Hide main sections (non-invasive)
-  document.querySelectorAll('.movie-section, .content-section').forEach(el => el.style.display = 'none');
-
-  const plusSection = document.getElementById('plusSection');
-  plusSection.style.display = 'block';
-
-  const btnOut = document.getElementById('btnPlusSignOut');
-  btnOut.style.display = 'inline-block';
-  btnOut.onclick = () => {
-    if (!confirm('Deseja sair da assinatura local neste dispositivo?')) return;
-    clearSubscription();
-    btnOut.style.display = 'none';
-    plusSection.style.display = 'none';
-    document.getElementById('home')?.scrollIntoView();
-  };
-
-  // populate grid
-  const grid = document.getElementById('plus-movie-grid');
-  grid.innerHTML = '';
-  const items = getPlusSource();
-  if (!items || !items.length) {
-    grid.innerHTML = '<li class="movie-item" style="color:#aaa;">Nenhum conteúdo encontrado.</li>';
-    return;
-  }
-
-  items.slice(0, 200).forEach(m => {
-    const li = document.createElement('li');
-    li.className = 'movie-item';
-    li.style.cursor = 'pointer';
-    li.innerHTML = `
-      <div style="position:relative;">
-        <img src="${m.poster || ''}" alt="${m.title || ''}">
-        <div style="position:absolute;left:8px;bottom:8px">
-          <button class="plus-watch-btn" data-id="${m.id}" style="padding:8px 10px;border-radius:6px;border:none;background:rgba(0,0,0,0.6);color:#fff;cursor:pointer;">Assistir Já</button>
-        </div>
-      </div>
-      <div style="padding-top:6px;color:#fff;">
-        <strong style="font-size:0.95em">${m.title}</strong><br>
-        <small style="color:#bbb">${m.year || ''} • ${(m.genres || []).slice(0,2).join(' • ')}</small>
       </div>
     `;
-    grid.appendChild(li);
-  });
-
-  // attach watch handlers
-  grid.querySelectorAll('.plus-watch-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const id = btn.getAttribute('data-id');
-      const movie = getPlusSource().find(x => String(x.id) === String(id));
-      if (!movie) { alert('Filme não encontrado'); return; }
-      openPlusPlayer(movie);
-    });
-  });
-}
-
-/* --- Player: openPlusPlayer (cria iframe + bloqueadores + fullscreen landscape) --- */
-function showPlusToast(msg, time=1200) {
-  const toast = document.createElement('div');
-  toast.className = 'plus-toast';
-  toast.textContent = msg;
-  const wrapper = document.getElementById('plusPlayerTop') || document.body;
-  wrapper.appendChild(toast);
-  setTimeout(()=> {
-    toast.style.opacity='0'; toast.style.transition='opacity .25s';
-    setTimeout(()=> toast.remove(), 300);
-  }, time);
-}
-
-function openPlusPlayer(movie) {
-  // prepara modal
-  const playerModal = document.getElementById('plusPlayerModal');
-  const wrapper = document.getElementById('plusPlayerWrapper');
-  const playerContent = document.getElementById('plusPlayerContent');
-  if (!playerModal || !wrapper || !playerContent) { alert('Player não disponível'); return; }
-
-  // limpa wrapper
-  wrapper.innerHTML = '';
-
-  // cria iframe (Drive preview aceita em iframe) — usa movie.videoUrl
-  const iframe = document.createElement('iframe');
-  iframe.src = movie.videoUrl || '';
-  iframe.allow = 'autoplay; encrypted-media';
-  iframe.allowFullscreen = true;
-  iframe.style.width = '100%';
-  iframe.style.height = '100%';
-  iframe.style.border = '0';
-
-  // back button behavior
-  const backBtn = document.getElementById('plusPlayerBack');
-  backBtn.onclick = () => closePlusPlayer();
-
-  // block buttons behavior
-  document.getElementById('plusPlayerBlockTop').onclick = (ev) => { ev.preventDefault(); ev.stopPropagation(); showPlusToast('Abertura externa desativada.'); };
-  document.getElementById('plusPlayerBlockBottom').onclick = (ev) => { ev.preventDefault(); ev.stopPropagation(); showPlusToast('Abertura externa desativada.'); };
-
-  // append iframe
-  wrapper.appendChild(iframe);
-
-  // show modal
-  playerModal.style.display = 'flex';
-  playerModal.setAttribute('aria-hidden','false');
-
-  // try to enter "fullscreen" like behaviour and lock landscape
-  try {
-    playerModal.classList.add('opening-fullscreen');
-    // request fullscreen on modal content for consistent behavior
-    if (playerContent.requestFullscreen) playerContent.requestFullscreen().catch(()=>{});
-    else if (playerContent.webkitRequestFullscreen) playerContent.webkitRequestFullscreen();
-  } catch(e){ /* ignore */ }
-
-  // add class triggering CSS (if needed)
-  playerModal.classList.add('fullscreen');
-
-  // try lock orientation to landscape (best-effort)
-  try {
-    if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(()=>{});
-  } catch(e){}
-
-  // hide other UI (non-invasive: add hidden class to typical controls if present)
-  try { document.querySelector('.bottom-nav')?.classList.add('hidden'); } catch(e){}
-  try { document.querySelectorAll('.movie-section, .content-section').forEach(s=> s.style.display='none'); } catch(e){}
-
-  // focus iframe
-  setTimeout(()=> { iframe.focus?.(); }, 300);
-}
-
-function closePlusPlayer() {
-  const playerModal = document.getElementById('plusPlayerModal');
-  if(!playerModal) return;
-  // exit fullscreen
-  try {
-    if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
-    else if (document.webkitFullscreenElement) document.webkitExitFullscreen && document.webkitExitFullscreen();
-  } catch(e){}
-  // unlock orientation if possible
-  try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch(e){}
-
-  // hide modal and cleanup
-  playerModal.style.display = 'none';
-  playerModal.setAttribute('aria-hidden','true');
-  document.getElementById('plusPlayerWrapper').innerHTML = '';
-
-  // restore UI
-  try { document.querySelector('.bottom-nav')?.classList.remove('hidden'); } catch(e){}
-  // show plusSection if subscription active
-  if (isSubscriptionActive()) document.getElementById('plusSection').style.display = 'block';
-}
-
-/* --- Attach bottom nav handler (non-intrusive) --- */
-(function attachPlusNav() {
-  const navAnchors = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
-  navAnchors.forEach(a => {
-    if ((a.textContent || '').toLowerCase().includes('plus')) {
-      a.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (isSubscriptionActive()) {
-          renderPlusCatalog();
-        } else {
-          openPlusModal();
-        }
-      });
-    }
-  });
-})();
-
-/* --- On load behavior: if token active, render plus catalog (but don't auto-open modal) --- */
-window.addEventListener('load', () => {
-  // close any leftover plus modals
-  document.getElementById('plusModal')?.style?.display === 'flex' && document.getElementById('plusModal').style?.display !== '' && document.getElementById('plusModal').style.setProperty('display','none');
-  if (isSubscriptionActive()) {
-    renderPlusCatalog();
-  } else {
-    // ensure plusSection hidden
-    document.getElementById('plusSection').style.display = 'none';
+    document.body.appendChild(wrapper);
+    safeQuery('#plusModalClose').addEventListener('click', () => { closePlusModal(); });
   }
-});
 
-/* --- Expose some utils for debugging (optional) --- */
-window.PLUS = {
-  validateTokenStrict,
-  activateTokenLocal,
-  isSubscriptionActive,
-  renderPlusCatalog,
-  openPlusModal,
-  closePlusModal,
-  openPlusPlayer,
-  closePlusPlayer
-};
-</script>
-    <script>
-// === CORREÇÃO: BOTÃO TRANSLÚCIDO "PLUS+" FUNCIONAL ===
-document.addEventListener('DOMContentLoaded', () => {
-  function attachPlusNavButton() {
-    const nav = document.querySelector('.bottom-nav');
-    if (!nav) return console.warn('Bottom nav não encontrado.');
-    
-    const plusBtn = Array.from(nav.querySelectorAll('*')).find(el => 
-      (el.textContent || '').toLowerCase().includes('plus')
-    );
-    if (!plusBtn) return console.warn('Botão Plus+ não encontrado.');
+  function openPlusModal(){ ensurePlusModalExists(); document.getElementById('plusModal').style.display='flex'; document.body.style.overflow='hidden'; renderPlusDefault(); }
+  function closePlusModal(){ const m = document.getElementById('plusModal'); if(m){ m.style.display='none'; document.body.style.overflow=''; } }
 
-    // Evita duplicar evento
-    plusBtn.onclick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (typeof isSubscriptionActive === 'function' && isSubscriptionActive()) {
-        // Usuário já logado → abre catálogo
-        if (typeof renderPlusCatalog === 'function') renderPlusCatalog();
-      } else {
-        // Não logado → abre modal
-        if (typeof openPlusModal === 'function') openPlusModal();
+  function renderPlusDefault(){
+    const dyn = document.getElementById('plusDynamic');
+    if(!dyn) return;
+    dyn.innerHTML = `
+      <div style="text-align:center;">
+        <p class="plus-small">Escolha uma opção</p>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;">
+          <img src="https://i.postimg.cc/XJ3Pgkwv/Plano-Mensal.jpg" style="width:120px;border-radius:8px;">
+          <img src="https://i.postimg.cc/W3jy7wMd/Plano-Anual.jpg" style="width:120px;border-radius:8px;">
+          <img src="https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg" style="width:120px;border-radius:8px;">
+        </div>
+        <p style="margin-top:12px;color:#bbb;">Clique em "Sou assinante" para ativar seu token ou "Quero assinar" para seguir para pagamento.</p>
+      </div>
+    `;
+    // adiciona listeners
+    const sou = document.getElementById('plusBtnSou');
+    const quero = document.getElementById('plusBtnQuero');
+    if(sou) sou.onclick = renderSouAssinante;
+    if(quero) quero.onclick = renderQueroAssinar;
+  }
+
+  function renderSouAssinante(){
+    const dyn = document.getElementById('plusDynamic');
+    if(!dyn) return;
+    dyn.innerHTML = `
+      <div style="text-align:center;">
+        <div class="plus-token-box">
+          <input id="plusTokenInput" placeholder="Cole seu código de ativação Plus+" style="padding:8px;border-radius:8px;background:#0d0f10;color:#fff;border:1px solid #333;width:220px;">
+          <button id="plusActivateBtn" class="btn-primary">Ativar</button>
+        </div>
+        <p class="plus-small" style="margin-top:10px;color:#bbb;">Ex: GLM-001 ou GLA-001 (até 200)</p>
+      </div>
+    `;
+    const btn = document.getElementById('plusActivateBtn');
+    if(btn) btn.onclick = () => {
+      const code = (document.getElementById('plusTokenInput')||{}).value || '';
+      if(!code) { alert('Digite o token.'); return; }
+      if(!isValidTokenFormat(code)) { alert('Token inválido. Use GLM-001..200 ou GLA-001..200'); return; }
+      const ok = activateTokenLocal(code);
+      if(ok){
+        alert('Assinatura ativada com sucesso!');
+        closePlusModal();
+        renderPlusCatalog();
       }
     };
   }
 
-  // Aguarda um pouquinho pro menu ser renderizado
-  setTimeout(attachPlusNavButton, 800);
-});
+  function renderQueroAssinar(){
+    const dyn = document.getElementById('plusDynamic');
+    if(!dyn) return;
+    dyn.innerHTML = `
+      <div style="text-align:center;">
+        <h3>Planos</h3>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:10px;">
+          <div class="plus-plan" id="plan-m" style="cursor:pointer;padding:10px;border-radius:8px;background:#111;border:1px solid #222;">
+            <strong>Mensal - R$9,90</strong><div class="plus-small">R$9,90 / mês</div>
+          </div>
+          <div class="plus-plan" id="plan-a" style="cursor:pointer;padding:10px;border-radius:8px;background:#111;border:1px solid #222;">
+            <strong>Anual - R$99,90</strong><div class="plus-small">12x de R$10,17</div>
+          </div>
+        </div>
+        <p style="margin-top:12px;color:#bbb;">Ao confirmar, abra o link de pagamento e depois volte para ativar o token.</p>
+      </div>
+    `;
+    safeQuery('#plan-m').onclick = ()=> { if(confirm('Abrir link de pagamento mensal?')) window.open('${LINK_PAGAMENTO_MENSAL || "https://mpago.la/2SRyqam"}','_blank'); };
+    safeQuery('#plan-a').onclick = ()=> { if(confirm('Abrir link de pagamento anual?')) window.open('${LINK_PAGAMENTO_ANUAL || "https://mpago.la/2SRyqam"}','_blank'); };
+  }
+
+  /* ---------- Catalog (Plus+) ---------- */
+  // Renderiza a grade com base em window.movieData (filtra por flag .plus === true) ou window.plusData fallback
+  function getPlusItems(){
+    if(window.movieData && Array.isArray(window.movieData)){
+      // suporta a flag movie.plus === true, ou se houver campo home:false
+      return window.movieData.filter(m => m.plus === true || m.home === false || m.isPlus === true);
+    }
+    if(window.plusData && Array.isArray(window.plusData)) return window.plusData;
+    return [];
+  }
+
+  function renderPlusCatalog(){
+    if(!isSubscriptionActive()){ alert('Assinatura não ativa. Ative para ver conteúdos Plus+.'); return; }
+    // esconde seções principais (mimic original behavior)
+    document.querySelectorAll('.movie-section, .content-section').forEach(el => el.style.display='none');
+    safeQuery('#plusSection') && (safeQuery('#plusSection').style.display = 'block');
+    const btnOut = document.getElementById('btnPlusSignOut');
+    if(btnOut){ btnOut.style.display='inline-block'; btnOut.onclick = ()=> { if(confirm('Sair da assinatura local?')) { clearSubscription(); btnOut.style.display='none'; safeQuery('#plusSection').style.display='none'; } }; }
+
+    const grid = document.getElementById('plus-movie-grid');
+    if(!grid) return;
+    grid.innerHTML = '';
+    const items = getPlusItems();
+    if(!items || !items.length){ grid.innerHTML = '<li class="movie-item" style="color:#aaa;">Nenhum conteúdo encontrado.</li>'; return; }
+
+    items.slice(0,100).forEach(m => {
+      const li = document.createElement('li');
+      li.className = 'movie-item';
+      li.style.cursor = 'pointer';
+      li.style.listStyle='none';
+      li.style.borderRadius='8px';
+      li.style.overflow='hidden';
+      li.style.background='#0b0b0b';
+      li.style.padding='6px';
+      li.style.display='flex';
+      li.style.flexDirection='column';
+      li.style.alignItems='stretch';
+      li.innerHTML = `
+        <img src="${m.poster||''}" alt="${m.title||''}" style="width:100%;height:170px;object-fit:cover;border-radius:6px;">
+        <div style="padding:8px;color:#ddd;">
+          <strong style="display:block">${m.title||''} <small style="color:#aaa">(${m.year||''})</small></strong>
+          <div style="margin-top:6px;display:flex;gap:8px;align-items:center;justify-content:space-between;">
+            <button class="watch-btn btn-primary" style="padding:8px 10px;border-radius:6px;border:none;cursor:pointer">Assistir Já</button>
+            <button class="add-btn" style="padding:6px;border-radius:6px;border:1px solid #222;background:transparent;color:#fff;cursor:pointer">+</button>
+          </div>
+        </div>
+      `;
+      // clicar no card abre modal info
+      li.querySelector('img').addEventListener('click', ()=> openMovieModalSafe(m));
+      // watch
+      li.querySelector('.watch-btn').addEventListener('click', (e)=> { e.stopPropagation(); playMovie(m); });
+      // add to list
+      li.querySelector('.add-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const myList = JSON.parse(localStorage.getItem('GL_MY_LIST')||'[]');
+        if(!myList.includes(m.id)){ myList.push(m.id); localStorage.setItem('GL_MY_LIST', JSON.stringify(myList)); e.target.textContent = '✓'; }
+        else { const idx = myList.indexOf(m.id); myList.splice(idx,1); localStorage.setItem('GL_MY_LIST', JSON.stringify(myList)); e.target.textContent = '+'; }
+      });
+
+      grid.appendChild(li);
+    });
+  }
+
+  /* ---------- Player integration: try reuse Home player, else fallback ---------- */
+  // Se o site já tem openMovieModal(movie), usa ele. Caso contrário, cria um player modal próprio.
+  function openMovieModalSafe(movie){
+    // tenta setar info no modal existente se houver
+    try{
+      if(typeof openMovieModal === 'function'){ openMovieModal(movie); return; }
+      // fallback: se existir modal elements ids em page, preencha
+      const modal = document.getElementById('movie-modal');
+      if(modal){
+        safeQuery('#modal-poster') && (safeQuery('#modal-poster').src = movie.poster || '');
+        safeQuery('#modal-title') && (safeQuery('#modal-title').textContent = movie.title || '');
+        safeQuery('#modal-year') && (safeQuery('#modal-year').textContent = movie.year || '');
+        safeQuery('#modal-genres') && (safeQuery('#modal-genres').textContent = (movie.genres||[]).join(' • '));
+        safeQuery('#modal-description') && (safeQuery('#modal-description').textContent = movie.description || '');
+        // garante que o botão assistir dentro do modal chama playMovie
+        const watchBtn = safeQuery('#modal-watch-btn');
+        if(watchBtn){
+          watchBtn.onclick = (e)=>{ e.preventDefault(); playMovie(movie); };
+        }
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        window.currentPlusMovie = movie;
+        return;
+      }
+    }catch(e){}
+    // se chegou aqui: cria um modal simples
+    createFallbackInfoModal(movie);
+  }
+
+  function createFallbackInfoModal(movie){
+    // remove se já existe
+    const existing = document.getElementById('plus-fallback-modal');
+    if(existing) existing.remove();
+    const modal = createEl('div',{id:'plus-fallback-modal', class:'modal', style:'display:flex;position:fixed;inset:0;align-items:center;justify-content:center;z-index:3000;'});
+    const content = createEl('div',{class:'modal-content', style:'width:90%;max-width:900px;padding:14px;border-radius:8px;background:#0b0b0b;color:#fff;'});
+    const close = createEl('span',{class:'close-btn', html:'&times;', style:'cursor:pointer;font-size:28px;float:right;'});
+    close.addEventListener('click', ()=> { modal.remove(); document.body.style.overflow=''; });
+    content.appendChild(close);
+    const body = createEl('div',{html:`
+      <div style="display:flex;gap:12px;">
+        <img src="${movie.poster||''}" style="width:160px;height:240px;object-fit:cover;border-radius:6px;">
+        <div>
+          <h2 style="margin:0 0 6px 0">${movie.title||''} <small style="color:#999">(${movie.year||''})</small></h2>
+          <p style="color:#bbb">${movie.description||''}</p>
+          <div style="margin-top:12px;">
+            <button id="pf-watch" class="btn-primary">Assistir Já</button>
+          </div>
+        </div>
+      </div>
+    `});
+    content.appendChild(body);
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    document.body.style.overflow='hidden';
+    document.getElementById('pf-watch').onclick = ()=> playMovie(movie);
+  }
+
+  // Função que inicia o Player: tenta usar switchToVideo / openHomePlayer / openMovieModal; senão cria fullscreen iframe com bloqueios
+  function playMovie(movie){
+    if(!movie) { alert('Erro: filme inválido'); return; }
+    // guarda referência
+    window.currentPlayingMovie = movie;
+
+    // 1) tenta chamar função existente usada no Home (openMovieModal já usado por info modal, mas pode haver switchToVideo)
+    if(typeof switchToVideo === 'function'){
+      try{ switchToVideo(movie.videoUrl || movie.video || movie.videoUrlDrive || ''); return; }catch(e){}
+    }
+    // 2) se existe função openHomePlayer ou openMovieModal que já lida com playing, tente chamá-la
+    if(typeof openHomePlayer === 'function'){ try{ openHomePlayer(movie); return; }catch(e){} }
+    if(typeof openMovieModal === 'function'){ try{ openMovieModal(movie); /* if that function shows player via modal-watch-btn, simulate click */ 
+        const watchBtn = safeQuery('#modal-watch-btn');
+        if(watchBtn){ watchBtn.click(); return; }
+        return;
+      }catch(e){} 
+    }
+
+    // 3) fallback: cria modal de player fullscreen com iframe + botões de bloqueio e voltar
+    createFullscreenPlayerModal(movie);
+  }
+
+  function createFullscreenPlayerModal(movie){
+    // remove se existe
+    const existing = document.getElementById('plus-player-modal');
+    if(existing) existing.remove();
+
+    // elements references
+    const modal = createEl('div',{id:'plus-player-modal', class:'modal fullscreen-video', style:'display:flex;position:fixed;inset:0;z-index:99999;background:black;'});
+    const content = createEl('div',{class:'modal-content', style:'width:100%;height:100%;padding:0;border-radius:0;display:flex;align-items:center;justify-content:center;'});
+    modal.appendChild(content);
+
+    const videoContainer = createEl('div',{class:'modal-video-container', style:'width:100%;height:100%;position:relative;background:#000;'});
+    content.appendChild(videoContainer);
+
+    // back button
+    const backBtn = createEl('button',{class:'back-to-info-btn', html:'<i class="fas fa-arrow-left"></i> Voltar ao Catálogo', style:'position:absolute;top:12px;left:12px;z-index:10010;'});
+    backBtn.onclick = ()=> { modal.remove(); document.body.style.overflow=''; /* optionally re-show catalog */ renderPlusCatalog(); };
+    videoContainer.appendChild(backBtn);
+
+    // wrapper
+    const wrapper = createEl('div',{style:'width:100%;height:100%;position:relative;display:flex;align-items:center;justify-content:center;'});
+    videoContainer.appendChild(wrapper);
+
+    // iframe
+    const iframe = createEl('iframe',{src: movie.videoUrl || movie.video || movie.videoUrlDrive || '', allow:'autoplay; encrypted-media', allowfullscreen:'', style:'width:100%;height:100%;border:none;'});
+    wrapper.appendChild(iframe);
+
+    // top-right block button
+    const blockBtn = createEl('button',{class:'block-newtab-btn', html:'<i class="fas fa-link"></i>', style:'position:absolute;top:12px;right:12px;z-index:10020;padding:10px;border-radius:8px;background:rgba(0,0,0,0.25);border:none;color:#fff;cursor:pointer;'});
+    blockBtn.title = 'Abertura externa desativada';
+    blockBtn.onclick = (e)=> { e.preventDefault(); e.stopPropagation(); showBlockedMessage(videoContainer); };
+    wrapper.appendChild(blockBtn);
+
+    // duplicate bottom block button near where fullscreen control might be
+    setTimeout(()=> {
+      const blockBtn2 = createEl('button',{class:'block-newtab-btn', html:'<i class="fas fa-link"></i>', style:'position:absolute;bottom:22px;right:28px;z-index:10020;padding:12px;border-radius:6px;background:rgba(0,0,0,0.25);border:none;color:#fff;cursor:pointer;'});
+      blockBtn2.onclick = (e)=> { e.preventDefault(); e.stopPropagation(); showBlockedMessage(videoContainer); };
+      wrapper.appendChild(blockBtn2);
+    },200);
+
+    // append modal
+    document.body.appendChild(modal);
+    document.body.style.overflow='hidden';
+
+    // try request fullscreen (best-effort)
+    try{ const docEl = document.documentElement; if(docEl.requestFullscreen) docEl.requestFullscreen(); else if(docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen(); }catch(e){}
+  }
+
+  function showBlockedMessage(container){
+    try{
+      const toast = document.createElement('div');
+      toast.textContent = 'Abertura externa desativada.';
+      toast.style.position='absolute';
+      toast.style.top='12px';
+      toast.style.right='64px';
+      toast.style.padding='8px 12px';
+      toast.style.background='rgba(0,0,0,0.75)';
+      toast.style.color='#fff';
+      toast.style.borderRadius='6px';
+      toast.style.zIndex='100000';
+      toast.style.fontSize='14px';
+      container.appendChild(toast);
+      setTimeout(()=>{ toast.style.opacity='0'; toast.style.transition='opacity 0.3s'; setTimeout(()=> toast.remove(),300); },1200);
+    }catch(e){ console.warn(e); }
+  }
+
+  /* ---------- Attach Plus nav button robustly ---------- */
+  function attachPlusNavButton(){
+    const nav = document.querySelector('.bottom-nav');
+    if(!nav){
+      // tenta re-tentar depois
+      setTimeout(attachPlusNavButton, 700);
+      return;
+    }
+    // procura por qualquer item que contenha 'plus' (insensível)
+    const candidates = Array.from(nav.querySelectorAll('*'));
+    let plusBtn = candidates.find(el => (el.textContent||'').toLowerCase().includes('plus'));
+    // se não achou, tenta por ícone com title
+    if(!plusBtn) plusBtn = candidates.find(el => (el.getAttribute && (el.getAttribute('title')||'') .toLowerCase().includes('plus')) );
+    if(!plusBtn){
+      // se não achar, cria um botão translúcido no canto direito do nav (fallback)
+      const fallback = document.createElement('button');
+      fallback.className = 'bottom-plus-fallback';
+      fallback.style.cssText = 'position:fixed;right:14px;bottom:78px;z-index:2200;background:rgba(255,255,255,0.06);border:none;color:#fff;padding:12px;border-radius:999px;backdrop-filter:blur(4px);';
+      fallback.textContent = 'Plus+';
+      document.body.appendChild(fallback);
+      plusBtn = fallback;
+    }
+
+    // attach handler (removendo handlers anteriores)
+    plusBtn.onclick = (ev) => {
+      ev.preventDefault(); ev.stopPropagation();
+      if(isSubscriptionActive()){
+        renderPlusCatalog();
+      } else {
+        openPlusModal();
+      }
+    };
+  }
+
+  /* ---------- Ensure modal-watch btn inside global movie-modal triggers play (if exists) ---------- */
+  function attachModalWatchButton(){
+    const watch = safeQuery('#modal-watch-btn');
+    if(!watch) return;
+    // intercept click and call playMovie with window.currentPlusMovie if set, else try to build movie from modal fields
+    watch.addEventListener('click', (e) => {
+      e.preventDefault();
+      // try to find movie data
+      const cur = window.currentPlusMovie || window.currentPlayingMovie || null;
+      if(cur) return playMovie(cur);
+      // fallback: try to extract title and find in movieData
+      const title = (safeQuery('#modal-title') && safeQuery('#modal-title').textContent) || '';
+      if(title && window.movieData && Array.isArray(window.movieData)){
+        const m = window.movieData.find(x => (x.title||'').toLowerCase().trim() === title.toLowerCase().trim());
+        if(m) return playMovie(m);
+      }
+      alert('Não foi possível iniciar o player (filme não identificado).');
+    });
+  }
+
+  /* ---------- Init on DOM ready ---------- */
+  document.addEventListener('DOMContentLoaded', ()=> {
+    // Ensure modal elements exist
+    ensurePlusModalExists();
+    // Attach plus nav button (with delay to handle menus rendered later)
+    setTimeout(attachPlusNavButton, 500);
+    setTimeout(attachPlusNavButton, 1200);
+    // Attach watch button listener if modal exists on page
+    setTimeout(attachModalWatchButton, 600);
+    // If subscription active on load, render catalog
+    setTimeout(()=> { if(isSubscriptionActive()) renderPlusCatalog(); }, 800);
+  });
+
+  // expose some helpers for debugging in console
+  window.GLPLUS = {
+    isSubscriptionActive, activateTokenLocal, clearSubscription, renderPlusCatalog, openPlusModal, playMovie
+  };
+
+})();
 </script>
-<!-- === FIM: Plus+ (modal, seção e scripts) === -->
 </body>
 </html>
