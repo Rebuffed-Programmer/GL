@@ -2440,6 +2440,118 @@ window.addEventListener('load', () => {
     }
 });
 </script>
+<!-- === INÍCIO: Botões de bloqueio do Player Plus+ (idênticos ao Home) === -->
+<style>
+  /* Estilo base dos dois botões */
+  .plus-control-btn {
+    position: absolute;
+    top: 12px;
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: rgba(0, 0, 0, 0.15);
+    color: #fff;
+    border-radius: 8px;
+    z-index: 9999;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+    transition: background 0.3s ease;
+  }
+  .plus-control-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
 
+  /* Corrente (bloqueio) */
+  #plusBlockBtn {
+    right: 68px;
+  }
+
+  /* Seta externa (nova guia bloqueada) */
+  #plusNewTabBtn {
+    right: 12px;
+  }
+
+  /* Mensagem de bloqueio temporária */
+  #plusBlockedMessage {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 10000;
+    color: #fff;
+    font-size: 20px;
+    font-weight: 500;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+
+<!-- Botões visíveis -->
+<button id="plusBlockBtn" class="plus-control-btn" title="Ação bloqueada">
+  <i class="fas fa-link"></i>
+</button>
+
+<button id="plusNewTabBtn" class="plus-control-btn" title="Abrir em nova guia">
+  <i class="fas fa-external-link-alt"></i>
+</button>
+
+<!-- Mensagem que aparece ao clicar -->
+<div id="plusBlockedMessage">❌ Não é possível abrir conteúdo externo</div>
+
+<script>
+(function(){
+  const overlay = document.getElementById('plusCinemaOverlay');
+  const backBtn = document.getElementById('plusBackToCatalogBtn');
+  const blockBtn = document.getElementById('plusBlockBtn');
+  const newTabBtn = document.getElementById('plusNewTabBtn');
+  const msg = document.getElementById('plusBlockedMessage');
+  const frame = document.getElementById('plusCinemaFrame');
+
+  // Mostra ou esconde os botões conforme o player Plus+ é aberto/fechado
+  const observer = new MutationObserver(() => {
+    const visible = overlay && (overlay.style.display === 'flex' || overlay.style.display === 'block');
+    if (visible) {
+      blockBtn.style.display = 'flex';
+      newTabBtn.style.display = 'flex';
+    } else {
+      blockBtn.style.display = 'none';
+      newTabBtn.style.display = 'none';
+      msg.style.display = 'none';
+    }
+  });
+  if (overlay) observer.observe(overlay, { attributes: true, attributeFilter: ['style'] });
+
+  if (backBtn) backBtn.addEventListener('click', () => {
+    blockBtn.style.display = 'none';
+    newTabBtn.style.display = 'none';
+    msg.style.display = 'none';
+  });
+
+  // função que exibe a mensagem preta de bloqueio
+  function showBlockedMessage() {
+    msg.style.display = 'flex';
+    setTimeout(() => { msg.style.display = 'none'; }, 2500);
+  }
+
+  // Botão da corrente (bloqueio total)
+  blockBtn.addEventListener('click', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    showBlockedMessage();
+  });
+
+  // Botão da seta externa (tenta abrir nova guia, mas é bloqueado)
+  newTabBtn.addEventListener('click', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    showBlockedMessage();
+  });
+})();
+</script>
+<!-- === FIM: Botões de bloqueio do Player Plus+ === -->
 </body>
 </html>
