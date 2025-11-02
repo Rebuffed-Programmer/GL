@@ -1716,38 +1716,141 @@ function assistirAgora(url) {
 </script>
 
 <style>
-/* Certifique-se de que este bloco está no seu CSS ou no topo do arquivo */
 /* === START: Plus+ Cinema Mode (fullscreen preview with fixed Back button) === */
 
+/* Certifique-se de que este bloco está no seu CSS ou no topo do arquivo */
+
+/* === START: Plus+ Cinema Mode (fullscreen preview with fixed Back button) === */
+
+
+
 /* Overlay fullscreen for Plus+ cinema mode */
+
 #plusCinemaOverlay {
+
     position: fixed;
+
     /* Use inset: 0; para cobrir 100% da viewport */
+
     inset: 0; 
+
     background: #000;
+
     display: none;
+
     z-index: 100000 !important; /* Prioridade máxima */
+
     align-items: center;
+
     justify-content: center;
+
 }
+
 #plusCinemaOverlay .plusCinemaFrameWrapper {
+
     /* Garante que o container do iframe cubra a tela inteira */
+
     position: absolute; 
+
     inset: 0;
+
 }
+
 #plusCinemaOverlay iframe {
+
     /* Garante que o iframe cubra o container */
+
+    width: 100%;
+
+    height: 100%;
+
+    border: none;
+
+    background: black;
+
+}
+
+/* Previne scroll na página toda */
+
+html.cinema-active,
+
+body.cinema-active {
+
+    overflow: hidden !important;
+
+    height: 100% !important; /* Essencial para alguns mobile/embeds */
+
+}
+
+
+/* === END: Plus+ Cinema Mode === */
+
+/* ================================================================= */
+/* === FIX PERGUNTA 1: ASPECT RATIO LANDSCAPE (16:9) === */
+.movie-item {
+    position: relative;
+    /* Define um aspecto 16:9 para landscape */
+    padding-bottom: 56.25%; /* (9/16) * 100% = 56.25% */
+    height: 0; /* Reinicia a altura */
+    overflow: hidden; /* Esconde qualquer excesso */
+}
+.movie-item img {
+    /* Garante que a imagem cubra o container 16:9 */
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    border: none;
-    background: black;
+    object-fit: cover; /* Recorta/cobre sem distorcer */
 }
-/* Previne scroll na página toda */
-html.cinema-active,
-body.cinema-active {
-    overflow: hidden !important;
-    height: 100% !important; /* Essencial para alguns mobile/embeds */
+/* ================================================================= */
+
+/* Estilos específicos para Plus+ (respeita o estilo atual) */
+/* ... (MANTENHA OS SEUS ESTILOS AQUI) ... */
+.plus-modal .modal-content {
+  max-width: 980px;
+  width: 95%;
+  background: linear-gradient(180deg,#111,#0f1111);
+  padding: 18px;
+  border-radius: 10px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  flex-direction: column;
 }
+.plus-modal .plus-poster {
+  width: 100%;
+  max-width: 520px;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
+}
+.plus-modal .plus-actions { display:flex; gap:12px; justify-content:center; margin-top:6px; }
+.plus-modal .plus-actions button { padding:10px 16px; border-radius:8px; border:none; cursor:pointer; font-weight:600; }
+.plus-modal .btn-primary { background:#48c948; color:#fff; }
+.plus-modal .btn-secondary { background:rgba(255,255,255,0.06); color:#fff; }
+
+/* Cards dos planos */
+.plus-plans { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:12px; }
+.plus-plan { width:260px; border-radius:10px; overflow:hidden; background:#151718; border:1px solid #222; cursor:pointer; transition:transform .12s; }
+.plus-plan img { width:100%; display:block; }
+.plus-plan .plan-body { padding:12px; color:#ddd; }
+.plus-plan:hover { transform:translateY(-6px); }
+
+/* Seção Plus+ no catálogo */
+.plus-catalog { display:none; padding:40px; }
+.plus-catalog .section-title { display:flex; align-items:center; gap:12px; justify-content:space-between; }
+#plus-movie-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; list-style:none; padding:0; margin:18px 0 0 0; }
+@media (max-width:767px) { #plus-movie-grid { grid-template-columns:repeat(2,1fr); } }
+
+/* Input token */
+.plus-token-box { display:flex; gap:8px; align-items:center; justify-content:center; margin-top:10px; }
+.plus-token-box input { padding:10px 12px; border-radius:8px; border:1px solid #2b2b2b; background:#0d0f10; color:#fff; outline:none; width:260px; }
+.plus-small { font-size:0.9em; color:#bbb; text-align:center; margin-top:8px; }
+
+/* manter z-index do modal acima */
+.plus-modal { z-index: 2200; }
 </style>
 
 <div id="plusCinemaOverlay" aria-hidden="true">
@@ -1856,7 +1959,9 @@ body.cinema-active {
         if(!btn) return;
         // ensure this is intended for Plus+ — if element is inside #plusSection or has class .plus-catalog
         const inPlusSection = btn.closest('#plusSection, .plus-catalog, #plusSection, .plus-section, [data-plus-section]');
-        if(!inPlusSection) return; // ignore clicks from Home
+        // PERMITE CLIQUE DE QUALQUER LUGAR SE FOR UM BOTÃO PLUS+
+        if(!inPlusSection && !btn.classList.contains('plus-watch-now') && !btn.classList.contains('plus-watch-btn')) return; 
+
         const id = btn.getAttribute('data-plus-movie-id') || btn.getAttribute('data-movie-id');
         if(!id) return;
         e.preventDefault();
@@ -1893,54 +1998,6 @@ body.cinema-active {
 
 })();
 </script>
-<style>
-/* Estilos específicos para Plus+ (respeita o estilo atual) */
-/* ... (MANTENHA OS SEUS ESTILOS AQUI) ... */
-.plus-modal .modal-content {
-  max-width: 980px;
-  width: 95%;
-  background: linear-gradient(180deg,#111,#0f1111);
-  padding: 18px;
-  border-radius: 10px;
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
-  flex-direction: column;
-} 
-.plus-modal .plus-poster {
-  width: 100%;
-  max-width: 520px;
-  border-radius: 8px;
-  object-fit: cover;
-  display: block;
-  margin: 0 auto;
-}
-.plus-modal .plus-actions { display:flex; gap:12px; justify-content:center; margin-top:6px; }
-.plus-modal .plus-actions button { padding:10px 16px; border-radius:8px; border:none; cursor:pointer; font-weight:600; }
-.plus-modal .btn-primary { background:#48c948; color:#fff; }
-.plus-modal .btn-secondary { background:rgba(255,255,255,0.06); color:#fff; }
-
-/* Cards dos planos */
-.plus-plans { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:12px; }
-.plus-plan { width:260px; border-radius:10px; overflow:hidden; background:#151718; border:1px solid #222; cursor:pointer; transition:transform .12s; }
-.plus-plan img { width:100%; display:block; }
-.plus-plan .plan-body { padding:12px; color:#ddd; }
-.plus-plan:hover { transform:translateY(-6px); }
-
-/* Seção Plus+ no catálogo */
-.plus-catalog { display:none; padding:40px; }
-.plus-catalog .section-title { display:flex; align-items:center; gap:12px; justify-content:space-between; }
-#plus-movie-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; list-style:none; padding:0; margin:18px 0 0 0; }
-@media (max-width:767px) { #plus-movie-grid { grid-template-columns:repeat(2,1fr); } }
-
-/* Input token */
-.plus-token-box { display:flex; gap:8px; align-items:center; justify-content:center; margin-top:10px; }
-.plus-token-box input { padding:10px 12px; border-radius:8px; border:1px solid #2b2b2b; background:#0d0f10; color:#fff; outline:none; width:260px; }
-.plus-small { font-size:0.9em; color:#bbb; text-align:center; margin-top:8px; }
-
-/* manter z-index do modal acima */
-.plus-modal { z-index: 2200; }
-</style>
 
 <div id="plusModal" class="modal plus-modal" style="display:none;">
   <div class="modal-content">
@@ -2031,7 +2088,7 @@ function clearSubscription() {
     if (exp) {
       clearSubscription();
     }
-  } /* FIX DE SINTAXE: FECHA A CHAVE DO 'ELSE' */
+  }
 })();
 
 
@@ -2327,7 +2384,9 @@ function openMovieModal(movie) {
         } else {
             // Se for um filme normal (não Plus+), ou se openPlusCinema não existir.
             watchBtn.textContent = '▶ ASSISTIR';
-            watchBtn.onclick = null; // ou a função que abre o player padrão da Home
+            // ATENÇÃO: Se não for Plus+, o botão de assistir está atualmente sem função. 
+            // VOCÊ PRECISA LIGAR AQUI A SUA FUNÇÃO PADRÃO DE PLAYER DA HOME (ex: watchBtn.onclick = () => openMoviePlayer(movie);)
+            watchBtn.onclick = () => alert('Player de vídeo padrão não conectado. Adicione a lógica de reprodução para filmes não-Plus+ aqui.'); 
         }
     }
     
