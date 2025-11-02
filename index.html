@@ -1751,6 +1751,9 @@ body.cinema-active {
 </style>
 
 <div id="plusCinemaOverlay" aria-hidden="true">
+        <button id="plusBlockerBtnLeft" class="cinema-blocker-btn" aria-hidden="true"></button>
+    <button id="plusBlockerBtnRight" class="cinema-blocker-btn" aria-hidden="true"></button>
+    
     <button id="plusBackToCatalogBtn" class="back-to-info-btn">← Voltar ao catálogo</button>
     <div class="plusCinemaFrameWrapper">
         <iframe id="plusCinemaFrame" allowfullscreen allow="autoplay; encrypted-media"></iframe>
@@ -1903,7 +1906,7 @@ body.cinema-active {
   gap: 20px;
   align-items: flex-start;
   flex-direction: column;
-}
+} 
 .plus-modal .plus-poster {
   width: 100%;
   max-width: 520px;
@@ -2028,8 +2031,9 @@ function clearSubscription() {
     if (exp) {
       clearSubscription();
     }
-  }
+  } /* FIX DE SINTAXE: FECHA A CHAVE DO 'ELSE' */
 })();
+
 
 /* === NAVEGAÇÃO / EXIBIÇÃO DE SEÇÕES (SOLUÇÃO PARA O BUG DOS 2 CLIQUES) === */
 function hideAllMainSections(){
@@ -2172,7 +2176,6 @@ function renderQueroAssinar(){
               • Compras disponíveis (exclusivo)<br>
               • Conta para família (2 convidados)
             </p>
-          </div>
         </div>
       </div>
 
@@ -2378,7 +2381,6 @@ window.addEventListener('load', () => {
     }
 });
 </script>
-  <!-- === END: Plus+ Cinema Mode === -->
 
 </body>
 </html>
