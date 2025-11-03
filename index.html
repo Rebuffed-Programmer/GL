@@ -2440,6 +2440,141 @@ window.addEventListener('load', () => {
     }
 });
 </script>
-<!-- === FIM: Botões de bloqueio dentro do player Plus+ === -->
+<style>
+/* Estilo para a mensagem de bloqueio rápida que aparece no topo */
+#plusBlockedMessage {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(179, 0, 0, 0.9);
+    color: #fff;
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 2147483647; /* Z-index MÁXIMO para garantir que a mensagem apareça por cima de tudo */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Estilo do botão de bloqueio criado dinamicamente (para cobrir o ícone do iframe) */
+.plus-block-newtab-btn {
+    position: absolute;
+    top: 15px; 
+    right: 15px; 
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: rgba(0,0,0,0.4); 
+    color: #fff;
+    border-radius: 8px;
+    z-index: 99999; /* Alto z-index para garantir que ele cubra o botão real do player */
+    cursor: default;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+}
+</style>
+
+<div id="plusBlockedMessage">Abertura externa desativada.</div>
+
+
+<script>
+(function(){
+    // Elementos principais do Player Plus+
+    const overlay = document.getElementById('plusCinemaOverlay');
+    const frame = document.getElementById('plusCinemaFrame');
+    const backBtn = document.getElementById('plusBackToCatalogBtn');
+    const msgElement = document.getElementById('plusBlockedMessage');
+    
+    // =========================================================
+    // 1. FUNÇÃO DE MENSAGEM (ADAPTADA DA HOME)
+    // =========================================================
+    function showBlockedMessage() {
+        if (!msgElement) return;
+        msgElement.style.visibility = 'visible';
+        msgElement.style.opacity = '1';
+        
+        setTimeout(() => {
+            msgElement.style.opacity = '0';
+            msgElement.style.visibility = 'hidden';
+        }, 1500);
+    }
+    
+    // =========================================================
+    // 2. FUNÇÃO DE CRIAÇÃO E ANEXO DO BLOQUEADOR
+    // =========================================================
+    function attachPlusBlocker(wrapper) {
+        if (!wrapper) return;
+        
+        // Verifica se o bloqueador já existe para evitar duplicação
+        if (wrapper.querySelector('.plus-block-newtab-btn')) {
+            return;
+        }
+
+        const blockBtn = document.createElement('button');
+        blockBtn.className = 'plus-block-newtab-btn';
+        blockBtn.title = 'Abertura externa desativada no Plus+';
+        
+        // Estilos definidos no CSS, mas repetindo a posição e z-index aqui para garantia
+        blockBtn.style.position = 'absolute';
+        blockBtn.style.top = '15px';
+        blockBtn.style.right = '15px';
+        blockBtn.style.width = '44px';
+        blockBtn.style.height = '44px';
+        blockBtn.style.zIndex = '99999';
+        
+        // Ícone: usei 'fas fa-lock' (se você tiver Font Awesome) ou pode ser um texto simples
+        blockBtn.innerHTML = '<i class="fas fa-lock"></i>'; 
+        
+        // Lógica de Bloqueio
+        blockBtn.addEventListener('click', function(e){
+            e.stopPropagation();
+            e.preventDefault();
+            showBlockedMessage();
+        });
+
+        wrapper.appendChild(blockBtn);
+    }
+    
+    // =========================================================
+    // 3. LÓGICA DE CONTROLE (ONDE O BLOQUEADOR É INSERIDO)
+    // =========================================================
+    function showControls() {
+        // Aqui, 'overlay' é o seu contêiner principal do player (plusCinemaOverlay)
+        if (overlay) {
+            // Torna o overlay visível (se não estiver) e insere o bloqueador
+            overlay.style.display = 'flex'; // ou 'block' dependendo de como você usa
+            attachPlusBlocker(overlay);
+        }
+    }
+
+    function hideControls() {
+        if (overlay) overlay.style.display = 'none';
+        
+        // Opcional: Remove o bloqueador ao fechar o player para manter o DOM limpo
+        const existingBlocker = document.querySelector('.plus-block-newtab-btn');
+        if (existingBlocker) {
+            existingBlocker.remove();
+        }
+    }
+
+    // 4. O OBSERVER (monitora quando o player deve ser aberto)
+    if (overlay) {
+        // Assume que a lógica de "mostrar" o player está embutida no showControls()
+        const observer = new MutationObserver(() => {
+            const visible = overlay.style.display === 'flex' || overlay.style.display === 'block';
+            if (visible) showControls(); else hideControls();
+        });
+        observer.observe(overlay, { attributes: true, attributeFilter: ['style'] });
+    }
+
+    // 5. Botão de voltar (se existir)
+    if (backBtn) backBtn.addEventListener('click', hideControls);
+})();
+</script>
 </body>
 </html>
