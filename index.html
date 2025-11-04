@@ -2038,21 +2038,7 @@ body.cinema-active {
 const LINK_PAGAMENTO_MENSAL = 'https://mpago.la/2SRyqam';
 const LINK_PAGAMENTO_ANUAL  = 'https://mpago.la/2SRyqam';
 
-/* LISTA DE TOKENS PRÉ-GERADOS (Exemplo) */
-const VALID_TOKENS = (function(){
-  const obj = {};
-  // 100 tokens mensais
-  for(let i=0;i<100;i++){
-    const t = 'GLM-' + Math.random().toString(36).slice(2,10).toUpperCase();
-    obj[t] = { type: 'mensal' };
-  }
-  // 100 tokens anuais (premium)
-  for(let i=0;i<100;i++){
-    const t = 'GLA-' + Math.random().toString(36).slice(2,10).toUpperCase();
-    obj[t] = { type: 'anual' };
-  }
-  return obj;
-})();
+
 
 /* CONTEÚDO PLUS+ (FILMES EXCLUSIVOS) - CORRIGIDO */
 const plusData = [
@@ -2575,6 +2561,59 @@ window.addEventListener('load', () => {
     // 5. Botão de voltar (se existir)
     if (backBtn) backBtn.addEventListener('click', hideControls);
 })();
+</script>
+<!-- Sistema Plus+ simplificado com tokens fixos -->
+
+<script>
+const VALID_TOKENS = {
+  // === TOKENS MENSAIS ===
+  "GLM-X9T4P7K2LJ": { type: "mensal" },
+  "GLM-8Q2W1E5R9T": { type: "mensal" },
+  "GLM-A7Z6S3C4V8": { type: "mensal" },
+  "GLM-9N1M2B5H7J": { type: "mensal" },
+  "GLM-T5Y8U2I1O6": { type: "mensal" },
+  "GLM-Q3A9S4W7E5": { type: "mensal" },
+  "GLM-K6L2Z8X1P9": { type: "mensal" },
+  "GLM-J9M3C7R5B1": { type: "mensal" },
+  "GLM-V4G8N2H6T3": { type: "mensal" },
+  "GLM-F7E5Q2W9R1": { type: "mensal" },
+  "GLM-Z1X9C3V7B6": { type: "mensal" },
+  "GLM-R8T2Y5U9O3": { type: "mensal" },
+  "GLM-H6N3M1J9K5": { type: "mensal" },
+  "GLM-D4A7S2Q8W5": { type: "mensal" },
+  "GLM-P9O6I2U7Y1": { type: "mensal" },
+  "GLM-B3C8V9N1M6": { type: "mensal" },
+  "GLM-S7E2R4T8Y5": { type: "mensal" },
+  "GLM-W5Q9A3S2D7": { type: "mensal" },
+  "GLM-E9T3U1I7O6": { type: "mensal" },
+  "GLM-N2M8K5L1J3": { type: "mensal" },
+
+  // === TOKENS ANUAIS ===
+  "GLA-Z5X1C9V3B7": { type: "anual" },
+  "GLA-N3M2J6K8L1": { type: "anual" },
+  "GLA-T8R4E5W9Q2": { type: "anual" },
+  "GLA-Y7U3I1O2P9": { type: "anual" },
+  "GLA-F9D4S5A3G7": { type: "anual" },
+  "GLA-Q1W9E6R7T3": { type: "anual" },
+  "GLA-V6B3N9M2J4": { type: "anual" },
+  "GLA-K2L9J8H7G5": { type: "anual" },
+  "GLA-C8X3Z1V9B2": { type: "anual" },
+  "GLA-O7I5U4Y3T1": { type: "anual" },
+  "GLA-R9E2W8Q6A5": { type: "anual" },
+  "GLA-S3D7F5G9H1": { type: "anual" },
+  "GLA-M9N1B2V4C8": { type: "anual" },
+  "GLA-A6S8Q9W3E5": { type: "anual" },
+  "GLA-L2J4K8M1N5": { type: "anual" },
+  "GLA-U5Y9O2P1I7": { type: "anual" },
+  "GLA-X7C1V3B6N8": { type: "anual" },
+  "GLA-H4G2F9D7S5": { type: "anual" },
+  "GLA-P9O8I1U2Y6": { type: "anual" },
+  "GLA-J3K7L5M2N4": { type: "anual" },
+
+  // === ADICIONE NOVOS TOKENS ABAIXO ===
+  // "GLM-XXXXXX": { type: "mensal" },
+  // "GLA-XXXXXX": { type: "anual" },
+};
 </script>
 </body>
 </html>
