@@ -2716,6 +2716,22 @@ const VALID_TOKENS = {
 };
 </script>
 <style>
+/* === CORREÇÃO GERAL DE WIDHT (FORÇA BRUTA) === */
+body {
+    overflow-x: hidden; /* Evita que o scroll horizontal apareça no body */
+}
+
+/* Garante que o contêiner da seção ocupe a largura total */
+.movie-section, .content-section {
+    width: 100%;
+    max-width: none; /* Ignora qualquer max-width anterior */
+    margin: 0; /* Remove margens laterais */
+    padding: 30px 0 0; /* Mantém padding vertical, mas remove o horizontal */
+    position: relative; 
+}
+/* ============================================== */
+
+
 /* ======== GERAL: Carrossel e Rolagem Suave ======== */
 .movie-grid, #plus-movie-grid {
     display: flex;
@@ -2724,18 +2740,12 @@ const VALID_TOKENS = {
     scroll-behavior: smooth; 
     scrollbar-width: none; 
     padding-bottom: 15px; 
-    padding-left: 20px; 
-    padding-right: 20px;
+    padding-left: 20px; /* Mantido para alinhamento inicial do primeiro pôster */
+    padding-right: 20px; /* Mantido para que o último pôster tenha espaço para rolar */
 }
 .movie-grid::-webkit-scrollbar,
 #plus-movie-grid::-webkit-scrollbar {
     display: none; 
-}
-
-/* --- Wrapper e Título --- */
-.movie-section, .content-section {
-    position: relative; 
-    padding: 30px 0 0; 
 }
 
 /* ======== TÍTULO/BOTÃO (Canto Superior Direito) ======== */
