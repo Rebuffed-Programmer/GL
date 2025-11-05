@@ -2714,7 +2714,22 @@ const VALID_TOKENS = {
   // "GLM-XXXXXX": { type: "mensal" },
   // "GLA-XXXXXX": { type: "anual" },
 };
-</script><style>
+</script>
+<style>
+/* === CORREÇÃO GERAL DE WIDHT (GARANTE 100% DA TELA) === */
+body {
+    overflow-x: hidden; 
+}
+/* Força as seções principais a usarem 100% da largura, ignorando margens globais */
+.movie-section, .content-section {
+    width: 100%;
+    max-width: none; 
+    margin: 0; 
+    padding: 30px 0 0; 
+    position: relative; 
+}
+/* ============================================== */
+
 /* ======== GERAL: Carrossel e Rolagem Suave ======== */
 .movie-grid, #plus-movie-grid {
     display: flex;
@@ -2729,12 +2744,6 @@ const VALID_TOKENS = {
 .movie-grid::-webkit-scrollbar,
 #plus-movie-grid::-webkit-scrollbar {
     display: none; 
-}
-
-/* --- Wrapper e Título --- */
-.movie-section, .content-section {
-    position: relative; 
-    padding: 30px 0 0; 
 }
 
 /* ======== TÍTULO/BOTÃO (Canto Superior Direito) ======== */
@@ -2758,17 +2767,17 @@ const VALID_TOKENS = {
     white-space: nowrap; 
 }
 
-/* ======== PÔSTER PC/DESKTOP (Acima de 769px) ======== */
+/* ======== PÔSTER PC/DESKTOP (Acima de 769px) - PROPORÇÃO ORIGINAL ======== */
 .movie-item {
     position: relative;
     
-    /* LARGURA PC: SEU TAMANHO PREFERIDO (25% da tela) */
+    /* LARGURA PC: MANTIDA EM 25VW */
     width: 25vw; 
     flex: 0 0 25vw; 
     
-    /* CRÍTICO: Garante o aspecto 16:9 (25vw * 0.5625 = 14.0625vw) */
-    padding-bottom: 14.0625vw; 
-    height: 0; 
+    /* REMOVIDO: O PADDING HACK DO 16:9 */
+    padding-bottom: 0; 
+    height: auto; /* A altura será definida pela imagem */
     
     border-radius: 8px;
     overflow: hidden; 
@@ -2780,12 +2789,14 @@ const VALID_TOKENS = {
 }
 
 .movie-item img {
-    position: absolute; 
-    top: 0;
-    left: 0;
+    /* NOVO: A imagem define o fluxo, sua altura e proporção */
+    position: static; 
     width: 100%; 
-    height: 100%; 
-    object-fit: cover; 
+    height: auto; 
+    
+    /* Garante que a imagem seja vista por inteiro, sem cortes */
+    object-fit: contain; 
+    
     border-radius: 8px;
     transition: none; 
 }
@@ -2815,19 +2826,26 @@ const VALID_TOKENS = {
     .movie-section:hover .carousel-arrow, .content-section:hover .carousel-arrow { opacity: 1; pointer-events: auto; }
 }
 
-/* ======== MOBILE (Abaixo de 768px) ======== */
+/* ======== MOBILE (Abaixo de 768px) - MANTIDO EM 40VW (COMO VOCÊ GOSTA) ======== */
 @media (max-width: 768px) {
     .carousel-arrow {
         display: none; 
     }
     .movie-item {
-        /* LARGURA MOBILE: SEU TAMANHO PREFERIDO (40% da tela) */
+        /* LARGURA MOBILE: MANTIDA EM 40VW */
         width: 40vw; 
         flex: 0 0 40vw;
         
-        /* CRÍTICO: Garante 16:9 (40vw * 0.5625 = 22.5vw) */
+        /* O MOBILE MANTÉM O HACK DE 16:9 SE O VISUAL ESTAVA BOM NESTA TELA */
         padding-bottom: 22.5vw; 
     }
+    .movie-item img {
+        /* Garante que a imagem preencha o espaço 16:9 forçado no mobile */
+        position: absolute; 
+        height: 100%;
+        object-fit: cover;
+    }
+    
     .section-header-wrapper {
         padding: 0 10px;
     }
