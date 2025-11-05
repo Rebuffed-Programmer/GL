@@ -2720,7 +2720,7 @@ const VALID_TOKENS = {
 body {
     overflow-x: hidden; 
 }
-/* Força as seções principais a usarem 100% da largura, ignorando margens globais */
+/* Garante que o contêiner da seção use a largura total */
 .movie-section, .content-section {
     width: 100%;
     max-width: none; 
@@ -2767,17 +2767,17 @@ body {
     white-space: nowrap; 
 }
 
-/* ======== PÔSTER PC/DESKTOP (Acima de 769px) - PROPORÇÃO ORIGINAL ======== */
+/* ======== PÔSTER UNIFICADO (PC e Mobile) - AGORA EM 40VW ======== */
 .movie-item {
     position: relative;
     
-    /* LARGURA PC: MANTIDA EM 25VW */
-    width: 25vw; 
-    flex: 0 0 25vw; 
+    /* LARGURA UNIFICADA: 40% da Largura da Visualização (VW) */
+    width: 40vw; 
+    flex: 0 0 40vw; 
     
-    /* REMOVIDO: O PADDING HACK DO 16:9 */
-    padding-bottom: 0; 
-    height: auto; /* A altura será definida pela imagem */
+    /* CRÍTICO: Garante o aspecto 16:9 (40vw * 0.5625 = 22.5vw) */
+    padding-bottom: 22.5vw; 
+    height: 0; 
     
     border-radius: 8px;
     overflow: hidden; 
@@ -2789,13 +2789,14 @@ body {
 }
 
 .movie-item img {
-    /* NOVO: A imagem define o fluxo, sua altura e proporção */
-    position: static; 
+    position: absolute; 
+    top: 0;
+    left: 0;
     width: 100%; 
-    height: auto; 
+    height: 100%; 
     
-    /* Garante que a imagem seja vista por inteiro, sem cortes */
-    object-fit: contain; 
+    /* NOVO: Garante que a imagem preencha todo o espaço 16:9 forçado */
+    object-fit: cover; 
     
     border-radius: 8px;
     transition: none; 
@@ -2826,25 +2827,12 @@ body {
     .movie-section:hover .carousel-arrow, .content-section:hover .carousel-arrow { opacity: 1; pointer-events: auto; }
 }
 
-/* ======== MOBILE (Abaixo de 768px) - MANTIDO EM 40VW (COMO VOCÊ GOSTA) ======== */
+/* ======== MOBILE (Abaixo de 768px) - APENAS AJUSTES FINOS ======== */
 @media (max-width: 768px) {
     .carousel-arrow {
         display: none; 
     }
-    .movie-item {
-        /* LARGURA MOBILE: MANTIDA EM 40VW */
-        width: 40vw; 
-        flex: 0 0 40vw;
-        
-        /* O MOBILE MANTÉM O HACK DE 16:9 SE O VISUAL ESTAVA BOM NESTA TELA */
-        padding-bottom: 22.5vw; 
-    }
-    .movie-item img {
-        /* Garante que a imagem preencha o espaço 16:9 forçado no mobile */
-        position: absolute; 
-        height: 100%;
-        object-fit: cover;
-    }
+    /* O tamanho 40vw já está definido acima */
     
     .section-header-wrapper {
         padding: 0 10px;
