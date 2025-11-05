@@ -2715,155 +2715,65 @@ const VALID_TOKENS = {
   // "GLA-XXXXXX": { type: "anual" },
 };
 </script>
-
-<!-- === Correção de tamanhos e carrossel (Home + Plus+) === -->
-<style>
-/* ======== GERAL ======== */
-.movie-grid, #plus-movie-grid {
-  display: flex;
-  overflow-x: auto;
-  gap: 12px;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none; /* esconde barra no Firefox */
-}
-.movie-grid::-webkit-scrollbar,
-#plus-movie-grid::-webkit-scrollbar {
-  display: none; /* esconde barra no Chrome/Safari */
-}
-
-/* ======== CADA PÔSTER ======== */
-.movie-item {
-  flex: 0 0 auto;
-  scroll-snap-align: start;
-  position: relative;
-}
-.movie-item img {
-  width: 300px;         /* largura exata padrão landscape */
-  height: 170px;        /* altura proporcional */
-  object-fit: cover;
-  border-radius: 8px;
-  transition: transform 0.2s ease-in-out;
-}
-.movie-item img:hover {
-  transform: scale(1.05);
-}
-
-/* ======== SETAS DE NAVEGAÇÃO (PC / TV) ======== */
-.carousel-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.4);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 38px;
-  height: 38px;
-  font-size: 20px;
-  cursor: pointer;
-  opacity: 0.3;
-  z-index: 5;
-  transition: opacity 0.3s ease;
-}
-.carousel-arrow:hover {
-  opacity: 0.8;
-}
-.carousel-arrow.left {
-  left: 10px;
-}
-.carousel-arrow.right {
-  right: 10px;
-}
-
-/* ======== MOBILE (sem setas) ======== */
-@media (max-width: 768px) {
-  .carousel-arrow {
-    display: none;
-  }
-  .movie-item img {
-    width: 260px;
-    height: 145px;
-  }
-}
-</style>
-
-<!-- ======== SCRIPT DE CONTROLE ======== -->
-<script>
-document.querySelectorAll('.movie-grid, #plus-movie-grid').forEach(section => {
-  const leftArrow = document.createElement('button');
-  const rightArrow = document.createElement('button');
-  leftArrow.innerHTML = '❮';
-  rightArrow.innerHTML = '❯';
-  leftArrow.className = 'carousel-arrow left';
-  rightArrow.className = 'carousel-arrow right';
-  section.parentElement.style.position = 'relative';
-  section.parentElement.appendChild(leftArrow);
-  section.parentElement.appendChild(rightArrow);
-
-  leftArrow.addEventListener('click', () => {
-    section.scrollBy({ left: -300, behavior: 'smooth' });
-  });
-  rightArrow.addEventListener('click', () => {
-    section.scrollBy({ left: 300, behavior: 'smooth' });
-  });
-});
-</script>
 <style>
 /* ======== GERAL: Carrossel e Rolagem Suave ======== */
 .movie-grid, #plus-movie-grid {
     display: flex;
-    overflow-x: scroll; /* Rolagem horizontal */
-    gap: 20px; 
-    scroll-behavior: smooth; /* Rolagem suave por clique */
-    scrollbar-width: none; /* Esconde barra no Firefox */
-    padding-bottom: 15px; /* Espaço para sombra */
+    overflow-x: scroll; 
+    gap: 15px; 
+    scroll-behavior: smooth; 
+    scrollbar-width: none; 
+    padding-bottom: 15px; 
+    padding-left: 20px; 
+    padding-right: 20px;
 }
 .movie-grid::-webkit-scrollbar,
 #plus-movie-grid::-webkit-scrollbar {
-    display: none; /* Esconde barra no Chrome/Safari */
+    display: none; 
 }
 
-/* --- Wrapper e Título para Posicionamento --- */
+/* --- Wrapper e Título --- */
 .movie-section, .content-section {
-    position: relative; 
-    padding: 30px 0; /* Garante espaço superior e inferior */
+    position: relative; 
+    padding: 30px 0 0; 
 }
 
-/* ======== NOVO: POSICIONAMENTO DO TÍTULO/BOTÃO (Canto Superior Direito) ======== */
+/* ======== TÍTULO/BOTÃO (Canto Superior Direito) ======== */
 .section-header-wrapper {
     display: flex;
-    justify-content: space-between; /* Empurra o link para a direita */
+    justify-content: space-between; 
     align-items: center;
-    margin-bottom: 15px; 
-    padding: 0 20px; /* Mantém o alinhamento nas laterais */
+    margin-bottom: 15px; 
+    padding: 0 20px; 
 }
 .section-header-wrapper h2 {
-    margin: 0; 
-    font-size: 1.5em; 
+    margin: 0; 
+    font-size: 1.5em; 
 }
 .section-title-link {
-    /* Estilo para o link que vai para o canto (ex: "Ver tudo") */
-    color: #4CAF50; /* Cor de destaque - ajuste se necessário */
+    color: #4CAF50; 
     text-decoration: none;
     font-size: 0.9em;
     font-weight: bold;
     padding-left: 10px;
-    white-space: nowrap; 
+    white-space: nowrap; 
 }
 
-/* ======== CADA PÔSTER: Landscape COMPLETO (16:9) e MAIOR (400PX) ======== */
+/* ======== PÔSTER PC/DESKTOP (Acima de 769px) ======== */
 .movie-item {
     position: relative;
-    width: 400px; /* NOVO TAMANHO: 400px para Full Landscape */
-    flex: 0 0 400px; 
     
-    /* CRÍTICO: Garante o aspecto 16:9 (9 / 16 = 0.5625 -> 56.25% da largura) */
-    padding-bottom: 56.25%; /* AGORA É PERCENTUAL! Isto força a altura correta 16:9. */
-    height: 0; /* Anula altura */
+    /* LARGURA PC: SEU TAMANHO PREFERIDO (25% da tela) */
+    width: 25vw; 
+    flex: 0 0 25vw; 
+    
+    /* CRÍTICO: Garante o aspecto 16:9 (25vw * 0.5625 = 14.0625vw) */
+    padding-bottom: 14.0625vw; 
+    height: 0; 
     
     border-radius: 8px;
-    overflow: hidden; 
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; 
+    overflow: hidden; 
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; 
 }
 .movie-item:hover {
     transform: translateY(-5px);
@@ -2874,213 +2784,59 @@ document.querySelectorAll('.movie-grid, #plus-movie-grid').forEach(section => {
     position: absolute; 
     top: 0;
     left: 0;
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; /* Garante que a imagem preenche sem barras pretas */
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
     border-radius: 8px;
-    transition: none; 
+    transition: none; 
 }
 
-/* ======== SETAS DE NAVEGAÇÃO (PC / TV) - TRANSLÚCIDAS ======== */
+/* ======== SETAS DE NAVEGAÇÃO (PC / TV) ======== */
 .carousel-arrow {
     position: absolute;
     top: 0;
-    bottom: 15px; 
+    bottom: 15px; 
     width: 60px;
     color: white;
     border: none;
     cursor: pointer;
     z-index: 5;
-    opacity: 0; /* Oculto por padrão (mobile) */
+    opacity: 0; 
     transition: opacity 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    pointer-events: none; /* Desliga no mobile para permitir rolagem por toque */
+    pointer-events: none; 
 }
 
-.carousel-arrow.left {
-    left: 0;
-    background: linear-gradient(to right, rgba(13, 15, 16, 0.9) 0%, rgba(13, 15, 16, 0.0) 100%);
-}
-.carousel-arrow.right {
-    right: 0;
-    background: linear-gradient(to left, rgba(13, 15, 16, 0.9) 0%, rgba(13, 15, 16, 0.0) 100%);
+.carousel-arrow.left { left: 0; background: linear-gradient(to right, rgba(13, 15, 16, 0.9) 0%, rgba(13, 15, 16, 0.0) 100%); }
+.carousel-arrow.right { right: 0; background: linear-gradient(to left, rgba(13, 15, 16, 0.9) 0%, rgba(13, 15, 16, 0.0) 100%); }
+.carousel-arrow i { font-size: 24px; background-color: rgba(0,0,0,0.5); border-radius: 50%; padding: 10px 14px; }
+@media (min-width: 769px) { 
+    .movie-section:hover .carousel-arrow, .content-section:hover .carousel-arrow { opacity: 1; pointer-events: auto; }
 }
 
-.carousel-arrow i {
-    font-size: 24px;
-    background-color: rgba(0,0,0,0.5); 
-    border-radius: 50%;
-    padding: 10px 14px;
-}
-
-/* Mostrar setas APENAS no PC/TV e no hover da seção pai */
-@media (min-width: 769px) {
-    .movie-section:hover .carousel-arrow, 
-    .content-section:hover .carousel-arrow {
-        opacity: 1; 
-        pointer-events: auto; /* Ativa a interação do mouse */
-    }
-}
-
-/* ======== MOBILE (Tamanho menor, mantém 16:9, oculta setas) ======== */
+/* ======== MOBILE (Abaixo de 768px) ======== */
 @media (max-width: 768px) {
     .carousel-arrow {
-        display: none; 
+        display: none; 
     }
     .movie-item {
-        width: 280px; 
-        flex: 0 0 280px;
-        padding-bottom: 56.25%; /* MANTÉM 16:9 PERCENTUAL */
+        /* LARGURA MOBILE: SEU TAMANHO PREFERIDO (40% da tela) */
+        width: 40vw; 
+        flex: 0 0 40vw;
+        
+        /* CRÍTICO: Garante 16:9 (40vw * 0.5625 = 22.5vw) */
+        padding-bottom: 22.5vw; 
     }
     .section-header-wrapper {
-        padding: 0 10px;
-    }
-}
-<style>
-/* ======== GERAL: Carrossel e Rolagem Suave ======== */
-.movie-grid, #plus-movie-grid {
-    display: flex;
-    overflow-x: scroll;
-    gap: 20px; /* Espaço entre os pôsteres */
-    scroll-behavior: smooth; /* Rolagem suave ao clicar nas setas */
-    scrollbar-width: none; /* esconde barra no Firefox */
-    padding-bottom: 15px; /* Espaço para sombra no hover */
-}
-.movie-grid::-webkit-scrollbar,
-#plus-movie-grid::-webkit-scrollbar {
-    display: none; /* esconde barra no Chrome/Safari */
-}
-
-/* --- Wrapper para Posicionamento da Seta --- */
-/* CRÍTICO: Permite que as setas fiquem absolutas e fixas */
-.movie-section, .content-section {
-    position: relative; 
-}
-
-/* ======== CADA PÔSTER: Landscape CORRIGIDO (16:9) ======== */
-.movie-item {
-    /* RESOLUÇÃO DO PROBLEMA DE ASPECTO VERTICAL */
-    position: relative;
-    width: 300px; /* Largura padrão desktop/TV */
-    flex: 0 0 300px; /* Impede que o item encolha */
-    
-    /* CRÍTICO: Garante o aspecto 16:9 (100% / 16 * 9 = 56.25%) */
-    padding-bottom: 168.75px; /* (300px * 0.5625) altura exata para o 16:9 */
-    height: 0; /* Anula a altura para usar padding-bottom */
-    
-    border-radius: 8px;
-    overflow: hidden; /* Garante que a imagem não vaze */
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; 
-}
-.movie-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-}
-
-.movie-item img {
-    position: absolute; /* Preenche o contêiner 16:9 */
-    top: 0;
-    left: 0;
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; /* Garante que a imagem preencha o espaço sem deformar */
-    border-radius: 8px;
-    transition: none; /* Remove a transição da imagem para aplicá-la ao container */
-}
-
-/* ======== SETAS DE NAVEGAÇÃO (PC / TV) - TRANSLÚCIDAS E ESCONDIDAS POR PADRÃO ======== */
-.carousel-arrow {
-    position: absolute;
-    top: 0;
-    bottom: 15px; /* Alinhado com a altura da lista */
-    width: 60px;
-    color: white;
-    border: none;
-    cursor: pointer;
-    z-index: 5;
-    opacity: 0; /* Default: Oculto */
-    transition: opacity 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.carousel-arrow.left {
-    left: 0;
-    /* Gradiente Translúcido */
-    background: linear-gradient(to right, rgba(13, 15, 16, 0.9) 0%, rgba(13, 15, 16, 0.0) 100%);
-}
-.carousel-arrow.right {
-    right: 0;
-    /* Gradiente Translúcido */
-    background: linear-gradient(to left, rgba(13, 15, 16, 0.9) 0%, rgba(13, 15, 16, 0.0) 100%);
-}
-
-.carousel-arrow i {
-    font-size: 24px;
-    background-color: rgba(0,0,0,0.5); /* Fundo para o ícone */
-    border-radius: 50%;
-    padding: 10px 14px;
-}
-
-/* Mostrar setas APENAS no PC/TV e no hover da seção pai */
-@media (min-width: 769px) {
-    /* Mostra as setas ao passar o mouse na seção inteira */
-    .movie-section:hover .carousel-arrow, 
-    .content-section:hover .carousel-arrow {
-        opacity: 1; 
-    }
-}
-
-/* ======== MOBILE (Oculta setas, mantém rolagem por toque) ======== */
-@media (max-width: 768px) {
-    .carousel-arrow {
-        display: none; 
-    }
-    .movie-item {
-        width: 260px; /* Largura mobile */
-        flex: 0 0 260px;
-        padding-bottom: 146.25px; /* (260px * 0.5625) altura 16:9 para mobile */
+        padding: 0 10px;
+    }
+    .movie-grid, #plus-movie-grid {
+        padding-left: 10px;
+        padding-right: 10px;
     }
 }
 </style>
-
-<script>
-document.querySelectorAll('.movie-grid, #plus-movie-grid').forEach(section => {
-    const sectionParent = section.closest('.movie-section, .content-section');
-    if (!sectionParent) return;
-
-    // 1. Criar e configurar as Setas (usando div)
-    let leftArrow = sectionParent.querySelector('.carousel-arrow.left');
-    let rightArrow = sectionParent.querySelector('.carousel-arrow.right');
-
-    if (!leftArrow) {
-        leftArrow = document.createElement('div');
-        leftArrow.innerHTML = '<i class="fas fa-chevron-left"></i>';
-        leftArrow.className = 'carousel-arrow left';
-        sectionParent.appendChild(leftArrow);
-    }
-
-    if (!rightArrow) {
-        rightArrow = document.createElement('div');
-        rightArrow.innerHTML = '<i class="fas fa-chevron-right"></i>';
-        rightArrow.className = 'carousel-arrow right';
-        sectionParent.appendChild(rightArrow);
-    }
-    
-    // 2. Lógica de Rolagem
-    leftArrow.addEventListener('click', () => {
-        const scrollDistance = section.offsetWidth * 0.8;
-        section.scrollBy({ left: -scrollDistance, behavior: 'smooth' });
-    });
-    
-    rightArrow.addEventListener('click', () => {
-        const scrollDistance = section.offsetWidth * 0.8;
-        section.scrollBy({ left: scrollDistance, behavior: 'smooth' });
-    });
-});
-</script>
 </body>
 </html>
