@@ -2972,14 +2972,33 @@ const VALID_TOKENS = {
             }
         }
         
-        /* ======== RESPONSIVIDADE: MOBILE/TABLET (Abaixo de 767px) ======== */
+/* ======== RESPONSIVIDADE: MOBILE/TABLET (Abaixo de 767px) ======== */
 @media (max-width: 767px) {
-    /* ... */
-    /* Mobile: Carrosséis: Itens de 180px fixos (AJUSTADO) */
+    /* 1. Oculta setas de navegação que são desnecessárias no mobile */
+    .carousel-arrow { display: none; } 
+
+    /* 2. Reduz o padding para melhor aproveitamento do espaço na tela */
+    .navbar { padding: 15px 20px; }
+    .hero-banner { height: 400px; padding: 30px; align-items: flex-end; }
+    .content-section, .movie-section { padding: 30px 0; }
+    .section-title { padding: 0 30px; }
+    
+    /* 3. Ajusta o espaçamento do carrossel para mobile */
+    .movie-grid {
+        padding: 0 30px 15px 30px; 
+        gap: 15px;
+    }
+    
+    /* 4. ATUALIZAÇÃO PRINCIPAL: Carrossel com largura dinâmica 40vw */
     .movie-grid .movie-item {
-        min-width: 180px; /* <--- E aqui também está 180px */
-        max-width: 180px;
-        width: 180px;
+        /* Usa 40vw (40% da largura da viewport) para tamanho responsivo. */
+        min-width: 40vw !important; 
+        max-width: 40vw !important;
+        width: 40vw !important;
+        
+        /* Altura proporcional 16:9 de 40vw = 22.5vw */
+        padding-bottom: 22.5vw !important;
+        height: 0 !important;
     }
 }
 
