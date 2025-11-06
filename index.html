@@ -2866,11 +2866,11 @@ const VALID_TOKENS = {
             position: relative;
             min-height: 0; 
             
-            /* Valor Padrão Mobile/Tablet (250px) */
+            /* Valor Padrão Mobile/Tablet (180px) */
             flex-shrink: 0; 
-            width: 250px; 
-            min-width: 250px;
-            max-width: 250px; 
+            width: 180px; 
+            min-width: 180px;
+            max-width: 180px; 
         }
 
         .movie-item:hover {
@@ -2973,27 +2973,27 @@ const VALID_TOKENS = {
         }
         
         /* ======== RESPONSIVIDADE: MOBILE/TABLET (Abaixo de 767px) ======== */
-        @media (max-width: 767px) {
-            .carousel-arrow { display: none; } /* Setas desabilitadas no mobile/tablet */
+@media (max-width: 767px) {
+    .carousel-arrow { display: none; } /* Setas desabilitadas no mobile/tablet */
 
-            .navbar { padding: 15px 20px; }
-            .hero-banner { height: 400px; padding: 30px; align-items: flex-end; }
-            .content-section, .movie-section { padding: 30px 0; } /* Zera o padding lateral */
-            .section-title { padding: 0 30px; } /* Aplica padding lateral no título */
-            
-            /* Ajusta o padding do carrossel para mobile */
-            .movie-grid {
-                padding: 0 30px 15px 30px; 
-                gap: 15px;
-            }
-            
-            /* Mobile: Carrosséis: Itens de 250px fixos (padrão) */
-            .movie-grid .movie-item {
-                min-width: 250px; 
-                max-width: 250px;
-                width: 250px;
-            }
-        }
+    .navbar { padding: 15px 20px; }
+    .hero-banner { height: 400px; padding: 30px; align-items: flex-end; }
+    .content-section, .movie-section { padding: 30px 0; } /* Zera o padding lateral */
+    .section-title { padding: 0 30px; } /* Aplica padding lateral no título */
+    
+    /* Ajusta o padding do carrossel para mobile */
+    .movie-grid {
+        padding: 0 30px 15px 30px; 
+        gap: 15px;
+    }
+    
+    /* Mobile: Carrosséis: Itens de 180px fixos (AJUSTADO) */
+    .movie-grid .movie-item {
+        min-width: 180px; 
+        max-width: 180px;
+        width: 180px;
+    }
+}
 </style>
 </body>
 </html>
