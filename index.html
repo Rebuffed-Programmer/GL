@@ -3099,7 +3099,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ========================================= */
     const banner = document.querySelector(".hero-banner, #banner, .banner, .top-banner");
     if (banner) {
-        banner.style.width = "70%";
+        banner.style.width = "90%";
         banner.style.aspectRatio = "16/9";
         banner.style.borderRadius = "10px";
         banner.style.overflow = "hidden";
@@ -3178,6 +3178,60 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const home = document.querySelector("#home") || document.body;
         home.insertAdjacentElement("afterend", lanc);
+    }
+
+});
+</script>
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    /* ================================ */
+    /* CORREÇÃO DO BANNER (TAMANHO FIXO) */
+    /* ================================ */
+    const banner = document.querySelector(".hero-banner, #banner, .banner, .top-banner");
+    if (banner) {
+
+        banner.style.width = "100%";
+        banner.style.height = "200px";               // ALTURA IDEAL PARA CELULAR
+        banner.style.maxHeight = "220px";            // NÃO DEIXA PASSAR DISSO
+        banner.style.minHeight = "180px";            // NÃO FICA PEQUENO DEMAIS
+        banner.style.borderRadius = "10px";
+        banner.style.overflow = "hidden";
+        banner.style.position = "relative";
+        banner.style.backgroundSize = "cover";
+        banner.style.backgroundPosition = "center";
+        banner.style.backgroundRepeat = "no-repeat";
+    }
+
+    /* Remove a sinopse do banner */
+    document.querySelectorAll(".hero-banner .description, .banner .description, .banner .sinopse")
+        .forEach(el => el.style.display = "none");
+
+    /* Ajusta o título do banner */
+    const title = document.querySelector(".hero-banner .title");
+    if (title) {
+        title.style.position = "absolute";
+        title.style.left = "15px";
+        title.style.bottom = "50px";
+        title.style.color = "white";
+        title.style.fontSize = "18px";
+        title.style.fontWeight = "800";
+        title.style.textShadow = "0px 0px 6px black";
+        title.style.margin = "0";
+    }
+
+    /* Ajusta o botão assistir */
+    const watchBtn = document.querySelector(".watch-btn-hero");
+    if (watchBtn) {
+        watchBtn.style.position = "absolute";
+        watchBtn.style.left = "15px";
+        watchBtn.style.bottom = "15px";
+        watchBtn.style.padding = "7px 12px";
+        watchBtn.style.background = "rgba(255,255,255,0.15)";
+        watchBtn.style.color = "white";
+        watchBtn.style.fontWeight = "700";
+        watchBtn.style.borderRadius = "6px";
+        watchBtn.style.backdropFilter = "blur(4px)";
     }
 
 });
