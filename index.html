@@ -3064,6 +3064,152 @@ const VALID_TOKENS = {
 }
 
 </style>
+<!-- PLUS+ FIX: Banner, Logo Centralizada, Menu Ajustado, Mobile Fix, Lançamentos -->
+<style>
+/* ====== MOBILE OPTIMIZATION ====== */
+body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* ====== LOGO CENTRALIZADA ====== */
+header .logo, 
+nav .logo,
+.top-logo,
+#logo,
+.logo img {
+    display: block !important;
+    margin: 0 auto !important;
+    text-align: center !important;
+}
+
+/* ====== MENU RESPONSIVO ====== */
+.navbar, nav, .menu, .top-menu {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 15px !important;
+    overflow-x: auto;
+    padding: 10px 0 !important;
+}
+
+.navbar a, nav a, .menu a {
+    font-size: 14px !important;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+/* ====== BANNER 16:9 AJUSTADO ====== */
+#banner, .banner, .hero, .top-banner {
+    width: 100% !important;
+    max-width: 100% !important;
+    aspect-ratio: 16 / 9 !important;
+    overflow: hidden !important;
+    position: relative !important;
+    border-radius: 10px;
+    margin: 10px auto !important;
+}
+
+#banner img,
+.banner img,
+.hero img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+/* tira sinopse e textos gigantes */
+.banner .description,
+.banner .sinopse,
+.hero .description,
+.hero p {
+    display: none !important;
+}
+
+/* título no banner */
+.banner-title {
+    position: absolute !important;
+    bottom: 20px !important;
+    left: 20px !important;
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    color: white !important;
+    text-shadow: 0 0 6px rgba(0,0,0,0.8);
+}
+
+/* botão no banner */
+.banner-btn {
+    position: absolute !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    background: rgba(255,255,255,0.15) !important;
+    padding: 10px 14px !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    color: white !important;
+    text-decoration: none !important;
+}
+
+/* ===== CARROSSEIS AJUSTADOS ===== */
+.row, .carrossel, .sessao {
+    padding: 10px !important;
+}
+
+.row::-webkit-scrollbar { height: 5px; }
+
+.card img {
+    border-radius: 8px !important;
+    width: 110px !important;
+}
+
+/* ===== LANÇAMENTOS ===== */
+#lancamentos {
+    margin-top: 20px;
+    padding: 10px;
+}
+
+#lancamentos h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+#lancamentos .cards {
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+}
+
+#lancamentos img {
+    width: 110px;
+    border-radius: 8px;
+}
+</style>
+
+<script>
+// ===== ADICIONAR SEÇÃO LANÇAMENTOS =====
+document.addEventListener("DOMContentLoaded", () => {
+    // pega todos os pôsteres da Home (primeira sessão)
+    const filmes = [...document.querySelectorAll(".row img, .carrossel img, .card img")];
+
+    if (filmes.length > 5) {
+        const ultimos5 = filmes.slice(-5); // últimos adicionados
+
+        const lanc = document.createElement("section");
+        lanc.id = "lancamentos";
+        lanc.innerHTML = `
+            <h2>Lançamentos</h2>
+            <div class="cards">
+                ${ultimos5.map(img => `
+                    <img src="${img.src}" onclick="${img.getAttribute('onclick') || ''}">
+                `).join("")}
+            </div>
+        `;
+
+        // adiciona no topo do catálogo
+        const catalogo = document.querySelector("#catalogo, main, body");
+        catalogo.insertBefore(lanc, catalogo.firstChild);
+    }
+});
 </script>
 </body>
 </html>
