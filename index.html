@@ -3064,151 +3064,110 @@ const VALID_TOKENS = {
 }
 
 </style>
-<!-- PLUS+ FIX: Banner, Logo Centralizada, Menu Ajustado, Mobile Fix, Lançamentos -->
+<!-- ===== PLUS+ MOBILE FIX: LOGO, MENU, BANNER E LANÇAMENTOS ===== -->
 <style>
-/* ====== MOBILE OPTIMIZATION ====== */
-body {
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-}
-
-/* ====== LOGO CENTRALIZADA ====== */
-header .logo, 
-nav .logo,
-.top-logo,
-#logo,
-.logo img {
+/* ===== CORRIGE LOGO CENTRALIZADA ===== */
+header img.logo, .logo img, #logo img {
     display: block !important;
     margin: 0 auto !important;
-    text-align: center !important;
+    max-width: 160px !important;
 }
 
-/* ====== MENU RESPONSIVO ====== */
-.navbar, nav, .menu, .top-menu {
+/* ===== MENU AJUSTADO (TAMANHO MÉDIO) ===== */
+nav a, .menu a, .navbar a {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    white-space: nowrap;
+}
+nav, .menu, .navbar {
     display: flex !important;
     justify-content: center !important;
     gap: 15px !important;
-    overflow-x: auto;
     padding: 10px 0 !important;
 }
 
-.navbar a, nav a, .menu a {
-    font-size: 14px !important;
-    font-weight: bold;
-    white-space: nowrap;
-}
-
-/* ====== BANNER 16:9 AJUSTADO ====== */
-#banner, .banner, .hero, .top-banner {
+/* ===== CORRIGE BANNER 16:9 ===== */
+.banner, #banner, .hero, .top-banner {
+    aspect-ratio: 16 / 9 !important;
     width: 100% !important;
     max-width: 100% !important;
-    aspect-ratio: 16 / 9 !important;
     overflow: hidden !important;
-    position: relative !important;
-    border-radius: 10px;
-    margin: 10px auto !important;
+    border-radius: 10px !important;
+    position: relative;
 }
 
-#banner img,
-.banner img,
-.hero img {
+/* imagem do banner */
+.banner img, #banner img, .hero img {
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
 }
 
-/* tira sinopse e textos gigantes */
-.banner .description,
-.banner .sinopse,
-.hero .description,
-.hero p {
+/* esconder sinopse gigante */
+.banner .description, .hero p, .banner .sinopse {
     display: none !important;
 }
 
-/* título no banner */
-.banner-title {
+/* título do banner */
+.banner-title, .hero-title {
     position: absolute !important;
     bottom: 20px !important;
     left: 20px !important;
+    color: white !important;
     font-size: 20px !important;
     font-weight: 800 !important;
-    color: white !important;
-    text-shadow: 0 0 6px rgba(0,0,0,0.8);
+    text-shadow: 0 0 6px black;
 }
 
-/* botão no banner */
-.banner-btn {
+/* botão assistir */
+.banner-play, .banner-btn {
     position: absolute !important;
     bottom: 20px !important;
     right: 20px !important;
-    background: rgba(255,255,255,0.15) !important;
-    padding: 10px 14px !important;
-    border-radius: 6px !important;
-    font-size: 14px !important;
-    color: white !important;
-    text-decoration: none !important;
+    background: rgba(255,255,255,0.15);
+    padding: 10px 14px;
+    border-radius: 6px;
+    color: white;
+    font-weight: 700;
 }
 
-/* ===== CARROSSEIS AJUSTADOS ===== */
-.row, .carrossel, .sessao {
+/* ===== CORRIGE O LAYOUT ESTOURADO NO MOBILE ===== */
+body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden !important;
+}
+
+section, .row, .carrossel {
+    max-width: 100vw !important;
     padding: 10px !important;
 }
 
-.row::-webkit-scrollbar { height: 5px; }
-
 .card img {
-    border-radius: 8px !important;
     width: 110px !important;
-}
-
-/* ===== LANÇAMENTOS ===== */
-#lancamentos {
-    margin-top: 20px;
-    padding: 10px;
-}
-
-#lancamentos h2 {
-    font-size: 22px;
-    margin-bottom: 10px;
-}
-
-#lancamentos .cards {
-    display: flex;
-    overflow-x: auto;
-    gap: 12px;
-}
-
-#lancamentos img {
-    width: 110px;
-    border-radius: 8px;
+    border-radius: 8px !important;
 }
 </style>
 
 <script>
-// ===== ADICIONAR SEÇÃO LANÇAMENTOS =====
+// ===== LANÇAMENTOS =====
 document.addEventListener("DOMContentLoaded", () => {
-    // pega todos os pôsteres da Home (primeira sessão)
-    const filmes = [...document.querySelectorAll(".row img, .carrossel img, .card img")];
+    const filmes = [...document.querySelectorAll(".card img, .row img, .carrossel img")];
+    if (filmes.length < 5) return;
 
-    if (filmes.length > 5) {
-        const ultimos5 = filmes.slice(-5); // últimos adicionados
+    const ultimos5 = filmes.slice(-5);
 
-        const lanc = document.createElement("section");
-        lanc.id = "lancamentos";
-        lanc.innerHTML = `
-            <h2>Lançamentos</h2>
-            <div class="cards">
-                ${ultimos5.map(img => `
-                    <img src="${img.src}" onclick="${img.getAttribute('onclick') || ''}">
-                `).join("")}
-            </div>
-        `;
+    const sec = document.createElement("section");
+    sec.innerHTML = `
+        <h2 style="padding-left:10px;">Lançamentos</h2>
+        <div style="display:flex; gap:12px; overflow-x:auto; padding:10px;">
+            ${ultimos5.map(f => `<img src="${f.src}" style="width:110px;border-radius:8px;" onclick="${f.getAttribute('onclick') || ''}">`).join("")}
+        </div>
+    `;
 
-        // adiciona no topo do catálogo
-        const catalogo = document.querySelector("#catalogo, main, body");
-        catalogo.insertBefore(lanc, catalogo.firstChild);
-    }
+    // coloca no topo da home
+    const catalogo = document.querySelector("#catalogo") || document.body;
+    catalogo.insertBefore(sec, catalogo.firstChild);
 });
 </script>
 </body>
