@@ -3182,55 +3182,57 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 </script>
-    <script>
+<script>
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* ================================ */
-    /* CORREÇÃO DO BANNER (TAMANHO FIXO) */
-    /* ================================ */
+    /* ========================================= */
+    /* BANNER EXIBIDO INTEIRO (SEM CORTES)       */
+    /* ========================================= */
     const banner = document.querySelector(".hero-banner, #banner, .banner, .top-banner");
-    if (banner) {
 
+    if (banner) {
         banner.style.width = "100%";
-        banner.style.height = "200px";               // ALTURA IDEAL PARA CELULAR
-        banner.style.maxHeight = "220px";            // NÃO DEIXA PASSAR DISSO
-        banner.style.minHeight = "180px";            // NÃO FICA PEQUENO DEMAIS
-        banner.style.borderRadius = "10px";
+        banner.style.height = "38vh";         // altura média ideal
+        banner.style.maxHeight = "330px";
+        banner.style.minHeight = "220px";
+
+        banner.style.borderRadius = "12px";
         banner.style.overflow = "hidden";
         banner.style.position = "relative";
-        banner.style.backgroundSize = "cover";
-        banner.style.backgroundPosition = "center";
+
+        /* MOSTRAR A IMAGEM INTEIRA */
+        banner.style.backgroundSize = "contain";
         banner.style.backgroundRepeat = "no-repeat";
+        banner.style.backgroundPosition = "center";
     }
 
-    /* Remove a sinopse do banner */
-    document.querySelectorAll(".hero-banner .description, .banner .description, .banner .sinopse")
+    /* remove sinopse */
+    document.querySelectorAll(".hero-banner .description")
         .forEach(el => el.style.display = "none");
 
-    /* Ajusta o título do banner */
+    /* título */
     const title = document.querySelector(".hero-banner .title");
     if (title) {
         title.style.position = "absolute";
-        title.style.left = "15px";
-        title.style.bottom = "50px";
+        title.style.left = "12px";
+        title.style.bottom = "60px";
         title.style.color = "white";
         title.style.fontSize = "18px";
         title.style.fontWeight = "800";
-        title.style.textShadow = "0px 0px 6px black";
-        title.style.margin = "0";
+        title.style.textShadow = "0 0 6px black";
     }
 
-    /* Ajusta o botão assistir */
+    /* botão assistir */
     const watchBtn = document.querySelector(".watch-btn-hero");
     if (watchBtn) {
         watchBtn.style.position = "absolute";
-        watchBtn.style.left = "15px";
-        watchBtn.style.bottom = "15px";
+        watchBtn.style.left = "12px";
+        watchBtn.style.bottom = "20px";
         watchBtn.style.padding = "7px 12px";
         watchBtn.style.background = "rgba(255,255,255,0.15)";
+        watchBtn.style.borderRadius = "6px";
         watchBtn.style.color = "white";
         watchBtn.style.fontWeight = "700";
-        watchBtn.style.borderRadius = "6px";
         watchBtn.style.backdropFilter = "blur(4px)";
     }
 
