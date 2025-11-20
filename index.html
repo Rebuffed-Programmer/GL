@@ -3185,55 +3185,39 @@ document.addEventListener("DOMContentLoaded", () => {
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* ========================================= */
-    /* BANNER EXIBIDO INTEIRO (SEM CORTES)       */
-    /* ========================================= */
-    const banner = document.querySelector(".hero-banner, #banner, .banner, .top-banner");
-
+    const banner = document.querySelector(".hero-banner");
     if (banner) {
-        banner.style.width = "100%";
-        banner.style.height = "38vh";         // altura média ideal
-        banner.style.maxHeight = "330px";
-        banner.style.minHeight = "220px";
 
+        // 1 — pegar o background atual
+        const bg = banner.style.backgroundImage.replace('url("', "").replace('")', "");
+
+        // 2 — limpar o background
+        banner.style.background = "none";
+
+        // 3 — criar IMG real
+        const img = document.createElement("img");
+        img.src = bg;
+        img.style.width = "100%";
+        img.style.height = "100%";
+        img.style.objectFit = "contain"; // MOSTRA O PÔSTER INTEIRO
+        img.style.borderRadius = "12px";
+        img.style.display = "block";
+
+        // 4 — limpar conteúdo antigo
+        banner.innerHTML = "";
+
+        // 5 — adicionar imagem ao banner
+        banner.appendChild(img);
+
+        // 6 — definir o tamanho perfeito para mobile
+        banner.style.width = "100%";
+        banner.style.height = "260px";       // TAMANHO PERFEITO
+        banner.style.maxHeight = "260px";    // NÃO DEIXA AUMENTAR
+        banner.style.minHeight = "260px";    // NÃO DEIXA DIMINUIR
         banner.style.borderRadius = "12px";
         banner.style.overflow = "hidden";
         banner.style.position = "relative";
 
-        /* MOSTRAR A IMAGEM INTEIRA */
-        banner.style.backgroundSize = "contain";
-        banner.style.backgroundRepeat = "no-repeat";
-        banner.style.backgroundPosition = "center";
-    }
-
-    /* remove sinopse */
-    document.querySelectorAll(".hero-banner .description")
-        .forEach(el => el.style.display = "none");
-
-    /* título */
-    const title = document.querySelector(".hero-banner .title");
-    if (title) {
-        title.style.position = "absolute";
-        title.style.left = "12px";
-        title.style.bottom = "60px";
-        title.style.color = "white";
-        title.style.fontSize = "18px";
-        title.style.fontWeight = "800";
-        title.style.textShadow = "0 0 6px black";
-    }
-
-    /* botão assistir */
-    const watchBtn = document.querySelector(".watch-btn-hero");
-    if (watchBtn) {
-        watchBtn.style.position = "absolute";
-        watchBtn.style.left = "12px";
-        watchBtn.style.bottom = "20px";
-        watchBtn.style.padding = "7px 12px";
-        watchBtn.style.background = "rgba(255,255,255,0.15)";
-        watchBtn.style.borderRadius = "6px";
-        watchBtn.style.color = "white";
-        watchBtn.style.fontWeight = "700";
-        watchBtn.style.backdropFilter = "blur(4px)";
     }
 
 });
