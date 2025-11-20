@@ -687,6 +687,118 @@
 #plusPreviewModal .block-newtab{ position:absolute; right:14px; top:14px; z-index:200001; padding:8px 12px; border-radius:8px; background:rgba(0,0,0,0.6); color:#fff; border:none; cursor:pointer; }
 </style>
 <!-- END: Plus+ & Carousel Styles (injected) -->
+
+<!-- PLUS+ NAVBAR + BANNER FIX -->
+<style>
+/* ----------------------------- */
+/* NAVBAR SUPERIOR (LOGO + MENU) */
+/* ----------------------------- */
+
+.plus-top-nav {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: env(safe-area-inset-top, 12px);
+    padding-bottom: 8px;
+    background: transparent;
+    z-index: 9999;
+}
+
+.plus-top-nav img.plus-logo {
+    max-width: 200px;
+    height: auto;
+    margin: 10px auto 5px auto;
+}
+
+.plus-menu {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: nowrap;
+}
+
+.plus-menu a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 8px 10px;
+    white-space: nowrap;
+}
+
+/* Remove navbars inferiores existentes */
+.navbar-bottom,
+.bottom-navbar,
+.mobile-bottom-nav,
+footer,
+.footer-nav {
+    display: none !important;
+}
+
+/* ----------------------------- */
+/* BANNERS EM FORMATO 16:9 FIXO */
+/* ----------------------------- */
+
+.banner-fix {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 8px;
+    position: relative;
+    background: #000;
+}
+
+.banner-fix img,
+.banner-fix video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Remove sinopses dos banners */
+.banner-fix .banner-desc,
+.banner .descricao,
+.banner .desc,
+.banner .sinopse {
+    display: none !important;
+}
+
+/* Título e botão "Assistir" no banner */
+.banner-overlay {
+    position: absolute;
+    bottom: 18px;
+    left: 16px;
+    z-index: 10;
+    color: white;
+}
+
+.banner-overlay .banner-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.banner-overlay .banner-btn {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.12);
+    color: white;
+    font-weight: 600;
+}
+
+/* Mobile ajustes */
+@media(max-width: 600px){
+    .plus-top-nav img.plus-logo {
+        max-width: 150px;
+    }
+    .banner-overlay .banner-title {
+        font-size: 16px;
+    }
+}
+</style>
+
 </head>
 
 
@@ -2953,5 +3065,85 @@ const VALID_TOKENS = {
 }
 
 </style>
+    <!-- PLUS+ NAVBAR + BANNER FIX -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    /* ------------------------------ */
+    /* 1. Criar NAVBAR SUPERIOR NOVA */
+    /* ------------------------------ */
+    
+    const existingLogo = document.querySelector("img[src*='logo'], img[alt*='logo'], .logo img");
+
+    const nav = document.createElement("div");
+    nav.className = "plus-top-nav";
+
+    const logo = document.createElement("img");
+    logo.className = "plus-logo";
+    logo.src = existingLogo ? existingLogo.src : "logo.png"; // auto pega a sua logo
+    nav.appendChild(logo);
+
+    const menu = document.createElement("div");
+    menu.className = "plus-menu";
+    menu.innerHTML = `
+        <a href="#home">Home</a>
+        <a href="#lista">Minha Lista</a>
+        <a href="#generos">Gêneros</a>
+        <a href="#plus">Plus+</a>
+        <a href="#search">Pesquisar</a>
+    `;
+    nav.appendChild(menu);
+
+    document.body.insertBefore(nav, document.body.firstChild);
+
+
+    /* ------------------------------ */
+    /* 2. Fixar banners em 16:9       */
+    /* ------------------------------ */
+
+    const banners = document.querySelectorAll(".banner, .hero, .top-banner, #banner, .main-banner");
+
+    banners.forEach(banner => {
+
+        // wrapper
+        const wrap = document.createElement("div");
+        wrap.className = "banner-fix";
+
+        // pegar imagem do banner
+        const img = banner.querySelector("img");
+        if(img){
+            const clone = img.cloneNode(true);
+            wrap.appendChild(clone);
+        } else {
+            // caso seja background
+            const bg = getComputedStyle(banner).backgroundImage;
+            if(bg && bg !== "none"){
+                const url = bg.slice(5, -2);
+                const newImg = document.createElement("img");
+                newImg.src = url;
+                wrap.appendChild(newImg);
+            }
+        }
+
+        // overlay com título e botão assistir
+        const overlay = document.createElement("div");
+        overlay.className = "banner-overlay";
+
+        const title = banner.querySelector(".title, h1, h2");
+        overlay.innerHTML = `
+            <div class="banner-title">${title ? title.innerText : ""}</div>
+            <a class="banner-btn">Assistir</a>
+        `;
+        wrap.appendChild(overlay);
+
+        // esconder original
+        banner.style.display = "none";
+
+        // inserir acima do banner antigo
+        banner.parentNode.insertBefore(wrap, banner);
+    });
+
+});
+</script>
 </body>
 </html>
