@@ -3212,17 +3212,21 @@ document.addEventListener("DOMContentLoaded", () => {
         // ========================
         else if (window.innerWidth > 600 && window.innerWidth <= 1100) {
 
-            banner.style.width = "100%";
-            banner.style.height = "50vh";   // GRANDE!
-            banner.style.maxHeight = "500px";
-            banner.style.minHeight = "300px";
 
-            banner.style.borderRadius = "12px";
-            banner.style.margin = "0 auto";
-            banner.style.backgroundSize = "contain";
-            banner.style.backgroundRepeat = "no-repeat";
-            banner.style.backgroundPosition = "center";
-        }
+        banner.style.width = "100%";       // GRANDE COMO PRIME VIDEO
+        banner.style.maxWidth = "1400px";
+        banner.style.height = "55vh";      // Altura bonita para TVs/PCs
+        banner.style.maxHeight = "550px";
+        banner.style.minHeight = "350px";
+        banner.style.margin = "20px auto";
+
+        banner.style.borderRadius = "12px";
+        banner.style.overflow = "hidden";
+
+        banner.style.backgroundSize = "contain";   // mostra a imagem INTEIRA
+        banner.style.backgroundRepeat = "no-repeat";
+        banner.style.backgroundPosition = "center";
+    }
 
         // ========================
         //  PC / TVs / MONITORES GRANDES
