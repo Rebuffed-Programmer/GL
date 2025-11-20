@@ -3189,84 +3189,85 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (banner) {
 
-        // ========================
-        //  MOBILE (mantém o seu)
-        // ========================
+        /* ======================================================= */
+        /*  1) MOBILE — Mantém EXATAMENTE como você criou          */
+        /* ======================================================= */
         if (window.innerWidth <= 600) {
-
             banner.style.width = "83%";
             banner.style.height = "38vh";
             banner.style.maxHeight = "330px";
             banner.style.minHeight = "220px";
-
             banner.style.borderRadius = "12px";
             banner.style.overflow = "hidden";
             banner.style.position = "relative";
             banner.style.backgroundSize = "contain";
             banner.style.backgroundRepeat = "no-repeat";
             banner.style.backgroundPosition = "center";
+            banner.style.margin = "0 auto";
         }
 
-        // ========================
-        //  TABLET / SWITCH
-        // ========================
+        /* ======================================================= */
+        /*  2) TABLET / SWITCH — Ajustado para switch e iPad       */
+        /* ======================================================= */
         else if (window.innerWidth > 600 && window.innerWidth <= 1100) {
-
-
-        banner.style.width = "100%";       // GRANDE COMO PRIME VIDEO
-        banner.style.maxWidth = "1400px";
-        banner.style.height = "55vh";      // Altura bonita para TVs/PCs
-        banner.style.maxHeight = "550px";
-        banner.style.minHeight = "350px";
-        banner.style.margin = "20px auto";
-
-        banner.style.borderRadius = "12px";
-        banner.style.overflow = "hidden";
-
-        banner.style.backgroundSize = "contain";   // mostra a imagem INTEIRA
-        banner.style.backgroundRepeat = "no-repeat";
-        banner.style.backgroundPosition = "center";
-    }
-
-        // ========================
-        //  PC / TVs / MONITORES GRANDES
-        // ========================
-        else {
-
-            banner.style.width = "100%";
-            banner.style.height = "70vh";   // ENORME estilo Netflix
-            banner.style.maxHeight = "700px";
-            banner.style.minHeight = "400px";
-
+            banner.style.width = "70%";
+            banner.style.height = "310px";
+            banner.style.maxHeight = "310px";
+            banner.style.minHeight = "310px";
             banner.style.margin = "0 auto";
             banner.style.borderRadius = "12px";
-            banner.style.backgroundSize = "contain"; 
+            banner.style.backgroundSize = "contain";
+            banner.style.backgroundRepeat = "no-repeat";
+            banner.style.backgroundPosition = "center";
+        }
+
+        /* ======================================================= */
+        /*  3) PC / TV — Banner grande porém sem esticar           */
+        /* ======================================================= */
+        else {
+            banner.style.width = "55%";
+            banner.style.height = "360px";
+            banner.style.maxHeight = "360px";
+            banner.style.minHeight = "360px";
+            banner.style.margin = "20px auto";
+            banner.style.borderRadius = "12px";
+            banner.style.backgroundSize = "contain";
             banner.style.backgroundRepeat = "no-repeat";
             banner.style.backgroundPosition = "center";
         }
     }
 
-    /* Título */
+    /* ======================================================= */
+    /* REMOVE SINOPSE DO BANNER                                */
+    /* ======================================================= */
+    document.querySelectorAll(".hero-banner .description, .banner .description")
+        .forEach(el => el.style.display = "none");
+
+    /* ======================================================= */
+    /* TÍTULO DO BANNER                                         */
+    /* ======================================================= */
     const title = document.querySelector(".hero-banner .title");
     if (title) {
         title.style.position = "absolute";
         title.style.left = "12px";
         title.style.bottom = "60px";
         title.style.color = "white";
-        title.style.fontSize = "2rem";
+        title.style.fontSize = (window.innerWidth > 900 ? "26px" : "18px");
         title.style.fontWeight = "800";
-        title.style.textShadow = "0 0 10px black";
+        title.style.textShadow = "0 0 6px black";
     }
 
-    /* Botão */
+    /* ======================================================= */
+    /* BOTÃO "ASSISTIR"                                         */
+    /* ======================================================= */
     const watchBtn = document.querySelector(".watch-btn-hero");
     if (watchBtn) {
         watchBtn.style.position = "absolute";
         watchBtn.style.left = "12px";
         watchBtn.style.bottom = "20px";
-        watchBtn.style.padding = "10px 18px";
+        watchBtn.style.padding = (window.innerWidth > 900 ? "10px 16px" : "7px 12px");
         watchBtn.style.background = "rgba(255,255,255,0.15)";
-        watchBtn.style.borderRadius = "8px";
+        watchBtn.style.borderRadius = "6px";
         watchBtn.style.color = "white";
         watchBtn.style.fontWeight = "700";
         watchBtn.style.backdropFilter = "blur(4px)";
