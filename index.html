@@ -3185,25 +3185,55 @@ document.addEventListener("DOMContentLoaded", () => {
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* ========================================= */
-    /* BANNER EXIBIDO INTEIRO (SEM CORTES)       */
-    /* ========================================= */
     const banner = document.querySelector(".hero-banner, #banner, .banner, .top-banner");
 
     if (banner) {
-        banner.style.width = "83%";
-        banner.style.height = "38vh";         // altura média ideal
-        banner.style.maxHeight = "330px";
-        banner.style.minHeight = "220px";
 
-        banner.style.borderRadius = "12px";
-        banner.style.overflow = "hidden";
-        banner.style.position = "relative";
+        /* ======================================================= */
+        /*  1) MOBILE — Mantém EXATAMENTE do jeito que você fez     */
+        /* ======================================================= */
+        if (window.innerWidth <= 600) {
+            banner.style.width = "83%";
+            banner.style.height = "38vh";
+            banner.style.maxHeight = "330px";
+            banner.style.minHeight = "220px";
+            banner.style.borderRadius = "12px";
+            banner.style.overflow = "hidden";
+            banner.style.position = "relative";
+            banner.style.backgroundSize = "contain";
+            banner.style.backgroundRepeat = "no-repeat";
+            banner.style.backgroundPosition = "center";
+        }
 
-        /* MOSTRAR A IMAGEM INTEIRA */
-        banner.style.backgroundSize = "contain";
-        banner.style.backgroundRepeat = "no-repeat";
-        banner.style.backgroundPosition = "center";
+        /* ======================================================= */
+        /*  2) TABLET / SWITCH → Ajuste proporcional               */
+        /* ======================================================= */
+        else if (window.innerWidth > 600 && window.innerWidth <= 1100) {
+            banner.style.width = "70%";
+            banner.style.height = "310px";
+            banner.style.maxHeight = "310px";
+            banner.style.minHeight = "310px";
+            banner.style.margin = "0 auto";
+            banner.style.borderRadius = "12px";
+            banner.style.backgroundSize = "contain";
+            banner.style.backgroundRepeat = "no-repeat";
+            banner.style.backgroundPosition = "center";
+        }
+
+        /* ======================================================= */
+        /*  3) PC (telas grandes) → Banner moderado e centralizado */
+        /* ======================================================= */
+        else {
+            banner.style.width = "55%";
+            banner.style.height = "360px";
+            banner.style.maxHeight = "360px";
+            banner.style.minHeight = "360px";
+            banner.style.margin = "20px auto";
+            banner.style.borderRadius = "12px";
+            banner.style.backgroundSize = "contain";
+            banner.style.backgroundRepeat = "no-repeat";
+            banner.style.backgroundPosition = "center";
+        }
     }
 
     /* remove sinopse */
