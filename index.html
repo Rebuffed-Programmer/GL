@@ -3064,138 +3064,122 @@ const VALID_TOKENS = {
 }
 
 </style>
-<!-- ===== PLUS+ MOBILE FIX: LOGO, MENU, BANNER E LANÇAMENTOS ===== -->
-<style>
-/* ===== LOGO CENTRALIZADA ===== */
-header img.logo, .logo img, #logo img {
-    display: block !important;
-    margin: 0 auto !important;
-    max-width: 150px !important;
-}
-
-/* ===== MENU (TAMANHO CERTO PARA MOBILE) ===== */
-nav, .menu, .navbar {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 12px !important;
-    padding: 8px 0 !important;
-    flex-wrap: nowrap;
-}
-nav a, .menu a, .navbar a {
-    font-size: 14px !important;
-    font-weight: 600 !important;
-}
-
-/* ===== BANNER 16:9 ===== */
-.banner, #banner, .hero, .top-banner {
-    width: 100% !important;
-    aspect-ratio: 16/9 !important;
-    position: relative !important;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-/* imagem do banner */
-.banner img, #banner img, .hero img, .top-banner img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-}
-
-/* remove sinopses antigas */
-.banner p, .banner .description, .hero p, .top-banner p {
-    display: none !important;
-}
-
-/* título */
-.banner-title, .hero-title, .top-banner-title {
-    position: absolute !important;
-    bottom: 18px !important;
-    left: 18px !important;
-    color: #fff !important;
-    font-weight: 800 !important;
-    font-size: 18px !important;
-    text-shadow: 0 0 8px black;
-}
-
-/* botão assistir */
-.banner-play, .banner-btn, .hero-play {
-    position: absolute !important;
-    bottom: 18px !important;
-    right: 18px !important;
-    padding: 8px 12px;
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(4px);
-    color: white;
-    border-radius: 6px;
-    font-weight: 700;
-}
-
-/* ===== MOBILE FIX ===== */
-body {
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden !important;
-}
-
-section, .row, .carrossel {
-    padding: 10px !important;
-    max-width: 100vw !important;
-}
-
-.card img {
-    width: 110px !important;
-    border-radius: 8px;
-}
-
-/* Botões Sou Assinante / Quero Assinar */
-button, .assinante-btn, .token-btn {
-    font-size: 14px !important;
-    padding: 8px 12px !important;
-}
-</style>
-
 <script>
-// ===== BANNER FIX =====
 document.addEventListener("DOMContentLoaded", () => {
-    const banner = document.querySelector(".banner, #banner, .hero, .top-banner");
-    if (!banner) return;
 
-    const img = banner.querySelector("img");
-    const title = banner.querySelector(".banner-title") || banner.querySelector("h1") || banner.querySelector("h2");
-    const btn = banner.querySelector(".banner-play") || banner.querySelector(".banner-btn");
+    /* ========================================= */
+    /* 1 — LOGO CENTRALIZADA                     */
+    /* ========================================= */
+    const logo = document.querySelector(".logo img, .logo-img, header img.logo");
+    if (logo) {
+        logo.style.display = "block";
+        logo.style.margin = "0 auto";
+        logo.style.maxWidth = "150px";
+    }
 
+    /* ========================================= */
+    /* 2 — MENU OTIMIZADO PARA MOBILE            */
+    /* ========================================= */
+    document.querySelectorAll(".navbar-links a, nav a, .menu a").forEach(a => {
+        a.style.fontSize = "14px";
+        a.style.fontWeight = "600";
+        a.style.margin = "0 8px";
+        a.style.whiteSpace = "nowrap";
+    });
+
+    const navbar = document.querySelector(".navbar-links, nav, .menu");
+    if (navbar) {
+        navbar.style.display = "flex";
+        navbar.style.justifyContent = "center";
+        navbar.style.alignItems = "center";
+    }
+
+    /* ========================================= */
+    /* 3 — BANNER 16:9 + TÍTULO + BOTÃO          */
+    /* ========================================= */
+    const banner = document.querySelector(".hero-banner, #banner, .banner, .top-banner");
+    if (banner) {
+        banner.style.width = "100%";
+        banner.style.aspectRatio = "16/9";
+        banner.style.borderRadius = "10px";
+        banner.style.overflow = "hidden";
+        banner.style.position = "relative";
+        banner.style.backgroundSize = "cover";
+        banner.style.backgroundPosition = "center";
+    }
+
+    // Remover sinopse
+    document.querySelectorAll(".hero-banner .description, .banner .description, .banner .sinopse")
+        .forEach(el => el.style.display = "none");
+
+    // Ajustar título
+    const title = document.querySelector(".hero-banner .title");
     if (title) {
-        title.classList.add("banner-title");
+        title.style.position = "absolute";
+        title.style.left = "15px";
+        title.style.bottom = "60px";
+        title.style.color = "white";
+        title.style.fontSize = "20px";
+        title.style.fontWeight = "800";
+        title.style.textShadow = "0px 0px 6px black";
+        title.style.margin = "0";
     }
 
-    if (btn) {
-        btn.classList.add("banner-play");
+    // Botão assistir
+    const watchBtn = document.querySelector(".watch-btn-hero");
+    if (watchBtn) {
+        watchBtn.style.position = "absolute";
+        watchBtn.style.left = "15px";
+        watchBtn.style.bottom = "20px";
+        watchBtn.style.padding = "8px 13px";
+        watchBtn.style.background = "rgba(255,255,255,0.15)";
+        watchBtn.style.color = "white";
+        watchBtn.style.fontWeight = "700";
+        watchBtn.style.borderRadius = "6px";
+        watchBtn.style.backdropFilter = "blur(5px)";
     }
-});
 
-// ===== LANÇAMENTOS =====
-document.addEventListener("DOMContentLoaded", () => {
-    const filmes = [...document.querySelectorAll(".card img, .row img, .carrossel img")];
-    if (filmes.length < 5) return;
+    /* ========================================= */
+    /* 4 — AJUSTES MOBILE GLOBAIS                */
+    /* ========================================= */
+    document.body.style.overflowX = "hidden";
 
-    const ultimos5 = filmes.slice(-5);
+    document.querySelectorAll("section, .row, .carrossel").forEach(el => {
+        el.style.maxWidth = "100vw";
+        el.style.padding = "10px";
+    });
 
-    const sec = document.createElement("section");
-    sec.innerHTML = `
-        <h2 style="padding-left:10px;">Lançamentos</h2>
-        <div style="display:flex; gap:12px; overflow-x:auto; padding:10px;">
-            ${ultimos5.map(f => `
-                <img src="${f.src}" 
-                     style="width:110px;border-radius:8px;" 
-                     onclick="${f.getAttribute('onclick') || ''}">
-            `).join("")}
-        </div>
-    `;
+    document.querySelectorAll(".card img").forEach(img => {
+        img.style.width = "110px";
+        img.style.borderRadius = "8px";
+    });
 
-    const catalogo = document.querySelector("#catalogo") || document.body;
-    catalogo.insertBefore(sec, catalogo.firstChild);
+    /* ========================================= */
+    /* 5 — ABAS "LANÇAMENTOS" (Tipo Gêneros)     */
+    /* ========================================= */
+
+    const movieGrid = document.querySelectorAll("#movie-grid img");
+    if (movieGrid.length >= 5) {
+
+        const ultimos5 = Array.from(movieGrid).slice(-5); // últimos 5 filmes
+
+        const lanc = document.createElement("section");
+        lanc.style.padding = "10px";
+        lanc.innerHTML = `
+            <h2>🚀 Lançamentos</h2>
+            <div style="display:flex; gap:12px; overflow-x:auto; padding-bottom:10px;">
+                ${ultimos5.map(f => `
+                    <img src="${f.src}" 
+                         style="width:110px;border-radius:8px;"
+                         onclick="${f.getAttribute('onclick') || ''}">
+                `).join("")}
+            </div>
+        `;
+        
+        const home = document.querySelector("#home") || document.body;
+        home.insertAdjacentElement("afterend", lanc);
+    }
+
 });
 </script>
 </body>
