@@ -3064,203 +3064,138 @@ const VALID_TOKENS = {
 }
 
 </style>
-<!-- FIX PLUS+: banner 16:9 (mobile), remover descrição, lançar 'Lançamentos', ajustar botões -->
+<!-- ===== PLUS+ MOBILE FIX: LOGO, MENU, BANNER E LANÇAMENTOS ===== -->
 <style>
-/* Mobile-first fixes */
-body{overflow-x:hidden;margin:0;padding:0}
-
-/* Menu fonts (médio) */
-nav a, .menu a, .navbar a, .plus-menu a { font-size:14px !important; font-weight:600 !important; }
-
-/* Banner wrapper - force 16:9 and limit height on small screens */
-.plus-fixed-banner { width:100%; max-width:100%; aspect-ratio:16/9; position:relative; overflow:hidden; border-radius:10px; background:#000; margin:10px 0; }
-.plus-fixed-banner img, .plus-fixed-banner video { width:100%; height:100%; object-fit:cover; display:block; }
-
-/* small overlay title + CTA */
-.plus-fixed-banner .plus-banner-overlay { position:absolute; left:14px; bottom:14px; z-index:4; color:#fff; text-shadow:0 3px 8px rgba(0,0,0,0.6); }
-.plus-fixed-banner .plus-banner-title { font-size:18px; font-weight:800; margin-bottom:8px; line-height:1.05; }
-.plus-fixed-banner .plus-banner-cta { display:inline-block; padding:7px 10px; border-radius:6px; background:rgba(255,255,255,0.10); color:inherit; font-weight:700; text-decoration:none; }
-
-/* hide any banner description */
-.hero .desc, .banner .desc, .banner p, .banner .sinopse, .hero .sinopse, .hero .description, .banner-description { display:none !important; }
-
-/* Make sure players stay hidden until explicitly opened */
-iframe.player, .player-iframe, #player, video.player, .video-player { display:none !important; }
-.player-wrapper.playing iframe.player, .player-wrapper.playing video.player, .player-wrapper.playing .video-player { display:block !important; }
-
-/* Lançamentos section style (same feel as genres) */
-.plus-section { margin:14px 0; padding:0 10px; box-sizing:border-box; }
-.plus-section .section-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-.plus-section h2 { margin:0; font-size:18px; font-weight:800; color:inherit; }
-.plus-row { display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; -webkit-overflow-scrolling:touch; }
-
-/* Keep original card look but constrained on mobile */
-.plus-row .card, .plus-row img { flex:0 0 auto; width:110px; height:auto; border-radius:8px; object-fit:cover; }
-
-/* Small sizes for subscribe buttons */
-.signed-btn, .subscribe-btn, .btn-subscribe, .token-btn, .sou-assinante, .quero-assinar {
-  font-size:13px !important;
-  padding:6px 8px !important;
-  border-radius:6px !important;
+/* ===== LOGO CENTRALIZADA ===== */
+header img.logo, .logo img, #logo img {
+    display: block !important;
+    margin: 0 auto !important;
+    max-width: 150px !important;
 }
 
-/* Media tweaks for very small screens */
-@media (max-width:420px){
-  .plus-fixed-banner .plus-banner-title { font-size:16px; }
-  .plus-fixed-banner .plus-banner-cta { padding:6px 8px; font-size:13px; }
-  nav a, .menu a, .navbar a { font-size:13px !important; }
-  .plus-row .card, .plus-row img { width:100px; }
+/* ===== MENU (TAMANHO CERTO PARA MOBILE) ===== */
+nav, .menu, .navbar {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 8px 0 !important;
+    flex-wrap: nowrap;
+}
+nav a, .menu a, .navbar a {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+}
+
+/* ===== BANNER 16:9 ===== */
+.banner, #banner, .hero, .top-banner {
+    width: 100% !important;
+    aspect-ratio: 16/9 !important;
+    position: relative !important;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* imagem do banner */
+.banner img, #banner img, .hero img, .top-banner img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+/* remove sinopses antigas */
+.banner p, .banner .description, .hero p, .top-banner p {
+    display: none !important;
+}
+
+/* título */
+.banner-title, .hero-title, .top-banner-title {
+    position: absolute !important;
+    bottom: 18px !important;
+    left: 18px !important;
+    color: #fff !important;
+    font-weight: 800 !important;
+    font-size: 18px !important;
+    text-shadow: 0 0 8px black;
+}
+
+/* botão assistir */
+.banner-play, .banner-btn, .hero-play {
+    position: absolute !important;
+    bottom: 18px !important;
+    right: 18px !important;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(4px);
+    color: white;
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+/* ===== MOBILE FIX ===== */
+body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden !important;
+}
+
+section, .row, .carrossel {
+    padding: 10px !important;
+    max-width: 100vw !important;
+}
+
+.card img {
+    width: 110px !important;
+    border-radius: 8px;
+}
+
+/* Botões Sou Assinante / Quero Assinar */
+button, .assinante-btn, .token-btn {
+    font-size: 14px !important;
+    padding: 8px 12px !important;
 }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function(){
+// ===== BANNER FIX =====
+document.addEventListener("DOMContentLoaded", () => {
+    const banner = document.querySelector(".banner, #banner, .hero, .top-banner");
+    if (!banner) return;
 
-  /* ---------- 1) Normalizar/Reduzir o banner e remover descrição ---------- */
-  (function fixBanners(){
-    // Candidate selectors commonly used in your site
-    var candidates = document.querySelectorAll('.hero, .banner, #hero, .top-banner, .main-banner, .carousel-hero, .hero-banner');
-    // If none found, try to find a large element near top with image
-    if(!candidates || candidates.length===0){
-      var imgs = Array.from(document.querySelectorAll('img')).filter(i => i.naturalWidth > 300 || i.naturalHeight > 120);
-      if(imgs.length) {
-        var p = imgs[0].closest('div') || imgs[0].parentElement;
-        if(p) candidates = [p];
-      }
+    const img = banner.querySelector("img");
+    const title = banner.querySelector(".banner-title") || banner.querySelector("h1") || banner.querySelector("h2");
+    const btn = banner.querySelector(".banner-play") || banner.querySelector(".banner-btn");
+
+    if (title) {
+        title.classList.add("banner-title");
     }
-    Array.prototype.forEach.call(candidates, function(c){
-      try{
-        if(c.dataset.plusFixed === '1') return; // already processed
-        // find visible image or background
-        var sourceImg = c.querySelector('img') || null;
-        var bg = null;
-        if(!sourceImg){
-          var cs = window.getComputedStyle(c);
-          if(cs && cs.backgroundImage && cs.backgroundImage !== 'none'){
-            var m = cs.backgroundImage.match(/url\(["']?(.*?)["']?\)/);
-            if(m) bg = m[1];
-          }
-        }
-        // create wrapper
-        var wrapper = document.createElement('div');
-        wrapper.className = 'plus-fixed-banner';
-        if(sourceImg && sourceImg.src){
-          var clone = sourceImg.cloneNode(true);
-          clone.removeAttribute('width'); clone.removeAttribute('height');
-          clone.style.width='100%'; clone.style.height='100%'; clone.style.objectFit='cover';
-          wrapper.appendChild(clone);
-        } else if(bg){
-          var im = document.createElement('img');
-          im.src = bg;
-          im.style.width='100%'; im.style.height='100%'; im.style.objectFit='cover';
-          wrapper.appendChild(im);
-        } else {
-          // fallback: try to find first large poster inside candidate
-          var anyImg = c.querySelector('img');
-          if(anyImg){ var cl = anyImg.cloneNode(true); cl.style.width='100%'; cl.style.height='100%'; cl.style.objectFit='cover'; wrapper.appendChild(cl); }
-        }
-        // overlay (title + button)
-        var overlay = document.createElement('div'); overlay.className = 'plus-banner-overlay';
-        var titleText = '';
-        var t = c.querySelector('.title, h1, h2, .hero-title, .banner-title, .movie-title');
-        if(t) titleText = t.innerText.trim();
-        // create title + cta
-        var divTitle = document.createElement('div'); divTitle.className='plus-banner-title'; divTitle.innerText = titleText;
-        var cta = document.createElement('a'); cta.className='plus-banner-cta'; cta.href = '#'; cta.innerText = 'Assistir';
-        overlay.appendChild(divTitle); overlay.appendChild(cta);
-        wrapper.appendChild(overlay);
-        // insert wrapper before candidate and hide/mark original visual
-        c.parentNode.insertBefore(wrapper, c);
-        c.style.visibility = 'hidden'; // keep DOM for logic but hide visuals
-        c.dataset.plusFixed = '1';
-        // remove any description nodes inside candidate (visual only)
-        var descSelectors = ['.desc', '.description', '.sinopse', '.banner-desc', '.hero-desc', '.banner-description', '.subtitle'];
-        descSelectors.forEach(function(sel){
-          c.querySelectorAll(sel).forEach(function(x){ x.style.display='none'; });
-        });
-      }catch(e){ /* ignore per-element errors */ }
-    });
-  })();
 
-
-  /* ---------- 2) Ajustar tamanho dos botões "Sou assinante"/"Quero assinar" ---------- */
-  (function shrinkSubscribeButtons(){
-    // selectors to catch common naming patterns
-    var sel = ['.sou-assinante', '.quero-assinar', '.signed-btn', '.subscribe-btn', '.btn-subscribe', '.token-btn', '.assinante', 'button[data-action="subscribe"]'];
-    sel.forEach(function(s){
-      document.querySelectorAll(s).forEach(function(b){
-        b.style.fontSize = '13px';
-        b.style.padding = '6px 8px';
-        b.style.borderRadius = '6px';
-        b.style.boxSizing = 'border-box';
-      });
-    });
-    // also target by text content (Portuguese) as fallback
-    var texts = ['Sou assinante','Quero assinar','Sou assinante','Assinar','Assine agora'];
-    Array.from(document.querySelectorAll('button, a')).forEach(function(el){
-      var t = (el.innerText||'').trim();
-      if(texts.indexOf(t) !== -1){
-        el.style.fontSize='13px';
-        el.style.padding='6px 8px';
-        el.style.borderRadius='6px';
-      }
-    });
-  })();
-
-
-  /* ---------- 3) Criar seção "Lançamentos" (igual aos gêneros: título + carrossel) ---------- */
-  (function createLancamentos(){
-    // find all candidate cards (try to reuse your card nodes to preserve handlers)
-    var cardSelectors = ['.card', '.movie-card', '.poster-card', '.tile', '.item'];
-    var foundCards = [];
-    for(var i=0;i<cardSelectors.length && foundCards.length===0;i++){
-      var nodes = document.querySelectorAll(cardSelectors[i]);
-      if(nodes && nodes.length) foundCards = Array.from(nodes);
+    if (btn) {
+        btn.classList.add("banner-play");
     }
-    // fallback: any img inside carousels
-    if(foundCards.length===0){
-      var imgs = document.querySelectorAll('.row img, .carrossel img, .card img, .poster img');
-      foundCards = Array.from(imgs).map(function(img){ var wrapper = document.createElement('div'); wrapper.className='card'; var im = img.cloneNode(true); wrapper.appendChild(im); return wrapper; });
-    }
-    if(foundCards.length===0) return;
-    // take last 5 cards (clone to avoid removing original)
-    var last = foundCards.slice(-5);
-    var section = document.createElement('section'); section.className='plus-section';
-    var head = document.createElement('div'); head.className='section-head';
-    var h2 = document.createElement('h2'); h2.innerText = 'Lançamentos';
-    head.appendChild(h2);
-    section.appendChild(head);
-    var row = document.createElement('div'); row.className='plus-row';
-    last.forEach(function(node){
-      var cloneNode = node.cloneNode(true);
-      // ensure it has image size limited
-      var imgs = cloneNode.querySelectorAll('img');
-      imgs.forEach(function(im){ im.style.width='110px'; im.style.height='auto'; im.style.borderRadius='8px'; im.style.objectFit='cover'; });
-      // if clone is raw <img> element (fallback), wrap it
-      if(cloneNode.tagName === 'IMG') {
-        var wrap = document.createElement('div'); wrap.className='card'; cloneNode.style.width='110px'; cloneNode.style.borderRadius='8px'; wrap.appendChild(cloneNode); row.appendChild(wrap);
-      } else {
-        row.appendChild(cloneNode);
-      }
-    });
-    section.appendChild(row);
-    // insert after header/banner or at top of main catalog
-    var insertAfter = document.querySelector('.plus-fixed-banner') || document.querySelector('.hero, .banner, #hero, .top-banner') || document.querySelector('main, #main, #catalogo, .content');
-    if(insertAfter && insertAfter.parentNode){
-      insertAfter.parentNode.insertBefore(section, insertAfter.nextSibling);
-    } else {
-      document.body.insertBefore(section, document.body.firstChild);
-    }
-  })();
+});
 
+// ===== LANÇAMENTOS =====
+document.addEventListener("DOMContentLoaded", () => {
+    const filmes = [...document.querySelectorAll(".card img, .row img, .carrossel img")];
+    if (filmes.length < 5) return;
 
-  /* ---------- 4) Ensure menu size medium on mobile (extra fallback) ---------- */
-  (function adjustMenuMobile(){
-    var msel = document.querySelectorAll('nav a, .menu a, .navbar a, .plus-menu a');
-    msel.forEach(function(a){ a.style.fontSize='14px'; a.style.fontWeight='600'; a.style.padding='8px 10px'; });
-  })();
+    const ultimos5 = filmes.slice(-5);
 
-  // done
+    const sec = document.createElement("section");
+    sec.innerHTML = `
+        <h2 style="padding-left:10px;">Lançamentos</h2>
+        <div style="display:flex; gap:12px; overflow-x:auto; padding:10px;">
+            ${ultimos5.map(f => `
+                <img src="${f.src}" 
+                     style="width:110px;border-radius:8px;" 
+                     onclick="${f.getAttribute('onclick') || ''}">
+            `).join("")}
+        </div>
+    `;
+
+    const catalogo = document.querySelector("#catalogo") || document.body;
+    catalogo.insertBefore(sec, catalogo.firstChild);
 });
 </script>
 </body>
