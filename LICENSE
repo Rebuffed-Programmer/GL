@@ -1,24 +1,29 @@
-This is free and unencumbered software released into the public domain.
+Copyright (c) 2025 Gabriel Lucas. All Rights Reserved.
 
-Anyone is free to copy, modify, publish, use, compile, sell, or
-distribute this software, either in source code form or as a compiled
-binary, for any purpose, commercial or non-commercial, and by any
-means.
+Este projeto, incluindo todo o seu código-fonte, interface, design,
+layout, scripts internos, funcionalidades, estrutura lógica, arquivos,
+imagens, textos, áudio, vídeo e demais elementos associados, é
+protegido pela Lei de Direitos Autorais (Lei 9.610/98), Convenção de
+Berna, DMCA e demais legislações nacionais e internacionais
+relacionadas à propriedade intelectual.
 
-In jurisdictions that recognize copyright laws, the author or authors
-of this software dedicate any and all copyright interest in the
-software to the public domain. We make this dedication for the benefit
-of the public at large and to the detriment of our heirs and
-successors. We intend this dedication to be an overt act of
-relinquishment in perpetuity of all present and future rights to this
-software under copyright law.
+É estritamente proibido, sem autorização expressa e por escrito do
+titular:
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
+- Copiar, modificar, redistribuir, vender ou sublicenciar qualquer
+  parte deste software.
+- Utilizar este software ou partes dele para fins comerciais.
+- Praticar engenharia reversa, descompilar, desmontar ou tentar
+  extrair seu funcionamento interno.
+- Reutilizar trechos de código, interface, design ou lógica em outros
+  projetos.
+- Publicar, distribuir ou disponibilizar novos builds derivados deste
+  código.
 
-For more information, please refer to <https://unlicense.org>
+O uso não autorizado deste software poderá resultar em medidas
+administrativas, cíveis e criminais, conforme previsto na legislação
+brasileira e internacional de direitos autorais.
+
+Este software é disponibilizado exclusivamente para fins pessoais e
+não comerciais, e não concede ao usuário qualquer licença, direito ou
+autorização além do permitido pelo titular.
