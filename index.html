@@ -3287,5 +3287,51 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    // Função para aplicar o layout correto
+    function applyTVGrid() {
+        const movieGrids = document.querySelectorAll(".movie-grid");
+
+        movieGrids.forEach(grid => {
+            // Remove qualquer estilo antigo
+            grid.style.display = "";
+            grid.style.flexWrap = "";
+            grid.style.overflowX = "";
+            grid.style.gridTemplateColumns = "";
+            grid.style.gap = "";
+
+            // Para cada card, remove estilo antigo
+            grid.querySelectorAll(".movie-item").forEach(item => {
+                item.style.width = "";
+                item.style.minWidth = "";
+                item.style.maxWidth = "";
+                item.style.flex = "";
+            });
+
+            // MOBILE = 2x2
+            if (window.innerWidth <= 800) {
+                grid.style.display = "grid";
+                grid.style.gridTemplateColumns = "repeat(2, 1fr)";
+                grid.style.gap = "15px";
+            }
+
+            // PC / TV = 4x4
+            else {
+                grid.style.display = "grid";
+                grid.style.gridTemplateColumns = "repeat(4, 1fr)";
+                grid.style.gap = "28px";
+            }
+        });
+    }
+
+    // Executa ao carregar
+    applyTVGrid();
+
+    // Executa ao redimensionar (caso teste TV → mobile)
+    window.addEventListener("resize", applyTVGrid);
+});
+</script>
 </body>
 </html>
