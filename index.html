@@ -3395,5 +3395,156 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 </script>
+<!-- LOGIN GOOGLE + PERFIL COMPLETO DA PLUS+ -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<script>
+// =============================
+//      CONFIGURAÇÃO
+// =============================
+const GOOGLE_CLIENT_ID = "467099082704-bbqe4ble2u63mbpgv0mkdars78pigi6i.apps.googleusercontent.com";
+
+// =============================
+//      HTML CRIADO VIA JS
+// =============================
+document.body.insertAdjacentHTML("beforeend", `
+<style>
+/* Área do usuário */
+.user-profile {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 9999;
+  display: none;
+}
+
+.user-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.user-icon:hover {
+  transform: scale(1.07);
+}
+
+/* Menu */
+.user-menu {
+  display: none;
+  position: absolute;
+  top: 45px;
+  right: 0;
+  background: #141414;
+  width: 220px;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #333;
+  z-index: 99999;
+}
+
+.user-menu p {
+  margin: 0;
+  margin-bottom: 10px;
+  font-size: 15px;
+  color: white;
+}
+
+.user-menu button {
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+  border-radius: 6px;
+  background: #1b1b1b;
+  border: 1px solid #444;
+  color: white;
+  cursor: pointer;
+}
+</style>
+
+<div class="user-profile" id="userProfile">
+    <img id="userIcon" class="user-icon" src="">
+    <div id="userMenu" class="user-menu">
+        <p id="userName">Carregando...</p>
+        <button id="kidsBtn">Adicionar Kids</button>
+        <button id="logoutBtn">Sair da Conta</button>
+    </div>
+</div>
+`);
+
+// =============================
+//      LOGIN GOOGLE
+// =============================
+function initGoogle() {
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleResponse
+  });
+
+  // Usuario já logado
+  const saved = localStorage.getItem("glplus_user");
+  if (saved) {
+    applyUser(JSON.parse(saved));
+  }
+}
+
+// Recebe JWT
+function handleGoogleResponse(response) {
+  const payload = JSON.parse(atob(response.credential.split(".")[1]));
+
+  const user = {
+    name: payload.name,
+    email: payload.email,
+    picture: payload.picture
+  };
+
+  localStorage.setItem("glplus_user", JSON.stringify(user));
+  applyUser(user);
+}
+
+// Aplica foto + nome
+function applyUser(user) {
+  const prof = document.getElementById("userProfile");
+  const icon = document.getElementById("userIcon");
+  const name = document.getElementById("userName");
+
+  prof.style.display = "block";
+  icon.src = user.picture;
+  name.textContent = user.name;
+}
+
+// =============================
+//      MENU ABRIR / FECHAR
+// =============================
+document.addEventListener("click", (e) => {
+  const icon = document.getElementById("userIcon");
+  const menu = document.getElementById("userMenu");
+
+  if (icon.contains(e.target)) {
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
+  } 
+  else if (!menu.contains(e.target)) {
+    menu.style.display = "none";
+  }
+});
+
+// =============================
+//      BOTÕES DO MENU
+// =============================
+document.addEventListener("click", (e) => {
+  if (e.target.id === "logoutBtn") {
+    google.accounts.id.disableAutoSelect();
+    localStorage.removeItem("glplus_user");
+    location.reload();
+  }
+
+  if (e.target.id === "kidsBtn") {
+    alert("Modo Kids estará disponível em breve! 🤣");
+  }
+});
+
+window.onload = initGoogle;
+</script>
 </body>
 </html>
