@@ -3364,12 +3364,12 @@ window.onload = () => {
         callback: handleLogin
     });
 
-    // 2. Renderiza o botão invisível sobre o ícone
-    // O Google renderiza o elemento clicável dentro de #hiddenGoogleBtn
-    google.accounts.id.renderButton(hiddenBtn, {
-        theme: "outline",
-        size: "large" 
-    });
+    //google.accounts.id.renderButton(hiddenBtn, {
+    // Tenta usar o tema icon e o tamanho pequeno
+    type: "icon", 
+    size: "small" 
+    // Se "small" não funcionar, tente "medium"
+});
 
     // 3. Se já logado antes
     const saved = localStorage.getItem("glplus_user");
