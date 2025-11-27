@@ -21,63 +21,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 
-
-<style>
-/* Área do usuário */
-.user-profile {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  z-index: 9999;
-  display: none;
-}
-
-.user-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: .2s;
-}
-
-.user-icon:hover {
-  transform: scale(1.07);
-}
-
-/* Menu do usuário */
-.user-menu {
-  display: none;
-  position: absolute;
-  top: 45px;
-  right: 0;
-  background: #141414;
-  width: 220px;
-  padding: 15px;
-  border-radius: 12px;
-  border: 1px solid #333;
-  z-index: 99999;
-}
-
-.user-menu p {
-  margin: 0;
-  margin-bottom: 10px;
-  font-size: 15px;
-  color: white;
-}
-
-.user-menu button {
-  width: 100%;
-  padding: 8px;
-  margin-top: 10px;
-  border-radius: 6px;
-  background: #1b1b1b;
-  border: 1px solid #444;
-  color: white;
-  cursor: pointer;
-}
-</style>
-
-    
     <style>
 
         /* Estilos gerais */
@@ -864,14 +807,6 @@ footer,
     <nav class="navbar">
         <div class="logo">
             <img src="https://i.postimg.cc/fbm60y7Q/logo.png" alt="GL+ Plus" class="logo-img">
-      
-            <div class="user-profile" id="userProfile">
-    <img id="userIcon" class="user-icon" src="">
-    <div id="userMenu" class="user-menu">
-        <p id="userName">Carregando...</p>
-        <button id="kidsBtn">Adicionar Kids</button>
-        <button id="logoutBtn">Sair da Conta</button>
-    </div>
 </div>
         </div>
         <div class="navbar-links">
@@ -3458,78 +3393,7 @@ window.addEventListener("DOMContentLoaded", () => {
         userName.textContent = localStorage.getItem("plus_user_name");
     }
 });
-</script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 
-<script>
-const GOOGLE_CLIENT_ID = "467099082704-bbqe4ble2u63mbpgv0mkdars78pigi6i.apps.googleusercontent.com";
-
-// Inicializar Google Login
-function initGoogle() {
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: handleGoogleResponse
-  });
-
-  // Se já está logado
-  const saved = localStorage.getItem("glplus_user");
-  if (saved) {
-    const data = JSON.parse(saved);
-    applyUser(data);
-  }
-}
-
-// Recebe token JWT do Google
-function handleGoogleResponse(response) {
-  const payload = JSON.parse(atob(response.credential.split(".")[1]));
-
-  const user = {
-    name: payload.name,
-    email: payload.email,
-    picture: payload.picture
-  };
-
-  localStorage.setItem("glplus_user", JSON.stringify(user));
-
-  applyUser(user);
-}
-
-// Atualiza foto e nome
-function applyUser(user) {
-  const userProfile = document.getElementById("userProfile");
-  const userIcon = document.getElementById("userIcon");
-  const userName = document.getElementById("userName");
-
-  userProfile.style.display = "block";
-  userIcon.src = user.picture;
-  userName.textContent = user.name;
-}
-
-// Mostrar / esconder menu
-document.addEventListener("click", (e) => {
-  const icon = document.getElementById("userIcon");
-  const menu = document.getElementById("userMenu");
-
-  if (icon.contains(e.target)) {
-    menu.style.display = menu.style.display === "block" ? "none" : "block";
-  } else if (!menu.contains(e.target)) {
-    menu.style.display = "none";
-  }
-});
-
-// Logout
-document.getElementById("logoutBtn").onclick = () => {
-  google.accounts.id.disableAutoSelect();
-  localStorage.removeItem("glplus_user");
-  location.reload();
-};
-
-// Kids
-document.getElementById("kidsBtn").onclick = () => {
-  alert("Modo Kids em breve 🤣");
-};
-
-window.onload = initGoogle;
 </script>
 </body>
 </html>
