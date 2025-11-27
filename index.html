@@ -3463,7 +3463,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 <script>
 // ==============================
-//  CONFIGURAÇÃO
+//  CONFIG
 // ==============================
 const CLIENT_ID = "467099082704-bbqe4ble2u63mbpgv0mkdars78pigi6i.apps.googleusercontent.com";
 
@@ -3472,40 +3472,45 @@ const googleIcon = document.getElementById("googleLoginIcon");
 const userMenu = document.getElementById("glUserMenu");
 const userName = document.getElementById("glUserName");
 
+// Estado
 let isLogged = false;
 
 // ==============================
-//  BOTÃO INVISÍVEL DO GOOGLE
+//  BOTÃO GOOGLE INVISÍVEL
 // ==============================
 const hiddenBtn = document.createElement("div");
 hiddenBtn.id = "hiddenGoogleBtn";
 hiddenBtn.style.display = "none";
 document.body.appendChild(hiddenBtn);
 
-// Inicializa Google
+// ==============================
+//  INICIALIZAÇÃO GOOGLE
+// ==============================
 window.onload = () => {
     google.accounts.id.initialize({
         client_id: CLIENT_ID,
         callback: handleLogin
     });
 
-    // Renderiza botão GOOGLE invisível
+    // Renderizar botão invisível
     google.accounts.id.renderButton(hiddenBtn, {
         theme: "outline",
         size: "medium"
     });
 
-    // Se já tem login salvo
+    // Se já logado antes
     const saved = localStorage.getItem("glplus_user");
-    if (saved) applyUser(JSON.parse(saved));
+    if (saved) {
+        applyUser(JSON.parse(saved));
+    }
 };
 
 // ==============================
-//  ÍCONE DA NAVBAR CLICADO
+//  CLIQUE NO ÍCONE
 // ==============================
 googleIcon.onclick = () => {
     if (!isLogged) {
-        // CLICA NO BOTÃO INVISÍVEL DO GOOGLE
+        // Força clique no botão invisível
         hiddenBtn.querySelector("div").click();
     } else {
         userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
@@ -3525,11 +3530,12 @@ function handleLogin(res) {
     };
 
     localStorage.setItem("glplus_user", JSON.stringify(user));
+
     applyUser(user);
 }
 
 // ==============================
-//  APLICAR VISUAL DO USUÁRIO
+//  APLICAR USUÁRIO
 // ==============================
 function applyUser(user) {
     isLogged = true;
@@ -3539,7 +3545,7 @@ function applyUser(user) {
 }
 
 // ==============================
-//  FECHAR MENU AO CLICAR FORA
+//  FECHAR MENU FORA
 // ==============================
 document.addEventListener("click", (e) => {
     if (!googleIcon.contains(e.target) && !userMenu.contains(e.target)) {
@@ -3551,9 +3557,9 @@ document.addEventListener("click", (e) => {
 //  LOGOUT
 // ==============================
 document.getElementById("logoutBtn").onclick = () => {
-    localStorage.clear();
-    isLogged = false;
+    localStorage.removeItem("glplus_user");
 
+    isLogged = false;
     googleIcon.src = "https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg";
     userMenu.style.display = "none";
 };
