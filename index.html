@@ -811,6 +811,19 @@ footer,
             <a href="#my-list">Minha Lista</a>
             <a href="#genre-sections-container">Gêneros</a>
         </div>
+        <div class="user-profile" id="userProfile" style="display:none;">
+    <img id="userIcon" class="user-icon" src="">
+    <div id="userMenu" class="user-menu">
+        <p id="userName">Carregando...</p>
+        <button id="kidsBtn">Adicionar Kids</button>
+        <button id="logoutBtn">Sair da Conta</button>
+    </div>
+</div>
+
+<div id="loginGoogleBtn" class="login-google-btn">
+    <img src="https://img.icons8.com/color/48/google-logo.png" class="google-icon">
+    <span>Entrar com Google</span>
+</div>
     </nav>
 
     <header class="hero-banner" style="background-image: url('');" id="home">
@@ -2789,6 +2802,87 @@ const VALID_TOKENS = {
 };
 </script>
 <style>
+    /* Botão de login */
+.login-google-btn {
+    position: absolute;
+    right: 25px;
+    top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.1);
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #fff;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.login-google-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.google-icon {
+    width: 22px;
+    height: 22px;
+}
+
+/* Foto do usuário */
+.user-profile {
+    position: absolute;
+    right: 25px;
+    top: 20px;
+    cursor: pointer;
+}
+
+.user-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+
+/* Menu dropdown */
+.user-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 12px;
+    background: rgba(10, 10, 10, 0.92);
+    backdrop-filter: blur(8px);
+    border-radius: 8px;
+    padding: 12px;
+    width: 180px;
+    text-align: left;
+    z-index: 999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.user-menu p {
+    margin: 0 0 10px 0;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.user-menu button {
+    width: 100%;
+    padding: 6px 0;
+    margin: 4px 0;
+    background: #222;
+    border: none;
+    color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.user-menu button:hover {
+    background: #333;
+}
+
+    
         /* Estilos gerais */
         body {
             background-color: #0d0f10;
@@ -3285,6 +3379,110 @@ document.addEventListener("DOMContentLoaded", () => {
         watchBtn.style.backdropFilter = "blur(4px)";
     }
 
+});
+</script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<script>
+/* ==============================
+      LISTA DE EMAILS AUTORIZADOS
+   ============================== */
+const WHITELIST = [
+    "seuemail1@gmail.com",
+    "clienteplus@gmail.com",
+    "assinantepremium@gmail.com"
+];
+
+/* ==============================
+          ELEMENTOS DOM
+   ============================== */
+const loginBtn = document.getElementById("loginGoogleBtn");
+const profile = document.getElementById("userProfile");
+const userIcon = document.getElementById("userIcon");
+const userMenu = document.getElementById("userMenu");
+const userName = document.getElementById("userName");
+const logoutBtn = document.getElementById("logoutBtn");
+const kidsBtn = document.getElementById("kidsBtn");
+
+/* ==============================
+      INICIALIZAR LOGIN GOOGLE
+   ============================== */
+window.onload = function () {
+    google.accounts.id.initialize({
+        client_id: "SEU_CLIENT_ID_DO_GOOGLE_APIS_AQUI",
+        callback: handleCredentialResponse
+    });
+
+    google.accounts.id.renderButton(loginBtn, {
+        theme: "outline",
+        size: "medium"
+    });
+};
+
+/* ==============================
+     TRATAR RESPOSTA DO LOGIN
+   ============================== */
+function handleCredentialResponse(response) {
+    const data = parseJwt(response.credential);
+
+    const email = data.email;
+    const picture = data.picture;
+    const name = data.name;
+
+    // Verifica whitelist
+    if (!WHITELIST.includes(email)) {
+        alert("Esta conta Google não está autorizada a usar a Plus+.");
+        return;
+    }
+
+    // Mostra interface do usuário
+    loginBtn.style.display = "none";
+    profile.style.display = "block";
+
+    userIcon.src = picture;
+    userName.textContent = name;
+
+    // Salva localmente
+    localStorage.setItem("plus_user_email", email);
+    localStorage.setItem("plus_user_name", name);
+    localStorage.setItem("plus_user_pic", picture);
+}
+
+/* ==============================
+     FUNÇÃO PARA LER O JWT DO GOOGLE
+   ============================== */
+function parseJwt(token) {
+    return JSON.parse(atob(token.split('.')[1]));
+}
+
+/* ==============================
+        DROPDOWN DO PERFIL
+   ============================== */
+profile.addEventListener("click", () => {
+    userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
+});
+
+/* ==============================
+            LOGOUT
+   ============================== */
+logoutBtn.addEventListener("click", () => {
+    localStorage.clear();
+    location.reload();
+});
+
+/* ==============================
+           RECARREGAMENTO
+   ============================== */
+window.addEventListener("DOMContentLoaded", () => {
+    const email = localStorage.getItem("plus_user_email");
+
+    if (email && WHITELIST.includes(email)) {
+        loginBtn.style.display = "none";
+        profile.style.display = "block";
+
+        userIcon.src = localStorage.getItem("plus_user_pic");
+        userName.textContent = localStorage.getItem("plus_user_name");
+    }
 });
 </script>
 </body>
