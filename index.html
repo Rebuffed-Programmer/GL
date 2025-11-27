@@ -841,12 +841,9 @@ footer,
             <img src="https://i.postimg.cc/fbm60y7Q/logo.png" alt="GL+ Plus" class="logo-img">
 </div>
         
-  <nav>
-    <a href="https://www.google.com" target="_blank" title="Pesquisar no Google">
-        <img id="googleLoginIcon" class="google-icon"
-             src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-             alt="Login Google">
-    </a>
+<img id="googleLoginIcon" class="google-icon"
+         src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+         alt="Login Google">
 
     <div id="glUserMenu" class="user-menu" style="display:none;">
         <p id="glUserName">Carregando...</p>
@@ -856,7 +853,6 @@ footer,
 </nav>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-
         
         </div>
         <div class="navbar-links">
@@ -3452,8 +3448,7 @@ window.addEventListener("DOMContentLoaded", () => {
 const CLIENT_ID = "467099082704-bbqe4ble2u63mbpgv0mkdars78pigi6i.apps.googleusercontent.com";
 
 // ELEMENTOS
-// O googleIcon ainda é necessário para atualizar a SRC com a foto do usuário
-const googleIcon = document.getElementById("googleLoginIcon"); 
+const googleIcon = document.getElementById("googleLoginIcon");
 const userMenu = document.getElementById("glUserMenu");
 const userName = document.getElementById("glUserName");
 
@@ -3465,7 +3460,10 @@ let isLogged = false;
 // ==============================
 const hiddenBtn = document.createElement("div");
 hiddenBtn.id = "hiddenGoogleBtn";
-hiddenBtn.style.display = "none";
+// Oculta completamente, mas precisa estar presente no DOM
+hiddenBtn.style.position = "absolute";
+hiddenBtn.style.top = "-9999px"; 
+hiddenBtn.style.left = "-9999px";
 document.body.appendChild(hiddenBtn);
 
 // ==============================
@@ -3490,11 +3488,33 @@ window.onload = () => {
     }
 };
 
-// ** REMOVIDO A FUNÇÃO googleIcon.onclick **
-// ** O link <a> no HTML agora faz a navegação **
+// ==============================
+//  CLIQUE NO ÍCONE (Corrigido para forçar o clique no botão GIS)
+// ==============================
+googleIcon.onclick = () => {
+    if (!isLogged) {
+        // Tenta encontrar o botão interno que o Google renderiza (geralmente uma div ou iframe)
+        // O seletor pode mudar, mas 'div' é um bom ponto de partida.
+        // Se o clique direto em hiddenBtn funcionar, melhor ainda.
+        const gisButton = hiddenBtn.querySelector("div[role='button']");
+        
+        if (gisButton) {
+            // Se encontrar o botão renderizado pelo GIS, força o clique nele
+            gisButton.click();
+        } else {
+            // Alternativa: Forçar o clique no container (menos confiável)
+            hiddenBtn.click();
+            console.error("GIS button not found, trying to click hidden container.");
+        }
+        
+    } else {
+        // Se já está logado, abre/fecha o menu do usuário
+        userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
+    }
+};
 
 // ==============================
-//  LOGIN GOOGLE
+//  LOGIN GOOGLE (O seu código está correto aqui)
 // ==============================
 function handleLogin(res) {
     const payload = JSON.parse(atob(res.credential.split(".")[1]));
@@ -3511,36 +3531,28 @@ function handleLogin(res) {
 }
 
 // ==============================
-//  APLICAR USUÁRIO
+//  APLICAR USUÁRIO (O seu código está correto aqui)
 // ==============================
 function applyUser(user) {
     isLogged = true;
 
     googleIcon.src = user.picture;
     userName.textContent = user.name;
-    
-    // Adicionei um evento de clique para o ícone, que agora é o link,
-    // que vai abrir o menu quando o usuário estiver logado.
-    // É importante fazer isso *aqui* após o login, para não anular o link <a>.
-    googleIcon.parentElement.onclick = (e) => {
-        // Previne a navegação para o Google quando o menu deve ser aberto
-        e.preventDefault(); 
-        userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
-    };
+    // Opcional: Fechar o menu após um login bem-sucedido, caso esteja aberto
+    userMenu.style.display = "none"; 
 }
 
 // ==============================
-//  FECHAR MENU FORA
+//  FECHAR MENU FORA (O seu código está correto aqui)
 // ==============================
 document.addEventListener("click", (e) => {
-    // Agora verifica se o clique foi no elemento pai do ícone (o <a>)
-    if (!googleIcon.parentElement.contains(e.target) && !userMenu.contains(e.target)) {
+    if (!googleIcon.contains(e.target) && !userMenu.contains(e.target)) {
         userMenu.style.display = "none";
     }
 });
 
 // ==============================
-//  LOGOUT
+//  LOGOUT (O seu código está correto aqui)
 // ==============================
 document.getElementById("logoutBtn").onclick = () => {
     localStorage.removeItem("glplus_user");
@@ -3548,9 +3560,6 @@ document.getElementById("logoutBtn").onclick = () => {
     isLogged = false;
     googleIcon.src = "https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg";
     userMenu.style.display = "none";
-    
-    // Remove o evento de clique após o logout para que o link <a> volte a funcionar normalmente.
-    googleIcon.parentElement.onclick = null;
 };
 </script>
 </body>
