@@ -23,26 +23,51 @@
 
     <style>
 
-     #googleIconContainer {
-    /* ... posicionamento ... */
-    width: 38px; /* CRÍTICO */
-    height: 38px; /* CRÍTICO */
-    /* ... */
+        /* Seu CSS para o cabeçalho (Ajustado) */
+.navbar {
+    display: flex; /* Centraliza a logo principal */
+    justify-content: space-between; /* Distribui os itens */
+    align-items: center;
+    padding: 15px 50px;
+    position: relative; /* CRÍTICO: Âncora para o ícone do Google */
+    /* Mantenha seu z-index e sticky/fixed aqui */
 }
 
+.logo-img {
+    /* Garante que a logo principal esteja no centro do flexbox */
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* 1. CONTAINER: Posiciona o ícone do Google no canto direito */
+#googleIconContainer {
+    position: absolute; 
+    right: 15px; 
+    top: 10px;
+    width: 38px; /* Tamanho final desejado */
+    height: 38px; /* Tamanho final desejado */
+    z-index: 1000;
+}
+
+/* 2. BOTÃO INVISÍVEL: Camufla o botão do Google */
 #hiddenGoogleBtn {
-    /* ... posicionamento ... */
-    width: 38px; /* CRÍTICO */
-    height: 38px; /* CRÍTICO */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 38px;
+    height: 38px;
+    z-index: 999999; 
+    opacity: 0;
+    cursor: pointer;
     
-    /* 💡 CRÍTICO: Corta o excesso de texto e elementos do Google */
+    /* 💡 ESSENCIAL PARA CORTAR O EXCESSO VISUAL DO BOTÃO GRANDE */
     overflow: hidden; 
     
-    /* ... outras propriedades ... */
+    pointer-events: auto;
 }
 
-
-
+ 
         
         /* Estilos gerais */
         body {
