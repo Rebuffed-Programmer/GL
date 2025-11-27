@@ -22,60 +22,39 @@
 
 
     <style>
-
-/* Navbar Google Login */
-.google-login-area {
-    position: absolute;
-    right: 20px;
-    top: 15px;
-    display: flex;
-    align-items: center;
-    z-index: 9999;
-}
-
-.google-login-icon {
-    width: 32px;
-    height: 32px;
+.google-icon {
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
-    cursor: pointer;
-    transition: .2s;
-}
-
-.google-login-icon:hover {
-    transform: scale(1.08);
-}
-
-/* Menu do usuário */
-.gl-user-menu {
-    display: none;
     position: absolute;
-    right: 20px;
+    right: 15px;
+    top: 10px;
+    cursor: pointer;
+}
+
+.user-menu {
+    position: absolute;
+    right: 15px;
     top: 60px;
-    background: #141414;
-    padding: 15px;
-    width: 220px;
-    border-radius: 10px;
-    border: 1px solid #333;
-    z-index: 99999;
+    background: #111;
+    padding: 10px;
+    border-radius: 8px;
+    display: none;
+    width: 160px;
+    text-align: center;
 }
 
-.gl-user-menu p {
-    margin: 0 0 10px 0;
-    color: white;
-}
-
-.gl-user-menu button {
+.user-menu button {
     width: 100%;
     padding: 8px;
-    margin-top: 10px;
-    border-radius: 6px;
-    background: #1b1b1b;
-    border: 1px solid #444;
+    background: #222;
     color: white;
-    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    margin-top: 6px;
 }
-        
 
+        
         /* Estilos gerais */
         body {
             background-color: #0d0f10;
