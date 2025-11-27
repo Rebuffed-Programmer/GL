@@ -22,34 +22,57 @@
 
 
     <style>
-/* Seu CSS Existente... */
+//* Seu CSS Existente... */
 .google-icon {
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    /* Removido position, right, top - agora estão no container */
     cursor: pointer;
+    /* REMOVIDAS as propriedades position, top, left */
 }
 
-/* NOVO CSS CRÍTICO PARA O BOTÃO INVISÍVEL */
+/* NOVO CSS CRÍTICO PARA POSICIONAMENTO */
+#googleIconContainer {
+    /* Define o container como relativo para os filhos absolutos */
+    position: relative;
+    width: 38px; 
+    height: 38px;
+    /* Alinha o container na navbar (Funciona com display: flex;) */
+    margin-left: auto; 
+    margin-right: 50px; /* Ajusta o espaçamento do canto direito */
+    flex-shrink: 0; /* Impede que ele encolha */
+    z-index: 1001; /* Fica acima da barra de navegação (z-index: 1000) */
+}
+
+
+/* BOTÃO GOOGLE INVISÍVEL */
 #hiddenGoogleBtn {
-    /* Faz o hiddenBtn preencher a área do seu container */
+    /* Posicionamento ABSOLUTO dentro do #googleIconContainer */
     position: absolute;
     top: 0;
     left: 0;
     width: 38px;
     height: 38px;
     
-    /* Z-index muito alto para garantir que ele esteja em cima */
-    z-index: 9999;
+    /* Z-index MÁXIMO para garantir que ele esteja sempre em cima */
+    z-index: 99999;
     
     /* Torna-o completamente transparente, mas clicável */
     opacity: 0;
+    cursor: pointer;
     
     /* Garante que o conteúdo interno (o iframe do Google) não estoure */
     overflow: hidden; 
 }
 
+/* Ajuste o menu para se posicionar a partir do ícone */
+#glUserMenu {
+    position: absolute;
+    top: 60px; /* Abaixo da navbar */
+    right: 50px; /* Alinhado com a direita do ícone */
+    /* Garanta que o estilo 'user-menu' defina o restante da aparência */
+}
+        
         
         /* Estilos gerais */
         body {
@@ -833,17 +856,22 @@ footer,
 
 <body>
     <nav class="navbar">
-        <div class="logo">
-            <img src="https://i.postimg.cc/fbm60y7Q/logo.png" alt="GL+ Plus" class="logo-img">
-</div>
-        
-<nav>
-    <div style="position: relative; width: 50px; height: 50px; float: right; margin-right: 15px; margin-top: 10px;">
+    <div class="logo">
+        <img src="https://i.postimg.cc/fbm60y7Q/logo.png" alt="GL+ Plus" class="logo-img">
+    </div>
+
+    <div id="googleIconContainer">
         <img id="googleLoginIcon" class="google-icon"
              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-             alt="Login Google" style="position: absolute; top: 0; left: 0;">
+             alt="Login Google">
 
         <div id="hiddenGoogleBtn"></div>
+    </div>
+    
+    <div class="navbar-links">
+        <a href="#home">Início</a>
+        <a href="#my-list">Minha Lista</a>
+        <a href="#genre-sections-container">Gêneros</a>
     </div>
 
     <div id="glUserMenu" class="user-menu" style="display:none;">
@@ -852,19 +880,6 @@ footer,
         <button id="logoutBtn">Sair da Conta</button>
     </div>
 </nav>
-
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-        
-        </div>
-        <div class="navbar-links">
-            <a href="#home">Início</a>
-            <a href="#my-list">Minha Lista</a>
-            <a href="#genre-sections-container">Gêneros</a>
-        </div>
-    </nav>
-
     <header class="hero-banner" style="background-image: url('');" id="home">
         <div class="hero-content">
             <h1 class="title">Carregando...</h1>
