@@ -22,55 +22,36 @@
 
 
     <style>
-//* Seu CSS Existente... */
-.google-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    cursor: pointer;
-    /* REMOVIDAS as propriedades position, top, left */
+/* Seu código CSS para a Navbar */
+.navbar {
+    /* ... outras propriedades como display: flex, height, background, etc. */
+    
+    /* 💡 ESTE É O CRÍTICO: Define a navbar como a âncora para os elementos internos. */
+    position: relative; 
 }
 
-/* NOVO CSS CRÍTICO PARA POSICIONAMENTO */
+/* 1. CONTAINER: Garante o posicionamento no canto direito */
 #googleIconContainer {
-    /* Define o container como relativo para os filhos absolutos */
-    position: relative;
+    position: absolute; /* Agora se posiciona em relação à .navbar */
+    right: 15px; 
+    top: 10px;
     width: 38px; 
     height: 38px;
-    /* Alinha o container na navbar (Funciona com display: flex;) */
-    margin-left: auto; 
-    margin-right: 50px; /* Ajusta o espaçamento do canto direito */
-    flex-shrink: 0; /* Impede que ele encolha */
-    z-index: 1001; /* Fica acima da barra de navegação (z-index: 1000) */
+    z-index: 1000;
 }
 
-
-/* BOTÃO GOOGLE INVISÍVEL */
+/* 2. BOTÃO INVISÍVEL (Mantido para garantir o clique) */
 #hiddenGoogleBtn {
-    /* Posicionamento ABSOLUTO dentro do #googleIconContainer */
     position: absolute;
     top: 0;
     left: 0;
     width: 38px;
     height: 38px;
-    
-    /* Z-index MÁXIMO para garantir que ele esteja sempre em cima */
-    z-index: 99999;
-    
-    /* Torna-o completamente transparente, mas clicável */
+    z-index: 999999; 
     opacity: 0;
     cursor: pointer;
-    
-    /* Garante que o conteúdo interno (o iframe do Google) não estoure */
     overflow: hidden; 
-}
-
-/* Ajuste o menu para se posicionar a partir do ícone */
-#glUserMenu {
-    position: absolute;
-    top: 60px; /* Abaixo da navbar */
-    right: 50px; /* Alinhado com a direita do ícone */
-    /* Garanta que o estilo 'user-menu' defina o restante da aparência */
+    pointer-events: auto;
 }
         
         
@@ -855,16 +836,33 @@ footer,
 
 
 <body>
-    <nav class="navbar">
-        <div class="logo">
-            <img src="https://i.postimg.cc/fbm60y7Q/logo.png" alt="GL+ Plus" class="logo-img">
-        </div>
-        <div class="navbar-links">
-            <a href="#home">Início</a>
-            <a href="#my-list">Minha Lista</a>
-            <a href="#genre-sections-container">Gêneros</a>
-        </div>
-    </nav>
+    <nav class="navbar" style="position: relative;"> 
+    <div class="logo">
+        <img src="https://i.postimg.cc/fbm60y7Q/logo.png" alt="GL+ Plus" class="logo-img">
+    </div>
+
+    <div id="googleIconContainer">
+        <img id="googleLoginIcon" class="google-icon"
+             src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+             alt="Login Google">
+
+        <div id="hiddenGoogleBtn"></div>
+    </div>
+    
+    <div class="navbar-links">
+        <a href="#home">Início</a>
+        <a href="#my-list">Minha Lista</a>
+        <a href="#genre-sections-container">Gêneros</a>
+    </div>
+
+    <div id="glUserMenu" class="user-menu" style="display:none;">
+        <p id="glUserName">Carregando...</p>
+        <button id="kidsBtn">Adicionar Kids</button>
+        <button id="logoutBtn">Sair da Conta</button>
+    </div>
+</nav>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <header class="hero-banner" style="background-image: url('');" id="home">
         <div class="hero-content">
@@ -3347,11 +3345,11 @@ document.addEventListener("DOMContentLoaded", () => {
 // SEU CLIENT ID
 const CLIENT_ID = "467099082704-bbqe4ble2u63mbpgv0mkdars78pigi6i.apps.googleusercontent.com"; 
 
-// ELEMENTOS
+// ELEMENTOS (agora o hiddenBtn é pego do DOM)
 const googleIcon = document.getElementById("googleLoginIcon");
 const userMenu = document.getElementById("glUserMenu");
 const userName = document.getElementById("glUserName");
-const hiddenBtn = document.getElementById("hiddenGoogleBtn"); // Agora existe no HTML
+const hiddenBtn = document.getElementById("hiddenGoogleBtn");
 
 // Estado
 let isLogged = false;
@@ -3367,16 +3365,22 @@ window.onload = () => {
     });
 
     // 2. Renderiza o botão invisível sobre o ícone
-    // O Google renderizará um IFRAME invisível dentro de #hiddenGoogleBtn
+    // O Google renderiza o elemento clicável dentro de #hiddenGoogleBtn
     google.accounts.id.renderButton(hiddenBtn, {
         theme: "outline",
-        size: "large" // 'large' ajuda a cobrir toda a área de 38x38px
+        size: "large" 
     });
 
     // 3. Se já logado antes
     const saved = localStorage.getItem("glplus_user");
     if (saved) {
-        applyUser(JSON.parse(saved));
+        const user = JSON.parse(saved);
+        applyUser(user);
+        
+        // 💡 NOVO: Garante que o onclick do menu seja ativado imediatamente se já estiver logado
+        hiddenBtn.onclick = () => {
+            userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
+        };
     }
 };
 
@@ -3393,6 +3397,7 @@ function handleLogin(res) {
     };
 
     localStorage.setItem("glplus_user", JSON.stringify(user));
+
     applyUser(user);
 }
 
@@ -3406,9 +3411,8 @@ function applyUser(user) {
     userName.textContent = user.name;
     userMenu.style.display = "none";
     
-    // Após o login, o hiddenBtn deve mudar a função para abrir o menu
-    // A lógica 'onclick' é ligada no applyUser porque o hiddenBtn
-    // inicialmente é o destino do clique do Google.
+    // 💡 IMPORTANTE: Após o login, o hiddenBtn DEVE trocar de função:
+    // Agora, em vez de disparar o login, ele abre/fecha o menu.
     hiddenBtn.onclick = () => {
         userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
     };
@@ -3418,15 +3422,15 @@ function applyUser(user) {
 //  FECHAR MENU FORA
 // ==============================
 document.addEventListener("click", (e) => {
-    // Verifica se o clique não foi no botão invisível, no ícone visível ou no menu
-    if (!hiddenBtn.contains(e.target) && !googleIcon.contains(e.target) && !userMenu.contains(e.target)) {
+    // Verifica se o clique não foi no hiddenBtn ou no menu
+    if (!hiddenBtn.contains(e.target) && !userMenu.contains(e.target)) {
         userMenu.style.display = "none";
     }
 });
 
 // ==============================
 //  LOGOUT
-// =============================
+// ==============================
 document.getElementById("logoutBtn").onclick = () => {
     localStorage.removeItem("glplus_user");
 
@@ -3434,16 +3438,11 @@ document.getElementById("logoutBtn").onclick = () => {
     googleIcon.src = "https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg";
     userMenu.style.display = "none";
     
-    // Remove o evento de clique do menu
+    // Após o logout, o evento de clique do menu deve ser removido
     hiddenBtn.onclick = null;
     
-    // O hiddenBtn voltará a ser clicável pelo Google quando a página for recarregada
-    // ou se você chamar google.accounts.id.renderButton(hiddenBtn, ...) novamente.
-    // Como estamos usando window.onload, uma recarga é suficiente.
+    // Na próxima recarga, o hiddenBtn voltará a ser o botão de login do Google.
 };
-
-// ... O restante do seu código JavaScript
-// (funções toggleMyList, renderMovies, etc. devem vir aqui)
 </script>
 </body>
 </html>
