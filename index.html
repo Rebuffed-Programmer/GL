@@ -22,6 +22,24 @@
 
 
     <style>
+#hiddenGoogleBtn {
+    /* Posiciona e dimensiona para cobrir o ícone */
+    position: absolute;
+    right: 15px; 
+    top: 10px;
+    width: 38px;
+    height: 38px;
+    
+    /* Z-index deve ser maior que o ícone */
+    z-index: 10; 
+    
+    /* Torna-o completamente transparente, mas clicável */
+    opacity: 0;
+    
+    /* Importante para que o botão interno do Google fique centralizado e preencha a área */
+    overflow: hidden; 
+}
+        
 .google-icon {
     width: 38px;
     height: 38px;
@@ -3349,50 +3367,50 @@ const userName = document.getElementById("glUserName");
 
 // Estado
 let isLogged = false;
-let gisReady = false; // Novo estado para saber se o Google está pronto
 
 // ==============================
-//  CALLBACK DO SCRIPT DO GOOGLE
+//  BOTÃO GOOGLE INVISÍVEL (RESTAURADO)
 // ==============================
-function onGoogleScriptLoad() {
-    // 1. Inicializa o GIS (Obrigatório)
+const hiddenBtn = document.createElement("div");
+hiddenBtn.id = "hiddenGoogleBtn";
+// Não precisa de 'display: none' ou coordenadas negativas. 
+// O CSS fará o trabalho de sobreposição.
+document.body.appendChild(hiddenBtn);
+
+// ==============================
+//  INICIALIZAÇÃO GOOGLE
+// ==============================
+window.onload = () => {
     google.accounts.id.initialize({
         client_id: CLIENT_ID,
         callback: handleLogin
     });
 
-    // 2. Opcional: Define a preferência do prompt (evita que ele apareça automaticamente)
-    google.accounts.id.disableAutoSelect();
+    // Renderizar botão invisível. Ele ficará sobreposto ao ícone do Google
+    // e capturará o clique para iniciar o login.
+    google.accounts.id.renderButton(hiddenBtn, {
+        theme: "outline",
+        size: "large" // Use 'large' para ter certeza que cobre o ícone de 38px
+    });
 
-    // 3. Marca o GIS como pronto
-    gisReady = true; 
-    console.log("Google Identity Services pronto.");
-
-    // 4. Se já logado antes (mantém seu código de persistência)
+    // Se já logado antes
     const saved = localStorage.getItem("glplus_user");
     if (saved) {
         applyUser(JSON.parse(saved));
     }
-}
-
-// ==============================
-//  CLIQUE NO ÍCONE (Corrigido para verificar o estado 'gisReady')
-// ==============================
-googleIcon.onclick = () => {
-    if (!isLogged) {
-        if (gisReady) {
-            // Se o GIS estiver pronto, chama o prompt.
-            google.accounts.id.prompt(); 
-        } else {
-            console.error("GIS ainda não carregou completamente. Tente novamente.");
-            // Opcional: Avisar o usuário para esperar ou recarregar
-            alert("Aguarde um momento, o sistema de login ainda está carregando...");
-        }
-    } else {
-        // Se já está logado, abre/fecha o menu do usuário
-        userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
+    
+    // 💡 NOVO: Adiciona a lógica do menu ao hiddenBtn quando logado
+    if (isLogged) {
+        // Se já estiver logado, o clique no hiddenBtn deve abrir/fechar o menu
+        hiddenBtn.onclick = () => {
+            userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
+        };
     }
 };
+
+// ==============================
+//  CLIQUE NO ÍCONE (REMOVIDO - O clique será no hiddenBtn transparente)
+// ==============================
 
 // ==============================
 //  LOGIN GOOGLE
@@ -3407,6 +3425,7 @@ function handleLogin(res) {
     };
 
     localStorage.setItem("glplus_user", JSON.stringify(user));
+
     applyUser(user);
 }
 
@@ -3415,16 +3434,22 @@ function handleLogin(res) {
 // ==============================
 function applyUser(user) {
     isLogged = true;
+
     googleIcon.src = user.picture;
     userName.textContent = user.name;
     userMenu.style.display = "none";
+    
+    // 💡 NOVO: Após o login, o hiddenBtn deve mudar a função para abrir o menu
+    hiddenBtn.onclick = () => {
+        userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
+    };
 }
 
 // ==============================
 //  FECHAR MENU FORA
 // ==============================
 document.addEventListener("click", (e) => {
-    if (!googleIcon.contains(e.target) && !userMenu.contains(e.target)) {
+    if (!hiddenBtn.contains(e.target) && !googleIcon.contains(e.target) && !userMenu.contains(e.target)) {
         userMenu.style.display = "none";
     }
 });
@@ -3438,6 +3463,9 @@ document.getElementById("logoutBtn").onclick = () => {
     isLogged = false;
     googleIcon.src = "https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg";
     userMenu.style.display = "none";
+    
+    // 💡 NOVO: Remove o evento de clique do menu do hiddenBtn após o logout
+    hiddenBtn.onclick = null;
 };
 </script>
 </body>
