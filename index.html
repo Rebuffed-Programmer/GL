@@ -3456,29 +3456,12 @@ const userName = document.getElementById("glUserName");
 let isLogged = false;
 
 // ==============================
-//  BOTÃO GOOGLE INVISÍVEL
-// ==============================
-const hiddenBtn = document.createElement("div");
-hiddenBtn.id = "hiddenGoogleBtn";
-// Oculta completamente, mas precisa estar presente no DOM
-hiddenBtn.style.position = "absolute";
-hiddenBtn.style.top = "-9999px"; 
-hiddenBtn.style.left = "-9999px";
-document.body.appendChild(hiddenBtn);
-
-// ==============================
 //  INICIALIZAÇÃO GOOGLE
 // ==============================
 window.onload = () => {
     google.accounts.id.initialize({
         client_id: CLIENT_ID,
-        callback: handleLogin
-    });
-
-    // Renderizar botão invisível
-    google.accounts.id.renderButton(hiddenBtn, {
-        theme: "outline",
-        size: "medium"
+        callback: handleLogin // Função que será chamada após o login
     });
 
     // Se já logado antes
@@ -3489,24 +3472,12 @@ window.onload = () => {
 };
 
 // ==============================
-//  CLIQUE NO ÍCONE (Corrigido para forçar o clique no botão GIS)
+//  CLIQUE NO ÍCONE (Corrigido)
 // ==============================
 googleIcon.onclick = () => {
     if (!isLogged) {
-        // Tenta encontrar o botão interno que o Google renderiza (geralmente uma div ou iframe)
-        // O seletor pode mudar, mas 'div' é um bom ponto de partida.
-        // Se o clique direto em hiddenBtn funcionar, melhor ainda.
-        const gisButton = hiddenBtn.querySelector("div[role='button']");
-        
-        if (gisButton) {
-            // Se encontrar o botão renderizado pelo GIS, força o clique nele
-            gisButton.click();
-        } else {
-            // Alternativa: Forçar o clique no container (menos confiável)
-            hiddenBtn.click();
-            console.error("GIS button not found, trying to click hidden container.");
-        }
-        
+        // 💡 DISPARA O PROMPT/CAIXA DE DIÁLOGO DO GOOGLE DIRETAMENTE
+        google.accounts.id.prompt(); 
     } else {
         // Se já está logado, abre/fecha o menu do usuário
         userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
@@ -3514,7 +3485,7 @@ googleIcon.onclick = () => {
 };
 
 // ==============================
-//  LOGIN GOOGLE (O seu código está correto aqui)
+//  LOGIN GOOGLE
 // ==============================
 function handleLogin(res) {
     const payload = JSON.parse(atob(res.credential.split(".")[1]));
@@ -3531,19 +3502,19 @@ function handleLogin(res) {
 }
 
 // ==============================
-//  APLICAR USUÁRIO (O seu código está correto aqui)
+//  APLICAR USUÁRIO
 // ==============================
 function applyUser(user) {
     isLogged = true;
 
     googleIcon.src = user.picture;
     userName.textContent = user.name;
-    // Opcional: Fechar o menu após um login bem-sucedido, caso esteja aberto
-    userMenu.style.display = "none"; 
+    // Garante que o menu esteja fechado após o login
+    userMenu.style.display = "none";
 }
 
 // ==============================
-//  FECHAR MENU FORA (O seu código está correto aqui)
+//  FECHAR MENU FORA
 // ==============================
 document.addEventListener("click", (e) => {
     if (!googleIcon.contains(e.target) && !userMenu.contains(e.target)) {
@@ -3552,7 +3523,7 @@ document.addEventListener("click", (e) => {
 });
 
 // ==============================
-//  LOGOUT (O seu código está correto aqui)
+//  LOGOUT
 // ==============================
 document.getElementById("logoutBtn").onclick = () => {
     localStorage.removeItem("glplus_user");
