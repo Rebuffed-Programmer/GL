@@ -3358,59 +3358,41 @@ document.addEventListener("DOMContentLoaded", () => {
 // ==============================
 //  CONFIG
 // ==============================
-const CLIENT_ID = "467099082704-bbqe4ble2u63mbpgv0mkdars78pigi6i.apps.googleusercontent.com";
+// SEU CLIENT ID
+const CLIENT_ID = "467099082704-bbqe4ble2u63mbpgv0mkdars78pigi6i.apps.googleusercontent.com"; 
 
 // ELEMENTOS
 const googleIcon = document.getElementById("googleLoginIcon");
 const userMenu = document.getElementById("glUserMenu");
 const userName = document.getElementById("glUserName");
+const hiddenBtn = document.getElementById("hiddenGoogleBtn"); // Agora existe no HTML
 
 // Estado
 let isLogged = false;
 
 // ==============================
-//  BOTÃO GOOGLE INVISÍVEL (RESTAURADO)
-// ==============================
-const hiddenBtn = document.createElement("div");
-hiddenBtn.id = "hiddenGoogleBtn";
-// Não precisa de 'display: none' ou coordenadas negativas. 
-// O CSS fará o trabalho de sobreposição.
-document.body.appendChild(hiddenBtn);
-
-// ==============================
 //  INICIALIZAÇÃO GOOGLE
 // ==============================
 window.onload = () => {
+    // 1. Inicializa o GIS
     google.accounts.id.initialize({
         client_id: CLIENT_ID,
         callback: handleLogin
     });
 
-    // Renderizar botão invisível. Ele ficará sobreposto ao ícone do Google
-    // e capturará o clique para iniciar o login.
+    // 2. Renderiza o botão invisível sobre o ícone
+    // O Google renderizará um IFRAME invisível dentro de #hiddenGoogleBtn
     google.accounts.id.renderButton(hiddenBtn, {
         theme: "outline",
-        size: "large" // Use 'large' para ter certeza que cobre o ícone de 38px
+        size: "large" // 'large' ajuda a cobrir toda a área de 38x38px
     });
 
-    // Se já logado antes
+    // 3. Se já logado antes
     const saved = localStorage.getItem("glplus_user");
     if (saved) {
         applyUser(JSON.parse(saved));
     }
-    
-    // 💡 NOVO: Adiciona a lógica do menu ao hiddenBtn quando logado
-    if (isLogged) {
-        // Se já estiver logado, o clique no hiddenBtn deve abrir/fechar o menu
-        hiddenBtn.onclick = () => {
-            userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
-        };
-    }
 };
-
-// ==============================
-//  CLIQUE NO ÍCONE (REMOVIDO - O clique será no hiddenBtn transparente)
-// ==============================
 
 // ==============================
 //  LOGIN GOOGLE
@@ -3425,7 +3407,6 @@ function handleLogin(res) {
     };
 
     localStorage.setItem("glplus_user", JSON.stringify(user));
-
     applyUser(user);
 }
 
@@ -3439,7 +3420,9 @@ function applyUser(user) {
     userName.textContent = user.name;
     userMenu.style.display = "none";
     
-    // 💡 NOVO: Após o login, o hiddenBtn deve mudar a função para abrir o menu
+    // Após o login, o hiddenBtn deve mudar a função para abrir o menu
+    // A lógica 'onclick' é ligada no applyUser porque o hiddenBtn
+    // inicialmente é o destino do clique do Google.
     hiddenBtn.onclick = () => {
         userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
     };
@@ -3449,6 +3432,7 @@ function applyUser(user) {
 //  FECHAR MENU FORA
 // ==============================
 document.addEventListener("click", (e) => {
+    // Verifica se o clique não foi no botão invisível, no ícone visível ou no menu
     if (!hiddenBtn.contains(e.target) && !googleIcon.contains(e.target) && !userMenu.contains(e.target)) {
         userMenu.style.display = "none";
     }
@@ -3456,7 +3440,7 @@ document.addEventListener("click", (e) => {
 
 // ==============================
 //  LOGOUT
-// ==============================
+// =============================
 document.getElementById("logoutBtn").onclick = () => {
     localStorage.removeItem("glplus_user");
 
@@ -3464,9 +3448,16 @@ document.getElementById("logoutBtn").onclick = () => {
     googleIcon.src = "https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg";
     userMenu.style.display = "none";
     
-    // 💡 NOVO: Remove o evento de clique do menu do hiddenBtn após o logout
+    // Remove o evento de clique do menu
     hiddenBtn.onclick = null;
+    
+    // O hiddenBtn voltará a ser clicável pelo Google quando a página for recarregada
+    // ou se você chamar google.accounts.id.renderButton(hiddenBtn, ...) novamente.
+    // Como estamos usando window.onload, uma recarga é suficiente.
 };
+
+// ... O restante do seu código JavaScript
+// (funções toggleMyList, renderMovies, etc. devem vir aqui)
 </script>
 </body>
 </html>
