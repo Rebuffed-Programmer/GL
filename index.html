@@ -22,47 +22,27 @@
 
 
     <style>
-/* Seu código CSS para a Navbar */
-.navbar {
-    /* ... outras propriedades como display: flex, height, background, etc. */
-    
-    /* 💡 ESTE É O CRÍTICO: Define a navbar como a âncora para os elementos internos. */
-    position: relative; 
+
+     #googleIconContainer {
+    /* ... posicionamento ... */
+    width: 38px; /* CRÍTICO */
+    height: 38px; /* CRÍTICO */
+    /* ... */
 }
 
-/* 1. CONTAINER: Garante o posicionamento no canto direito */
-#googleIconContainer {
-    position: absolute; /* Agora se posiciona em relação à .navbar */
-    right: 15px; 
-    top: 10px;
-    width: 38px; 
-    height: 38px;
-    z-index: 1000;
-}
-
-/* 2. BOTÃO INVISÍVEL (Mantido para garantir o clique) */
 #hiddenGoogleBtn {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 38px;
-    height: 38px;
-    z-index: 999999; 
-    opacity: 0;
-    cursor: pointer;
+    /* ... posicionamento ... */
+    width: 38px; /* CRÍTICO */
+    height: 38px; /* CRÍTICO */
+    
+    /* 💡 CRÍTICO: Corta o excesso de texto e elementos do Google */
     overflow: hidden; 
-    pointer-events: auto;
+    
+    /* ... outras propriedades ... */
 }
-    #hiddenGoogleBtn {
-    /* ... outras propriedades ... */
-    width: 38px;
-    height: 38px;
-    
-    /* 💡 ESSENCIAL para esconder o texto/link excedente do Google */
-    overflow: hidden; 
-    
-    /* ... outras propriedades ... */
-}    
+
+
+
         
         /* Estilos gerais */
         body {
