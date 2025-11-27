@@ -3462,65 +3462,109 @@ window.addEventListener("DOMContentLoaded", () => {
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <script>
+// ----------------------------------------------
 // CONFIG
+// ----------------------------------------------
 const GOOGLE_CLIENT_ID = "467099082704-bbqe4ble2u63mbpgv0mkdars78pigi6i.apps.googleusercontent.com";
 
-// Iniciar Google Login
+// ----------------------------------------------
+// ELEMENTOS
+// ----------------------------------------------
+const googleIcon = document.getElementById("googleLoginIcon");
+const userMenu = document.getElementById("glUserMenu");
+const userName = document.getElementById("glUserName");
+
+// ----------------------------------------------
+// ESTADO INICIAL (sem login)
+// ----------------------------------------------
+let isLogged = false;
+
+// Ícone inicial (logo do Google)
+googleIcon.src = "https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg";
+
+// ----------------------------------------------
+// INICIALIZA GOOGLE LOGIN
+// ----------------------------------------------
 function initGoogle() {
-    google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleGoogleResponse
-    });
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleResponse,
+    auto_select: false
+  });
 
-    // Carregar se já estiver logado
-    const saved = localStorage.getItem("glplus_user");
-    if (saved) applyUser(JSON.parse(saved));
-}
-
-// Recebe token do Google
-function handleGoogleResponse(response) {
-    const payload = JSON.parse(atob(response.credential.split(".")[1]));
-
-    const user = {
-        name: payload.name,
-        email: payload.email,
-        picture: payload.picture
-    };
-
-    localStorage.setItem("glplus_user", JSON.stringify(user));
+  // Carrega se já tem login salvo
+  const saved = localStorage.getItem("glplus_user");
+  if (saved) {
+    const user = JSON.parse(saved);
     applyUser(user);
+  }
 }
 
-// Aplica dados na navbar
-function applyUser(user) {
-    const icon = document.getElementById("googleLoginIcon");
-    const name = document.getElementById("glUserName");
-
-    icon.src = user.picture;
-    name.textContent = user.name;
-}
-
-// Abrir / Fechar Menu
-document.addEventListener("click", (e) => {
-    const icon = document.getElementById("googleLoginIcon");
-    const menu = document.getElementById("glUserMenu");
-
-    if (icon.contains(e.target)) {
-        menu.style.display = menu.style.display === "block" ? "none" : "block";
-    } else if (!menu.contains(e.target)) {
-        menu.style.display = "none";
-    }
+// ----------------------------------------------
+// QUANDO CLICA NO ÍCONE → LOGIN OU MENU
+// ----------------------------------------------
+googleIcon.addEventListener("click", () => {
+  if (!isLogged) {
+    // ABRIR LOGIN GOOGLE
+    google.accounts.id.prompt();
+  } else {
+    // ABRIR MENU
+    userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
+  }
 });
 
-// Botões
+// FECHAR MENU AO CLICAR FORA
+document.addEventListener("click", (e) => {
+  if (!googleIcon.contains(e.target) && !userMenu.contains(e.target)) {
+    userMenu.style.display = "none";
+  }
+});
+
+// ----------------------------------------------
+// RESPOSTA DO LOGIN GOOGLE
+// ----------------------------------------------
+function handleGoogleResponse(response) {
+  const payload = JSON.parse(atob(response.credential.split(".")[1]));
+
+  const user = {
+    name: payload.name,
+    email: payload.email,
+    picture: payload.picture
+  };
+
+  localStorage.setItem("glplus_user", JSON.stringify(user));
+
+  applyUser(user);
+}
+
+// ----------------------------------------------
+// APLICAR LOGIN NO UI (troca foto, ativa menu)
+// ----------------------------------------------
+function applyUser(user) {
+  isLogged = true;
+
+  googleIcon.src = user.picture;   // Troca para a foto do Google
+  userName.textContent = user.name;
+}
+
+// ----------------------------------------------
+// DESLOGAR
+// ----------------------------------------------
 document.getElementById("logoutBtn").onclick = () => {
-    google.accounts.id.disableAutoSelect();
-    localStorage.removeItem("glplus_user");
-    location.reload();
+  google.accounts.id.disableAutoSelect();
+  localStorage.removeItem("glplus_user");
+  isLogged = false;
+
+  // volta ícone do Google
+  googleIcon.src = "https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg";
+
+  // fecha menu
+  userMenu.style.display = "none";
 };
 
+// MODO KIDS
 document.getElementById("kidsBtn").onclick = () => {
-    alert("Kids em breve 🤣");
+  alert("Modo Kids em breve 🤣");
 };
 
 window.onload = initGoogle;
