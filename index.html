@@ -62,6 +62,7 @@
   margin: 0;
   margin-bottom: 10px;
   font-size: 15px;
+  color: white;
 }
 
 .user-menu button {
@@ -75,12 +76,6 @@
   cursor: pointer;
 }
 </style>
-
-<script>
-function toggleMenu() {
-  document.querySelector("#profile-menu").classList.toggle("show");
-}
-</script>
 
     
     <style>
@@ -3484,7 +3479,7 @@ function initGoogle() {
   }
 }
 
-// Recebe o token do Google
+// Recebe token JWT do Google
 function handleGoogleResponse(response) {
   const payload = JSON.parse(atob(response.credential.split(".")[1]));
 
@@ -3505,17 +3500,12 @@ function applyUser(user) {
   const userIcon = document.getElementById("userIcon");
   const userName = document.getElementById("userName");
 
-  // mostrar área do perfil
   userProfile.style.display = "block";
-
-  // colocar foto
   userIcon.src = user.picture;
-
-  // colocar nome
   userName.textContent = user.name;
 }
 
-// Menu abrir/fechar
+// Mostrar / esconder menu
 document.addEventListener("click", (e) => {
   const icon = document.getElementById("userIcon");
   const menu = document.getElementById("userMenu");
@@ -3527,15 +3517,16 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// Botões
+// Logout
 document.getElementById("logoutBtn").onclick = () => {
   google.accounts.id.disableAutoSelect();
   localStorage.removeItem("glplus_user");
   location.reload();
 };
 
+// Kids
 document.getElementById("kidsBtn").onclick = () => {
-  alert("Modo Kids ainda não implementado 🤣");
+  alert("Modo Kids em breve 🤣");
 };
 
 window.onload = initGoogle;
