@@ -23,6 +23,59 @@
 
     <style>
 
+/* Navbar Google Login */
+.google-login-area {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    display: flex;
+    align-items: center;
+    z-index: 9999;
+}
+
+.google-login-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.google-login-icon:hover {
+    transform: scale(1.08);
+}
+
+/* Menu do usuário */
+.gl-user-menu {
+    display: none;
+    position: absolute;
+    right: 20px;
+    top: 60px;
+    background: #141414;
+    padding: 15px;
+    width: 220px;
+    border-radius: 10px;
+    border: 1px solid #333;
+    z-index: 99999;
+}
+
+.gl-user-menu p {
+    margin: 0 0 10px 0;
+    color: white;
+}
+
+.gl-user-menu button {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+    border-radius: 6px;
+    background: #1b1b1b;
+    border: 1px solid #444;
+    color: white;
+    cursor: pointer;
+}
+        
+
         /* Estilos gerais */
         body {
             background-color: #0d0f10;
@@ -813,6 +866,11 @@ footer,
             <img id="googleLoginIcon" class="google-login-icon"
                 src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg">
         </div>
+        <div id="glUserMenu" class="gl-user-menu">
+    <p id="glUserName">Carregando...</p>
+    <button id="kidsBtn">Adicionar Kids</button>
+    <button id="logoutBtn">Sair da Conta</button>
+</div>
         
         </div>
         <div class="navbar-links">
@@ -3401,123 +3459,70 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 </script>
-<!-- LOGIN GOOGLE + PERFIL COMPLETO DA PLUS+ -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <script>
-// =============================
-// CONFIGURAÇÃO
-// =============================
+// CONFIG
 const GOOGLE_CLIENT_ID = "467099082704-bbqe4ble2u63mbpgv0mkdars78pigi6i.apps.googleusercontent.com";
 
-// =============================
-// INJETAR HTML NO HEADER
-// =============================
-document.addEventListener("DOMContentLoaded", () => {
-  // Adiciona o ícone do Google no canto direito
-  const header = document.querySelector("header") || document.body;
-
-  header.insertAdjacentHTML("beforeend", `
-    <div id="gl-login-area" style="
-      position:absolute;
-      top:15px;
-      right:15px;
-      z-index:9999;
-    ">
-        <img id="googleLoginIcon"
-             src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-             style="width:34px;height:34px;border-radius:50%;cursor:pointer;">
-    </div>
-
-    <div id="gl-user-menu" style="
-      display:none;
-      position:absolute;
-      right:15px;
-      top:60px;
-      background:#141414;
-      padding:15px;
-      width:220px;
-      border-radius:10px;
-      border:1px solid #333;
-      z-index:9999;
-    ">
-        <p id="gl-user-name" style="color:white;margin:0 0 10px 0;">Carregando...</p>
-        <button id="kidsBtn" style="width:100%;margin-top:10px;padding:8px;border-radius:6px;background:#1b1b1b;border:1px solid #444;color:white;cursor:pointer;">Adicionar Kids</button>
-        <button id="logoutBtn" style="width:100%;margin-top:10px;padding:8px;border-radius:6px;background:#1b1b1b;border:1px solid #444;color:white;cursor:pointer;">Sair da Conta</button>
-    </div>
-  `);
-});
-
-// =============================
-// GOOGLE LOGIN
-// =============================
+// Iniciar Google Login
 function initGoogle() {
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: handleGoogleResponse
-  });
+    google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleResponse
+    });
 
-  // Já logado
-  const saved = localStorage.getItem("glplus_user");
-  if (saved) applyUser(JSON.parse(saved));
+    // Carregar se já estiver logado
+    const saved = localStorage.getItem("glplus_user");
+    if (saved) applyUser(JSON.parse(saved));
 }
 
-// Recebe o JWT
+// Recebe token do Google
 function handleGoogleResponse(response) {
-  const payload = JSON.parse(atob(response.credential.split(".")[1]));
+    const payload = JSON.parse(atob(response.credential.split(".")[1]));
 
-  const user = {
-    name: payload.name,
-    email: payload.email,
-    picture: payload.picture
-  };
+    const user = {
+        name: payload.name,
+        email: payload.email,
+        picture: payload.picture
+    };
 
-  localStorage.setItem("glplus_user", JSON.stringify(user));
-
-  applyUser(user);
+    localStorage.setItem("glplus_user", JSON.stringify(user));
+    applyUser(user);
 }
 
-// =============================
-// UI DO USUÁRIO
-// =============================
+// Aplica dados na navbar
 function applyUser(user) {
-  const icon = document.getElementById("googleLoginIcon");
-  const name = document.getElementById("gl-user-name");
+    const icon = document.getElementById("googleLoginIcon");
+    const name = document.getElementById("glUserName");
 
-  icon.src = user.picture;
-  name.textContent = user.name;
+    icon.src = user.picture;
+    name.textContent = user.name;
 }
 
-// =============================
-// MENU ABRIR / FECHAR
-// =============================
+// Abrir / Fechar Menu
 document.addEventListener("click", (e) => {
-  const icon = document.getElementById("googleLoginIcon");
-  const menu = document.getElementById("gl-user-menu");
+    const icon = document.getElementById("googleLoginIcon");
+    const menu = document.getElementById("glUserMenu");
 
-  if (icon && icon.contains(e.target)) {
-    menu.style.display = (menu.style.display === "block" ? "none" : "block");
-  } else if (menu && !menu.contains(e.target)) {
-    menu.style.display = "none";
-  }
+    if (icon.contains(e.target)) {
+        menu.style.display = menu.style.display === "block" ? "none" : "block";
+    } else if (!menu.contains(e.target)) {
+        menu.style.display = "none";
+    }
 });
 
-// =============================
-// BOTÕES
-// =============================
-document.addEventListener("click", (e) => {
-  if (e.target.id === "logoutBtn") {
+// Botões
+document.getElementById("logoutBtn").onclick = () => {
     google.accounts.id.disableAutoSelect();
     localStorage.removeItem("glplus_user");
     location.reload();
-  }
+};
 
-  if (e.target.id === "kidsBtn") {
-    alert("Modo Kids em breve 🤣");
-  }
-});
+document.getElementById("kidsBtn").onclick = () => {
+    alert("Kids em breve 🤣");
+};
 
-// =============================
 window.onload = initGoogle;
 </script>
 </body>
