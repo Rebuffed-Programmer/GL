@@ -861,16 +861,25 @@ footer,
         <div class="logo">
             <img src="https://i.postimg.cc/fbm60y7Q/logo.png" alt="GL+ Plus" class="logo-img">
 </div>
+        
                 <!-- ÁREA DO GOOGLE LOGIN -->
-        <div class="google-login-area">
-            <img id="googleLoginIcon" class="google-login-icon"
-                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg">
-        </div>
-        <div id="glUserMenu" class="gl-user-menu">
-    <p id="glUserName">Carregando...</p>
-    <button id="kidsBtn">Adicionar Kids</button>
-    <button id="logoutBtn">Sair da Conta</button>
-</div>
+        <nav class="navbar">
+    <div class="logo">
+        <img src="https://i.postimg.cc/fbm60y7Q/logo.png" alt="GL+ Plus" class="logo-img">
+    </div>
+
+    <!-- Ícone do Google para login -->
+    <img id="googleLoginIcon" class="google-icon"
+         src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+         alt="Login Google">
+
+    <!-- Menu do usuário (aparece só depois do login) -->
+    <div id="glUserMenu" class="user-menu" style="display:none;">
+        <p id="glUserName">Carregando...</p>
+        <button id="kidsBtn">Adicionar Kids</button>
+        <button id="logoutBtn">Sair da Conta</button>
+    </div>
+</nav>
         
         </div>
         <div class="navbar-links">
