@@ -3336,111 +3336,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 </script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-
-<script>
-/* ==============================
-      LISTA DE EMAILS AUTORIZADOS
-   ============================== */
-const WHITELIST = [
-    "seuemail1@gmail.com",
-    "clienteplus@gmail.com",
-    "assinantepremium@gmail.com"
-];
-
-/* ==============================
-          ELEMENTOS DOM
-   ============================== */
-const loginBtn = document.getElementById("loginGoogleBtn");
-const profile = document.getElementById("userProfile");
-const userIcon = document.getElementById("userIcon");
-const userMenu = document.getElementById("userMenu");
-const userName = document.getElementById("userName");
-const logoutBtn = document.getElementById("logoutBtn");
-const kidsBtn = document.getElementById("kidsBtn");
-
-/* ==============================
-      INICIALIZAR LOGIN GOOGLE
-   ============================== */
-window.onload = function () {
-    google.accounts.id.initialize({
-        client_id: "SEU_CLIENT_ID_DO_GOOGLE_APIS_AQUI",
-        callback: handleCredentialResponse
-    });
-
-    google.accounts.id.renderButton(loginBtn, {
-        theme: "outline",
-        size: "medium"
-    });
-};
-
-/* ==============================
-     TRATAR RESPOSTA DO LOGIN
-   ============================== */
-function handleCredentialResponse(response) {
-    const data = parseJwt(response.credential);
-
-    const email = data.email;
-    const picture = data.picture;
-    const name = data.name;
-
-    // Verifica whitelist
-    if (!WHITELIST.includes(email)) {
-        alert("Esta conta Google não está autorizada a usar a Plus+.");
-        return;
-    }
-
-    // Mostra interface do usuário
-    loginBtn.style.display = "none";
-    profile.style.display = "block";
-
-    userIcon.src = picture;
-    userName.textContent = name;
-
-    // Salva localmente
-    localStorage.setItem("plus_user_email", email);
-    localStorage.setItem("plus_user_name", name);
-    localStorage.setItem("plus_user_pic", picture);
-}
-
-/* ==============================
-     FUNÇÃO PARA LER O JWT DO GOOGLE
-   ============================== */
-function parseJwt(token) {
-    return JSON.parse(atob(token.split('.')[1]));
-}
-
-/* ==============================
-        DROPDOWN DO PERFIL
-   ============================== */
-profile.addEventListener("click", () => {
-    userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
-});
-
-/* ==============================
-            LOGOUT
-   ============================== */
-logoutBtn.addEventListener("click", () => {
-    localStorage.clear();
-    location.reload();
-});
-
-/* ==============================
-           RECARREGAMENTO
-   ============================== */
-window.addEventListener("DOMContentLoaded", () => {
-    const email = localStorage.getItem("plus_user_email");
-
-    if (email && WHITELIST.includes(email)) {
-        loginBtn.style.display = "none";
-        profile.style.display = "block";
-
-        userIcon.src = localStorage.getItem("plus_user_pic");
-        userName.textContent = localStorage.getItem("plus_user_name");
-    }
-});
-
-</script>
 <script>
 // ==============================
 //  CONFIG
@@ -3454,30 +3349,45 @@ const userName = document.getElementById("glUserName");
 
 // Estado
 let isLogged = false;
+let gisReady = false; // Novo estado para saber se o Google está pronto
 
 // ==============================
-//  INICIALIZAÇÃO GOOGLE
+//  CALLBACK DO SCRIPT DO GOOGLE
 // ==============================
-window.onload = () => {
+function onGoogleScriptLoad() {
+    // 1. Inicializa o GIS (Obrigatório)
     google.accounts.id.initialize({
         client_id: CLIENT_ID,
-        callback: handleLogin // Função que será chamada após o login
+        callback: handleLogin
     });
 
-    // Se já logado antes
+    // 2. Opcional: Define a preferência do prompt (evita que ele apareça automaticamente)
+    google.accounts.id.disableAutoSelect();
+
+    // 3. Marca o GIS como pronto
+    gisReady = true; 
+    console.log("Google Identity Services pronto.");
+
+    // 4. Se já logado antes (mantém seu código de persistência)
     const saved = localStorage.getItem("glplus_user");
     if (saved) {
         applyUser(JSON.parse(saved));
     }
-};
+}
 
 // ==============================
-//  CLIQUE NO ÍCONE (Corrigido)
+//  CLIQUE NO ÍCONE (Corrigido para verificar o estado 'gisReady')
 // ==============================
 googleIcon.onclick = () => {
     if (!isLogged) {
-        // 💡 DISPARA O PROMPT/CAIXA DE DIÁLOGO DO GOOGLE DIRETAMENTE
-        google.accounts.id.prompt(); 
+        if (gisReady) {
+            // Se o GIS estiver pronto, chama o prompt.
+            google.accounts.id.prompt(); 
+        } else {
+            console.error("GIS ainda não carregou completamente. Tente novamente.");
+            // Opcional: Avisar o usuário para esperar ou recarregar
+            alert("Aguarde um momento, o sistema de login ainda está carregando...");
+        }
     } else {
         // Se já está logado, abre/fecha o menu do usuário
         userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
@@ -3497,7 +3407,6 @@ function handleLogin(res) {
     };
 
     localStorage.setItem("glplus_user", JSON.stringify(user));
-
     applyUser(user);
 }
 
@@ -3506,10 +3415,8 @@ function handleLogin(res) {
 // ==============================
 function applyUser(user) {
     isLogged = true;
-
     googleIcon.src = user.picture;
     userName.textContent = user.name;
-    // Garante que o menu esteja fechado após o login
     userMenu.style.display = "none";
 }
 
