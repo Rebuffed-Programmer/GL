@@ -67,6 +67,22 @@
     z-index: 999; 
     cursor: pointer;
 }
+        /* 💡 NOVO ESTILO: Garante que o nome do usuário fique grudado à foto */
+#glUserName {
+    margin: 0;
+    padding: 0; 
+    line-height: 1.2; 
+    font-size: 14px;
+    color: #fff;
+    margin-bottom: 8px; /* Pequena margem para separar dos botões */
+}
+
+/* 💡 ESSENCIAL: Garante que o menu esteja escondido por padrão no carregamento */
+.user-menu {
+    /* ... outros estilos ... */
+    display: none; 
+    /* ... outros estilos ... */
+}
         
         /* Estilos gerais */
         body {
@@ -3359,54 +3375,58 @@ document.addEventListener("DOMContentLoaded", () => {
 // ==============================
 //  CONFIG
 // ==============================
-// SEU CLIENT ID
 const CLIENT_ID = "467099082704-bbqe4ble2u63mbpgv0mkdars78pigi6i.apps.googleusercontent.com"; 
 
-// ELEMENTOS (agora o hiddenBtn é pego do DOM)
+// 💡 AVATARES ROTATIVOS
+const AVATAR_ICONS = [
+    "https://i.postimg.cc/MKkcbPXP/Plus-avatar-icon.jpg",
+    "https://i.postimg.cc/mrQ0R1LV/Plus-Avatar-icon.jpg", // Ícone que estava no seu logout
+    // Adicione outros avatares aqui se desejar mais rotação
+];
+
+// ELEMENTOS
 const googleIcon = document.getElementById("googleLoginIcon");
 const userMenu = document.getElementById("glUserMenu");
 const userName = document.getElementById("glUserName");
 const hiddenBtn = document.getElementById("hiddenGoogleBtn");
 
-// Estado
 let isLogged = false;
+let defaultAvatarUrl = AVATAR_ICONS[0]; // Variável para guardar o URL randômico escolhido
 
 // ==============================
-//  INICIALIZAÇÃO GOOGLE
+//  FUNÇÕES DE UTILIDADE
 // ==============================
-window.onload = () => {
-    // 1. Inicializa o GIS
-    google.accounts.id.initialize({
-        client_id: CLIENT_ID,
-        callback: handleLogin
-    });
+function getRandomAvatar() {
+    const randomIndex = Math.floor(Math.random() * AVATAR_ICONS.length);
+    return AVATAR_ICONS[randomIndex];
+}
 
-    // 2. Renderiza o botão invisível sobre o ícone
-    // O Google renderiza o elemento clicável dentro de #hiddenGoogleBtn
-    google.accounts.id.renderButton(hiddenBtn, {
-        theme: "outline",
-        size: "large" 
-    });
+// ==============================
+//  APLICAR USUÁRIO (Logado)
+// ==============================
+function applyUser(user) {
+    isLogged = true;
 
-    // 3. Se já logado antes
-    const saved = localStorage.getItem("glplus_user");
-    if (saved) {
-        const user = JSON.parse(saved);
-        applyUser(user);
-        
-        // 💡 NOVO: Garante que o onclick do menu seja ativado imediatamente se já estiver logado
-        hiddenBtn.onclick = () => {
-            userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
-        };
-    }
-};
+    googleIcon.src = user.picture;
+    userName.textContent = user.name;
+    
+    // REMOVIDO: userMenu.style.display = "none";
+    // 💡 IMPORTANTE: Mostra o menu APENAS NA PRIMEIRA VEZ após login/carregamento,
+    // eliminando a necessidade de cliques repetidos.
+    userMenu.style.display = "block"; 
+    
+    // Configura o clique no ícone para fechar/abrir o menu
+    hiddenBtn.onclick = () => {
+        userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
+    };
+}
 
 // ==============================
 //  LOGIN GOOGLE
 // ==============================
 function handleLogin(res) {
     const payload = JSON.parse(atob(res.credential.split(".")[1]));
-
+    
     const user = {
         name: payload.name,
         email: payload.email,
@@ -3414,29 +3434,45 @@ function handleLogin(res) {
     };
 
     localStorage.setItem("glplus_user", JSON.stringify(user));
-
+    
+    // Chamando applyUser, que agora MOSTRA o menu imediatamente.
     applyUser(user);
 }
 
 // ==============================
-//  APLICAR USUÁRIO
+//  INICIALIZAÇÃO GERAL (window.onload)
 // ==============================
-function applyUser(user) {
-    isLogged = true;
+window.onload = () => {
+    // 1. ESCOLHE O AVATAR PADRÃO E APLICA
+    defaultAvatarUrl = getRandomAvatar();
+    googleIcon.src = defaultAvatarUrl;
 
-    googleIcon.src = user.picture;
-    userName.textContent = user.name;
-    userMenu.style.display = "none";
-    
-    // 💡 IMPORTANTE: Após o login, o hiddenBtn DEVE trocar de função:
-    // Agora, em vez de disparar o login, ele abre/fecha o menu.
-    hiddenBtn.onclick = () => {
-        userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
-    };
-}
+    // 2. Inicializa o GIS
+    google.accounts.id.initialize({
+        client_id: CLIENT_ID,
+        callback: handleLogin
+    });
+
+    // 3. Renderiza o botão invisível
+    google.accounts.id.renderButton(hiddenBtn, {
+        theme: "outline",
+        size: "large" 
+    });
+
+    // 4. Se já logado antes (sobrescreve o avatar randômico)
+    const saved = localStorage.getItem("glplus_user");
+    if (saved) {
+        const user = JSON.parse(saved);
+        
+        // 💡 AO CARREGAR: NÃO abre o menu automaticamente, mas aplica o estado
+        // e configura o clique para abrir.
+        applyUser(user);
+        userMenu.style.display = "none"; // Garante que o menu esteja fechado ao carregar
+    }
+};
 
 // ==============================
-//  FECHAR MENU FORA
+//  FECHAR MENU FORA (Permanece o mesmo, mas verifique o nome da variável!)
 // ==============================
 document.addEventListener("click", (e) => {
     // Verifica se o clique não foi no hiddenBtn ou no menu
@@ -3452,13 +3488,15 @@ document.getElementById("logoutBtn").onclick = () => {
     localStorage.removeItem("glplus_user");
 
     isLogged = false;
-    googleIcon.src = "https://i.postimg.cc/mrQ0R1LV/Plus-Avatar-icon.jpg";
-    userMenu.style.display = "none";
     
-    // Após o logout, o evento de clique do menu deve ser removido
+    // 💡 Garante que o menu DESAPAREÇA DE VEZ no logout
+    userMenu.style.display = "none"; 
+
+    // Restaura o ícone randômico (o que foi sorteado no início da sessão)
+    googleIcon.src = defaultAvatarUrl; 
+    
+    // O evento de clique é restaurado para a função padrão do Google GIS (clique no hiddenBtn)
     hiddenBtn.onclick = null;
-    
-    // Na próxima recarga, o hiddenBtn voltará a ser o botão de login do Google.
 };
 </script>
 </body>
