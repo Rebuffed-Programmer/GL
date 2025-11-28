@@ -2892,33 +2892,36 @@ const VALID_TOKENS = {
             color: #fff;
         }
 
-        /* Banner principal */
-        .hero-banner {
-            position: relative;
-            height: 500px;
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            align-items: flex-end;
-            padding: 50px;
-            transition: background-image 1s ease;
-        }
+/* Banner principal */
+.hero-banner {
+    position: relative;
+    height: 500px;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: flex-end;
+    padding: 50px;
+    transition: background-image 1s ease;
 
-        .hero-banner::before {
-            content: '';
-            position: absolute;
-            top:  0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to top, #0d0f10, rgba(13, 15, 16, 0.5) 50%, rgba(13, 15, 16, 0.1) 100%);
-        }
+    /* 💡 CORREÇÃO: Aplica a margem correta para limpar o menu sticky de 71px */
+    margin-top: 71px; 
+}
 
-        .hero-content {
-            z-index: 0;
-            max-width: 600px;
-            transition: opacity 0.5s ease;
-        }
+.hero-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, #0d0f10, rgba(13, 15, 16, 0.5) 50%, rgba(13, 15, 16, 0.1) 100%);
+}
+
+.hero-content {
+    z-index: 10;
+    max-width: 600px;
+    transition: opacity 0.5s ease;
+}
 
         .hero-content .title {
             font-size: 4em;
@@ -3178,7 +3181,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (banner) {
         banner.style.width = "90%";
         banner.style.aspectRatio = "16/9";
-        banner.style.borderRadius = "0px";
+        banner.style.borderRadius = "10px";
         banner.style.overflow = "hidden";
         banner.style.position = "relative";
         banner.style.backgroundSize = "cover";
