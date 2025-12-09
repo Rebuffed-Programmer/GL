@@ -3507,7 +3507,7 @@ const ENDPOINT_MP = "/mp/checkout?item_id=";
 
 
 // ==========================================================
-//  LISTAS — VOCÊ PREENCHERÁ AQUI
+// LISTAS DE FILMES — AQUI VOCÊ ADICIONA NORMAL
 // ==========================================================
 
 // 💰 A PARTIR DE 8,99
@@ -3565,11 +3565,13 @@ function createBuyCard(item){
         </div>
     `;
 
+    // abre modal ao clicar no card
     li.addEventListener("click", e=>{
         if(e.target.classList.contains("btn-buy")) return;
-        openBuyModal(item);
+        openPurchaseModal(item);
     });
 
+    // botão comprar direto
     li.querySelector(".btn-buy").addEventListener("click", e=>{
         e.preventDefault();
         e.stopPropagation();
@@ -3581,34 +3583,42 @@ function createBuyCard(item){
 
 
 // ==========================================================
-//  MODAL ORIGINAL (AGORA VERSÃO COMPRA)
+// MODAL EXCLUSIVO DE COMPRA
 // ==========================================================
-function openBuyModal(item){
+function openPurchaseModal(item){
 
-    const modal = document.getElementById("movie-modal");
+    document.getElementById("buyPoster").src = item.poster;
+    document.getElementById("buyTitle").textContent = item.title;
+    document.getElementById("buyYear").textContent = item.year;
+    document.getElementById("buyGenres").textContent = item.genres.join(", ");
 
-    document.getElementById("modal-title").textContent = item.title;
-    document.getElementById("modal-poster").src = item.poster;
+    document.getElementById("buyQuestion").innerHTML =
+        `Deseja comprar este filme por <b>${formatPrice(item.price)}</b>?`;
 
-    document.getElementById("modal-description").innerHTML = `
-        <strong>Ano:</strong> ${item.year} <br>
-        <strong>Gênero:</strong> ${item.genres.join(", ")} <br><br>
-        Deseja comprar este filme por <strong>${formatPrice(item.price)}</strong>?
-    `;
-
-    document.getElementById("modal-buttons").innerHTML = `
-        <a href="${buildPayment(item)}"
-           target="_blank"
-           class="btn-buy">
+    document.getElementById("buyButtons").innerHTML = `
+        <a href="${buildPayment(item)}" target="_blank"
+           style="
+                display:inline-block;
+                margin-top:10px;
+                padding:10px 18px;
+                background:#0f8;
+                color:#000;
+                font-weight:bold;
+                border-radius:6px;
+                text-decoration:none;
+           ">
            COMPRAR (${formatPrice(item.price)})
         </a>
     `;
 
-    document.getElementById("modal-video-container").style.display = "none";
-    document.getElementById("modal-info-container").style.display = "block";
-
-    modal.style.display = "flex";
+    document.getElementById("buyModal").style.display = "flex";
 }
+
+
+// fechar modal
+document.getElementById("buyClose").addEventListener("click", ()=>{
+    document.getElementById("buyModal").style.display = "none";
+});
 
 
 // ==========================================================
@@ -3648,9 +3658,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
 
 });
 </script>
-    
-
-<!-- MODAL EXCLUSIVO DE COMPRA -->
+    <!-- MODAL EXCLUSIVO DE COMPRA -->
 <div id="buyModal" style="
     display:none;
     position:fixed;
@@ -3693,56 +3701,16 @@ document.addEventListener("DOMContentLoaded", ()=>{
         <h2 id="buyTitle" style="margin-top:12px; font-size:20px;"></h2>
 
         <!-- ANO E GÊNERO -->
-        <p style="margin:4px 0;">Ano: <span id="buyYear"></span></p>
-        <p style="margin:4px 0;">Gênero(s): <span id="buyGenres"></span></p>
+        <p>Ano: <span id="buyYear"></span></p>
+        <p>Gênero(s): <span id="buyGenres"></span></p>
 
         <!-- PERGUNTA -->
-        <p id="buyQuestion" style="
-            margin-top:16px;
-            font-size:15px;
-            opacity:0.9;
-        "></p>
+        <p id="buyQuestion" style="margin-top:16px; opacity:0.9;"></p>
 
-        <!-- BOTÃO COMPRAR -->
+        <!-- BOTÃO -->
         <div id="buyButtons" style="margin-top:18px; text-align:center;"></div>
 
     </div>
 </div>
-<script>
-// ABRIR MODAL DE COMPRA
-function openBuyModal(item, price){
-
-    document.getElementById("buyPoster").src = item.poster;
-    document.getElementById("buyTitle").textContent = item.title;
-    document.getElementById("buyYear").textContent = item.year;
-    document.getElementById("buyGenres").textContent = item.genres.join(", ");
-
-    document.getElementById("buyQuestion").innerHTML =
-        `Deseja comprar este filme por <b>R$${price.toFixed(2).replace(".", ",")}</b>?`;
-
-    document.getElementById("buyButtons").innerHTML = `
-        <a href="${item.checkoutUrl}" target="_blank"
-           style="
-                display:inline-block;
-                margin-top:10px;
-                padding:10px 18px;
-                background:#0f8;
-                color:#000;
-                font-weight:bold;
-                border-radius:6px;
-                text-decoration:none;
-           ">
-           COMPRAR (R$${price.toFixed(2).replace(".", ",")})
-        </a>
-    `;
-
-    document.getElementById("buyModal").style.display = "flex";
-}
-
-// FECHAR MODAL
-document.getElementById("buyClose").addEventListener("click", ()=>{
-    document.getElementById("buyModal").style.display = "none";
-});
-</script>
 </body>
 </html>
