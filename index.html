@@ -3501,16 +3501,25 @@ document.getElementById("logoutBtn").onclick = () => {
 </script>
 <script>
 // ==========================================================
-// CONFIGURAÇÃO
+// CONFIGURAÇÃO — ENDPOINT DO MERCADO PAGO
 // ==========================================================
 const ENDPOINT_MP = "/mp/checkout?item_id=";
 
 
 // ==========================================================
-// LISTA “A PARTIR DE”
+//  LISTAS — VOCÊ PREENCHERÁ AQUI
+//  (MANTENDO SEU FORMATO NORMAL DE FILMES)
 // ==========================================================
-window.aPartirDe = [
-    { id: 32, title: "Jejum de Amor", year: "1940", description: "Um jornalista e sua ex-mulher se envolvem em situações hilárias enquanto cobrem um caso de assassinato.", poster: "https://a.imagem.app/BC17sr.jpeg", genres: ["Comédia", "Romance"], price: 4.99, checkoutUrl: "https://seu-mp.com/jejumdeamor" },
+
+// 💰 A PARTIR DE 8,99
+window.a899 = [
+    // exemplo:
+    // { id: 32, title: "...", year: "1940", description: "...", poster: "...", genres: ["Comédia"], price: 8.99, checkoutUrl: "https://mp.com/..." }
+];
+
+// 💰 A PARTIR DE 12,99
+window.a1299 = [
+  { id: 32, title: "Jejum de Amor", year: "1940", description: "Um jornalista e sua ex-mulher se envolvem em situações hilárias enquanto cobrem um caso de assassinato.", poster: "https://a.imagem.app/BC17sr.jpeg", genres: ["Comédia", "Romance"], price: 4.99, checkoutUrl: "https://seu-mp.com/jejumdeamor" },
 
     { id: 55, title: "O Grande Ditador", year: "1940", description: "O barbeiro judeu Adenoid Hynkel tenta dominar o mundo com ajuda de seguidores.", poster: "https://a.imagem.app/BC1RYX.jpeg", genres: ["Comédia", "Drama"], price: 6.99, checkoutUrl: "https://seu-mp.com/grandeditador" },
 
@@ -3519,115 +3528,39 @@ window.aPartirDe = [
     { id: 63, title: "Os 39 Degraus", year: "1935", description: "Um homem inocente acusado de um assassinato tenta provar sua inocência.", poster: "https://a.imagem.app/BC1P1y.jpeg", genres: ["Suspense", "Mistério"], price: 5.99, checkoutUrl: "https://seu-mp.com/os39degraus" },
 
     { id: 65, title: "Plan 9 from Outer Space", year: "1959", description: "Alienígenas ressuscitam mortos para atacar a Terra.", poster: "https://a.imagem.app/BC1aN2.jpeg", genres: ["Ficção Científica", "Terror"], price: 4.49, checkoutUrl: "https://seu-mp.com/plan9" }
+
+    
+];
+
+// 💰 A PARTIR DE 19,99
+window.a1999 = [
 ];
 
 
 // ==========================================================
-// LISTA PACKS
-// ==========================================================
-window.packsDeFilmes = [
-    // você adiciona packs aqui quando quiser
-];
-
-
-// ==========================================================
-// FUNÇÕES
+// FUNÇÕES DE UTILIDADE
 // ==========================================================
 function formatPrice(v){
     return "R$ " + v.toFixed(2).replace(".", ",");
 }
 
-function createMovieCard(item){
-    const li = document.createElement("li");
-    li.className = "movie-item";
-
-    li.innerHTML = `
-        <img src="${item.poster}" class="movie-poster">
-        <div class="card-info-overlay">
-            <h3>${item.title}</h3>
-            <div class="card-buttons-container">
-                <a href="#" class="btn-buy">COMPRAR ${formatPrice(item.price)}</a>
-            </div>
-        </div>
-    `;
-
-    // Abrir modal
-    li.addEventListener("click", e=>{
-        if(e.target.classList.contains("btn-buy")) return;
-        openBuyModal(item);
-    });
-
-    // Botão comprar
-    li.querySelector(".btn-buy").addEventListener("click", e=>{
-        e.preventDefault();
-        e.stopPropagation();
-        window.open(item.checkoutUrl, "_blank");
-    });
-
-    return li;
-}
-
-function openBuyModal(item){
-    document.getElementById("modal-title").textContent = item.title;
-    document.getElementById("modal-poster").src = item.poster;
-    document.getElementById("modal-description").textContent = item.description;
-
-    document.getElementById("modal-buttons").innerHTML = `
-        <a href="${item.checkoutUrl}" class="btn-buy" target="_blank">
-            COMPRAR ${formatPrice(item.price)}
-        </a>
-    `;
-
-    document.getElementById("movie-modal").style.display = "flex";
-}
-
-document.querySelector("#movie-modal .close-btn")?.addEventListener("click",()=>{
-    document.getElementById("movie-modal").style.display = "none";
-});
-
-function renderSession(id, title, list){
-    let section = document.getElementById(id);
-
-    if(!section){
-        section = document.createElement("section");
-        section.id = id;
-        section.className = "movie-section";
-        document.querySelector("main").appendChild(section);
+function buildPayment(item){
+    // Assim você pode usar tanto checkoutUrl direto
+    // quanto gerar link automático pelo endpoint
+    if(item.checkoutUrl){
+        return item.checkoutUrl;
     }
-
-    section.innerHTML = `
-        <h2 class="section-title">${title}</h2>
-        <ul class="movie-grid"></ul>
-    `;
-
-    const grid = section.querySelector(".movie-grid");
-    list.forEach(item=>{
-        grid.appendChild(createMovieCard(item));
-    });
+    return ENDPOINT_MP +
+        encodeURIComponent(item.id) +
+        "&title=" +
+        encodeURIComponent(item.title) +
+        "&price=" +
+        encodeURIComponent(item.price);
 }
 
 
 // ==========================================================
-// INICIAR
-// ==========================================================
-document.addEventListener("DOMContentLoaded", ()=>{
-
-    renderSession("sessao-apartir", "💰 A partir de:", window.aPartirDe);
-
-    renderSession("sessao-packs", "📦 Packs de filmes:", window.packsDeFilmes);
-
-});
-</script>
-<script>
-// ==========================================================
-// FUNÇÕES ÚTEIS
-// ==========================================================
-function formatPrice(v){
-    return "R$ " + v.toFixed(2).replace(".", ",");
-}
-
-// ==========================================================
-// CRIA CARTÃO
+// CRIA O CARD NO SEU FORMATO ORIGINAL
 // ==========================================================
 function createBuyCard(item){
     const li = document.createElement("li");
@@ -3643,17 +3576,17 @@ function createBuyCard(item){
         </div>
     `;
 
-    // Clique no card abre modal
+    // Clique no card = abre modal original
     li.addEventListener("click", e=>{
         if(e.target.classList.contains("btn-buy")) return;
         openBuyModal(item);
     });
 
-    // Botão comprar
+    // Clique no botão comprar
     li.querySelector(".btn-buy").addEventListener("click", e=>{
         e.preventDefault();
         e.stopPropagation();
-        window.open(item.checkoutUrl, "_blank");
+        window.open(buildPayment(item), "_blank");
     });
 
     return li;
@@ -3661,30 +3594,40 @@ function createBuyCard(item){
 
 
 // ==========================================================
-// MODAL (USANDO O SEU)
+//  MODAL ORIGINAL DO SEU APP (somente compra)
 // ==========================================================
 function openBuyModal(item){
     const modal = document.getElementById("movie-modal");
+
     document.getElementById("modal-title").textContent = item.title;
     document.getElementById("modal-poster").src = item.poster;
-    document.getElementById("modal-description").textContent = item.description;
+    document.getElementById("modal-description").textContent =
+        `Deseja comprar "${item.title}" por ${formatPrice(item.price)}?`;
 
     document.getElementById("modal-buttons").innerHTML = `
-        <a href="${item.checkoutUrl}" target="_blank" class="btn-buy">
-            COMPRAR ${formatPrice(item.price)}
+        <a href="${buildPayment(item)}"
+           target="_blank"
+           class="btn-buy">
+           COMPRAR ${formatPrice(item.price)}
         </a>
     `;
+
+    // garante que o modo vídeo não aparece
+    document.getElementById("modal-video-container").style.display = "none";
+    document.getElementById("modal-info-container").style.display = "block";
 
     modal.style.display = "flex";
 }
 
-document.querySelector("#movie-modal .close-btn")?.addEventListener("click",()=>{
+
+// Botão fechar modal
+document.querySelector("#movie-modal .close-btn")?.addEventListener("click", ()=>{
     document.getElementById("movie-modal").style.display = "none";
 });
 
 
 // ==========================================================
-// RENDERIZA SESSÃO
+//  RENDERIZAÇÃO DE SESSÃO NO FORMATO DO SEU APP
 // ==========================================================
 function renderBuySection(id, title, list){
     let section = document.getElementById(id);
@@ -3707,6 +3650,19 @@ function renderBuySection(id, title, list){
         grid.appendChild(createBuyCard(item));
     });
 }
+
+
+// ==========================================================
+// INICIALIZAÇÃO — RENDERIZA AS 3 SESSÕES
+// ==========================================================
+document.addEventListener("DOMContentLoaded", ()=>{
+
+    renderBuySection("sessao-899",  "💰 A partir de R$8,99",  window.a899);
+    renderBuySection("sessao-1299", "💰 A partir de R$12,99", window.a1299);
+    renderBuySection("sessao-1999", "💰 A partir de R$19,99", window.a1999);
+
+});
+
 </script>
 </body>
 </html>
