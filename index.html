@@ -3867,9 +3867,28 @@ function renderBuySession(id, title, list, price){
 document.addEventListener("DOMContentLoaded", ()=>{
 
     // *** VOCÊ PREENCHE ISSO AQUI ***
-    const sessao899 = [ ];   // filmes por 8,99
-    const sessao1299 = [ ];  // filmes por 12,99
-    const sessao1999 = [ ];  // filmes por 19,99
+    const sessao899 = [
+
+        
+    ];   // filmes por 8,99
+    
+    const sessao1299 = [
+          { id: 32, title: "Jejum de Amor", year: "1940", description: "Um jornalista e sua ex-mulher se envolvem em situações hilárias enquanto cobrem um caso de assassinato.", poster: "https://a.imagem.app/BC17sr.jpeg", genres: ["Comédia", "Romance"], price: 4.99, checkoutUrl: "https://seu-mp.com/jejumdeamor" },
+
+    { id: 55, title: "O Grande Ditador", year: "1940", description: "O barbeiro judeu Adenoid Hynkel tenta dominar o mundo com ajuda de seguidores.", poster: "https://a.imagem.app/BC1RYX.jpeg", genres: ["Comédia", "Drama"], price: 6.99, checkoutUrl: "https://seu-mp.com/grandeditador" },
+
+    { id: 60, title: "O Segredo dos Quatro", year: "1932", description: "Um mistério envolvendo assassinato em uma mansão.", poster: "https://a.imagem.app/BC1Mdt.jpeg", genres: ["Mistério", "Suspense"], price: 3.99, checkoutUrl: "https://seu-mp.com/segredodosquatro" },
+
+    { id: 63, title: "Os 39 Degraus", year: "1935", description: "Um homem inocente acusado de um assassinato tenta provar sua inocência.", poster: "https://a.imagem.app/BC1P1y.jpeg", genres: ["Suspense", "Mistério"], price: 5.99, checkoutUrl: "https://seu-mp.com/os39degraus" },
+
+    { id: 65, title: "Plan 9 from Outer Space", year: "1959", description: "Alienígenas ressuscitam mortos para atacar a Terra.", poster: "https://a.imagem.app/BC1aN2.jpeg", genres: ["Ficção Científica", "Terror"], price: 4.49, checkoutUrl: "https://seu-mp.com/plan9" }
+
+    ];  // filmes por 12,99
+    
+    const sessao1999 = [
+
+        
+    ];  // filmes por 19,99
 
     // *** RENDERIZA AS SESSÕES ***
     renderBuySession("sessao-899", "💰 A partir de R$8,99", sessao899, 8.99);
