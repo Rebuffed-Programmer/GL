@@ -3501,13 +3501,13 @@ document.getElementById("logoutBtn").onclick = () => {
 </script>
 <script>
 // ==========================================================
-// CONFIGURAÇÃO
+// CONFIGURAÇÃO — ENDPOINT DO MERCADO PAGO
 // ==========================================================
 const ENDPOINT_MP = "/mp/checkout?item_id=";
 
 
 // ==========================================================
-// LISTAS (VOCÊ PREENCHE)
+//  LISTAS — VOCÊ PREENCHERÁ AQUI
 // ==========================================================
 
 // 💰 A PARTIR DE 8,99
@@ -3538,16 +3538,18 @@ function formatPrice(v){
 }
 
 function buildPayment(item){
-    return item.checkoutUrl ??
-        (ENDPOINT_MP +
+    if(item.checkoutUrl){
+        return item.checkoutUrl;
+    }
+    return ENDPOINT_MP +
         encodeURIComponent(item.id) +
         "&title=" + encodeURIComponent(item.title) +
-        "&price=" + encodeURIComponent(item.price));
+        "&price=" + encodeURIComponent(item.price);
 }
 
 
 // ==========================================================
-// CRIA CARD
+// CRIA O CARD
 // ==========================================================
 function createBuyCard(item){
     const li = document.createElement("li");
@@ -3563,13 +3565,11 @@ function createBuyCard(item){
         </div>
     `;
 
-    // Abrir modal ao clicar no card
     li.addEventListener("click", e=>{
         if(e.target.classList.contains("btn-buy")) return;
         openBuyModal(item);
     });
 
-    // Botão comprar direto
     li.querySelector(".btn-buy").addEventListener("click", e=>{
         e.preventDefault();
         e.stopPropagation();
@@ -3581,39 +3581,34 @@ function createBuyCard(item){
 
 
 // ==========================================================
-// MODAL NOVO (CONFIRMAÇÃO DE COMPRA)
+//  MODAL ORIGINAL (AGORA VERSÃO COMPRA)
 // ==========================================================
 function openBuyModal(item){
-    document.getElementById("buyPoster").src = item.poster;
-    document.getElementById("buyTitle").textContent = item.title;
-    document.getElementById("buyYear").textContent = item.year;
-    document.getElementById("buyGenres").textContent = item.genres.join(", ");
 
-    document.getElementById("buyQuestion").innerHTML =
-        `Deseja comprar este filme por <b>${formatPrice(item.price)}</b>?`;
+    const modal = document.getElementById("movie-modal");
 
-    document.getElementById("buyButtons").innerHTML = `
+    document.getElementById("modal-title").textContent = item.title;
+    document.getElementById("modal-poster").src = item.poster;
+
+    document.getElementById("modal-description").innerHTML = `
+        <strong>Ano:</strong> ${item.year} <br>
+        <strong>Gênero:</strong> ${item.genres.join(", ")} <br><br>
+        Deseja comprar este filme por <strong>${formatPrice(item.price)}</strong>?
+    `;
+
+    document.getElementById("modal-buttons").innerHTML = `
         <a href="${buildPayment(item)}"
            target="_blank"
-           style="
-                padding:10px 20px;
-                background:#0f8;
-                border-radius:6px;
-                color:#000;
-                font-weight:bold;
-                text-decoration:none;
-           ">
-            COMPRAR (${formatPrice(item.price)})
+           class="btn-buy">
+           COMPRAR (${formatPrice(item.price)})
         </a>
     `;
 
-    document.getElementById("buyModal").style.display = "flex";
-}
+    document.getElementById("modal-video-container").style.display = "none";
+    document.getElementById("modal-info-container").style.display = "block";
 
-// fechar modal
-document.getElementById("buyClose").addEventListener("click", ()=>{
-    document.getElementById("buyModal").style.display = "none";
-});
+    modal.style.display = "flex";
+}
 
 
 // ==========================================================
@@ -3635,7 +3630,10 @@ function renderBuySection(id, title, list){
     `;
 
     const grid = section.querySelector(".movie-grid");
-    list.forEach(item => grid.appendChild(createBuyCard(item)));
+
+    list.forEach(item=>{
+        grid.appendChild(createBuyCard(item));
+    });
 }
 
 
@@ -3643,9 +3641,11 @@ function renderBuySection(id, title, list){
 // INICIALIZAÇÃO
 // ==========================================================
 document.addEventListener("DOMContentLoaded", ()=>{
+
     renderBuySection("sessao-899",  "💰 A partir de R$8,99",  window.a899);
     renderBuySection("sessao-1299", "💰 A partir de R$12,99", window.a1299);
     renderBuySection("sessao-1999", "💰 A partir de R$19,99", window.a1999);
+
 });
 </script>
     
