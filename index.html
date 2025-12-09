@@ -3507,32 +3507,42 @@ document.getElementById("logoutBtn").onclick = () => {
 // --- Variáveis de Configuração ---
 const PLUS_TOKEN_KEY = 'GLPLUS_TOKEN';
 const PLUS_EXPIRA_KEY = 'GLPLUS_EXPIRA';
-// ATENÇÃO: Substitua pelos seus links reais.
 const ENDPOINT_CHECKOUT_MP = '/mp/checkout?item_id='; 
 const PLUS_LOGO_POSTER = 'https://i.postimg.cc/mD8zJc23/plus-logo-placeholder.jpg';
 
-// --- Data Placeholder (Expanda para 81 FREE e 68 PLUS+) ---
+// --- DEFINIÇÃO DAS SESSÕES E SEUS IDs (Como os Gêneros) ---
+// O script tentará renderizar o conteúdo nos contêineres com estes IDs.
+window.customSections = [
+    // ⚠️ Certifique-se que o HTML contém <section id="sugestoes-section">
+    { title: "🎬 Sugestões para você", id: "sugestoes-section", tag: "suggested" },
+    // ⚠️ Certifique-se que o HTML contém <section id="recomendacao-section">
+    { title: "🌟 Nossa recomendação", id: "recomendacao-section", tag: "recommended" },
+    // Adicione aqui outros IDs/títulos de seções que você queira
+];
+
+
+// --- Data Placeholder (Adicionado sectionTag para agrupar) ---
 
 // Definição de Dados FREE (Assistir + Comprar)
 window.movieData = [
-    { id: 1, title: "Filme Clássico 1 (FREE)", poster: "https://i.postimg.cc/mD8zJc23/placeholder-1.jpg", year: 1980, genres: ["Aventura", "Dublado Raridade C"], isPlus: false, price: 5.99, pricePlus: 4.99, description: "Descrição do filme free 1.", watchLink: "https://youtube.com/embed/...", rarity: "C" },
-    { id: 2, title: "Curta Raro 2 (FREE)", poster: "https://i.postimg.cc/mD8zJc23/placeholder-2.jpg", year: 1995, genres: ["Documentário", "Dublado Raridade A"], isPlus: false, price: 9.99, pricePlus: 7.99, description: "Descrição do curta raro 2.", watchLink: "https://youtube.com/embed/...", rarity: "A" },
-    { id: 3, title: "Aventura 3 (FREE)", poster: "https://i.postimg.cc/mD8zJc23/placeholder-3.jpg", year: 2005, genres: ["Ação", "Dublado Raridade B"], isPlus: false, price: 12.99, pricePlus: 10.99, description: "Descrição da aventura 3.", watchLink: "https://youtube.com/embed/...", rarity: "B" },
-    // ... Adicione o restante dos 81 itens FREE aqui
+    { id: 1, title: "Filme Clássico 1 (FREE)", poster: "https://i.postimg.cc/mD8zJc23/placeholder-1.jpg", year: 1980, genres: ["Aventura", "Dublado Raridade C"], isPlus: false, price: 5.99, pricePlus: 4.99, description: "Descrição do filme free 1.", watchLink: "https://youtube.com/embed/...", rarity: "C", sectionTag: "suggested" },
+    { id: 2, title: "Curta Raro 2 (FREE)", poster: "https://i.postimg.cc/mD8zJc23/placeholder-2.jpg", year: 1995, genres: ["Documentário", "Dublado Raridade A"], isPlus: false, price: 9.99, pricePlus: 7.99, description: "Descrição do curta raro 2.", watchLink: "https://youtube.com/embed/...", rarity: "A", sectionTag: "suggested" },
+    { id: 3, title: "Aventura 3 (FREE)", poster: "https://i.postimg.cc/mD8zJc23/placeholder-3.jpg", year: 2005, genres: ["Ação", "Dublado Raridade B"], isPlus: false, price: 12.99, pricePlus: 10.99, description: "Descrição da aventura 3.", watchLink: "https://youtube.com/embed/...", rarity: "B", sectionTag: "recommended" },
+    // ... Complete a lista e atribua a sectionTag
 ];
 
 // Definição de Dados PLUS+ (Home: Apenas Compra; Aba Plus: Assistir + Comprar)
 window.plusData = [
-    { id: 101, title: "O Tesouro Perdido (PLUS+)", poster: "https://i.postimg.cc/mD8zJc23/plus-1.jpg", year: 1970, genres: ["Ficção", "Dublado Raridade S"], isPlus: true, price: 15.99, pricePlus: 12.99, description: "Descrição do Plus+ 1 - Raridade S.", watchLink: "https://drive.google.com/...", rarity: "S" },
-    { id: 102, title: "Mistério na Cidade (PLUS+)", poster: "https://i.postimg.cc/mD8zJc23/plus-2.jpg", year: 1950, genres: ["Suspense", "Dublado Raridade B"], isPlus: true, price: 10.99, pricePlus: 8.99, description: "Descrição do Plus+ 2.", watchLink: "https://drive.google.com/...", rarity: "B" },
-    { id: 103, title: "Two Soldiers (LEGENDADO RARO)", poster: "https://i.postimg.cc/mD8zJc23/soldiers.jpg", year: 1943, genres: ["Guerra", "Legendado Raridade C"], isPlus: true, price: 5.99, pricePlus: 3.99, description: "Versão rara e legendada.", watchLink: "https://drive.google.com/...", rarity: "C" },
-    // ... Adicione o restante dos 68 itens PLUS+ aqui
+    { id: 101, title: "O Tesouro Perdido (PLUS+)", poster: "https://i.postimg.cc/mD8zJc23/plus-1.jpg", year: 1970, genres: ["Ficção", "Dublado Raridade S"], isPlus: true, price: 15.99, pricePlus: 12.99, description: "Descrição do Plus+ 1 - Raridade S.", watchLink: "https://drive.google.com/...", rarity: "S", sectionTag: "suggested" },
+    { id: 102, title: "Mistério na Cidade (PLUS+)", poster: "https://i.postimg.cc/mD8zJc23/plus-2.jpg", year: 1950, genres: ["Suspense", "Dublado Raridade B"], isPlus: true, price: 10.99, pricePlus: 8.99, description: "Descrição do Plus+ 2.", watchLink: "https://drive.google.com/...", rarity: "B", sectionTag: "recommended" },
+    { id: 103, title: "Two Soldiers (LEGENDADO RARO)", poster: "https://i.postimg.cc/mD8zJc23/soldiers.jpg", year: 1943, genres: ["Guerra", "Legendado Raridade C"], isPlus: true, price: 5.99, pricePlus: 3.99, description: "Versão rara e legendada.", watchLink: "https://drive.google.com/...", rarity: "C", sectionTag: "recommended" },
+    // ... Complete a lista e atribua a sectionTag
 ];
 
 // Combina as listas para facilitar a busca
 window.allItems = [...window.movieData, ...window.plusData];
 
-// Definição de Packs
+// Definição de Packs (Mantida)
 window.packsList = [
     {
         id: 901,
@@ -3553,22 +3563,15 @@ window.packsList = [
 
 
 // ====================================================================
-// LÓGICA DE UTILIDADE E AUXILIAR
+// LÓGICA DE UTILIDADE E AUXILIAR (Mantidas)
 // ====================================================================
 
-/**
- * @returns {boolean} True se o usuário tiver um token Plus+ válido e não expirado.
- * (Usado para descontos e botão 'Assistir Plus+')
- */
 function isPlusMember() {
     const token = localStorage.getItem(PLUS_TOKEN_KEY);
     const expira = localStorage.getItem(PLUS_EXPIRA_KEY);
     return token && expira && new Date() <= new Date(expira);
 }
 
-/**
- * Formata um número para o formato de preço (R$ X,XX).
- */
 function formatPrice(price) {
     if (price === 0 || price === null || typeof price === 'undefined') {
         return 'Grátis';
@@ -3576,29 +3579,16 @@ function formatPrice(price) {
     return `R$ ${price.toFixed(2).replace('.', ',')}`;
 }
 
-/**
- * Gera a URL de checkout do Mercado Pago.
- */
 function buildPaymentLink(item) {
     const priceToUse = isPlusMember() ? item.pricePlus : item.price;
     const priceParam = priceToUse ? `&price=${priceToUse}` : '';
-    
-    // ATENÇÃO: Use seu endpoint real. Este é o endpoint server-side /mp/checkout?...
     const url = `${ENDPOINT_CHECKOUT_MP}${item.id}&title=${encodeURIComponent(item.title)}${priceParam}`;
-
     if (ENDPOINT_CHECKOUT_MP.includes('/mp/checkout')) {
          console.warn("ALERTA MP: O endpoint de checkout não foi configurado (ainda está como placeholder).");
     }
-
     return url;
 }
 
-/**
- * Cria os botões de Ação (Assistir / Comprar) com base no contexto (Home ou Aba Plus+).
- * @param {object} item O objeto do filme ou pack.
- * @param {boolean} isHomeContext Se está sendo renderizado na Home (true) ou na Aba Plus+ (false).
- * @returns {string} O HTML dos botões.
- */
 function getButtonHTML(item, isHomeContext) {
     const isMember = isPlusMember();
     const priceToDisplay = isMember ? item.pricePlus : item.price;
@@ -3609,28 +3599,16 @@ function getButtonHTML(item, isHomeContext) {
 
     if (item.isPlus) {
         if (isHomeContext) {
-            // Plus+ na Home: SÓ COMPRAR
-            return `
-                ${buyButtonHTML}
-                <div class="plus-label">Conteúdo Plus+ (Apenas Compra)</div>
-            `;
+            return `${buyButtonHTML}<div class="plus-label">Conteúdo Plus+ (Apenas Compra)</div>`;
         } else {
-            // Plus+ na Aba Plus+: ASSISTIR + COMPRAR
             const watchText = isMember ? '▶ ASSISTIR PLUS+' : '🔒 ASSINAR PLUS+ PARA ASSISTIR';
             const watchClass = isMember ? 'btn-watch-plus' : 'btn-lock-plus';
-            
-            return `
-                <a href="#" class="${watchClass} btn-watch" data-item-id="${item.id}" data-item-title="${item.title}">${watchText}</a>
-                ${buyButtonHTML}
-            `;
+            return `<a href="#" class="${watchClass} btn-watch" data-item-id="${item.id}" data-item-title="${item.title}">${watchText}</a>${buyButtonHTML}`;
         }
     } else {
-        // Conteúdo FREE (Home ou qualquer lugar)
         const watchLink = item.watchLink || '#';
         const watchAction = `window.open('${watchLink}', '_blank')`;
-        
         let html = `<a href="#" class="btn-watch-free btn-watch" onclick="${watchAction}">▶ ASSISTIR JÁ</a>`;
-        
         if (item.price > 0) {
             html += buyButtonHTML;
         }
@@ -3638,12 +3616,6 @@ function getButtonHTML(item, isHomeContext) {
     }
 }
 
-/**
- * Cria o elemento do card (poster) com os botões.
- * @param {object} item O objeto do filme, pack ou plus+.
- * @param {boolean} isHomeContext Se está na Home (true) ou Aba Plus+ (false).
- * @returns {HTMLLIElement} O item de lista (card).
- */
 function createMovieItem(item, isHomeContext = true) {
     const listItem = document.createElement('li');
     listItem.className = 'movie-item';
@@ -3690,7 +3662,6 @@ function createMovieItem(item, isHomeContext = true) {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            // TODO: Adicione aqui sua função real para abrir o player Plus+
             console.log(`Abrir Player Plus+ para: ${item.title}`);
             window.open(item.watchLink, '_blank');
         });
@@ -3701,18 +3672,14 @@ function createMovieItem(item, isHomeContext = true) {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            // O app deve chamar a função para abrir sua tela de assinatura Plus+
             alert(`Você precisa ser assinante Plus+ para assistir ${item.title}.`);
-            // Se você tiver uma função como showPlusSubscriptionModal(), chame-a aqui.
+            // Seu sistema de abas/login deve ser ativado aqui
         });
     });
 
     return listItem;
 }
 
-/**
- * Renderiza uma lista de itens em um contêiner (carrossel).
- */
 function renderMovies(container, movies, isHomeContext = true) {
     if (!container) return;
     container.innerHTML = '';
@@ -3724,12 +3691,45 @@ function renderMovies(container, movies, isHomeContext = true) {
 
 
 // ====================================================================
+// NOVO: RENDERIZAÇÃO DAS SESSÕES CUSTOMIZADAS DA HOME
+// ====================================================================
+
+function renderCustomSections() {
+    const allHomeItems = window.allItems.filter(item => !item.isPack);
+    
+    window.customSections.forEach(sectionDef => {
+        const sectionContainer = document.getElementById(sectionDef.id);
+        
+        if (!sectionContainer) {
+            console.warn(`Contêiner de Seção #${sectionDef.id} não encontrado no HTML.`);
+            return;
+        }
+
+        const sectionItems = allHomeItems.filter(item => item.sectionTag === sectionDef.tag);
+        
+        // Se houver itens, renderiza a seção
+        if (sectionItems.length > 0) {
+            // Cria o H2 e o UL (grid) dentro do seu <section>
+            sectionContainer.innerHTML = `
+                <h2 class="section-title">${sectionDef.title}</h2>
+                <ul id="${sectionDef.id}-grid" class="movie-grid"></ul>
+            `;
+            sectionContainer.style.display = 'block'; // Garante que a seção apareça
+            
+            const sectionGrid = document.getElementById(`${sectionDef.id}-grid`);
+            renderMovies(sectionGrid, sectionItems, true); // Renderiza na Home (buy-only plus items)
+        } else {
+            // Se não houver itens para essa tag, oculta a seção
+            sectionContainer.style.display = 'none';
+        }
+    });
+}
+
+
+// ====================================================================
 // RENDERIZAÇÃO DE SEÇÕES ESPECIAIS (PACKS E BUCKETS)
 // ====================================================================
 
-/**
- * Cria a seção de Packs de Filmes.
- */
 function renderPacks() {
     const packsSection = document.getElementById('packs-section');
     const packsGrid = document.getElementById('packs-grid');
@@ -3743,9 +3743,6 @@ function renderPacks() {
     packsSection.style.display = 'block';
 }
 
-/**
- * Cria as sessões "A Partir de R$X" (Price Buckets).
- */
 function renderBuckets() {
     const container = document.getElementById('price-buckets-container');
     if (!container) {
@@ -3777,33 +3774,30 @@ function renderBuckets() {
             const section = document.createElement('section');
             section.id = sectionId;
             section.className = 'movie-section price-bucket-section';
-            section.innerHTML = `
-                <h2 class="section-title">${sectionTitle}</h2>
-                <ul id="${sectionId}-grid" class="movie-grid"></ul>
-            `;
+            section.innerHTML = `<h2 class="section-title">${sectionTitle}</h2><ul id="${sectionId}-grid" class="movie-grid"></ul>`;
             container.appendChild(section);
 
             const grid = document.getElementById(`${sectionId}-grid`);
             renderMovies(grid, bucketItems, true); 
         }
     });
+    if (container.children.length > 0) {
+        container.style.display = 'block';
+    }
 }
 
 
 // ====================================================================
-// MODAL UNIFICADO (FILME E PACK)
+// MODAL UNIFICADO (Mantido)
 // ====================================================================
 
 function populateModal(item, isPack = false) {
     const modal = document.getElementById('movie-modal');
-    // ... Assume que os IDs do modal estão no HTML ...
-
     if (!modal) {
         console.error("Modal #movie-modal não encontrado.");
         return;
     }
     
-    // Obtenção dos elementos do modal
     const modalTitle = document.getElementById('modal-title');
     const modalPoster = document.getElementById('modal-poster');
     const modalDescription = document.getElementById('modal-description');
@@ -3829,13 +3823,11 @@ function populateModal(item, isPack = false) {
         modalPackList.innerHTML = '';
         modalPackList.style.display = 'none';
 
-        // Lógica de contexto de botão: verifica se o item é PLUS+ e se o container da aba Plus+ está visível.
         const plusGrid = document.getElementById('plus-catalog-grid');
         const inPlusCatalog = plusGrid && plusGrid.children.length > 0 && item.isPlus;
         modalButtons.innerHTML = getButtonHTML(item, !inPlusCatalog); 
     }
 
-    // Função auxiliar para re-atribuir listeners e evitar duplicação (importante para modais)
     function attachButtonListener(btn) {
         const newBtn = btn.cloneNode(true);
         btn.parentNode.replaceChild(newBtn, btn);
@@ -3846,14 +3838,12 @@ function populateModal(item, isPack = false) {
             if (newBtn.classList.contains('btn-buy')) {
                 window.open(buildPaymentLink(item), '_blank');
             } else if (newBtn.classList.contains('btn-watch-plus')) {
-                // TODO: Chamar player Plus+
                 console.log(`Abrir Player Plus+ para: ${item.title}`);
                 window.open(item.watchLink, '_blank');
             } else if (newBtn.classList.contains('btn-watch-free')) {
                 window.open(item.watchLink, '_blank');
             } else if (newBtn.classList.contains('btn-lock-plus')) {
                 alert(`Você precisa ser assinante Plus+ para assistir ${item.title}.`);
-                // Não chama showPlusLoginModal(), confia no sistema do usuário.
             }
         });
     }
@@ -3867,7 +3857,6 @@ function populateModal(item, isPack = false) {
     document.body.style.overflow = 'hidden'; 
 }
 
-// Lógica para fechar o modal (mantida)
 document.querySelector('#movie-modal .close-btn')?.addEventListener('click', () => {
     document.getElementById('movie-modal').style.display = 'none';
     document.body.style.overflow = 'auto';
@@ -3875,15 +3864,9 @@ document.querySelector('#movie-modal .close-btn')?.addEventListener('click', () 
 
 
 // ====================================================================
-// RENDERIZAÇÃO DA ABA PLUS+ (FUNÇÃO EXPOSTA PARA SEU SISTEMA DE ABAS)
+// RENDERIZAÇÃO DA ABA PLUS+ (Exposta)
 // ====================================================================
 
-/**
- * Renderiza o catálogo Plus+ na aba.
- * Esta função deve ser chamada pelo seu sistema de abas APENAS se o usuário for assinante.
- * Se não for assinante, seu sistema de abas deve mostrar a tela de login/assinatura.
- * @param {string} containerId O ID do contêiner onde os itens Plus+ devem ser renderizados (ex: 'plus-catalog-grid').
- */
 function renderPlusItemsGrid(containerId) {
     const plusGrid = document.getElementById(containerId);
     if (!plusGrid) {
@@ -3899,18 +3882,13 @@ function renderPlusItemsGrid(containerId) {
 // RENDERIZAÇÃO PRINCIPAL E ATUALIZAÇÃO DINÂMICA
 // ====================================================================
 
-/**
- * Atualiza o preço de um item e re-renderiza toda a UI (quando necessário).
- * Exposto globalmente como window.PLUS_UI.atualizarPreco(id, novoPreco, novoPrecoPlus)
- */
 function atualizarPreco(id, novoPreco, novoPrecoPlus) {
     const item = window.allItems.find(i => i.id === id);
     if (item) {
         item.price = novoPreco;
         item.pricePlus = novoPrecoPlus;
         console.log(`Preço de ${item.title} atualizado para R$${novoPreco} (Plus: R$${novoPrecoPlus}).`);
-        renderAll(); // Força a re-renderização de todas as seções
-        // Se a aba Plus+ estiver aberta, re-renderiza também.
+        renderAll(); 
         renderPlusItemsGrid('plus-catalog-grid'); 
     } else {
         console.warn(`Item com ID ${id} não encontrado para atualização de preço.`);
@@ -3918,19 +3896,17 @@ function atualizarPreco(id, novoPreco, novoPrecoPlus) {
 }
 
 /**
- * Função principal que renderiza a HOME completa.
+ * Função principal que renderiza TODAS as sessões da HOME.
  */
 function renderAll() {
-    // Conteúdo da Home = FREE + PLUS para Compra (não packs)
-    const homeContent = window.allItems.filter(item => !item.isPack);
-    const homeGrid = document.getElementById('free-plus-home-grid');
-    if (homeGrid) {
-        renderMovies(homeGrid, homeContent, true);
-        document.getElementById('home-content-section').style.display = 'block';
-    }
+    // 1. Renderiza as seções customizadas (Sugestões, Recomendação, etc. - como seus Gêneros)
+    renderCustomSections();
 
-    renderPacks(); // Renderiza Packs
-    renderBuckets(); // Renderiza Buckets de Preço
+    // 2. Renderiza Packs (Pack de Filmes)
+    renderPacks(); 
+    
+    // 3. Renderiza Buckets de Preço ("A partir de R$X")
+    renderBuckets(); 
 }
 
 
@@ -3946,16 +3922,14 @@ function forceUIAutomation() {
         console.log("Lista de Gêneros aberta automaticamente.");
     }
     
-    // 2. Mostrar seções ocultas da Home automaticamente
+    // 2. Mostrar todas as seções da Home (exceto Minha Lista e Plus+ para não-assinantes)
     document.querySelectorAll('.movie-section, .content-section').forEach(section => {
-        // Esconde a seção Plus+ Exclusive (#plusSection) e Minha Lista se o usuário não for Plus+ Member
         const isPlusSection = section.id === 'plusSection' || section.classList.contains('plus-section');
         const isMinhaLista = section.id === 'minhaListaSection' || section.classList.contains('minha-lista-section');
         
         if ((isPlusSection || isMinhaLista) && !isPlusMember()) {
             section.style.display = 'none';
         } else {
-            // Força a exibição para todas as outras seções/carrosséis
             section.style.display = 'block';
         }
     });
@@ -3967,17 +3941,16 @@ function forceUIAutomation() {
 // ====================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Expondo as funções necessárias para controle externo
     window.PLUS_UI = {
         atualizarPreco: atualizarPreco,
-        isPlusMember: isPlusMember, // Seu sistema pode usar isso para verificar o status
-        renderPlusItemsGrid: renderPlusItemsGrid // Seu sistema deve chamar isso para renderizar a aba Plus+
+        isPlusMember: isPlusMember, 
+        renderPlusItemsGrid: renderPlusItemsGrid 
     };
 
-    // 1. Inicializa a renderização de todo o conteúdo da Home
+    // 1. Inicializa a renderização de todas as sessões da Home
     renderAll();
     
-    // 2. Executa a automação da UI (abrir gêneros e mostrar seções)
+    // 2. Executa a automação da UI (abrir gêneros e garantir visibilidade das seções)
     forceUIAutomation();
 });
 </script>
