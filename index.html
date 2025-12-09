@@ -3664,5 +3664,119 @@ document.addEventListener("DOMContentLoaded", ()=>{
 });
 
 </script>
+<script>
+// ==========================================================
+// FUNÇÃO QUE ABRE O MODAL DE COMPRA
+// ==========================================================
+function openBuyModal(item, price){
+
+    const modal = document.getElementById("buy-modal");
+
+    // Preenchendo o modal
+    document.getElementById("buy-modal-title").textContent = item.title;
+    document.getElementById("buy-modal-poster").src = item.poster;
+    document.getElementById("buy-modal-description").textContent = item.description;
+    document.getElementById("buy-modal-year").textContent = item.year;
+    document.getElementById("buy-modal-genres").textContent = item.genres.join(", ");
+
+    // Texto da pergunta
+    document.getElementById("buy-modal-question").textContent =
+        `Deseja comprar "${item.title}" por R$${price.toFixed(2).replace(".", ",")}?`;
+
+    // Botão final
+    document.getElementById("buy-modal-buttons").innerHTML = `
+        <a href="${item.checkoutUrl}" target="_blank" class="btn-buy">
+            COMPRAR R$${price.toFixed(2).replace(".", ",")}
+        </a>
+    `;
+
+    modal.style.display = "flex";
+}
+
+// Fechar modal
+document.getElementById("close-buy-modal").addEventListener("click", ()=>{
+    document.getElementById("buy-modal").style.display = "none";
+});
+
+
+// ==========================================================
+// FUNÇÃO PARA CRIAR CARDS EM CADA SESSÃO
+// ==========================================================
+function createBuyCard(item, price){
+    const li = document.createElement("li");
+    li.className = "movie-item";
+
+    li.innerHTML = `
+        <img src="${item.poster}" alt="${item.title}" class="movie-poster">
+        <div class="card-info-overlay">
+            <h3>${item.title}</h3>
+            <div class="card-buttons-container">
+                <a href="#" class="btn-buy">
+                    COMPRAR R$${price.toFixed(2).replace(".", ",")}
+                </a>
+            </div>
+        </div>
+    `;
+
+    // Abrir modal completinho
+    li.addEventListener("click", (e)=>{
+        if(e.target.classList.contains("btn-buy")) return;
+        openBuyModal(item, price);
+    });
+
+    // Botão comprar direto
+    li.querySelector(".btn-buy").addEventListener("click", (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        window.open(item.checkoutUrl, "_blank");
+    });
+
+    return li;
+}
+
+
+// ==========================================================
+// RENDERIZA SESSÃO
+// ==========================================================
+function renderBuySession(id, title, list, price){
+    let section = document.getElementById(id);
+
+    if(!section){
+        section = document.createElement("section");
+        section.id = id;
+        section.className = "movie-section";
+        document.querySelector("main")?.appendChild(section);
+    }
+
+    section.innerHTML = `
+        <h2 class="section-title">${title}</h2>
+        <ul class="movie-grid"></ul>
+    `;
+
+    const grid = section.querySelector(".movie-grid");
+
+    list.forEach(item=>{
+        grid.appendChild(createBuyCard(item, price));
+    });
+}
+
+
+// ==========================================================
+// INICIALIZAÇÃO DAS 3 SESSÕES
+// ==========================================================
+document.addEventListener("DOMContentLoaded", ()=>{
+
+    // *** VOCÊ PREENCHE ISSO AQUI ***
+    const sessao899 = [ ];   // filmes por 8,99
+    const sessao1299 = [ ];  // filmes por 12,99
+    const sessao1999 = [ ];  // filmes por 19,99
+
+    // *** RENDERIZA AS SESSÕES ***
+    renderBuySession("sessao-899", "💰 A partir de R$8,99", sessao899, 8.99);
+    renderBuySession("sessao-1299", "💰 A partir de R$12,99", sessao1299, 12.99);
+    renderBuySession("sessao-1999", "💰 A partir de R$19,99", sessao1999, 19.99);
+
+});
+</script>
 </body>
 </html>
