@@ -3499,5 +3499,160 @@ document.getElementById("logoutBtn").onclick = () => {
     hiddenBtn.onclick = null;
 };
 </script>
+<script>
+// ==========================================================
+// CONFIGURAÇÃO
+// ==========================================================
+
+// Seu endpoint do Mercado Pago
+const ENDPOINT_MP = "/mp/checkout?item_id=";
+
+
+// ==========================================================
+// LISTAS (você preenche usando SEU FORMATO NORMAL)
+// ==========================================================
+
+// Sessão “A partir de…”
+window.aPartirDe = [
+{ id: 32, title: "Jejum de Amor", year: "1940", description: "Um jornalista e sua ex-mulher se envolvem em uma série de situações hilárias enquanto cobrem um caso de assassinato.", poster: "https://a.imagem.app/BC17sr.jpeg", genres: ["Comédia", "Romance"], videoUrl: "https://drive.google.com/file/d/17U243ssoae3O3LvikWM2GJLM_99uO2bV/preview" },
+   
+];
+
+// Sessão “Packs de Filmes”
+window.packsDeFilmes = [
+    // Exemplo:
+    // {
+    //     id: 901,
+    //     title: "Pack Guerra Raro",
+    //     description: "3 filmes históricos",
+    //     poster: "https://link.com/poster.jpg",
+    //     price: 14.99
+    // }
+];
+
+
+// ==========================================================
+// FUNÇÕES
+// ==========================================================
+
+function formatPrice(v){
+    return "R$ " + v.toFixed(2).replace(".", ",");
+}
+
+function buildPayment(item){
+    return ENDPOINT_MP +
+        encodeURIComponent(item.id) +
+        "&title=" +
+        encodeURIComponent(item.title) +
+        "&price=" +
+        encodeURIComponent(item.price);
+}
+
+// ==========================================================
+// CRIA CARD NO SEU ESTILO
+// ==========================================================
+function createMovieCard(item){
+    const li = document.createElement("li");
+    li.className = "movie-item";
+    li.innerHTML = `
+        <img src="${item.poster}" alt="${item.title}" class="movie-poster">
+        <div class="card-info-overlay">
+            <h3>${item.title}</h3>
+            <div class="card-buttons-container">
+                <a href="#" class="btn-buy">COMPRAR ${formatPrice(item.price)}</a>
+            </div>
+        </div>
+    `;
+
+    // Clique do card abre modal
+    li.addEventListener("click",(e)=>{
+
+        if(e.target.classList.contains("btn-buy")) return;
+
+        openBuyModal(item);
+    });
+
+    // Clique no botão comprar
+    li.querySelector(".btn-buy").addEventListener("click", e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        window.open(buildPayment(item), "_blank");
+    });
+
+    return li;
+}
+
+
+// ==========================================================
+// MODAL USANDO SEU MODAL ORIGINAL!
+// Só trocando botão assistir -> comprar
+// ==========================================================
+function openBuyModal(item){
+
+    const modal = document.getElementById("movie-modal");
+    const title = document.getElementById("modal-title");
+    const poster = document.getElementById("modal-poster");
+    const desc = document.getElementById("modal-description");
+    const actions = document.getElementById("modal-buttons");
+
+    title.textContent = item.title;
+    poster.src = item.poster;
+    desc.textContent = item.description;
+
+    actions.innerHTML = `
+        <a href="${buildPayment(item)}"
+           target="_blank"
+           class="btn-buy">
+           COMPRAR ${formatPrice(item.price)}
+        </a>
+    `;
+
+    modal.style.display = "flex";
+}
+
+document.querySelector("#movie-modal .close-btn")?.addEventListener("click",()=>{
+    document.getElementById("movie-modal").style.display = "none";
+});
+
+
+// ==========================================================
+// RENDERIZAÇÃO DAS DUAS SESSÕES NO SEU FORMATO
+// ==========================================================
+function renderSession(id, title, list){
+
+    let section = document.getElementById(id);
+
+    if(!section){
+        section = document.createElement("section");
+        section.id = id;
+        section.classList.add("movie-section");
+        document.querySelector("main")?.appendChild(section);
+    }
+
+    section.innerHTML = `
+        <h2 class="section-title">${title}</h2>
+        <ul class="movie-grid"></ul>
+    `;
+
+    const grid = section.querySelector(".movie-grid");
+
+    list.forEach(item=>{
+        grid.appendChild(createMovieCard(item));
+    });
+}
+
+
+// ==========================================================
+// INICIALIZAÇÃO
+// ==========================================================
+document.addEventListener("DOMContentLoaded", ()=>{
+
+    // SESSÃO: A PARTIR DE
+    renderSession("sessao-apartir", "💰 A partir de:", window.aPartirDe);
+
+    // SESSÃO: PACKS DE FILMES
+    renderSession("sessao-packs", "📦 Packs de filmes:", window.packsDeFilmes);
+});
+</script>
 </body>
 </html>
