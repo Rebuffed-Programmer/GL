@@ -3954,5 +3954,347 @@ document.addEventListener('DOMContentLoaded', () => {
     forceUIAutomation();
 });
 </script>
+<script>
+/*
+  Plus+ / Compra enhancer - Versão resiliente
+  - Preencha window.movieData, window.plusData, window.packsList antes de incluir este script.
+  - Substitua ENDPOINT_CHECKOUT_MP pelo seu endpoint/rota que cria o link Mercado Pago.
+*/
+const ENDPOINT_CHECKOUT_MP = '/mp/checkout?item_id='; // <- troque para seu endpoint real
+
+/* ---------- Helpers ---------- */
+function isPlusMember() {
+  try {
+    if (typeof window.isSubscriptionActive === 'function') return !!window.isSubscriptionActive();
+  } catch(e){}
+  const t = localStorage.getItem('GLPLUS_TOKEN');
+  const exp = localStorage.getItem('GLPLUS_EXPIRA');
+  if (!t || !exp) return false;
+  return new Date() <= new Date(exp);
+}
+function priceBR(v){ return (typeof v === 'number') ? ('R$ ' + v.toFixed(2).replace('.',',')) : 'R$ 0,00'; }
+function safeText(t){ return (t||'').toString(); }
+function warnIfPlaceholder(){ if(ENDPOINT_CHECKOUT_MP.includes('mp/checkout')) console.warn('ENDPOINT_CHECKOUT_MP é placeholder. Substitua pelo seu endpoint de criação de pagamento.'); }
+
+/* ---------- Payment link builder ---------- */
+function buildPaymentLink(item){
+  // item: {id, title, price, pricePlus}
+  const usePrice = (isPlusMember() && typeof item.pricePlus === 'number') ? item.pricePlus : item.price;
+  const p = (typeof usePrice === 'number') ? usePrice.toFixed(2) : '';
+  const title = encodeURIComponent(item.title || `item-${item.id}`);
+  return `${ENDPOINT_CHECKOUT_MP}${encodeURIComponent(item.id)}&title=${title}${p?('&price='+encodeURIComponent(p)) : ''}`;
+}
+
+/* ---------- DOM utilities ---------- */
+function findMainInsertPoint(){
+  // tenta vários pontos prováveis do seu index (não assume nada)
+  const candidates = [
+    document.getElementById('genre-sections-container'),
+    document.getElementById('genres-container'),
+    document.getElementById('movie-list-container'),
+    document.querySelector('.genres-wrapper'),
+    document.querySelector('#main'),
+    document.querySelector('main'),
+    document.body
+  ];
+  return candidates.find(Boolean);
+}
+function cloneCardTemplate(){
+  // procura o primeiro card existente para clonar estrutura visual
+  const existing = document.querySelector('.movie-item, .card, .movie-card, li.movie-item');
+  if (existing) return existing.cloneNode(true);
+  // fallback genérico
+  const li = document.createElement('li');
+  li.className = 'movie-item';
+  li.innerHTML = '<img src="" alt=""><div class="card-info-overlay"><h3></h3><div class="card-buttons-container"></div></div>';
+  return li;
+}
+
+/* ---------- Card renderer (resiliente) ---------- */
+function renderCardFor(item, {isHomeContext=true, markPlusHome=false} = {}){
+  // item: object with id,title,poster,price,pricePlus,description,...
+  const template = cloneCardTemplate();
+  // clean interactive attributes
+  template.removeAttribute('data-item-id'); template.removeAttribute('data-content');
+  // set dataset so universal click can read it
+  template.dataset.content = '1';
+  template.dataset.id = item.id;
+  template.dataset.title = item.title || '';
+  template.dataset.poster = item.poster || '';
+  template.dataset.desc = item.description || '';
+  template.dataset.price = (typeof item.price === 'number') ? item.price : (item.price||0);
+  if (markPlusHome) template.dataset.plushome = '1';
+  // img
+  const img = template.querySelector('img') || template.querySelector('picture img') || template.appendChild(document.createElement('img'));
+  img.src = item.poster || '';
+  img.alt = item.title || '';
+
+  // title
+  const h = template.querySelector('h3') || template.querySelector('.title') || template.appendChild(document.createElement('h3'));
+  h.textContent = item.title || '';
+
+  // ensure buttons container
+  let btns = template.querySelector('.card-buttons-container') || template.querySelector('.buttons') || null;
+  if (!btns) {
+    btns = document.createElement('div'); btns.className = 'card-buttons-container';
+    const overlay = template.querySelector('.card-info-overlay') || template;
+    overlay.appendChild(btns);
+  }
+  // clear existing buy buttons injected before
+  btns.querySelectorAll('.injected-buy-btn').forEach(n=>n.remove());
+
+  // Add watch button only if not a plus-home copy and if item has watch link / free
+  if (!markPlusHome && item.watchLink){
+    // try to not duplicate existing watch button
+    if (!template.querySelector('.btn-watch')) {
+      const a = document.createElement('a');
+      a.href = item.watchLink;
+      a.className = 'btn-watch';
+      a.textContent = '▶ ASSISTIR JÁ';
+      a.target = '_blank';
+      btns.appendChild(a);
+    }
+  }
+
+  // Add buy button if price exists
+  if (typeof item.price === 'number' && item.price > 0){
+    const buy = document.createElement('a');
+    buy.href = '#';
+    buy.className = 'injected-buy-btn btn-buy';
+    const displayPrice = (isPlusMember() && typeof item.pricePlus === 'number') ? item.pricePlus : item.price;
+    buy.textContent = `COMPRAR JÁ ${priceBR(displayPrice)}`;
+    buy.addEventListener('click', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      warnIfPlaceholder();
+      window.open(buildPaymentLink(item), '_blank');
+    });
+    btns.appendChild(buy);
+  }
+  // onclick open modal (reuses openMovieModal if exists)
+  template.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    // mark for modal injection if plus-home
+    const cloneForModal = Object.assign({}, item);
+    if (markPlusHome) cloneForModal._plusHomeCopy = true;
+    if (typeof window.openMovieModal === 'function') {
+      window.openMovieModal(cloneForModal);
+    } else {
+      // fallback: try to fill default modal fields if exist
+      openFallbackModal(cloneForModal);
+    }
+    // inject buy button into modal (in case user opened modal)
+    injectBuyIntoModal(cloneForModal, !!markPlusHome);
+  });
+
+  return template;
+}
+
+/* ---------- Render plusData into Home (buy-only) ---------- */
+function renderPlusDataToHome(){
+  const plus = window.plusData || [];
+  if (!plus.length) return;
+  if (document.getElementById('plus-home-section')) return; // don't duplicate
+
+  const insert = findMainInsertPoint();
+  const sec = document.createElement('section');
+  sec.id = 'plus-home-section';
+  sec.className = 'movie-section plus-home-section';
+  sec.innerHTML = `<h2 class="section-title">Plus+ (Disponível para compra)</h2><ul class="movie-grid" id="plus-home-grid"></ul>`;
+  insert.parentNode.insertBefore(sec, insert);
+
+  const grid = sec.querySelector('#plus-home-grid');
+  plus.forEach(p=>{
+    const card = renderCardFor(p, {isHomeContext:true, markPlusHome:true});
+    grid.appendChild(card);
+  });
+}
+
+/* ---------- Packs rendering ---------- */
+function renderPacks(){
+  const packs = window.packsList || [];
+  if (!packs.length) return;
+  if (document.getElementById('packs-section')) return;
+  const insert = findMainInsertPoint();
+  const sec = document.createElement('section');
+  sec.id = 'packs-section';
+  sec.className = 'movie-section packs-section';
+  sec.innerHTML = `<h2 class="section-title">📦 Packs de Filmes</h2><ul class="movie-grid" id="packs-grid"></ul>`;
+  insert.parentNode.insertBefore(sec, insert);
+  const grid = sec.querySelector('#packs-grid');
+
+  packs.forEach(pack=>{
+    // create pack card
+    const li = document.createElement('li');
+    li.className = 'movie-item pack-item';
+    li.tabIndex = 0;
+    li.innerHTML = `<img src="${pack.poster||''}" alt="${pack.title||''}"><div class="card-info-overlay"><h3>${pack.title||''}</h3><div class="pack-meta">${(pack.items?pack.items.length:0)} títulos</div></div>`;
+    li.addEventListener('click', (ev)=>{
+      ev.stopPropagation();
+      openPackModal(pack);
+    });
+    grid.appendChild(li);
+  });
+}
+
+/* ---------- Price buckets rendering ("A partir de...") ---------- */
+function renderPriceBuckets(){
+  const all = [];
+  if (Array.isArray(window.movieData)) all.push(...window.movieData);
+  if (Array.isArray(window.plusData)) all.push(...window.plusData);
+  const priced = all.filter(x => typeof x.price === 'number' && !isNaN(x.price));
+  if (!priced.length) return;
+  if (document.getElementById('price-buckets-container')) return;
+
+  // collect unique points (floor to 0.1)
+  const points = Array.from(new Set(priced.map(p=>Math.floor(p.price*10)/10))).sort((a,b)=>a-b);
+  const insert = findMainInsertPoint();
+  const container = document.createElement('div');
+  container.id = 'price-buckets-container';
+  insert.parentNode.insertBefore(container, insert);
+
+  points.forEach(pt=>{
+    const section = document.createElement('section');
+    section.className = 'movie-section price-bucket';
+    section.innerHTML = `<h2 class="section-title">💰 A partir de ${priceBR(pt)}</h2><ul class="movie-grid"></ul>`;
+    const ul = section.querySelector('ul');
+    const items = priced.filter(i => Math.floor(i.price*10)/10 >= pt).slice(0,12);
+    items.forEach(it=>{
+      ul.appendChild(renderCardFor(it, {isHomeContext:true, markPlusHome:false}));
+    });
+    container.appendChild(section);
+  });
+}
+
+/* ---------- Modal injection: find modal and inject buy button ---------- */
+function findModalElements(){
+  // possible IDs/classes used in your index - adaptative
+  const modal = document.getElementById('movie-modal') || document.querySelector('.modal') || null;
+  if (!modal) return null;
+  const info = modal.querySelector('#modal-info-container') || modal.querySelector('.modal-info') || modal.querySelector('.info') || modal;
+  const actions = modal.querySelector('#modal-buttons') || modal.querySelector('.modal-actions') || modal.querySelector('.actions') || info;
+  const poster = modal.querySelector('#modal-poster') || modal.querySelector('.modal-poster') || modal.querySelector('img');
+  const title = modal.querySelector('#modal-title') || modal.querySelector('.modal-title') || modal.querySelector('h2');
+  const desc = modal.querySelector('#modal-description') || modal.querySelector('.modal-description') || modal.querySelector('.description');
+  const watchBtn = modal.querySelector('#modal-watch-btn') || modal.querySelector('.btn-watch') || null;
+  return {modal, info, actions, poster, title, desc, watchBtn};
+}
+function injectBuyIntoModal(item, hideWatch=false){
+  const sel = findModalElements();
+  if (!sel) {
+    console.warn('Modal DOM não encontrado - fallback: criando modal básico.');
+    openFallbackModal(item);
+    return;
+  }
+  // remove antigo
+  const old = sel.actions.querySelector('.injected-modal-buy');
+  if (old) old.remove();
+
+  // create buy
+  const buy = document.createElement('a');
+  buy.href = '#';
+  buy.className = 'injected-modal-buy btn-buy';
+  const displayPrice = (isPlusMember() && typeof item.pricePlus === 'number') ? item.pricePlus : item.price;
+  buy.textContent = `COMPRAR JÁ ${priceBR(displayPrice)}`;
+  buy.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); warnIfPlaceholder(); window.open(buildPaymentLink(item), '_blank'); });
+
+  // if pack: show list of items
+  if (item.isPack && Array.isArray(item.items)){
+    // create or update pack list
+    let packList = sel.info.querySelector('#modal-pack-list');
+    if (!packList){
+      packList = document.createElement('ul'); packList.id = 'modal-pack-list'; packList.style.marginTop='10px';
+      sel.info.appendChild(packList);
+    }
+    packList.innerHTML = item.items.map(it => `<li>${safeText(it.title||it.id)}</li>`).join('');
+  } else {
+    const existingPackList = sel.info.querySelector('#modal-pack-list'); if (existingPackList) existingPackList.remove();
+  }
+
+  // append buy button
+  sel.actions.appendChild(buy);
+
+  // hide watch btn if needed (plus-home copies)
+  if (hideWatch && sel.watchBtn) sel.watchBtn.style.display = 'none';
+  if (!hideWatch && sel.watchBtn) sel.watchBtn.style.display = '';
+
+  // set modal title/poster/desc if fields exist and item provides them
+  if (sel.poster && item.poster) sel.poster.src = item.poster;
+  if (sel.title) sel.title.textContent = item.title || sel.title.textContent;
+  if (sel.desc && item.description) sel.desc.textContent = item.description || sel.desc.textContent;
+
+  return true;
+}
+
+/* ---------- Fallback modal (very small) ---------- */
+function openFallbackModal(item){
+  // create simple modal if none exists (temporary)
+  let f = document.getElementById('fallback-modal');
+  if (!f){
+    f = document.createElement('div'); f.id='fallback-modal';
+    f.style = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:99999';
+    f.innerHTML = '<div style="background:#111;color:#fff;padding:20px;max-width:900px;width:90%"><div id="fb-title" style="font-size:20px"></div><div id="fb-desc" style="margin-top:8px"></div><div id="fb-actions" style="margin-top:12px"></div><button id="fb-close" style="margin-top:12px">Fechar</button></div>';
+    document.body.appendChild(f);
+    document.getElementById('fb-close').addEventListener('click', ()=>f.style.display='none');
+  }
+  document.getElementById('fb-title').textContent = item.title || '';
+  document.getElementById('fb-desc').textContent = item.description || '';
+  const area = document.getElementById('fb-actions');
+  area.innerHTML = '';
+  const a = document.createElement('a'); a.href='#'; a.textContent = 'Comprar ' + (item.price? priceBR(item.price):''); a.addEventListener('click', (e)=>{ e.preventDefault(); warnIfPlaceholder(); window.open(buildPaymentLink(item),'_blank'); });
+  area.appendChild(a);
+  f.style.display='flex';
+}
+
+/* ---------- Open pack modal wrapper (uses modal injection) ---------- */
+function openPackModal(pack){
+  const p = Object.assign({}, pack, { isPack: true });
+  // try to reuse existing openMovieModal
+  if (typeof window.openMovieModal === 'function'){
+    window.openMovieModal(p);
+    injectBuyIntoModal(p, true);
+    return;
+  }
+  openFallbackModal(p);
+}
+
+/* ---------- Integration: intercept openMovieModal to always inject buy ---------- */
+function monkeyPatchOpenMovieModal(){
+  if (typeof window.openMovieModal !== 'function') return;
+  const original = window.openMovieModal;
+  window.openMovieModal = function(item){
+    original(item);
+    // if opened from home plus copy (we'll rely on item._plusHomeCopy flag), hide watch
+    const hideWatch = !!item._plusHomeCopy;
+    injectBuyIntoModal(item, hideWatch);
+  };
+}
+
+/* ---------- Init (or re-init) ---------- */
+function plusEnhancerInit(){
+  try { renderPlusDataToHome(); } catch(e){ console.error('renderPlusDataToHome', e); }
+  try { renderPacks(); } catch(e){ console.error('renderPacks', e); }
+  try { renderPriceBuckets(); } catch(e){ console.error('renderPriceBuckets', e); }
+  try { monkeyPatchOpenMovieModal(); } catch(e){ console.warn('patch openMovieModal failed', e); }
+  // optional: attach click listener to any manually created card that you add later
+  // (cards created manually should have attribute data-content="1" and dataset.* filled)
+  // nothing further required — renderCardFor already attaches handlers to cards it created
+}
+
+/* ---------- Auto-run ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  // small delay so original UI scripts run first
+  setTimeout(plusEnhancerInit, 120);
+});
+
+/* ---------- Export small API for manual control ---------- */
+window.PLUS_BUY = {
+  injectBuyIntoModal,
+  renderPlusDataToHome,
+  renderPacks,
+  renderPriceBuckets,
+  renderCardFor,
+  buildPaymentLink
+};
+</script>
 </body>
 </html>
