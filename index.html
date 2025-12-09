@@ -3500,6 +3500,57 @@ document.getElementById("logoutBtn").onclick = () => {
 };
 </script>
 
+<!-- ================= MODAL DE COMPRA ================= -->
+<div id="buyModal" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.85);
+    backdrop-filter:blur(5px);
+    justify-content:center;
+    align-items:center;
+    z-index:99999;
+">
+    <div style="
+        width:90%;
+        max-width:420px;
+        background:#111;
+        padding:20px;
+        border-radius:14px;
+        color:white;
+        position:relative;
+    ">
+        <!-- FECHAR -->
+        <span id="buyClose" style="
+            position:absolute;
+            top:12px;
+            right:14px;
+            font-size:22px;
+            cursor:pointer;
+        ">✖</span>
+
+        <!-- POSTER -->
+        <img id="buyPoster" style="width:100%; border-radius:8px;">
+
+        <!-- TÍTULO -->
+        <h2 id="buyTitle" style="margin-top:12px; font-size:20px;"></h2>
+
+        <!-- ANO E GÊNERO -->
+        <p style="margin:4px 0;">Ano: <span id="buyYear"></span></p>
+        <p style="margin:4px 0;">Gênero(s): <span id="buyGenres"></span></p>
+
+        <!-- PERGUNTA -->
+        <p id="buyQuestion" style="margin-top:16px; opacity:0.9;"></p>
+
+        <!-- BOTÃO -->
+        <div id="buyButtons" style="margin-top:18px; text-align:center;"></div>
+    </div>
+</div>
+
+
 <script>
 // ==========================================================
 // CONFIGURAÇÃO — ENDPOINT DO MERCADO PAGO
