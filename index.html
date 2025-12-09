@@ -3507,7 +3507,7 @@ const ENDPOINT_MP = "/mp/checkout?item_id=";
 
 
 // ==========================================================
-// LISTAS DE FILMES — AQUI VOCÊ ADICIONA NORMAL
+//  LISTAS — VOCÊ PREENCHERÁ AQUI
 // ==========================================================
 
 // 💰 A PARTIR DE 8,99
@@ -3538,13 +3538,9 @@ function formatPrice(v){
 }
 
 function buildPayment(item){
-    if(item.checkoutUrl){
-        return item.checkoutUrl;
-    }
-    return ENDPOINT_MP +
-        encodeURIComponent(item.id) +
-        "&title=" + encodeURIComponent(item.title) +
-        "&price=" + encodeURIComponent(item.price);
+    return item.checkoutUrl
+        ? item.checkoutUrl
+        : ENDPOINT_MP + encodeURIComponent(item.id);
 }
 
 
@@ -3565,13 +3561,13 @@ function createBuyCard(item){
         </div>
     `;
 
-    // abre modal ao clicar no card
+    // ABRIR MODAL
     li.addEventListener("click", e=>{
-        if(e.target.classList.contains("btn-buy")) return;
-        openPurchaseModal(item);
+        if (e.target.classList.contains("btn-buy")) return;
+        openBuyModal(item);
     });
 
-    // botão comprar direto
+    // COMPRAR DIRETO
     li.querySelector(".btn-buy").addEventListener("click", e=>{
         e.preventDefault();
         e.stopPropagation();
@@ -3583,9 +3579,9 @@ function createBuyCard(item){
 
 
 // ==========================================================
-// MODAL EXCLUSIVO DE COMPRA
+// 🟩 MODAL DE COMPRA (AGORA ÚNICO)
 // ==========================================================
-function openPurchaseModal(item){
+function openBuyModal(item){
 
     document.getElementById("buyPoster").src = item.poster;
     document.getElementById("buyTitle").textContent = item.title;
@@ -3599,7 +3595,6 @@ function openPurchaseModal(item){
         <a href="${buildPayment(item)}" target="_blank"
            style="
                 display:inline-block;
-                margin-top:10px;
                 padding:10px 18px;
                 background:#0f8;
                 color:#000;
@@ -3613,12 +3608,6 @@ function openPurchaseModal(item){
 
     document.getElementById("buyModal").style.display = "flex";
 }
-
-
-// fechar modal
-document.getElementById("buyClose").addEventListener("click", ()=>{
-    document.getElementById("buyModal").style.display = "none";
-});
 
 
 // ==========================================================
@@ -3640,10 +3629,7 @@ function renderBuySection(id, title, list){
     `;
 
     const grid = section.querySelector(".movie-grid");
-
-    list.forEach(item=>{
-        grid.appendChild(createBuyCard(item));
-    });
+    list.forEach(item => grid.appendChild(createBuyCard(item)));
 }
 
 
@@ -3658,59 +3644,5 @@ document.addEventListener("DOMContentLoaded", ()=>{
 
 });
 </script>
-    <!-- MODAL EXCLUSIVO DE COMPRA -->
-<div id="buyModal" style="
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.85);
-    backdrop-filter:blur(5px);
-    justify-content:center;
-    align-items:center;
-    z-index:99999;
-">
-
-    <div style="
-        width:90%;
-        max-width:420px;
-        background:#111;
-        padding:20px;
-        border-radius:14px;
-        color:white;
-        position:relative;
-        font-family:Arial;
-    ">
-
-        <!-- FECHAR -->
-        <span id="buyClose" style="
-            position:absolute;
-            top:12px;
-            right:14px;
-            font-size:22px;
-            cursor:pointer;
-            user-select:none;
-        ">✖</span>
-
-        <!-- POSTER -->
-        <img id="buyPoster" style="width:100%; border-radius:8px;">
-
-        <!-- TÍTULO -->
-        <h2 id="buyTitle" style="margin-top:12px; font-size:20px;"></h2>
-
-        <!-- ANO E GÊNERO -->
-        <p>Ano: <span id="buyYear"></span></p>
-        <p>Gênero(s): <span id="buyGenres"></span></p>
-
-        <!-- PERGUNTA -->
-        <p id="buyQuestion" style="margin-top:16px; opacity:0.9;"></p>
-
-        <!-- BOTÃO -->
-        <div id="buyButtons" style="margin-top:18px; text-align:center;"></div>
-
-    </div>
-</div>
 </body>
 </html>
