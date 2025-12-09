@@ -3514,8 +3514,13 @@ const ENDPOINT_MP = "/mp/checkout?item_id=";
 
 // Sessão “A partir de…”
 window.aPartirDe = [
-{ id: 32, title: "Jejum de Amor", year: "1940", description: "Um jornalista e sua ex-mulher se envolvem em uma série de situações hilárias enquanto cobrem um caso de assassinato.", poster: "https://a.imagem.app/BC17sr.jpeg", genres: ["Comédia", "Romance"], videoUrl: "https://drive.google.com/file/d/17U243ssoae3O3LvikWM2GJLM_99uO2bV/preview" },
-   
+const filmesAPartirDe = [
+    { id: 32, title: "Jejum de Amor", year: "1940", description: "Um jornalista e sua ex-mulher se envolvem em uma série de situações hilárias enquanto cobrem um caso de assassinato.", poster: "https://a.imagem.app/BC17sr.jpeg", genres: ["Comédia", "Romance"], price: 4.99, checkoutUrl: "https://seu-mp.com/jejumdeamor" },
+    { id: 55, title: "O Grande Ditador", year: "1940", description: "O barbeiro judeu Adenoid Hynkel tenta dominar o mundo com a ajuda de seus seguidores.", poster: "https://a.imagem.app/BC1RYX.jpeg", genres: ["Comédia", "Drama"], price: 6.99, checkoutUrl: "https://seu-mp.com/grandeditador" },
+    { id: 60, title: "O Segredo dos Quatro", year: "1932", description: "Um grupo tenta desvendar um assassinato ocorrido em uma mansão.", poster: "https://a.imagem.app/BC1Mdt.jpeg", genres: ["Mistério", "Suspense"], price: 3.99, checkoutUrl: "https://seu-mp.com/segredodosquatro" },
+    { id: 63, title: "Os 39 Degraus", year: "1935", description: "Um homem acusado de assassinato tenta provar sua inocência.", poster: "https://a.imagem.app/BC1P1y.jpeg", genres: ["Suspense", "Mistério"], price: 5.99, checkoutUrl: "https://seu-mp.com/os39degraus" },
+    { id: 65, title: "Plan 9 from Outer Space", year: "1959", description: "Alienígenas usam mortos para atacar humanos.", poster: "https://a.imagem.app/BC1aN2.jpeg", genres: ["Ficção Científica", "Terror"], price: 4.49, checkoutUrl: "https://seu-mp.com/plan9" },
+    
 ];
 
 // Sessão “Packs de Filmes”
@@ -3653,6 +3658,96 @@ document.addEventListener("DOMContentLoaded", ()=>{
     // SESSÃO: PACKS DE FILMES
     renderSession("sessao-packs", "📦 Packs de filmes:", window.packsDeFilmes);
 });
+</script>
+<script>
+// ==========================================================
+// FUNÇÕES ÚTEIS
+// ==========================================================
+function formatPrice(v){
+    return "R$ " + v.toFixed(2).replace(".", ",");
+}
+
+// ==========================================================
+// CRIA CARTÃO
+// ==========================================================
+function createBuyCard(item){
+    const li = document.createElement("li");
+    li.className = "movie-item";
+
+    li.innerHTML = `
+        <img src="${item.poster}" class="movie-poster" alt="${item.title}">
+        <div class="card-info-overlay">
+            <h3>${item.title}</h3>
+            <div class="card-buttons-container">
+                <a href="#" class="btn-buy">COMPRAR ${formatPrice(item.price)}</a>
+            </div>
+        </div>
+    `;
+
+    // Clique no card abre modal
+    li.addEventListener("click", e=>{
+        if(e.target.classList.contains("btn-buy")) return;
+        openBuyModal(item);
+    });
+
+    // Botão comprar
+    li.querySelector(".btn-buy").addEventListener("click", e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        window.open(item.checkoutUrl, "_blank");
+    });
+
+    return li;
+}
+
+
+// ==========================================================
+// MODAL (USANDO O SEU)
+// ==========================================================
+function openBuyModal(item){
+    const modal = document.getElementById("movie-modal");
+    document.getElementById("modal-title").textContent = item.title;
+    document.getElementById("modal-poster").src = item.poster;
+    document.getElementById("modal-description").textContent = item.description;
+
+    document.getElementById("modal-buttons").innerHTML = `
+        <a href="${item.checkoutUrl}" target="_blank" class="btn-buy">
+            COMPRAR ${formatPrice(item.price)}
+        </a>
+    `;
+
+    modal.style.display = "flex";
+}
+
+document.querySelector("#movie-modal .close-btn")?.addEventListener("click",()=>{
+    document.getElementById("movie-modal").style.display = "none";
+});
+
+
+// ==========================================================
+// RENDERIZA SESSÃO
+// ==========================================================
+function renderBuySection(id, title, list){
+    let section = document.getElementById(id);
+
+    if(!section){
+        section = document.createElement("section");
+        section.id = id;
+        section.className = "movie-section";
+        document.querySelector("main").appendChild(section);
+    }
+
+    section.innerHTML = `
+        <h2 class="section-title">${title}</h2>
+        <ul class="movie-grid"></ul>
+    `;
+
+    const grid = section.querySelector(".movie-grid");
+
+    list.forEach(item=>{
+        grid.appendChild(createBuyCard(item));
+    });
+}
 </script>
 </body>
 </html>
