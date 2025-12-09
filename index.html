@@ -3499,6 +3499,7 @@ document.getElementById("logoutBtn").onclick = () => {
     hiddenBtn.onclick = null;
 };
 </script>
+
 <script>
 // ==========================================================
 // CONFIGURAÇÃO — ENDPOINT DO MERCADO PAGO
@@ -3507,7 +3508,7 @@ const ENDPOINT_MP = "/mp/checkout?item_id=";
 
 
 // ==========================================================
-//  LISTAS — VOCÊ PREENCHERÁ AQUI
+//  LISTAS — AQUI VOCÊ ADICIONA OS FILMES
 // ==========================================================
 
 // 💰 A PARTIR DE 8,99
@@ -3515,15 +3516,15 @@ window.a899 = [];
 
 // 💰 A PARTIR DE 12,99
 window.a1299 = [
-    { id: 32, title: "Jejum de Amor", year: "1940", description: "Um jornalista e sua ex-mulher se envolvem...", poster: "https://a.imagem.app/BC17sr.jpeg", genres: ["Comédia", "Romance"], price: 12.99, checkoutUrl: "https://seu-mp.com/jejumdeamor" },
+    { id: 32, title: "Jejum de Amor", year: "1940", description: "Um jornalista e sua ex-mulher se envolvem...", poster: "https://a.imagem.app/BC17sr.jpeg", genres: ["Comédia", "Romance"], checkoutUrl: "https://seu-mp.com/jejumdeamor" },
 
-    { id: 55, title: "O Grande Ditador", year: "1940", description: "O barbeiro judeu Adenoid Hynkel...", poster: "https://a.imagem.app/BC1RYX.jpeg", genres: ["Comédia", "Drama"], price: 12.99, checkoutUrl: "https://seu-mp.com/grandeditador" },
+    { id: 55, title: "O Grande Ditador", year: "1940", description: "O ditador Hynkel planeja dominar o mundo...", poster: "https://a.imagem.app/BC1RYX.jpeg", genres: ["Comédia", "Drama"], checkoutUrl: "https://seu-mp.com/grandeditador" },
 
-    { id: 60, title: "O Segredo dos Quatro", year: "1932", description: "Um mistério envolvendo assassinato...", poster: "https://a.imagem.app/BC1Mdt.jpeg", genres: ["Mistério", "Suspense"], price: 12.99, checkoutUrl: "https://seu-mp.com/segredodosquatro" },
+    { id: 60, title: "O Segredo dos Quatro", year: "1932", description: "Mistério em uma mansão com assassinato...", poster: "https://a.imagem.app/BC1Mdt.jpeg", genres: ["Mistério", "Suspense"], checkoutUrl: "https://seu-mp.com/segredodosquatro" },
 
-    { id: 63, title: "Os 39 Degraus", year: "1935", description: "Um homem inocente foge da polícia...", poster: "https://a.imagem.app/BC1P1y.jpeg", genres: ["Suspense", "Mistério"], price: 12.99, checkoutUrl: "https://seu-mp.com/os39degraus" },
+    { id: 63, title: "Os 39 Degraus", year: "1935", description: "Homem inocente perseguido tenta provar inocência...", poster: "https://a.imagem.app/BC1P1y.jpeg", genres: ["Suspense", "Mistério"], checkoutUrl: "https://seu-mp.com/os39degraus" },
 
-    { id: 65, title: "Plan 9 from Outer Space", year: "1959", description: "Alienígenas ressuscitam mortos...", poster: "https://a.imagem.app/BC1aN2.jpeg", genres: ["Ficção Científica", "Terror"], price: 12.99, checkoutUrl: "https://seu-mp.com/plan9" }
+    { id: 65, title: "Plan 9 from Outer Space", year: "1959", description: "Alienígenas ressuscitam mortos...", poster: "https://a.imagem.app/BC1aN2.jpeg", genres: ["Ficção Científica", "Terror"], checkoutUrl: "https://seu-mp.com/plan9" }
 ];
 
 // 💰 A PARTIR DE 19,99
@@ -3538,16 +3539,17 @@ function formatPrice(v){
 }
 
 function buildPayment(item){
-    return item.checkoutUrl
-        ? item.checkoutUrl
-        : ENDPOINT_MP + encodeURIComponent(item.id);
+    return item.checkoutUrl ??
+        (ENDPOINT_MP +
+        encodeURIComponent(item.id) +
+        "&title=" + encodeURIComponent(item.title));
 }
 
 
 // ==========================================================
-// CRIA O CARD
+// CRIAR CARD
 // ==========================================================
-function createBuyCard(item){
+function createBuyCard(item, price){
     const li = document.createElement("li");
     li.className = "movie-item";
 
@@ -3556,18 +3558,18 @@ function createBuyCard(item){
         <div class="card-info-overlay">
             <h3>${item.title}</h3>
             <div class="card-buttons-container">
-                <a href="#" class="btn-buy">COMPRAR (${formatPrice(item.price)})</a>
+                <a href="#" class="btn-buy">COMPRAR (${formatPrice(price)})</a>
             </div>
         </div>
     `;
 
-    // ABRIR MODAL
+    // Abrir modal
     li.addEventListener("click", e=>{
-        if (e.target.classList.contains("btn-buy")) return;
-        openBuyModal(item);
+        if(e.target.classList.contains("btn-buy")) return;
+        openBuyModal(item, price);
     });
 
-    // COMPRAR DIRETO
+    // Botão comprar direto
     li.querySelector(".btn-buy").addEventListener("click", e=>{
         e.preventDefault();
         e.stopPropagation();
@@ -3579,9 +3581,9 @@ function createBuyCard(item){
 
 
 // ==========================================================
-// 🟩 MODAL DE COMPRA (AGORA ÚNICO)
+// MODAL DE COMPRA
 // ==========================================================
-function openBuyModal(item){
+function openBuyModal(item, price){
 
     document.getElementById("buyPoster").src = item.poster;
     document.getElementById("buyTitle").textContent = item.title;
@@ -3589,31 +3591,37 @@ function openBuyModal(item){
     document.getElementById("buyGenres").textContent = item.genres.join(", ");
 
     document.getElementById("buyQuestion").innerHTML =
-        `Deseja comprar este filme por <b>${formatPrice(item.price)}</b>?`;
+        `Deseja comprar este filme por <b>${formatPrice(price)}</b>?`;
 
     document.getElementById("buyButtons").innerHTML = `
-        <a href="${buildPayment(item)}" target="_blank"
-           style="
+        <a href="${buildPayment(item)}"
+            target="_blank"
+            style="
                 display:inline-block;
-                padding:10px 18px;
+                padding:12px 20px;
                 background:#0f8;
                 color:#000;
                 font-weight:bold;
                 border-radius:6px;
                 text-decoration:none;
-           ">
-           COMPRAR (${formatPrice(item.price)})
+            ">
+            COMPRAR (${formatPrice(price)})
         </a>
     `;
 
     document.getElementById("buyModal").style.display = "flex";
 }
 
+// Fechar modal
+document.getElementById("buyClose").addEventListener("click", ()=>{
+    document.getElementById("buyModal").style.display = "none";
+});
+
 
 // ==========================================================
 // RENDERIZAR SESSÃO
 // ==========================================================
-function renderBuySection(id, title, list){
+function renderBuySection(id, title, list, price){
     let section = document.getElementById(id);
 
     if(!section){
@@ -3629,7 +3637,10 @@ function renderBuySection(id, title, list){
     `;
 
     const grid = section.querySelector(".movie-grid");
-    list.forEach(item => grid.appendChild(createBuyCard(item)));
+
+    list.forEach(item=>{
+        grid.appendChild(createBuyCard(item, price));
+    });
 }
 
 
@@ -3638,9 +3649,9 @@ function renderBuySection(id, title, list){
 // ==========================================================
 document.addEventListener("DOMContentLoaded", ()=>{
 
-    renderBuySection("sessao-899",  "💰 A partir de R$8,99",  window.a899);
-    renderBuySection("sessao-1299", "💰 A partir de R$12,99", window.a1299);
-    renderBuySection("sessao-1999", "💰 A partir de R$19,99", window.a1999);
+    renderBuySection("sessao-899",  "💰 A partir de R$8,99",  window.a899, 8.99);
+    renderBuySection("sessao-1299", "💰 A partir de R$12,99", window.a1299, 12.99);
+    renderBuySection("sessao-1999", "💰 A partir de R$19,99", window.a1999, 19.99);
 
 });
 </script>
