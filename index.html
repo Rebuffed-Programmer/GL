@@ -3563,28 +3563,106 @@ const ENDPOINT_MP = "/mp/checkout?item_id=";
 // ==========================================================
 
 // 💰 A PARTIR DE 8,99
-window.a899 = [];
+window.a899 = [
+    
+    { id: 1, title: "O Flautista de Hamelin", year: "1933", description: "Adaptação clássica da história do flautista que salva a cidade.", poster: "", genres: ["Fantasia"], checkoutUrl: "" },
+    { id: 2, title: "O Foguete Errante", year: "1959", description: "Um curta divertido com ficção científica leve.", poster: "", genres: ["Sci-Fi"], checkoutUrl: "" },
+    { id: 3, title: "Sherlock Holmes", year: "1922", description: "Primeira adaptação muda do famoso detetive.", poster: "", genres: ["Mistério"], checkoutUrl: "" },
+    { id: 4, title: "Suspense", year: "1913", description: "Um curta mudo de tensão e perseguição.", poster: "", genres: ["Suspense"], checkoutUrl: "" },
+    { id: 5, title: "The Skeleton Dance", year: "1929", description: "Um dos maiores clássicos animados de Halloween.", poster: "", genres: ["Animação"], checkoutUrl: "" },
+    { id: 6, title: "Susie – O Pequeno Coupé Azul", year: "1952", description: "Uma história animada sobre um carro azul com vida.", poster: "", genres: ["Animação"], checkoutUrl: "" },
+    { id: 7, title: "The Mad Doctor", year: "1933", description: "Mickey em uma aventura sombria com um cientista louco.", poster: "", genres: ["Animação"], checkoutUrl: "" },
+    { id: 8, title: "A Vila dos Insetos", year: "1941", description: "Curta animado com insetos em uma aventura musical.", poster: "", genres: ["Animação"], checkoutUrl: "" },
+    { id: 9, title: "Looney Tunes Bosko", year: "1920", description: "Primeiras aparições do personagem Bosko.", poster: "", genres: ["Animação"], checkoutUrl: "" }
+
+];
 
 // 💰 A PARTIR DE 12,99
 window.a1299 = [
-    { id: 32, title: "Jejum de Amor", year: "1940", description: "Um jornalista e sua ex-mulher se envolvem...", poster: "https://a.imagem.app/BC17sr.jpeg", genres: ["Comédia", "Romance"], checkoutUrl: "https://seu-mp.com/jejumdeamor" },
+    
+    { id: 10, title: "A Última Vez que Vi Paris", year: "1954", description: "Um romance dramático ambientado na Paris pós-guerra.", poster: "", genres: ["Drama", "Romance"], checkoutUrl: "" },
+    { id: 11, title: "A Noite dos Mortos Vivos", year: "1958", description: "Sobreviventes presos em uma casa enfrentam zumbis.", poster: "", genres: ["Terror"], checkoutUrl: "" },
+    { id: 12, title: "A Paixão de Joana d’Arc", year: "1928", description: "Representação intensa do julgamento de Joana d’Arc.", poster: "", genres: ["Histórico", "Drama"], checkoutUrl: "" },
+    { id: 13, title: "Encouraçado Potemkin", year: "1925", description: "Clássico soviético sobre a revolta dos marinheiros.", poster: "", genres: ["Histórico"], checkoutUrl: "" },
+    { id: 14, title: "Irene, a Teimosa", year: "1936", description: "Uma comédia romântica encantadora.", poster: "", genres: ["Comédia"], checkoutUrl: "" },
+    { id: 15, title: "O Cisne Negro", year: "1942", description: "Aventura com piratas, romance e batalhas.", poster: "", genres: ["Aventura"], checkoutUrl: "" },
+    { id: 16, title: "O Fantasma da Ópera", year: "1925", description: "A versão muda clássica do fantasma mascarado.", poster: "", genres: ["Terror"], checkoutUrl: "" },
+    { id: 17, title: "O Segredo dos Quatro", year: "1932", description: "Mistério em uma mansão com assassinato.", poster: "", genres: ["Mistério"], checkoutUrl: "" },
+    { id: 18, title: "Plan 9 from Outer Space", year: "1959", description: "Alienígenas ressuscitam mortos em uma das maiores cult gems.", poster: "", genres: ["Sci-Fi", "Cult"], checkoutUrl: "" },
+    { id: 19, title: "The Lost World", year: "1925", description: "Dinossauros em stop-motion no clássico pioneiro.", poster: "", genres: ["Aventura"], checkoutUrl: "" },
+    { id: 20, title: "O Inventor da Mocidade", year: "1952", description: "Comédia científica divertida dos anos 50.", poster: "", genres: ["Comédia"], checkoutUrl: "" },
+    { id: 21, title: "Minha Secretária Brasileira", year: "1942", description: "Comédia romântica musical.", poster: "", genres: ["Comédia", "Romance"], checkoutUrl: "" },
+    { id: 22, title: "Wizard of Oz", year: "1925", description: "Versão muda alternativa da clássica história.", poster: "", genres: ["Fantasia"], checkoutUrl: "" },
+    { id: 23, title: "O Filho de Kong", year: "1933", description: "Sequência divertida do clássico King Kong.", poster: "", genres: ["Aventura"], checkoutUrl: "" },
+    { id: 24, title: "Dançando nas Nuvens", year: "1955", description: "Musical romântico leve e divertido.", poster: "", genres: ["Musical"], checkoutUrl: "" },
+    { id: 25, title: "Velozes e Furiosos", year: "1955", description: "Clássico B de ação com corrida e crime.", poster: "", genres: ["Ação"], checkoutUrl: "" },
+    { id: 26, title: "Nada de Novo no Front", year: "1979", description: "Adaptação de guerra impactante.", poster: "", genres: ["Guerra"], checkoutUrl: "" },
+    { id: 27, title: "A Invasão dos Discos Voadores", year: "1956", description: "Extraterrestres atacam a Terra.", poster: "", genres: ["Sci-Fi"], checkoutUrl: "" },
+    { id: 28, title: "Farrapo Humano", year: "1945", description: "Drama sobre alcoolismo com forte impacto.", poster: "", genres: ["Drama"], checkoutUrl: "" },
+    { id: 29, title: "O Tesouro do Condor de Ouro", year: "1953", description: "Aventura com exploração e mistério.", poster: "", genres: ["Aventura"], checkoutUrl: "" },
+    { id: 30, title: "Aconteceu num Apartamento", year: "1962", description: "Comédia romântica com clima divertido.", poster: "", genres: ["Comédia"], checkoutUrl: "" },
+    { id: 31, title: "O Homem que Eu Deveria Odiar", year: "1961", description: "Drama envolvente com romance.", poster: "", genres: ["Drama"], checkoutUrl: "" },
+    { id: 32, title: "O Terceiro Tiro", year: "1955", description: "Mistério criminal clássico.", poster: "", genres: ["Crime"], checkoutUrl: "" },
+    { id: 33, title: "João e o Pé de Feijão", year: "1952", description: "A famosa história infantil em versão animada.", poster: "", genres: ["Fantasia"], checkoutUrl: "" },
+    { id: 34, title: "A Rainha Tirana", year: "1955", description: "Drama histórico romântico.", poster: "", genres: ["Drama"], checkoutUrl: "" },
+    { id: 35, title: "Mulher Cobra", year: "1944", description: "Cult B-movie com experimento que vira mulher-cobra.", poster: "", genres: ["Terror"], checkoutUrl: "" },
+    { id: 36, title: "A Raposa do Mar", year: "1957", description: "Filme de guerra naval com ação intensa.", poster: "", genres: ["Guerra"], checkoutUrl: "" },
+    { id: 37, title: "Mulheres e Luzes", year: "1950", description: "Drama romântico de Fellini.", poster: "", genres: ["Drama"], checkoutUrl: "" },
+    { id: 38, title: "Até o Último Homem", year: "1951", description: "Western clássico com elementos de redenção.", poster: "", genres: ["Faroeste"], checkoutUrl: "" },
+    { id: 39, title: "Príncipe Valente", year: "1954", description: "Aventura épica medieval.", poster: "", genres: ["Aventura"], checkoutUrl: "" },
+    { id: 40, title: "A Trapaça", year: "1955", description: "Drama romântico com reviravoltas.", poster: "", genres: ["Drama"], checkoutUrl: "" },
+    { id: 41, title: "Raízes do Céu", year: "1958", description: "Drama ecológico pioneiro.", poster: "", genres: ["Drama"], checkoutUrl: "" },
+    { id: 42, title: "Little Shop of Horrors", year: "1960", description: "Terror-comédia cult sobre planta carnívora.", poster: "", genres: ["Terror", "Comédia"], checkoutUrl: "" },
+    { id: 43, title: "The Brain That Wouldn’t Die", year: "1962", description: "Clássico sci-fi grotesco.", poster: "", genres: ["Terror", "Sci-Fi"], checkoutUrl: "" },
+    { id: 44, title: "Two Soldiers", year: "1943", description: "Drama de guerra sobre dois soldados americanos.", poster: "", genres: ["Guerra"], checkoutUrl: "" },
+    { id: 45, title: "Mickey – The Gallopin’ Gaucho", year: "1928", description: "Segunda aparição do Mickey.", poster: "", genres: ["Animação"], checkoutUrl: "" }
 
-    { id: 60, title: "O Segredo dos Quatro", year: "1932", description: "Mistério em uma mansão com assassinato...", poster: "https://a.imagem.app/BC1Mdt.jpeg", genres: ["Mistério", "Suspense"], checkoutUrl: "https://seu-mp.com/segredodosquatro" },
-
-    { id: 63, title: "Os 39 Degraus", year: "1935", description: "Homem inocente perseguido tenta provar inocência...", poster: "https://a.imagem.app/BC1P1y.jpeg", genres: ["Suspense", "Mistério"], checkoutUrl: "https://seu-mp.com/os39degraus" },
-
-    { id: 65, title: "Plan 9 from Outer Space", year: "1959", description: "Alienígenas ressuscitam mortos...", poster: "https://a.imagem.app/BC1aN2.jpeg", genres: ["Ficção Científica", "Terror"], checkoutUrl: "https://seu-mp.com/plan9" }
 ];
 
 // 💰 A PARTIR DE 19,99
 window.a1999 = [
 
-        { id: 55, title: "O Grande Ditador", year: "1940", description: "O ditador Hynkel planeja dominar o mundo...", poster: "https://a.imagem.app/BC1RYX.jpeg", genres: ["Comédia", "Drama"], checkoutUrl: "https://seu-mp.com/grandeditador" },
+    { id: 46, title: "A Dama de Shanghai", year: "1948", description: "Filme noir clássico dirigido por Orson Welles.", poster: "", genres: ["Noir"], checkoutUrl: "" },
+    { id: 47, title: "Intolerância", year: "1916", description: "Épico monumental com múltiplas narrativas históricas.", poster: "", genres: ["Épico"], checkoutUrl: "" },
+    { id: 48, title: "Jejum de Amor", year: "1940", description: "Comédia romântica jornalística.", poster: "", genres: ["Comédia"], checkoutUrl: "" },
+    { id: 49, title: "Luzes da Cidade", year: "1931", description: "Obra-prima de Chaplin misturando comédia e drama.", poster: "", genres: ["Comédia", "Drama"], checkoutUrl: "" },
+    { id: 50, title: "Nosferatu", year: "1922", description: "Primeiro filme de vampiro, marco expressionista.", poster: "", genres: ["Terror"], checkoutUrl: "" },
+    { id: 51, title: "Os 39 Degraus", year: "1935", description: "Suspense clássico de Hitchcock.", poster: "", genres: ["Suspense"], checkoutUrl: "" },
+    { id: 52, title: "Rebecca", year: "1940", description: "Drama psicológico de Hitchcock vencedor do Oscar.", poster: "", genres: ["Suspense"], checkoutUrl: "" },
+    { id: 53, title: "Tarzan", year: "1933", description: "Versão clássica com ação e aventura na selva.", poster: "", genres: ["Aventura"], checkoutUrl: "" },
+    { id: 54, title: "Tempos Modernos", year: "1936", description: "Uma das maiores comédias críticas de Chaplin.", poster: "", genres: ["Comédia"], checkoutUrl: "" },
+    { id: 55, title: "The General", year: "1926", description: "Uma das maiores comédias de Buster Keaton.", poster: "", genres: ["Comédia"], checkoutUrl: "" },
+    { id: 56, title: "Superman", year: "1941–1943", description: "Os famosos curtas animados do herói.", poster: "", genres: ["Ação"], checkoutUrl: "" },
+    { id: 57, title: "Cidade Nua", year: "1948", description: "Noir policial pioneiro filmado nas ruas.", poster: "", genres: ["Crime"], checkoutUrl: "" },
+    { id: 58, title: "Em Busca do Ouro", year: "1925", description: "Um dos maiores filmes de Chaplin.", poster: "", genres: ["Comédia"], checkoutUrl: "" },
+    { id: 59, title: "Até as Nuvens Passarem", year: "1946", description: "Musical biográfico baseado na vida de Kern.", poster: "", genres: ["Musical"], checkoutUrl: "" },
+    { id: 60, title: "Sete Dias de Maio", year: "1964", description: "Suspense político sobre golpe nos EUA.", poster: "", genres: ["Suspense"], checkoutUrl: "" },
+    { id: 61, title: "O Gordo e o Magro – Os Boêmios do Céu", year: "1939", description: "Aventura cômica da dupla icônica.", poster: "", genres: ["Comédia"], checkoutUrl: "" },
+    { id: 62, title: "Fleischer Studios Compilation", description: "Compilado dos melhores curtas do estúdio Fleischer.", year: "", poster: "", genres: ["Animação"], checkoutUrl: "" },
+    { id: 63, title: "A Morada da Sexta Felicidade", year: "1958", description: "Drama histórico emocionante.", poster: "", genres: ["Drama"], checkoutUrl: "" }
 
 
 ];
 
+// 💰 A PARTIR DE 29,99
+window.a2999 = [
 
+    { id: 70, title: "O Grande Ditador", year: "1940", description: "Chaplin satiriza regimes totalitários.", poster: "", genres: ["Comédia"], checkoutUrl: "" },
+    { id: 71, title: "Os Dez Mandamentos", year: "1956", description: "Um dos maiores épicos bíblicos da história.", poster: "", genres: ["Épico"], checkoutUrl: "" },
+    { id: 72, title: "Metropolis", year: "1927", description: "Sci-fi expressionista revolucionário.", poster: "", genres: ["Sci-Fi"], checkoutUrl: "" },
+    { id: 73, title: "Limite", year: "1931", description: "Obra-prima experimental brasileira.", poster: "", genres: ["Experimental"], checkoutUrl: "" },
+    { id: 74, title: "Charada", year: "", description: "Suspense romântico estrelado por Hepburn e Grant.", poster: "", genres: ["Suspense"], checkoutUrl: "" },
+    { id: 75, title: "O Gabinete do Dr. Caligari", year: "", description: "Marcou o expressionismo alemão.", poster: "", genres: ["Terror"], checkoutUrl: "" },
+    { id: 76, title: "O Garoto", year: "", description: "Uma das maiores obras de Chaplin.", poster: "", genres: ["Comédia", "Drama"], checkoutUrl: "" },
+    { id: 77, title: "O Circo", year: "", description: "Chaplin em uma aventura cômica circense.", poster: "", genres: ["Comédia"], checkoutUrl: "" },
+    { id: 78, title: "Carnival of Souls", year: "", description: "Terror cult atmosférico dos anos 60.", poster: "", genres: ["Terror"], checkoutUrl: "" },
+    { id: 79, title: "Viagem à Lua", year: "", description: "Primeiro sci-fi da história.", poster: "", genres: ["Sci-Fi"], checkoutUrl: "" },
+    { id: 80, title: "Levada de Breca", year: "", description: "Comédia romântica clássica com Hepburn e Grant.", poster: "", genres: ["Romance"], checkoutUrl: "" }
+
+];
+
+
+    
 // ==========================================================
 // FUNÇÕES DE UTILIDADE
 // ==========================================================
@@ -3706,7 +3784,9 @@ document.addEventListener("DOMContentLoaded", ()=>{
     renderBuySection("sessao-899",  "💰 A partir de R$8,99",  window.a899, 8.99);
     renderBuySection("sessao-1299", "💰 A partir de R$12,99", window.a1299, 12.99);
     renderBuySection("sessao-1999", "💰 A partir de R$19,99", window.a1999, 19.99);
-
+    renderBuySection("sessao-2999", "💰 A partir de R$29,99", window.a2999, 29.99);
+    renderBuySection("sessao-pack", "💰 Pack de filmes" );
+    
 });
 </script>
 </body>
