@@ -1,0 +1,10 @@
+{
+  "name": "glplus-backend",
+  "version": "1.0.0",
+  "description": "Backend for GL Plus+ subscription check",
+  "main": "api/checkSubscription.js",
+  "type": "module",
+  "dependencies": {
+    "@vercel/kv": "^0.2.2"
+  }
+}
