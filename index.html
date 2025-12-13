@@ -3801,6 +3801,32 @@ document.addEventListener("DOMContentLoaded", ()=>{
             ">
                 Fazer Login
             </button>
+            <div id="plusLoginOptions" style="display:none; margin-top:12px;">
+    <button id="plusTokenLogin" style="
+        width:100%;
+        padding:12px;
+        border-radius:10px;
+        border:1px solid #555;
+        background:#1a1a1a;
+        color:white;
+        margin-bottom:8px;
+        cursor:pointer;
+    ">
+        Login Familiar (Token)
+    </button>
+
+    <button id="plusGoogleLogin" style="
+        width:100%;
+        padding:12px;
+        border-radius:10px;
+        border:none;
+        background:#4285F4;
+        color:white;
+        cursor:pointer;
+    ">
+        Login com Google
+    </button>
+</div>
 
             <button id="plusSubscribeBtn" style="
                 /* ... (restante dos seus estilos CSS inline) */
@@ -4113,6 +4139,158 @@ function removeOldModal() {
 
 removeOldModal();
 </script>
-    
+    <script>
+/* ============================================================
+   PLUS+ — SISTEMA FINAL LIMPO (SEM BACKEND)
+   ============================================================ */
+
+const PLUS_POSTER_URL = "https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg";
+const LINK_PAGAMENTO = "https://mpago.la/2SRyqam";
+
+/* =========================
+   ELEMENTOS
+   ========================= */
+const modal = document.getElementById("plusAccessModal");
+const closeBtn = document.getElementById("plusAccessClose");
+const poster = document.getElementById("plusAccessPoster");
+const loginBtn = document.getElementById("plusLoginBtn");
+const subscribeBtn = document.getElementById("plusSubscribeBtn");
+const loginOptions = document.getElementById("plusLoginOptions");
+const tokenBtn = document.getElementById("plusTokenLogin");
+const googleBtn = document.getElementById("plusGoogleLogin");
+
+poster.src = PLUS_POSTER_URL;
+
+/* =========================
+   UTIL
+   ========================= */
+const now = () => Date.now();
+
+/* =========================
+   CHECKS
+   ========================= */
+function hasTokenAccess() {
+    try {
+        const t = JSON.parse(localStorage.getItem("plus_token_access"));
+        return t && t.expiry > now();
+    } catch {
+        return false;
+    }
+}
+
+function hasGoogleAccess() {
+    try {
+        const g = JSON.parse(localStorage.getItem("plus_google_subscription"));
+        return g && g.expiry > now();
+    } catch {
+        return false;
+    }
+}
+
+function hasPlusAccess() {
+    return hasTokenAccess() || hasGoogleAccess();
+}
+
+/* =========================
+   MODAL CONTROL
+   ========================= */
+function openModal() {
+    modal.style.display = "flex";
+}
+
+function closeModal() {
+    modal.style.display = "none";
+    loginOptions.style.display = "none";
+}
+
+closeBtn.onclick = closeModal;
+
+document.addEventListener("click", e => {
+    if (e.target === modal) closeModal();
+});
+
+/* =========================
+   BOTÕES DO MODAL
+   ========================= */
+loginBtn.onclick = () => {
+    loginOptions.style.display = "block";
+};
+
+subscribeBtn.onclick = () => {
+    window.open(LINK_PAGAMENTO, "_blank");
+    closeModal();
+};
+
+/* =========================
+   LOGIN TOKEN (FAMÍLIA)
+   ========================= */
+tokenBtn.onclick = () => {
+    localStorage.setItem("plus_token_access", JSON.stringify({
+        token: "FAMILY",
+        expiry: now() + (30 * 24 * 60 * 60 * 1000)
+    }));
+
+    alert("Login familiar ativado");
+    closeModal();
+    renderPlus();
+};
+
+/* =========================
+   LOGIN GOOGLE
+   ========================= */
+googleBtn.onclick = () => {
+    const hidden = document.getElementById("hiddenGoogleBtn");
+    if (hidden) hidden.click();
+};
+
+/* Chame isto após Google Auth */
+window.onGoogleLoginSuccess = function(email) {
+    localStorage.setItem("plus_google_subscription", JSON.stringify({
+        email,
+        expiry: now() + (30 * 24 * 60 * 60 * 1000)
+    }));
+
+    closeModal();
+    renderPlus();
+};
+
+/* =========================
+   BOTÃO PLUS+
+   ========================= */
+const plusButton = document.querySelector('.bn-item[data-target="plus"]');
+
+if (plusButton) {
+    plusButton.onclick = e => {
+        e.preventDefault();
+        hasPlusAccess() ? renderPlus() : openModal();
+    };
+}
+
+/* =========================
+   RENDER
+   ========================= */
+function renderPlus() {
+    const section = document.getElementById("plusSection");
+    if (section) section.style.display = "block";
+}
+
+/* =========================
+   KILL SWITCH TOTAL (ANTIGO)
+   ========================= */
+[
+  "plusModal",
+  "plusBtnSou",
+  "plusBtnQuero",
+  "plusPosterImg"
+].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+});
+
+window.verifyPlusAccess = null;
+window.checkPlusAccess = null;
+window.checkSubscription = null;
+
+</script>
 </body>
 </html>
