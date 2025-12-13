@@ -3743,113 +3743,138 @@ document.addEventListener("DOMContentLoaded", ()=>{
 
 <script>
 /* ============================================================
-   PLUS+ — SUBSTITUIÇÃO TOTAL DO MODAL ANTIGO
-   ESTE SCRIPT É A FONTE ÚNICA DE VERDADE
+      SISTEMA OFICIAL DA PLUS+ — 100% COMPATÍVEL COM O APP
+      (Login Google + Verificação + Modal Novo)
    ============================================================ */
 
-/* ========= CONFIG ========= */
+
+/* ============================================================
+      CONFIGURAÇÕES
+   ============================================================ */
 const PLUS_POSTER_URL = "https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg";
+const LINK_ASSINATURA_SITE = "https://login-plus.vercel.app/";
+const BACKEND_CHECK = "https://glplus-backend.vercel.app/api/checkSubscription";
 
-/* ========= ELEMENTOS ========= */
-const plusModal   = document.getElementById("plusAccessModal");
-const plusPoster  = document.getElementById("plusAccessPoster");
-const plusClose   = document.getElementById("plusAccessClose");
-const plusLogin   = document.getElementById("plusLoginBtn");
-const plusAssinar = document.getElementById("plusSubscribeBtn");
-const plusSection = document.getElementById("plusSection");
 
-if (plusPoster) plusPoster.src = PLUS_POSTER_URL;
+/* ============================================================
+      ELEMENTOS DO NOVO MODAL
+   ============================================================ */
+const plusModal = document.getElementById("plusAccessModal");
+const plusClose = document.getElementById("plusAccessClose");
+const plusPoster = document.getElementById("plusAccessPoster");
+const plusLoginBtn = document.getElementById("plusLoginBtn");
+const plusSubscribeBtn = document.getElementById("plusSubscribeBtn");
 
-/* ========= MODAL ========= */
+plusPoster.src = PLUS_POSTER_URL;
+
+
+/* ============================================================
+      FUNÇÕES DO MODAL
+   ============================================================ */
 function openPlusModal() {
-  if (plusModal) plusModal.style.display = "flex";
+    plusModal.style.display = "flex";
 }
 
 function closePlusModal() {
-  if (plusModal) plusModal.style.display = "none";
+    plusModal.style.display = "none";
 }
 
-if (plusClose) plusClose.onclick = closePlusModal;
+plusClose.onclick = closePlusModal;
 
-/* ========= LOGIN ========= */
-function isUserLoggedIn() {
-  return !!localStorage.getItem("glplus_user");
-}
+document.addEventListener("click", (e) => {
+    if (e.target === plusModal) closePlusModal();
+});
 
-/* ========= ASSINATURA LOCAL (TESTE / FUTURO BACKEND) ========= */
-function hasPlusAccess() {
-  const raw = localStorage.getItem("plus_google_subscription");
-  if (!raw) return false;
 
-  try {
-    const sub = JSON.parse(raw);
-    if (!sub.expiry || Date.now() > sub.expiry) {
-      localStorage.removeItem("plus_google_subscription");
-      return false;
-    }
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/* ========= BOTÃO PLUS+ DO APP ========= */
-const plusBtn = document.querySelector('.bn-item[data-target="plus"]');
-if (plusBtn) {
-  plusBtn.onclick = (e) => {
-    e.preventDefault();
-
-    if (isUserLoggedIn() && hasPlusAccess()) {
-      if (plusSection) plusSection.style.display = "block";
-    } else {
-      openPlusModal();
-    }
-  };
-}
-
-/* ========= LOGIN GOOGLE ========= */
-if (plusLogin) {
-  plusLogin.onclick = () => {
+/* ============================================================
+      LOGIN GOOGLE (usa seu hiddenGoogleBtn oficial)
+   ============================================================ */
+plusLoginBtn.onclick = () => {
     const hidden = document.getElementById("hiddenGoogleBtn");
     if (hidden) hidden.click();
     closePlusModal();
-  };
-}
-
-/* ========= ASSINAR ========= */
-if (plusAssinar) {
-  plusAssinar.onclick = () => {
-    alert("Assinatura iniciada (teste)");
-  };
-}
-
-/* ========= KILL SWITCH TOTAL DO MODAL ANTIGO ========= */
-[
-  "plusModal",
-  "plusBtnSou",
-  "plusBtnQuero",
-  "plusPosterImg"
-].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.remove();
-});
-
-/* ========= SOBRESCREVE FUNÇÕES ANTIGAS ========= */
-window.openPlusModal = openPlusModal;
-window.renderBuySection = openPlusModal;
-window.verifyPlusAccess = hasPlusAccess;
-window.checkPlusAccess = hasPlusAccess;
-window.checkSubscriptionStatus = hasPlusAccess;
-
-/* ========= BOTÃO DE TESTE ========= */
-window.activatePlusTest = function(days = 30) {
-  const expiry = Date.now() + days * 24 * 60 * 60 * 1000;
-  localStorage.setItem("plus_google_subscription", JSON.stringify({
-    active: true,
-    expiry
-  }));
-  alert("✅ Plus+ ativado (teste)");
 };
+
+
+/* ============================================================
+      SISTEMA ÚNICO DE LOGIN (compatível com o app)
+   ============================================================ */
+function isUserLoggedIn() {
+    return !!localStorage.getItem("glplus_user");
+}
+
+
+/* ============================================================
+      VERIFICAR ASSINATURA NO BACKEND
+   ============================================================ */
+async function checkSubscription() {
+    const saved = localStorage.getItem("glplus_user");
+    if (!saved) return false;
+
+    const user = JSON.parse(saved);
+
+    try {
+        const res = await fetch(`${BACKEND_CHECK}?email=${user.email}`);
+        const data = await res.json();
+        return data.active === true;
+    } catch {
+        return false;
+    }
+}
+
+
+/* ============================================================
+      BOTÃO “QUERO ASSINAR”
+   ============================================================ */
+plusSubscribeBtn.onclick = () => {
+    window.open(LINK_ASSINATURA_SITE, "_blank");
+    closePlusModal();
+};
+
+
+/* ============================================================
+      BOTÃO Plus+ da barra inferior
+   ============================================================ */
+const plusButton = document.querySelector('.bn-item[data-target="plus"]');
+
+if (plusButton) {
+    plusButton.onclick = async (e) => {
+        e.preventDefault();
+
+        // 1 — Não está logado → abrir modal
+        if (!isUserLoggedIn()) {
+            openPlusModal();
+            return;
+        }
+
+        // 2 — Está logado → verificar assinatura
+        const ativo = await checkSubscription();
+
+        if (ativo) {
+            document.getElementById("plusSection").style.display = "block";
+        } else {
+            openPlusModal();
+        }
+    };
+}
+
+
+/* ============================================================
+      REMOVER TOTALMENTE O MODAL ANTIGO
+   ============================================================ */
+function removeOldModal() {
+    const old = document.getElementById("plusModal");
+    const sou = document.getElementById("plusBtnSou");
+    const quero = document.getElementById("plusBtnQuero");
+    const poster = document.getElementById("plusPosterImg");
+
+    if (old) old.remove();
+    if (sou) sou.remove();
+    if (quero) quero.remove();
+    if (poster) poster.remove();
+}
+
+removeOldModal();
 </script>
 
     
