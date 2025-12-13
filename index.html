@@ -3741,134 +3741,117 @@ document.addEventListener("DOMContentLoaded", ()=>{
 });
 </script>
 
-<div id="plusNewModal" style="
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.85);
-  backdrop-filter:blur(6px);
-  z-index:999999;
-  justify-content:center;
-  align-items:center;
-">
-  <div style="
-    width:90%;
-    max-width:420px;
-    background:#111;
-    padding:20px;
-    border-radius:14px;
-    color:white;
-    position:relative;
-  ">
-    <span id="plusNewClose" style="
-      position:absolute;
-      top:12px;
-      right:14px;
-      font-size:22px;
-      cursor:pointer;
-    ">✖</span>
+<script>
+/* ============================================================
+   PLUS+ — SUBSTITUIÇÃO TOTAL DO MODAL ANTIGO
+   ESTE SCRIPT É A FONTE ÚNICA DE VERDADE
+   ============================================================ */
 
-    <img src="https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg"
-         style="width:100%; border-radius:8px;">
+/* ========= CONFIG ========= */
+const PLUS_POSTER_URL = "https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg";
 
-    <h2 style="margin-top:12px; text-align:center;">Plus+</h2>
+/* ========= ELEMENTOS ========= */
+const plusModal   = document.getElementById("plusAccessModal");
+const plusPoster  = document.getElementById("plusAccessPoster");
+const plusClose   = document.getElementById("plusAccessClose");
+const plusLogin   = document.getElementById("plusLoginBtn");
+const plusAssinar = document.getElementById("plusSubscribeBtn");
+const plusSection = document.getElementById("plusSection");
 
-    <p style="opacity:.9; text-align:center;">
-      Área exclusiva para assinantes Plus+.<br>
-      Faça login ou assine para continuar.
-    </p>
+if (plusPoster) plusPoster.src = PLUS_POSTER_URL;
 
-    <div style="margin-top:20px;">
-      <button id="plusLoginBtnNew" style="
-        width:100%;
-        padding:12px;
-        background:#1a1a1a;
-        color:white;
-        border-radius:10px;
-        border:1px solid #444;
-        margin-bottom:10px;
-      ">Fazer login com Google</button>
-
-      <button id="plusSubscribeBtnNew" style="
-        width:100%;
-        padding:12px;
-        background:#ff0055;
-        color:white;
-        border-radius:10px;
-        border:none;
-      ">Quero assinar</button>
-    </div>
-  </div>
-</div>
-    <script>
-/* =========================================
-   PLUS+ — SISTEMA LIMPO E DEFINITIVO
-   ========================================= */
-
-const modal = document.getElementById("plusNewModal");
-const closeBtn = document.getElementById("plusNewClose");
-const loginBtn = document.getElementById("plusLoginBtnNew");
-const subscribeBtn = document.getElementById("plusSubscribeBtnNew");
-
-/* -------- MODAL -------- */
+/* ========= MODAL ========= */
 function openPlusModal() {
-  modal.style.display = "flex";
+  if (plusModal) plusModal.style.display = "flex";
 }
-function closePlusModal() {
-  modal.style.display = "none";
-}
-closeBtn.onclick = closePlusModal;
 
-/* -------- LOGIN -------- */
-function isLogged() {
+function closePlusModal() {
+  if (plusModal) plusModal.style.display = "none";
+}
+
+if (plusClose) plusClose.onclick = closePlusModal;
+
+/* ========= LOGIN ========= */
+function isUserLoggedIn() {
   return !!localStorage.getItem("glplus_user");
 }
-function hasSubscription() {
-  const sub = localStorage.getItem("plus_google_subscription");
-  if (!sub) return false;
 
-  const data = JSON.parse(sub);
-  if (Date.now() > data.expiry) {
-    localStorage.removeItem("plus_google_subscription");
+/* ========= ASSINATURA LOCAL (TESTE / FUTURO BACKEND) ========= */
+function hasPlusAccess() {
+  const raw = localStorage.getItem("plus_google_subscription");
+  if (!raw) return false;
+
+  try {
+    const sub = JSON.parse(raw);
+    if (!sub.expiry || Date.now() > sub.expiry) {
+      localStorage.removeItem("plus_google_subscription");
+      return false;
+    }
+    return true;
+  } catch {
     return false;
   }
-  return true;
 }
 
-/* -------- BOTÃO PLUS DA NAV -------- */
+/* ========= BOTÃO PLUS+ DO APP ========= */
 const plusBtn = document.querySelector('.bn-item[data-target="plus"]');
-
 if (plusBtn) {
   plusBtn.onclick = (e) => {
     e.preventDefault();
 
-    if (isLogged() && hasSubscription()) {
-      document.getElementById("plusSection").style.display = "block";
+    if (isUserLoggedIn() && hasPlusAccess()) {
+      if (plusSection) plusSection.style.display = "block";
     } else {
       openPlusModal();
     }
   };
 }
 
-/* -------- LOGIN GOOGLE -------- */
-loginBtn.onclick = () => {
-  const hidden = document.getElementById("hiddenGoogleBtn");
-  if (hidden) hidden.click();
-  closePlusModal();
-};
+/* ========= LOGIN GOOGLE ========= */
+if (plusLogin) {
+  plusLogin.onclick = () => {
+    const hidden = document.getElementById("hiddenGoogleBtn");
+    if (hidden) hidden.click();
+    closePlusModal();
+  };
+}
 
-/* -------- ASSINAR -------- */
-subscribeBtn.onclick = () => {
-  window.open("https://login-plus.vercel.app", "_blank");
-};
+/* ========= ASSINAR ========= */
+if (plusAssinar) {
+  plusAssinar.onclick = () => {
+    alert("Assinatura iniciada (teste)");
+  };
+}
 
-/* -------- TESTE (REMOVE DEPOIS) -------- */
+/* ========= KILL SWITCH TOTAL DO MODAL ANTIGO ========= */
+[
+  "plusModal",
+  "plusBtnSou",
+  "plusBtnQuero",
+  "plusPosterImg"
+].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+});
+
+/* ========= SOBRESCREVE FUNÇÕES ANTIGAS ========= */
+window.openPlusModal = openPlusModal;
+window.renderBuySection = openPlusModal;
+window.verifyPlusAccess = hasPlusAccess;
+window.checkPlusAccess = hasPlusAccess;
+window.checkSubscriptionStatus = hasPlusAccess;
+
+/* ========= BOTÃO DE TESTE ========= */
 window.activatePlusTest = function(days = 30) {
+  const expiry = Date.now() + days * 24 * 60 * 60 * 1000;
   localStorage.setItem("plus_google_subscription", JSON.stringify({
-    expiry: Date.now() + days * 86400000
+    active: true,
+    expiry
   }));
   alert("✅ Plus+ ativado (teste)");
 };
 </script>
+
+    
 </body>
 </html>
