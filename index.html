@@ -4185,42 +4185,12 @@ if (plusButton) {
 </script>
 
 <script>
-/* =========================================================
-   ☠️ KILL SWITCH DEFINITIVO — PLUS+ (ANTI LOOP)
-   ========================================================= */
+/* ============================================================
+   PLUS+ PATCH COMPATÍVEL (MANTÉM NOMES ANTIGOS)
+   ============================================================ */
 
-/* 1️⃣ BLOQUEIA TODAS AS FUNÇÕES ANTIGAS NA ORIGEM */
-[
-  "verifyPlusAccess",
-  "checkPlusAccess",
-  "checkSubscriptionStatus",
-  "renderBuySection",
-  "renderPlus",
-  "openPlusModal",
-  "showPlusModal",
-  "plusAccessCheck"
-].forEach(fn => {
-  if (window[fn]) {
-    window[fn] = () => {
-      console.log("🛑 Função antiga bloqueada:", fn);
-      return true;
-    };
-  }
-});
-
-/* 2️⃣ IMPEDE QUALQUER AUTO-ABERTURA DE MODAL */
-const blockModalInterval = setInterval(() => {
-  const m1 = document.getElementById("plusModal");
-  const m2 = document.getElementById("plusAccessModal");
-
-  if (m1) m1.style.display = "none";
-  if (m2 && !window.__ALLOW_PLUS_MODAL__) {
-    m2.style.display = "none";
-  }
-}, 300);
-
-/* 3️⃣ DEFINE UMA ÚNICA FONTE DE VERDADE */
-window.hasPlusAccess = function () {
+/* ====== FONTE ÚNICA DE VERDADE ====== */
+function __plusIsActive() {
   const sub = localStorage.getItem("plus_google_subscription");
   if (!sub) return false;
 
@@ -4234,42 +4204,67 @@ window.hasPlusAccess = function () {
   } catch {
     return false;
   }
+}
+
+/* ====== FUNÇÕES ANTIGAS (SOBRESCRITAS) ====== */
+window.verifyPlusAccess = function () {
+  return __plusIsActive();
 };
 
-/* 4️⃣ CONTROLE ABSOLUTO DO BOTÃO PLUS+ */
-const plusBtn = document.querySelector('.bn-item[data-target="plus"]');
+window.checkPlusAccess = function () {
+  return __plusIsActive();
+};
 
+window.checkSubscriptionStatus = function () {
+  return __plusIsActive();
+};
+
+/* ====== MODAL ANTIGO → REDIRECIONA PRO NOVO ====== */
+window.openPlusModal = function () {
+  if (typeof openPlusModalNew === "function") {
+    openPlusModalNew();
+  } else if (typeof openPlusModal === "function") {
+    // fallback
+    console.warn("Modal novo não encontrado");
+  }
+};
+
+/* ====== RENDERIZAÇÃO PADRÃO DO APP ====== */
+window.renderBuySection = function () {
+  if (__plusIsActive()) {
+    const plusSection = document.getElementById("plusSection");
+    if (plusSection) plusSection.style.display = "block";
+  } else {
+    window.openPlusModal();
+  }
+};
+
+/* ====== BOTÃO PLUS+ (SEM QUEBRAR FLUXO) ====== */
+const plusBtn = document.querySelector('.bn-item[data-target="plus"]');
 if (plusBtn) {
   plusBtn.onclick = (e) => {
     e.preventDefault();
-    e.stopPropagation();
 
-    if (window.hasPlusAccess()) {
-      console.log("✅ Plus+ liberado FINAL");
-      clearInterval(blockModalInterval);
-
+    if (__plusIsActive()) {
       const section = document.getElementById("plusSection");
       if (section) section.style.display = "block";
-
     } else {
-      console.log("🔒 Plus+ bloqueado — abrindo modal novo");
-      window.__ALLOW_PLUS_MODAL__ = true;
-      if (typeof openPlusModal === "function") openPlusModal();
+      window.openPlusModal();
     }
   };
 }
 
-/* 5️⃣ GARANTE QUE LOGIN + TESTE FUNCIONEM */
+/* ====== FUNÇÃO DE TESTE (FAKE PAGAMENTO) ====== */
 window.activatePlusTest = function(days = 30) {
-  const expiry = Date.now() + (days * 24 * 60 * 60 * 1000);
+  const expiry = Date.now() + days * 24 * 60 * 60 * 1000;
 
   localStorage.setItem("plus_google_subscription", JSON.stringify({
     active: true,
     expiry
   }));
 
-  console.log("🧪 Plus+ TESTE ATIVADO até:", new Date(expiry).toLocaleString());
-  alert("Plus+ ativado (TESTE). Reabra a aba Plus+.");
+  console.log("🧪 Plus+ ativado (teste)");
+  alert("Plus+ ativado! Reabra a aba Plus+.");
 };
 </script>
     
