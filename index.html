@@ -3821,55 +3821,53 @@ document.addEventListener("DOMContentLoaded", ()=>{
 </div>
 
 <script>
-/* ========= FONTE ÚNICA DE VERDADE ========= */
-function checkPlusAccess() {
-  const sub = localStorage.getItem("plus_google_subscription");
-  if (!sub) return false;
+const BACKEND_CHECK = "https://glplus-backend.vercel.app/api/checkSubscription";
+
+function isUserLoggedIn() {
+  return !!localStorage.getItem("glplus_user");
+}
+
+async function hasPlusAccess() {
+  const user = JSON.parse(localStorage.getItem("glplus_user") || "null");
+  if (!user) return false;
 
   try {
-    const data = JSON.parse(sub);
-    if (!data.expiry || Date.now() > data.expiry) {
-      localStorage.removeItem("plus_google_subscription");
-      return false;
-    }
-    return true;
+    const res = await fetch(`${BACKEND_CHECK}?email=${user.email}`);
+    const data = await res.json();
+    return data.active === true;
   } catch {
     return false;
   }
 }
 
-/* ========= MODAL ORIGINAL ========= */
-function openPlusModal() {
-  const modal = document.getElementById("plusModal");
-  if (modal) modal.style.display = "flex";
-}
+/* ===== SOBRESCREVE SISTEMA ANTIGO ===== */
+window.verifyPlusAccess =
+window.checkPlusAccess =
+window.checkSubscriptionStatus = async function () {
+  return await hasPlusAccess();
+};
 
-function closePlusModal() {
-  const modal = document.getElementById("plusModal");
-  if (modal) modal.style.display = "none";
-}
-
-/* ========= BOTÃO PLUS+ ========= */
+/* ===== BOTÃO PLUS+ ===== */
 const plusBtn = document.querySelector('.bn-item[data-target="plus"]');
+
 if (plusBtn) {
-  plusBtn.onclick = (e) => {
+  plusBtn.onclick = async (e) => {
     e.preventDefault();
 
-    if (checkPlusAccess()) {
+    if (!isUserLoggedIn()) {
+      openPlusModal(); // SEU MODAL BONITO
+      return;
+    }
+
+    const active = await hasPlusAccess();
+
+    if (active) {
       document.getElementById("plusSection").style.display = "block";
     } else {
       openPlusModal();
     }
   };
 }
-
-/* ========= TESTE DE ASSINATURA ========= */
-window.activatePlusTest = function(days = 30) {
-  localStorage.setItem("plus_google_subscription", JSON.stringify({
-    expiry: Date.now() + days * 24 * 60 * 60 * 1000
-  }));
-  alert("Plus+ ativado (teste). Agora clique na aba Plus+.");
-};
 </script>
 </body>
 </html>
