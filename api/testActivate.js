@@ -1,3 +1,4 @@
+// api/testActivate.js
 import { createClient } from '@vercel/kv';
 
 const kv = createClient({
@@ -5,27 +6,16 @@ const kv = createClient({
   token: process.env.armazenamentoplus_KV_REST_API_TOKEN,
 });
 
-const DURATION = {
-  MENSAL: 30 * 24 * 60 * 60 * 1000,
-  ANUAL: 365 * 24 * 60 * 60 * 1000,
-};
-
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).end();
-  }
+  const { email, days } = req.body;
 
-  const { email, plan } = req.body;
-  if (!email) {
-    return res.status(400).json({ error: "Email required" });
-  }
-
-  const expiry = Date.now() + (DURATION[plan] || DURATION.MENSAL);
+  const expiry = Date.now() + days * 24 * 60 * 60 * 1000;
 
   await kv.set(email, {
     status: "active",
-    expiry
+    expiry,
+    plan: "TESTE"
   });
 
-  return res.json({ ok: true, expiry });
+  res.json({ ok: true });
 }
