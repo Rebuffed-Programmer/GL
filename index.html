@@ -3821,31 +3821,8 @@ document.addEventListener("DOMContentLoaded", ()=>{
 </div>
 
 <script>
-/* =====================================================
-   PLUS+ — SCRIPT FINAL (USA SEU MODAL BONITO)
-   ===================================================== */
-
-/* ---------- CONFIG ---------- */
-const PLUS_POSTER_URL = "https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg";
-
-/* ---------- ELEMENTOS (SEU MODAL) ---------- */
-const plusModal   = document.getElementById("plusModal");
-const btnSou      = document.getElementById("plusBtnSou");
-const btnQuero    = document.getElementById("plusBtnQuero");
-const plusClose   = document.getElementById("plusModalClose");
-
-/* ---------- CONTROLE DO MODAL ---------- */
-function openPlusModal() {
-  if (plusModal) plusModal.style.display = "flex";
-}
-function closePlusModal() {
-  if (plusModal) plusModal.style.display = "none";
-}
-
-if (plusClose) plusClose.onclick = closePlusModal;
-
-/* ---------- FONTE ÚNICA DE VERDADE ---------- */
-function hasPlusAccess() {
+/* ========= FONTE ÚNICA DE VERDADE ========= */
+function checkPlusAccess() {
   const sub = localStorage.getItem("plus_google_subscription");
   if (!sub) return false;
 
@@ -3861,53 +3838,37 @@ function hasPlusAccess() {
   }
 }
 
-/* ---------- BOTÕES DO MODAL ---------- */
-
-// SOU ASSINANTE → login Google
-if (btnSou) {
-  btnSou.onclick = () => {
-    const hidden = document.getElementById("hiddenGoogleBtn");
-    if (hidden) hidden.click();
-    closePlusModal();
-  };
+/* ========= MODAL ORIGINAL ========= */
+function openPlusModal() {
+  const modal = document.getElementById("plusModal");
+  if (modal) modal.style.display = "flex";
 }
 
-// QUERO ASSINAR → simulação (teste)
-if (btnQuero) {
-  btnQuero.onclick = () => {
-    alert("Simulação de assinatura feita (teste)");
-    activatePlusTest(30);
-    closePlusModal();
-  };
+function closePlusModal() {
+  const modal = document.getElementById("plusModal");
+  if (modal) modal.style.display = "none";
 }
 
-/* ---------- BOTÃO PLUS+ DO APP ---------- */
+/* ========= BOTÃO PLUS+ ========= */
 const plusBtn = document.querySelector('.bn-item[data-target="plus"]');
-
 if (plusBtn) {
   plusBtn.onclick = (e) => {
     e.preventDefault();
 
-    if (hasPlusAccess()) {
-      const section = document.getElementById("plusSection");
-      if (section) section.style.display = "block";
+    if (checkPlusAccess()) {
+      document.getElementById("plusSection").style.display = "block";
     } else {
       openPlusModal();
     }
   };
 }
 
-/* ---------- FUNÇÃO DE TESTE ---------- */
+/* ========= TESTE DE ASSINATURA ========= */
 window.activatePlusTest = function(days = 30) {
-  const expiry = Date.now() + days * 24 * 60 * 60 * 1000;
-
   localStorage.setItem("plus_google_subscription", JSON.stringify({
-    active: true,
-    expiry
+    expiry: Date.now() + days * 24 * 60 * 60 * 1000
   }));
-
-  console.log("🧪 Plus+ ativado (teste)");
-  alert("Plus+ ativado! Clique novamente em Plus+.");
+  alert("Plus+ ativado (teste). Agora clique na aba Plus+.");
 };
 </script>
 </body>
