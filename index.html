@@ -4114,6 +4114,74 @@ function removeOldModal() {
 
 removeOldModal();
 </script>
+<script>
+/* =========================================
+   KILL SWITCH — PLUS+ (DESATIVA SISTEMA ANTIGO)
+   ========================================= */
 
+/* 1️⃣ Mata qualquer função antiga conhecida */
+window.verifyPlusAccess = null;
+window.checkPlusAccess = null;
+window.checkSubscriptionStatus = null;
+window.openPlusModalOld = null;
+
+/* 2️⃣ Remove modal antigo do DOM (se existir) */
+(function removeOldPlus() {
+  const oldModal = document.getElementById("plusModal");
+  if (oldModal) {
+    oldModal.remove();
+    console.log("🧹 Modal antigo Plus+ removido");
+  }
+
+  [
+    "plusBtnSou",
+    "plusBtnQuero",
+    "plusPosterImg"
+  ].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  });
+})();
+
+/* 3️⃣ FUNÇÃO ÚNICA E OFICIAL DE VERIFICAÇÃO */
+function hasPlusAccess() {
+  const data = localStorage.getItem("plus_google_subscription");
+  if (!data) return false;
+
+  try {
+    const sub = JSON.parse(data);
+    if (!sub.expiry || Date.now() > sub.expiry) {
+      localStorage.removeItem("plus_google_subscription");
+      console.log("⏱️ Plus+ expirado");
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/* 4️⃣ CONTROLE DEFINITIVO DO BOTÃO PLUS+ */
+const plusButton = document.querySelector('.bn-item[data-target="plus"]');
+
+if (plusButton) {
+  plusButton.onclick = (e) => {
+    e.preventDefault();
+
+    if (hasPlusAccess()) {
+      console.log("✅ Plus+ liberado");
+      const plusSection = document.getElementById("plusSection");
+      if (plusSection) plusSection.style.display = "block";
+    } else {
+      console.log("🔒 Plus+ bloqueado");
+      if (typeof openPlusModal === "function") {
+        openPlusModal(); // NOVO MODAL
+      } else {
+        alert("Assinatura Plus+ necessária.");
+      }
+    }
+  };
+}
+</script>
 </body>
 </html>
