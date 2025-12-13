@@ -3741,51 +3741,133 @@ document.addEventListener("DOMContentLoaded", ()=>{
 });
 </script>
 
-<div id="plusModal" style="display:none;">
-  <img id="plusPosterImg"
-       src="https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg">
+<div id="plusNewModal" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.85);
+  backdrop-filter:blur(6px);
+  z-index:999999;
+  justify-content:center;
+  align-items:center;
+">
+  <div style="
+    width:90%;
+    max-width:420px;
+    background:#111;
+    padding:20px;
+    border-radius:14px;
+    color:white;
+    position:relative;
+  ">
+    <span id="plusNewClose" style="
+      position:absolute;
+      top:12px;
+      right:14px;
+      font-size:22px;
+      cursor:pointer;
+    ">✖</span>
 
-  <h2>Plus+</h2>
+    <img src="https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg"
+         style="width:100%; border-radius:8px;">
 
-  <p>
-    Esta aba é exclusiva para assinantes Plus+.
-    Se deseja assinar, clique em <b>Quero Assinar</b>.
-    Se já é assinante, clique em <b>Fazer Login</b>.
-  </p>
+    <h2 style="margin-top:12px; text-align:center;">Plus+</h2>
 
-  <button id="plusBtnSou">Fazer Login</button>
-  <button id="plusBtnQuero">Quero Assinar</button>
+    <p style="opacity:.9; text-align:center;">
+      Área exclusiva para assinantes Plus+.<br>
+      Faça login ou assine para continuar.
+    </p>
+
+    <div style="margin-top:20px;">
+      <button id="plusLoginBtnNew" style="
+        width:100%;
+        padding:12px;
+        background:#1a1a1a;
+        color:white;
+        border-radius:10px;
+        border:1px solid #444;
+        margin-bottom:10px;
+      ">Fazer login com Google</button>
+
+      <button id="plusSubscribeBtnNew" style="
+        width:100%;
+        padding:12px;
+        background:#ff0055;
+        color:white;
+        border-radius:10px;
+        border:none;
+      ">Quero assinar</button>
+    </div>
+  </div>
 </div>
     <script>
-const LINK_ASSINATURA = "https://login-plus.vercel.app/";
-const BACKEND_CHECK = "https://glplus-backend.vercel.app/api/checkSubscription";
+/* =========================================
+   PLUS+ — SISTEMA LIMPO E DEFINITIVO
+   ========================================= */
 
-function getUser() {
-  try { return JSON.parse(localStorage.getItem("glplus_user")); }
-  catch { return null; }
+const modal = document.getElementById("plusNewModal");
+const closeBtn = document.getElementById("plusNewClose");
+const loginBtn = document.getElementById("plusLoginBtnNew");
+const subscribeBtn = document.getElementById("plusSubscribeBtnNew");
+
+/* -------- MODAL -------- */
+function openPlusModal() {
+  modal.style.display = "flex";
+}
+function closePlusModal() {
+  modal.style.display = "none";
+}
+closeBtn.onclick = closePlusModal;
+
+/* -------- LOGIN -------- */
+function isLogged() {
+  return !!localStorage.getItem("glplus_user");
+}
+function hasSubscription() {
+  const sub = localStorage.getItem("plus_google_subscription");
+  if (!sub) return false;
+
+  const data = JSON.parse(sub);
+  if (Date.now() > data.expiry) {
+    localStorage.removeItem("plus_google_subscription");
+    return false;
+  }
+  return true;
 }
 
-async function hasPlusAccess() {
-  const user = getUser();
-  if (!user) return false;
+/* -------- BOTÃO PLUS DA NAV -------- */
+const plusBtn = document.querySelector('.bn-item[data-target="plus"]');
 
-  const res = await fetch(`${BACKEND_CHECK}?email=${user.email}`);
-  const data = await res.json();
-  return data.active === true;
+if (plusBtn) {
+  plusBtn.onclick = (e) => {
+    e.preventDefault();
+
+    if (isLogged() && hasSubscription()) {
+      document.getElementById("plusSection").style.display = "block";
+    } else {
+      openPlusModal();
+    }
+  };
 }
 
-/* BOTÕES DO MODAL */
-document.getElementById("plusBtnSou").onclick = () => {
-  document.getElementById("hiddenGoogleBtn")?.click();
+/* -------- LOGIN GOOGLE -------- */
+loginBtn.onclick = () => {
+  const hidden = document.getElementById("hiddenGoogleBtn");
+  if (hidden) hidden.click();
+  closePlusModal();
 };
 
-document.getElementById("plusBtnQuero").onclick = () => {
-  window.open(LINK_ASSINATURA, "_blank");
+/* -------- ASSINAR -------- */
+subscribeBtn.onclick = () => {
+  window.open("https://login-plus.vercel.app", "_blank");
 };
 
-/* FUNÇÃO QUE O APP JÁ CHAMA */
-window.verifyPlusAccess = async () => {
-  return await hasPlusAccess();
+/* -------- TESTE (REMOVE DEPOIS) -------- */
+window.activatePlusTest = function(days = 30) {
+  localStorage.setItem("plus_google_subscription", JSON.stringify({
+    expiry: Date.now() + days * 86400000
+  }));
+  alert("✅ Plus+ ativado (teste)");
 };
 </script>
 </body>
