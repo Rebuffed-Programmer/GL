@@ -3821,376 +3821,31 @@ document.addEventListener("DOMContentLoaded", ()=>{
 </div>
 
 <script>
-/* === CONFIGURAÇÕES GLOBAIS === */
+/* =====================================================
+   PLUS+ — SCRIPT FINAL (USA SEU MODAL BONITO)
+   ===================================================== */
 
-// Links de pagamento (Mantidos)
-const LINK_PAGAMENTO_MENSAL = 'https://mpago.la/2SRyqam';
-const LINK_PAGAMENTO_ANUAL  = 'https://mpago.la/2SRyqam'; 
-
-// URL do pôster do novo modal de acesso (Ajuste se necessário)
-const PLUS_POSTER_URL = 'https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg';
-
-
-/* ========================================================= */
-/*       NOVAS FUNÇÕES DE CONTROLE DE ACESSO PLUS+           */
-/*     (Focadas Apenas no Login Google)                   */
-/* ========================================================= */
-
-// Função que verifica se o usuário está logado via Google
-// IMPORTANTE: Você precisa garantir que a variável 'window.user' seja definida
-// pelo seu script de login do Google (GAPI/Google Sign-In).
-function isUserLoggedIn() {
-    // Retorna true se window.user existir (usuário logado), false caso contrário.
-    return !!window.user; 
-}
-
-
-// --- Controle do NOVO Modal de Acesso ---
-
-const plusAccessModal = document.getElementById('plusAccessModal');
-const plusAccessClose = document.getElementById('plusAccessClose');
-const plusLoginBtn = document.getElementById('plusLoginBtn');
-const plusSubscribeBtn = document.getElementById('plusSubscribeBtn');
-const plusAccessPoster = document.getElementById('plusAccessPoster');
-
-// Função para exibir o novo modal de acesso
-function showPlusAccessModal() {
-    if (plusAccessModal) {
-        plusAccessPoster.src = PLUS_POSTER_URL; // Define o pôster
-        plusAccessModal.style.display = 'flex';
-    }
-}
-
-// Função para ocultar o novo modal de acesso
-function hidePlusAccessModal() {
-    if (plusAccessModal) {
-        plusAccessModal.style.display = 'none';
-    }
-}
-
-// Função para iniciar o fluxo de login do Google
-function startGoogleSignIn() {
-    // Esconda o modal de acesso
-    hidePlusAccessModal(); 
-    
-    // ------------------------------------------------------------------------
-    // TODO: Adicione aqui a chamada real à função de login do Google.
-    // Exemplo (se você usar a biblioteca GAPI/Google Sign-In):
-    // const auth2 = gapi.auth2.getAuthInstance();
-    // auth2.signIn();
-    // ------------------------------------------------------------------------
-    console.log("Iniciando fluxo de Login do Google...");
-    alert("Iniciando Login do Google (Implementação necessária)");
-}
-
-// --- Ligações de Eventos do NOVO Modal ---
-
-if (plusAccessClose) {
-    plusAccessClose.addEventListener('click', hidePlusAccessModal);
-}
-
-if (plusLoginBtn) {
-    plusLoginBtn.addEventListener('click', startGoogleSignIn);
-}
-
-if (plusSubscribeBtn) {
-    plusSubscribeBtn.addEventListener('click', () => {
-        hidePlusAccessModal();
-        // Redireciona para o link de pagamento do Mercado Pago (para quem quer assinar)
-        window.open(LINK_PAGAMENTO_MENSAL, '_blank'); 
-    });
-}
-
-
-/* ========================================================= */
-/*         MODIFICAR LÓGICA DE VERIFICAÇÃO PRINCIPAL         */
-/* ========================================================= */
-
-// Esta função agora SUBSTITUI a lógica de token e usa APENAS o login Google.
-function checkPlusSubscriptionAndControlVisibility() {
-    const plusSection = document.getElementById('plusSection');
-    const btnSignOut = document.getElementById('btnPlusSignOut');
-    
-    // Verifica o status de login do Google
-    if (isUserLoggedIn()) {
-        // Logado: Mostra o conteúdo e o botão de Sair
-        if (plusSection) plusSection.style.display = 'block';
-        if (btnSignOut) btnSignOut.style.display = 'inline-block';
-        hidePlusAccessModal();
-        console.log("Plus+ ativado: Usuário logado via Google.");
-    } else {
-        // Não Logado: Esconde o conteúdo Plus+ e o botão de Sair
-        if (plusSection) plusSection.style.display = 'none';
-        if (btnSignOut) btnSignOut.style.display = 'none';
-        
-        // Se a seção for vital, você pode mostrar o modal aqui:
-        // showPlusAccessModal(); 
-        
-        console.log("Plus+ bloqueado: Usuário não logado.");
-    }
-}
-
-
-/* ========================================================= */
-/*         DESABILITAR CÓDIGO DO MODAL ANTIGO               */
-/* ========================================================= */
-
-// Oculta e desliga eventos do modal antigo (plusModal) para garantir que não interfira.
-function disableOldPlusModal() {
-    const oldModal = document.getElementById('plusModal');
-    if (oldModal) {
-        // Oculta o modal antigo para sempre
-        oldModal.style.display = 'none';
-        
-        // Remove todos os listeners de botões para evitar que ele seja aberto
-        // Nota: Se você não remover a tag HTML do modal antigo, 
-        // é melhor deixá-lo permanentemente escondido.
-    }
-    
-    // Remove o botão 'Sou assinante' do DOM para não confundir
-    const oldBtnSou = document.getElementById('plusBtnSou');
-    if (oldBtnSou) {
-        oldBtnSou.remove();
-    }
-}
-
-
-/* ========================================================= */
-/*                   INICIALIZAÇÃO                       */
-/* ========================================================= */
-
-// Adicione esta chamada na sua função de inicialização DOMContentLoaded
-document.addEventListener("DOMContentLoaded", ()=> {
-    // ... Seu código de renderização de seções (renderBuySection)
-    
-    disableOldPlusModal();
-    checkPlusSubscriptionAndControlVisibility();
-    
-    // ... Seu código de renderização de 'plusData' (se existir)
-});
-
-// Garanta que esta função seja chamada sempre que o status de login do Google mudar!
-// Ex: Se o seu login Google tiver um callback:
-/*
-function onGoogleSignInSuccess(googleUser) {
-    window.user = googleUser.getBasicProfile(); // Define o usuário
-    checkPlusSubscriptionAndControlVisibility(); // Atualiza a interface
-    hidePlusAccessModal();
-}
-*/
-</script>
-<script>
-/* ============================================================
-      SISTEMA OFICIAL DA PLUS+ — 100% COMPATÍVEL COM O APP
-      (Login Google + Verificação + Modal Novo)
-   ============================================================ */
-
-
-/* ============================================================
-      CONFIGURAÇÕES
-   ============================================================ */
+/* ---------- CONFIG ---------- */
 const PLUS_POSTER_URL = "https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg";
-const LINK_ASSINATURA_SITE = "https://login-plus.vercel.app/";
-const BACKEND_CHECK = "https://glplus-backend.vercel.app/api/checkSubscription";
 
+/* ---------- ELEMENTOS (SEU MODAL) ---------- */
+const plusModal   = document.getElementById("plusModal");
+const btnSou      = document.getElementById("plusBtnSou");
+const btnQuero    = document.getElementById("plusBtnQuero");
+const plusClose   = document.getElementById("plusModalClose");
 
-/* ============================================================
-      ELEMENTOS DO NOVO MODAL
-   ============================================================ */
-const plusModal = document.getElementById("plusAccessModal");
-const plusClose = document.getElementById("plusAccessClose");
-const plusPoster = document.getElementById("plusAccessPoster");
-const plusLoginBtn = document.getElementById("plusLoginBtn");
-const plusSubscribeBtn = document.getElementById("plusSubscribeBtn");
-
-plusPoster.src = PLUS_POSTER_URL;
-
-
-/* ============================================================
-      FUNÇÕES DO MODAL
-   ============================================================ */
+/* ---------- CONTROLE DO MODAL ---------- */
 function openPlusModal() {
-    plusModal.style.display = "flex";
+  if (plusModal) plusModal.style.display = "flex";
 }
-
 function closePlusModal() {
-    plusModal.style.display = "none";
+  if (plusModal) plusModal.style.display = "none";
 }
 
-plusClose.onclick = closePlusModal;
+if (plusClose) plusClose.onclick = closePlusModal;
 
-document.addEventListener("click", (e) => {
-    if (e.target === plusModal) closePlusModal();
-});
-
-
-/* ============================================================
-      LOGIN GOOGLE (usa seu hiddenGoogleBtn oficial)
-   ============================================================ */
-plusLoginBtn.onclick = () => {
-    const hidden = document.getElementById("hiddenGoogleBtn");
-    if (hidden) hidden.click();
-    closePlusModal();
-};
-
-
-/* ============================================================
-      SISTEMA ÚNICO DE LOGIN (compatível com o app)
-   ============================================================ */
-function isUserLoggedIn() {
-    return !!localStorage.getItem("glplus_user");
-}
-
-
-/* ============================================================
-      VERIFICAR ASSINATURA NO BACKEND
-   ============================================================ */
-async function checkSubscription() {
-    const saved = localStorage.getItem("glplus_user");
-    if (!saved) return false;
-
-    const user = JSON.parse(saved);
-
-    try {
-        const res = await fetch(`${BACKEND_CHECK}?email=${user.email}`);
-        const data = await res.json();
-        return data.active === true;
-    } catch {
-        return false;
-    }
-}
-
-
-/* ============================================================
-      BOTÃO “QUERO ASSINAR”
-   ============================================================ */
-plusSubscribeBtn.onclick = () => {
-    window.open(LINK_ASSINATURA_SITE, "_blank");
-    closePlusModal();
-};
-
-
-/* ============================================================
-      BOTÃO Plus+ da barra inferior
-   ============================================================ */
-const plusButton = document.querySelector('.bn-item[data-target="plus"]');
-
-if (plusButton) {
-    plusButton.onclick = async (e) => {
-        e.preventDefault();
-
-        // 1 — Não está logado → abrir modal
-        if (!isUserLoggedIn()) {
-            openPlusModal();
-            return;
-        }
-
-        // 2 — Está logado → verificar assinatura
-        const ativo = await checkSubscription();
-
-        if (ativo) {
-            document.getElementById("plusSection").style.display = "block";
-        } else {
-            openPlusModal();
-        }
-    };
-}
-
-
-/* ============================================================
-      REMOVER TOTALMENTE O MODAL ANTIGO
-   ============================================================ */
-function removeOldModal() {
-    const old = document.getElementById("plusModal");
-    const sou = document.getElementById("plusBtnSou");
-    const quero = document.getElementById("plusBtnQuero");
-    const poster = document.getElementById("plusPosterImg");
-
-    if (old) old.remove();
-    if (sou) sou.remove();
-    if (quero) quero.remove();
-    if (poster) poster.remove();
-}
-
-removeOldModal();
-</script>
-<script>
-/* =========================================
-   KILL SWITCH — PLUS+ (DESATIVA SISTEMA ANTIGO)
-   ========================================= */
-
-/* 1️⃣ Mata qualquer função antiga conhecida */
-window.verifyPlusAccess = null;
-window.checkPlusAccess = null;
-window.checkSubscriptionStatus = null;
-window.openPlusModalOld = null;
-
-/* 2️⃣ Remove modal antigo do DOM (se existir) */
-(function removeOldPlus() {
-  const oldModal = document.getElementById("plusModal");
-  if (oldModal) {
-    oldModal.remove();
-    console.log("🧹 Modal antigo Plus+ removido");
-  }
-
-  [
-    "plusBtnSou",
-    "plusBtnQuero",
-    "plusPosterImg"
-  ].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.remove();
-  });
-})();
-
-/* 3️⃣ FUNÇÃO ÚNICA E OFICIAL DE VERIFICAÇÃO */
+/* ---------- FONTE ÚNICA DE VERDADE ---------- */
 function hasPlusAccess() {
-  const data = localStorage.getItem("plus_google_subscription");
-  if (!data) return false;
-
-  try {
-    const sub = JSON.parse(data);
-    if (!sub.expiry || Date.now() > sub.expiry) {
-      localStorage.removeItem("plus_google_subscription");
-      console.log("⏱️ Plus+ expirado");
-      return false;
-    }
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/* 4️⃣ CONTROLE DEFINITIVO DO BOTÃO PLUS+ */
-const plusButton = document.querySelector('.bn-item[data-target="plus"]');
-
-if (plusButton) {
-  plusButton.onclick = (e) => {
-    e.preventDefault();
-
-    if (hasPlusAccess()) {
-      console.log("✅ Plus+ liberado");
-      const plusSection = document.getElementById("plusSection");
-      if (plusSection) plusSection.style.display = "block";
-    } else {
-      console.log("🔒 Plus+ bloqueado");
-      if (typeof openPlusModal === "function") {
-        openPlusModal(); // NOVO MODAL
-      } else {
-        alert("Assinatura Plus+ necessária.");
-      }
-    }
-  };
-}
-</script>
-
-<script>
-/* ============================================================
-   PLUS+ PATCH COMPATÍVEL (MANTÉM NOMES ANTIGOS)
-   ============================================================ */
-
-/* ====== FONTE ÚNICA DE VERDADE ====== */
-function __plusIsActive() {
   const sub = localStorage.getItem("plus_google_subscription");
   if (!sub) return false;
 
@@ -4206,55 +3861,43 @@ function __plusIsActive() {
   }
 }
 
-/* ====== FUNÇÕES ANTIGAS (SOBRESCRITAS) ====== */
-window.verifyPlusAccess = function () {
-  return __plusIsActive();
-};
+/* ---------- BOTÕES DO MODAL ---------- */
 
-window.checkPlusAccess = function () {
-  return __plusIsActive();
-};
+// SOU ASSINANTE → login Google
+if (btnSou) {
+  btnSou.onclick = () => {
+    const hidden = document.getElementById("hiddenGoogleBtn");
+    if (hidden) hidden.click();
+    closePlusModal();
+  };
+}
 
-window.checkSubscriptionStatus = function () {
-  return __plusIsActive();
-};
+// QUERO ASSINAR → simulação (teste)
+if (btnQuero) {
+  btnQuero.onclick = () => {
+    alert("Simulação de assinatura feita (teste)");
+    activatePlusTest(30);
+    closePlusModal();
+  };
+}
 
-/* ====== MODAL ANTIGO → REDIRECIONA PRO NOVO ====== */
-window.openPlusModal = function () {
-  if (typeof openPlusModalNew === "function") {
-    openPlusModalNew();
-  } else if (typeof openPlusModal === "function") {
-    // fallback
-    console.warn("Modal novo não encontrado");
-  }
-};
-
-/* ====== RENDERIZAÇÃO PADRÃO DO APP ====== */
-window.renderBuySection = function () {
-  if (__plusIsActive()) {
-    const plusSection = document.getElementById("plusSection");
-    if (plusSection) plusSection.style.display = "block";
-  } else {
-    window.openPlusModal();
-  }
-};
-
-/* ====== BOTÃO PLUS+ (SEM QUEBRAR FLUXO) ====== */
+/* ---------- BOTÃO PLUS+ DO APP ---------- */
 const plusBtn = document.querySelector('.bn-item[data-target="plus"]');
+
 if (plusBtn) {
   plusBtn.onclick = (e) => {
     e.preventDefault();
 
-    if (__plusIsActive()) {
+    if (hasPlusAccess()) {
       const section = document.getElementById("plusSection");
       if (section) section.style.display = "block";
     } else {
-      window.openPlusModal();
+      openPlusModal();
     }
   };
 }
 
-/* ====== FUNÇÃO DE TESTE (FAKE PAGAMENTO) ====== */
+/* ---------- FUNÇÃO DE TESTE ---------- */
 window.activatePlusTest = function(days = 30) {
   const expiry = Date.now() + days * 24 * 60 * 60 * 1000;
 
@@ -4264,11 +3907,8 @@ window.activatePlusTest = function(days = 30) {
   }));
 
   console.log("🧪 Plus+ ativado (teste)");
-  alert("Plus+ ativado! Reabra a aba Plus+.");
+  alert("Plus+ ativado! Clique novamente em Plus+.");
 };
 </script>
-    <button onclick="activatePlusTest(30)">
-  ATIVAR PLUS+ (TESTE)
-</button>
 </body>
 </html>
