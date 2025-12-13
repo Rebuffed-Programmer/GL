@@ -4183,5 +4183,42 @@ if (plusButton) {
   };
 }
 </script>
+
+<script>
+/* =========================================
+   🔥 KILL SWITCH DEFINITIVO — PLUS+ ANTIGO
+   ========================================= */
+
+// Mata funções antigas
+[
+  "verifyPlusAccess",
+  "checkPlusAccess",
+  "checkSubscription",
+  "openPlusModal",
+  "openPlusModalOld",
+  "showPlusModal"
+].forEach(fn => {
+  if (window[fn]) {
+    window[fn] = () => false;
+  }
+});
+
+// Remove modais antigos
+[
+  "plusModal",
+  "plusAccessModal",
+  "subscriptionModal"
+].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+});
+
+// Bloqueia qualquer auto-check
+document.removeEventListener("DOMContentLoaded", window.checkPlusAccess);
+document.removeEventListener("load", window.checkPlusAccess);
+
+console.log("🧹 Sistema antigo Plus+ DESATIVADO");
+</script>
+
 </body>
 </html>
