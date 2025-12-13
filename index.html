@@ -3741,6 +3741,243 @@ document.addEventListener("DOMContentLoaded", ()=>{
 });
 </script>
 
+<div id="plusAccessModal" style="
+    display:none;
+    /* ... (restante dos seus estilos CSS inline) */
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.85);
+    backdrop-filter:blur(5px);
+    justify-content:center;
+    align-items:center;
+    z-index:999999;
+">
+    <div style="
+        /* ... (restante dos seus estilos CSS inline) */
+        width:90%;
+        max-width:420px;
+        background:#111;
+        padding:20px;
+        border-radius:14px;
+        color:white;
+        position:relative;
+    ">
+        <span id="plusAccessClose" style="
+            /* ... (restante dos seus estilos CSS inline) */
+            position:absolute;
+            top:12px;
+            right:14px;
+            font-size:22px;
+            cursor:pointer;
+        ">✖</span>
+
+        <img id="plusAccessPoster" style="width:100%; border-radius:8px;">
+
+        <h2 style="margin-top:12px; font-size:22px; text-align:center;">
+            Plus+
+        </h2>
+
+        <p style="margin-top:12px; opacity:0.9; text-align:center;">
+            Esta aba é exclusiva para assinantes Plus+.   
+            Se deseja assinar, clique em <strong>Quero Assinar</strong>.   
+            Se já é assinante, clique em <strong>Fazer Login</strong>.
+        </p>
+
+        <div style="margin-top:20px; text-align:center;">
+            <button id="plusLoginBtn" style="
+                /* ... (restante dos seus estilos CSS inline) */
+                padding:12px 18px;
+                width:100%;
+                background:#1a1a1a;
+                border:1px solid #555;
+                color:white;
+                border-radius:10px;
+                margin-bottom:10px;
+                cursor:pointer;
+                font-size:15px;
+            ">
+                Fazer Login
+            </button>
+
+            <button id="plusSubscribeBtn" style="
+                /* ... (restante dos seus estilos CSS inline) */
+                padding:12px 18px;
+                width:100%;
+                background:#ff0055;
+                border:none;
+                color:white;
+                border-radius:10px;
+                cursor:pointer;
+                font-size:15px;
+            ">
+                Quero Assinar
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+/* === CONFIGURAÇÕES GLOBAIS === */
+
+// Links de pagamento (Mantidos)
+const LINK_PAGAMENTO_MENSAL = 'https://mpago.la/2SRyqam';
+const LINK_PAGAMENTO_ANUAL  = 'https://mpago.la/2SRyqam'; 
+
+// URL do pôster do novo modal de acesso (Ajuste se necessário)
+const PLUS_POSTER_URL = 'https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg';
+
+
+/* ========================================================= */
+/*       NOVAS FUNÇÕES DE CONTROLE DE ACESSO PLUS+           */
+/*     (Focadas Apenas no Login Google)                   */
+/* ========================================================= */
+
+// Função que verifica se o usuário está logado via Google
+// IMPORTANTE: Você precisa garantir que a variável 'window.user' seja definida
+// pelo seu script de login do Google (GAPI/Google Sign-In).
+function isUserLoggedIn() {
+    // Retorna true se window.user existir (usuário logado), false caso contrário.
+    return !!window.user; 
+}
+
+
+// --- Controle do NOVO Modal de Acesso ---
+
+const plusAccessModal = document.getElementById('plusAccessModal');
+const plusAccessClose = document.getElementById('plusAccessClose');
+const plusLoginBtn = document.getElementById('plusLoginBtn');
+const plusSubscribeBtn = document.getElementById('plusSubscribeBtn');
+const plusAccessPoster = document.getElementById('plusAccessPoster');
+
+// Função para exibir o novo modal de acesso
+function showPlusAccessModal() {
+    if (plusAccessModal) {
+        plusAccessPoster.src = PLUS_POSTER_URL; // Define o pôster
+        plusAccessModal.style.display = 'flex';
+    }
+}
+
+// Função para ocultar o novo modal de acesso
+function hidePlusAccessModal() {
+    if (plusAccessModal) {
+        plusAccessModal.style.display = 'none';
+    }
+}
+
+// Função para iniciar o fluxo de login do Google
+function startGoogleSignIn() {
+    // Esconda o modal de acesso
+    hidePlusAccessModal(); 
+    
+    // ------------------------------------------------------------------------
+    // TODO: Adicione aqui a chamada real à função de login do Google.
+    // Exemplo (se você usar a biblioteca GAPI/Google Sign-In):
+    // const auth2 = gapi.auth2.getAuthInstance();
+    // auth2.signIn();
+    // ------------------------------------------------------------------------
+    console.log("Iniciando fluxo de Login do Google...");
+    alert("Iniciando Login do Google (Implementação necessária)");
+}
+
+// --- Ligações de Eventos do NOVO Modal ---
+
+if (plusAccessClose) {
+    plusAccessClose.addEventListener('click', hidePlusAccessModal);
+}
+
+if (plusLoginBtn) {
+    plusLoginBtn.addEventListener('click', startGoogleSignIn);
+}
+
+if (plusSubscribeBtn) {
+    plusSubscribeBtn.addEventListener('click', () => {
+        hidePlusAccessModal();
+        // Redireciona para o link de pagamento do Mercado Pago (para quem quer assinar)
+        window.open(LINK_PAGAMENTO_MENSAL, '_blank'); 
+    });
+}
+
+
+/* ========================================================= */
+/*         MODIFICAR LÓGICA DE VERIFICAÇÃO PRINCIPAL         */
+/* ========================================================= */
+
+// Esta função agora SUBSTITUI a lógica de token e usa APENAS o login Google.
+function checkPlusSubscriptionAndControlVisibility() {
+    const plusSection = document.getElementById('plusSection');
+    const btnSignOut = document.getElementById('btnPlusSignOut');
+    
+    // Verifica o status de login do Google
+    if (isUserLoggedIn()) {
+        // Logado: Mostra o conteúdo e o botão de Sair
+        if (plusSection) plusSection.style.display = 'block';
+        if (btnSignOut) btnSignOut.style.display = 'inline-block';
+        hidePlusAccessModal();
+        console.log("Plus+ ativado: Usuário logado via Google.");
+    } else {
+        // Não Logado: Esconde o conteúdo Plus+ e o botão de Sair
+        if (plusSection) plusSection.style.display = 'none';
+        if (btnSignOut) btnSignOut.style.display = 'none';
+        
+        // Se a seção for vital, você pode mostrar o modal aqui:
+        // showPlusAccessModal(); 
+        
+        console.log("Plus+ bloqueado: Usuário não logado.");
+    }
+}
+
+
+/* ========================================================= */
+/*         DESABILITAR CÓDIGO DO MODAL ANTIGO               */
+/* ========================================================= */
+
+// Oculta e desliga eventos do modal antigo (plusModal) para garantir que não interfira.
+function disableOldPlusModal() {
+    const oldModal = document.getElementById('plusModal');
+    if (oldModal) {
+        // Oculta o modal antigo para sempre
+        oldModal.style.display = 'none';
+        
+        // Remove todos os listeners de botões para evitar que ele seja aberto
+        // Nota: Se você não remover a tag HTML do modal antigo, 
+        // é melhor deixá-lo permanentemente escondido.
+    }
+    
+    // Remove o botão 'Sou assinante' do DOM para não confundir
+    const oldBtnSou = document.getElementById('plusBtnSou');
+    if (oldBtnSou) {
+        oldBtnSou.remove();
+    }
+}
+
+
+/* ========================================================= */
+/*                   INICIALIZAÇÃO                       */
+/* ========================================================= */
+
+// Adicione esta chamada na sua função de inicialização DOMContentLoaded
+document.addEventListener("DOMContentLoaded", ()=> {
+    // ... Seu código de renderização de seções (renderBuySection)
+    
+    disableOldPlusModal();
+    checkPlusSubscriptionAndControlVisibility();
+    
+    // ... Seu código de renderização de 'plusData' (se existir)
+});
+
+// Garanta que esta função seja chamada sempre que o status de login do Google mudar!
+// Ex: Se o seu login Google tiver um callback:
+/*
+function onGoogleSignInSuccess(googleUser) {
+    window.user = googleUser.getBasicProfile(); // Define o usuário
+    checkPlusSubscriptionAndControlVisibility(); // Atualiza a interface
+    hidePlusAccessModal();
+}
+*/
+</script>
 <script>
 /* ============================================================
       SISTEMA OFICIAL DA PLUS+ — 100% COMPATÍVEL COM O APP
@@ -3876,7 +4113,6 @@ function removeOldModal() {
 
 removeOldModal();
 </script>
-
     
 </body>
 </html>
