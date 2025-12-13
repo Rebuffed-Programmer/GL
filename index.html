@@ -3741,157 +3741,52 @@ document.addEventListener("DOMContentLoaded", ()=>{
 });
 </script>
 
-<script>
-/* =========================================================
-   PLUS+ — SCRIPT FINAL (USA SEU MODAL ANTIGO/BONITO)
-   ========================================================= */
+<div id="plusModal" style="display:none;">
+  <img id="plusPosterImg"
+       src="https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg">
 
-const BACKEND_CHECK = "https://glplus-backend.vercel.app/api/checkSubscription";
+  <h2>Plus+</h2>
+
+  <p>
+    Esta aba é exclusiva para assinantes Plus+.
+    Se deseja assinar, clique em <b>Quero Assinar</b>.
+    Se já é assinante, clique em <b>Fazer Login</b>.
+  </p>
+
+  <button id="plusBtnSou">Fazer Login</button>
+  <button id="plusBtnQuero">Quero Assinar</button>
+</div>
+    <script>
 const LINK_ASSINATURA = "https://login-plus.vercel.app/";
+const BACKEND_CHECK = "https://glplus-backend.vercel.app/api/checkSubscription";
 
-/* ===== UTIL ===== */
 function getUser() {
-  try {
-    return JSON.parse(localStorage.getItem("glplus_user"));
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(localStorage.getItem("glplus_user")); }
+  catch { return null; }
 }
 
-function isLogged() {
-  return !!getUser();
-}
-
-/* ===== MODAL (SEU MODAL) ===== */
-function openPlusModal() {
-  const modal = document.getElementById("plusModal");
-  if (modal) modal.style.display = "flex";
-}
-
-function closePlusModal() {
-  const modal = document.getElementById("plusModal");
-  if (modal) modal.style.display = "none";
-}
-
-/* ===== GOOGLE LOGIN ===== */
-const btnSou = document.getElementById("plusBtnSou");
-if (btnSou) {
-  btnSou.onclick = () => {
-    const hidden = document.getElementById("hiddenGoogleBtn");
-    if (hidden) hidden.click();
-    closePlusModal();
-  };
-}
-
-/* ===== ASSINAR ===== */
-const btnQuero = document.getElementById("plusBtnQuero");
-if (btnQuero) {
-  btnQuero.onclick = () => {
-    window.open(LINK_ASSINATURA, "_blank");
-  };
-}
-
-/* ===== BACKEND CHECK ===== */
 async function hasPlusAccess() {
   const user = getUser();
   if (!user) return false;
 
-  try {
-    const res = await fetch(`${BACKEND_CHECK}?email=${user.email}`);
-    const data = await res.json();
-    return data.active === true;
-  } catch {
-    return false;
-  }
+  const res = await fetch(`${BACKEND_CHECK}?email=${user.email}`);
+  const data = await res.json();
+  return data.active === true;
 }
 
-/* ===== FUNÇÕES ANTIGAS DO APP (SOBRESCRITAS) ===== */
-window.verifyPlusAccess =
-window.checkPlusAccess =
-window.checkSubscriptionStatus = async function () {
-  return await hasPlusAccess();
+/* BOTÕES DO MODAL */
+document.getElementById("plusBtnSou").onclick = () => {
+  document.getElementById("hiddenGoogleBtn")?.click();
 };
 
-/* ===== BOTÃO PLUS+ ===== */
-const plusBtn = document.querySelector('.bn-item[data-target="plus"]');
-
-if (plusBtn) {
-  plusBtn.onclick = async (e) => {
-    e.preventDefault();
-
-    if (!isLogged()) {
-      openPlusModal();
-      return;
-    }
-
-    const active = await hasPlusAccess();
-
-    if (active) {
-      closePlusModal();
-      const plusSection = document.getElementById("plusSection");
-      if (plusSection) plusSection.style.display = "block";
-    } else {
-      openPlusModal();
-    }
-  };
-}
-
-/* ===== AO CARREGAR ===== */
-document.addEventListener("DOMContentLoaded", async () => {
-  if (isLogged() && await hasPlusAccess()) {
-    closePlusModal();
-  }
-});
-</script>
-
-<script>
-const BACKEND_CHECK = "https://glplus-backend.vercel.app/api/checkSubscription";
-
-function isUserLoggedIn() {
-  return !!localStorage.getItem("glplus_user");
-}
-
-async function hasPlusAccess() {
-  const user = JSON.parse(localStorage.getItem("glplus_user") || "null");
-  if (!user) return false;
-
-  try {
-    const res = await fetch(`${BACKEND_CHECK}?email=${user.email}`);
-    const data = await res.json();
-    return data.active === true;
-  } catch {
-    return false;
-  }
-}
-
-/* ===== SOBRESCREVE SISTEMA ANTIGO ===== */
-window.verifyPlusAccess =
-window.checkPlusAccess =
-window.checkSubscriptionStatus = async function () {
-  return await hasPlusAccess();
+document.getElementById("plusBtnQuero").onclick = () => {
+  window.open(LINK_ASSINATURA, "_blank");
 };
 
-/* ===== BOTÃO PLUS+ ===== */
-const plusBtn = document.querySelector('.bn-item[data-target="plus"]');
-
-if (plusBtn) {
-  plusBtn.onclick = async (e) => {
-    e.preventDefault();
-
-    if (!isUserLoggedIn()) {
-      openPlusModal(); // SEU MODAL BONITO
-      return;
-    }
-
-    const active = await hasPlusAccess();
-
-    if (active) {
-      document.getElementById("plusSection").style.display = "block";
-    } else {
-      openPlusModal();
-    }
-  };
-}
+/* FUNÇÃO QUE O APP JÁ CHAMA */
+window.verifyPlusAccess = async () => {
+  return await hasPlusAccess();
+};
 </script>
 </body>
 </html>
