@@ -4292,5 +4292,87 @@ window.checkPlusAccess = null;
 window.checkSubscription = null;
 
 </script>
+
+<script>
+/* ===============================
+   LOGIN PLUS+ — SISTEMA REAL
+================================ */
+
+/* ===== VERIFICA SE TEM ACESSO ===== */
+function hasPlusAccess() {
+  // assinatura Google
+  const sub = localStorage.getItem("plus_subscription");
+  if (sub) {
+    try {
+      const data = JSON.parse(sub);
+      if (Date.now() < data.expiry) return true;
+      localStorage.removeItem("plus_subscription");
+    } catch {}
+  }
+
+  // token familiar
+  if (localStorage.getItem("plus_token_access")) {
+    return true;
+  }
+
+  return false;
+}
+
+/* ===== ATIVA SESSÃO PLUS+ ===== */
+function activatePlusSession() {
+  const section = document.getElementById("plusSection");
+  if (section) section.style.display = "block";
+  console.log("✅ Sessão Plus+ ativada");
+}
+
+/* ===== BOTÃO FAZER LOGIN ===== */
+const plusLoginBtn = document.getElementById("plusLoginBtn");
+
+if (plusLoginBtn) {
+  plusLoginBtn.onclick = () => {
+    // Cria escolha de login (simples, sem layout)
+    const choice = confirm(
+      "OK = Entrar com Google (assinatura)\nCancelar = Entrar com Token Familiar"
+    );
+
+    /* ===== LOGIN GOOGLE ===== */
+    if (choice) {
+      const hiddenGoogle = document.getElementById("hiddenGoogleBtn");
+
+      if (!hiddenGoogle) {
+        alert("Login Google não disponível");
+        return;
+      }
+
+      hiddenGoogle.click();
+
+      // espera login Google
+      const wait = setInterval(() => {
+        if (localStorage.getItem("glplus_user")) {
+          clearInterval(wait);
+
+          if (hasPlusAccess()) {
+            activatePlusSession();
+          } else {
+            alert("Conta Google logada, mas sem assinatura Plus+");
+          }
+        }
+      }, 500);
+
+    /* ===== LOGIN TOKEN ===== */
+    } else {
+      const token = prompt("Digite o token familiar:");
+
+      if (!token) return;
+
+      // aqui você pode validar token simples ou fixo
+      localStorage.setItem("plus_token_access", token);
+
+      activatePlusSession();
+    }
+  };
+}
+</script>
+
 </body>
 </html>
