@@ -1,43 +1,22 @@
-// pages/api/checkSubscription.js (CORRIGIDO PARA USAR GOOGLE ID)
+import { Redis } from "@upstash/redis";
 
-import { createClient } from '@vercel/kv';
-
-const kv = createClient({
-  url: process.env.ARMAZENAMENTOPLUS_KV_REST_API_URL,
-  token: process.env.ARMAZENAMENTOPLUS_KV_REST_API_TOKEN,
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN
 });
 
 export default async function handler(req, res) {
-  // 🛑 MUDANÇA CRUCIAL: Agora lemos o 'googleId' da query string
-  const googleId = req.query.googleId; 
+  const { googleId } = req.query;
+  if (!googleId) return res.json({ active: false });
 
-  if (!googleId) {
-    // Retorna 400 se o Frontend não enviar a chave correta
-    return res.status(400).json({ active: false, error: "googleId_required" }); 
-  }
+  const data = await redis.get(`plus:${googleId}`);
 
-  try {
-    // ✅ BUSCA NO KV PELA CHAVE GOOGLE ID
-    const record = await kv.get(googleId);
+  if (!data) return res.json({ active: false });
 
-    if (!record || record.status !== "active") {
-      return res.json({ active: false });
-    }
+  if (data.expiry && Date.now() > data.expiry) {
+    await redis.del(`plus:${googleId}`);
+    return res.json({ active: false });
+  }
 
-    // Verifica a expiração
-    if (Date.now() > record.expiry) {
-      await kv.set(googleId, { ...record, status: "expired" }); // Atualiza o KV
-      return res.json({ active: false });
-    }
-
-    return res.json({
-      active: true,
-      expiry: record.expiry,
-      plan: record.plan || "MENSAL"
-    });
-
-  } catch (err) {
-    console.error("checkSubscription error:", err);
-    return res.status(500).json({ active: false, error: "server_error" });
-  }
+  return res.json({ active: true, ...data });
 }
