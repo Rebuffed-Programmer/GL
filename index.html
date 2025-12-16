@@ -4165,5 +4165,64 @@ if (modalGoogleBtn) {
   };
 }
 </script>
+    <script>
+/* =====================================================
+   1️⃣ FUNÇÕES DE ESTADO / VERIFICAÇÃO
+===================================================== */
+
+function isSubscriptionActive() {
+    const premium = localStorage.getItem("GLPLUS_PREMIUM") === "true";
+    const exp = localStorage.getItem("GLPLUS_EXPIRA");
+
+    if (!premium || !exp) return false;
+
+    const now = new Date();
+    const expDate = new Date(exp);
+
+    if (now > expDate) {
+        localStorage.removeItem("GLPLUS_PREMIUM");
+        localStorage.removeItem("GLPLUS_EXPIRA");
+        return false;
+    }
+
+    return true;
+}
+
+
+/* =====================================================
+   2️⃣ FUNÇÕES DE CONTROLE DE UI / PLUS+
+===================================================== */
+
+function renderPlusCatalog() {
+    if (!isSubscriptionActive()) {
+        alert("Assinatura não ativa ou expirada. Ative para ver conteúdos Plus+.");
+        return;
+    }
+
+    hideAllMainSections();
+    document.getElementById("plusSection").style.display = "block";
+}
+
+function openPlusCinema() {
+    if (!isSubscriptionActive()) {
+        showPlusAccessModal();
+        return;
+    }
+
+    // abre cinema Plus+
+}
+
+
+/* =====================================================
+   3️⃣ EVENTOS / INICIALIZAÇÃO
+===================================================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (isSubscriptionActive()) {
+        console.log("Plus+ ativo");
+    }
+});
+</script>
+    
 </body>
 </html>
