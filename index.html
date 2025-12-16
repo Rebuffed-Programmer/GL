@@ -4995,5 +4995,64 @@ document.addEventListener("DOMContentLoaded", () => {
 })();
 </script>
 
+<script>
+/* =====================================================
+   ☢️ FIX NUCLEAR — MODAL PLUS+ (IMPOSSÍVEL FALHAR)
+   ===================================================== */
+
+(function () {
+
+  function isPlusClick(el) {
+    if (!el) return false;
+
+    // texto
+    const txt = (el.textContent || "").toLowerCase();
+    if (txt.includes("plus")) return true;
+
+    // atributos comuns
+    if (el.dataset && (
+      el.dataset.target === "plus" ||
+      el.dataset.page === "plus" ||
+      el.dataset.tab === "plus"
+    )) return true;
+
+    // classes comuns
+    if (el.classList) {
+      if (
+        el.classList.contains("plus") ||
+        el.classList.contains("plus-btn") ||
+        el.classList.contains("bn-plus")
+      ) return true;
+    }
+
+    return false;
+  }
+
+  document.addEventListener("click", function (e) {
+    let el = e.target;
+
+    while (el && el !== document.body) {
+      if (isPlusClick(el)) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
+        const modal = document.getElementById("plusAccessModal");
+        if (modal) {
+          modal.style.display = "flex";
+          document.body.style.overflow = "hidden";
+          console.log("✅ MODAL PLUS ABERTO (FIX NUCLEAR)");
+        } else {
+          console.error("❌ plusAccessModal NÃO EXISTE NO DOM");
+        }
+        return;
+      }
+      el = el.parentElement;
+    }
+  }, true); // <- CAPTURE = TRUE (antes de todos os scripts)
+
+})();
+</script>
+
 </body>
 </html>
