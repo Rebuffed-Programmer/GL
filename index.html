@@ -5191,5 +5191,90 @@ document.querySelectorAll('.bottom-nav a, .bottom-nav button').forEach(btn => {
 });
 </script>
 
+<script>
+/* =========================================================
+   PLUS+ — SISTEMA DEFINITIVO (TOKEN + GOOGLE)
+   ========================================================= */
+
+/* ===== CHAVES ===== */
+const LS_TOKEN = "GLPLUS_FAMILY";
+const LS_GOOGLE = "GLPLUS_GOOGLE";
+const LS_EXP = "GLPLUS_EXPIRA";
+
+/* ===== ELEMENTOS ===== */
+const modal = document.getElementById("plusAccessModal");
+const btnClose = document.getElementById("plusAccessClose");
+const btnToken = document.getElementById("plusTokenLogin");
+const btnGoogle = document.getElementById("plusGoogleLogin");
+const btnSubscribe = document.getElementById("plusSubscribeBtn");
+
+/* ===== UTIL ===== */
+function openModal() {
+  modal.style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+function closeModal() {
+  modal.style.display = "none";
+  document.body.style.overflow = "";
+}
+
+/* ===== ESTADO PLUS ===== */
+function isSubscriptionActive() {
+  const exp = localStorage.getItem(LS_EXP);
+  if (!exp) return false;
+  return new Date(exp) > new Date();
+}
+
+/* ===== ATIVAÇÃO LOCAL (FAMILIAR) ===== */
+function activateFamily(days = 30) {
+  const exp = new Date();
+  exp.setDate(exp.getDate() + days);
+
+  localStorage.setItem(LS_TOKEN, "true");
+  localStorage.setItem(LS_EXP, exp.toISOString());
+}
+
+/* ===== LOGIN FAMILIAR ===== */
+btnToken.onclick = () => {
+  activateFamily(30);
+  closeModal();
+  hideAllMainSections();
+  renderPlusCatalog();
+};
+
+/* ===== LOGIN GOOGLE (SÓ DISPARA O FLOW) ===== */
+btnGoogle.onclick = () => {
+  const hidden = document.getElementById("hiddenGoogleBtn");
+  if (hidden) hidden.click();
+};
+
+/* ===== QUERO ASSINAR ===== */
+btnSubscribe.onclick = () => {
+  window.open("https://login-plus.vercel.app", "_blank");
+};
+
+/* ===== FECHAR ===== */
+btnClose.onclick = closeModal;
+window.addEventListener("click", e => {
+  if (e.target === modal) closeModal();
+});
+
+/* ===== BOTÃO PLUS+ ===== */
+document.querySelectorAll('.bottom-nav a, .bottom-nav button').forEach(btn => {
+  const t = (btn.textContent || "").toLowerCase();
+  if (t.includes("plus")) {
+    btn.onclick = e => {
+      e.preventDefault();
+      if (isSubscriptionActive()) {
+        hideAllMainSections();
+        renderPlusCatalog();
+      } else {
+        openModal();
+      }
+    };
+  }
+});
+</script>
+
 </body>
 </html>
