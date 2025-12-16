@@ -5116,5 +5116,80 @@ document.addEventListener("DOMContentLoaded", () => {
 })();
 </script>
 
+<script>
+/* =====================================================
+   PLUS+ — CONTROLE REAL DO MODAL + LOGIN FAMILIAR
+   ===================================================== */
+
+/* === ELEMENTOS === */
+const plusModal = document.getElementById("plusAccessModal");
+const btnClose = document.getElementById("plusAccessClose");
+const btnLogin = document.getElementById("plusLoginBtn");
+const btnToken = document.getElementById("plusTokenLogin");
+const btnGoogle = document.getElementById("plusGoogleLogin");
+const btnSubscribe = document.getElementById("plusSubscribeBtn");
+
+/* === UTIL === */
+function openPlusModal() {
+  plusModal.style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+
+function closePlusModal() {
+  plusModal.style.display = "none";
+  document.body.style.overflow = "";
+}
+
+/* === ESTADO PLUS+ === */
+function activatePlusLocal(days = 30) {
+  const exp = new Date();
+  exp.setDate(exp.getDate() + days);
+
+  localStorage.setItem("GLPLUS_PREMIUM", "true");
+  localStorage.setItem("GLPLUS_EXPIRA", exp.toISOString());
+}
+
+/* === LOGIN FAMILIAR (TESTE) — AGORA FUNCIONA === */
+btnToken.onclick = () => {
+  activatePlusLocal(30);       // 1️⃣ ativa Plus
+  closePlusModal();            // 2️⃣ fecha modal
+  hideAllMainSections();       // 3️⃣ esconde Home
+  renderPlusCatalog();         // 4️⃣ ABRE CATÁLOGO
+};
+
+/* === LOGIN GOOGLE (CHAMA SEU SISTEMA EXISTENTE) === */
+btnGoogle.onclick = () => {
+  const hidden = document.getElementById("hiddenGoogleBtn");
+  if (hidden) hidden.click();
+};
+
+/* === QUERO ASSINAR === */
+btnSubscribe.onclick = () => {
+  window.open("https://mpago.la/2SRyqam", "_blank");
+};
+
+/* === FECHAR MODAL === */
+btnClose.onclick = closePlusModal;
+window.addEventListener("click", e => {
+  if (e.target === plusModal) closePlusModal();
+});
+
+/* === BOTÃO PLUS+ DA BOTTOM NAV === */
+document.querySelectorAll('.bottom-nav a, .bottom-nav button').forEach(btn => {
+  const txt = (btn.textContent || "").toLowerCase();
+  if (txt.includes("plus")) {
+    btn.onclick = e => {
+      e.preventDefault();
+      if (isSubscriptionActive()) {
+        hideAllMainSections();
+        renderPlusCatalog();
+      } else {
+        openPlusModal();
+      }
+    };
+  }
+});
+</script>
+
 </body>
 </html>
