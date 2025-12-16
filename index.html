@@ -4502,5 +4502,181 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+<!-- Google Identity -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<div id="g_id_onload"
+     data-client_id="467099082704-bbqe4ble2u63mbpgv0mkdars78pigi6i.apps.googleusercontent.com"
+     data-context="signin"
+     data-ux_mode="popup"
+     data-callback="handleCredentialResponse"
+     data-auto_prompt="false">
+</div>
+
+<script>
+/* ============================================================
+   🔥 PLUS+ — SISTEMA ÚNICO, LIMPO E DEFINITIVO
+   Login Google → Assinatura → Liberação de Conteúdo
+   ============================================================ */
+
+(function () {
+
+  /* ============================================================
+     1️⃣ CONFIGURAÇÕES
+     ============================================================ */
+
+  const API_BASE = "https://gl-alpha.vercel.app"; // seu backend
+  const CHECK_SUB_API = API_BASE + "/api/checkSubscription";
+
+  const LS_USER = "glplus_user";
+  const LS_PLUS = "GLPLUS_PREMIUM";
+  const LS_EXP  = "GLPLUS_EXPIRA";
+
+  /* ============================================================
+     2️⃣ 🔥 DESATIVAR COMPLETAMENTE SISTEMA ANTIGO
+     ============================================================ */
+
+  const legacyKill = [
+    "activateTokenLocal",
+    "renderSouAssinante",
+    "renderQueroAssinar",
+    "openPlusModal",
+    "showPlusModal"
+  ];
+
+  legacyKill.forEach(fn => window[fn] = function(){});
+
+  [
+    "plusModal",
+    "plusBtnSou",
+    "plusBtnQuero",
+    "tokenInput",
+    "plusPosterImg"
+  ].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  });
+
+  console.log("🔥 Sistema antigo da Plus+ DESATIVADO");
+
+  /* ============================================================
+     3️⃣ FUNÇÕES NÚCLEO (CONTRATO DO SISTEMA)
+     ============================================================ */
+
+  window.isSubscriptionActive = function () {
+    const premium = localStorage.getItem(LS_PLUS) === "true";
+    const exp = localStorage.getItem(LS_EXP);
+    if (!premium || !exp) return false;
+    return new Date(exp) > new Date();
+  };
+
+  /* ============================================================
+     4️⃣ ATIVAÇÃO OFICIAL (SOMENTE GOOGLE + API)
+     ============================================================ */
+
+  function activatePlus(expiry) {
+    localStorage.setItem(LS_PLUS, "true");
+    localStorage.setItem(LS_EXP, new Date(expiry).toISOString());
+    console.log("✅ Plus+ ATIVADA");
+  }
+
+  function deactivatePlus() {
+    localStorage.removeItem(LS_PLUS);
+    localStorage.removeItem(LS_EXP);
+    console.log("❌ Plus+ DESATIVADA");
+  }
+
+  /* ============================================================
+     5️⃣ GOOGLE LOGIN CALLBACK
+     ============================================================ */
+
+  function decodeJwt(token) {
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch {
+      return null;
+    }
+  }
+
+  window.handleCredentialResponse = async function (res) {
+    const payload = decodeJwt(res.credential);
+    if (!payload) return;
+
+    const user = {
+      googleId: payload.sub,
+      name: payload.name,
+      email: payload.email,
+      picture: payload.picture
+    };
+
+    localStorage.setItem(LS_USER, JSON.stringify(user));
+    console.log("🔐 Login Google OK:", user.email);
+
+    await checkSubscriptionRemote();
+  };
+
+  /* ============================================================
+     6️⃣ VERIFICAÇÃO REMOTA DE ASSINATURA
+     ============================================================ */
+
+  async function checkSubscriptionRemote() {
+    const saved = localStorage.getItem(LS_USER);
+    if (!saved) {
+      deactivatePlus();
+      return;
+    }
+
+    const user = JSON.parse(saved);
+
+    try {
+      const res = await fetch(`${CHECK_SUB_API}?googleId=${user.googleId}`);
+      const data = await res.json();
+
+      if (data.active) {
+        activatePlus(data.expiry);
+        if (window.renderPlusCatalog) renderPlusCatalog();
+      } else {
+        deactivatePlus();
+        alert("Sua assinatura Plus+ não está ativa.");
+      }
+    } catch (e) {
+      console.error("Erro ao verificar assinatura:", e);
+      deactivatePlus();
+    }
+  }
+
+  /* ============================================================
+     7️⃣ BOTÃO PLUS+ (BOTTOM NAV)
+     ============================================================ */
+
+  document.querySelectorAll('.bottom-nav a, .bottom-nav button').forEach(btn => {
+    const txt = (btn.textContent || "").toLowerCase();
+    if (txt.includes("plus")) {
+      btn.onclick = async (e) => {
+        e.preventDefault();
+        if (isSubscriptionActive()) {
+          renderPlusCatalog();
+        } else {
+          google.accounts.id.prompt();
+        }
+      };
+    }
+  });
+
+  /* ============================================================
+     8️⃣ STARTUP — ESTADO INICIAL
+     ============================================================ */
+
+  window.addEventListener("load", () => {
+    if (isSubscriptionActive()) {
+      console.log("ℹ️ Plus+ já ativa neste dispositivo");
+    } else {
+      deactivatePlus();
+    }
+  });
+
+})();
+</script>
+
 </body>
 </html>
