@@ -3426,19 +3426,42 @@ function applyUser(user) {
 // ==============================
 function handleLogin(res) {
     const payload = JSON.parse(atob(res.credential.split(".")[1]));
-    
+
     const user = {
         name: payload.name,
         email: payload.email,
         picture: payload.picture
     };
 
+    // Salva usuário
     localStorage.setItem("glplus_user", JSON.stringify(user));
-    
-    // Chamando applyUser, que agora MOSTRA o menu imediatamente.
-    applyUser(user);
-}
 
+    // Aplica login visual
+    applyUser(user);
+
+    // ==========================
+    // 🔥 ATIVA PLUS+
+    // ==========================
+    const exp = new Date();
+    exp.setDate(exp.getDate() + 30);
+
+    localStorage.setItem("GLPLUS_PREMIUM", "true");
+    localStorage.setItem("GLPLUS_EXPIRA", exp.toISOString());
+
+    // ==========================
+    // 🔥 FECHA MODAL + ABRE CATÁLOGO
+    // ==========================
+    const modal = document.getElementById("plusAccessModal");
+    if (modal) modal.style.display = "none";
+
+    if (typeof hideAllMainSections === "function") {
+        hideAllMainSections();
+    }
+
+    if (typeof renderPlusCatalog === "function") {
+        renderPlusCatalog();
+    }
+}
 // ==============================
 //  INICIALIZAÇÃO GERAL (window.onload)
 // ==============================
@@ -4093,81 +4116,28 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 
 <script>
-/* =========================================================
-   PLUS+ — LOGIN VIA GOOGLE (INTEGRAÇÃO LIMPA)
-   ========================================================= */
+/* =========================================
+   PLUS+ — MODAL → LOGIN GOOGLE REAL
+   ========================================= */
 
-const GOOGLE_CLIENT_ID = "COLOQUE_AQUI_SEU_CLIENT_ID";
+(function () {
 
-/* Ativa Plus+ localmente (mesma lógica do token) */
-function activatePlusLocal(days = 30) {
-  const exp = new Date();
-  exp.setDate(exp.getDate() + days);
+  const modal = document.getElementById("plusAccessModal");
+  const googleBtn = document.getElementById("plusGoogleLogin");
+  const hiddenGoogleBtn = document.getElementById("hiddenGoogleBtn");
 
-  localStorage.setItem("GLPLUS_PREMIUM", "true");
-  localStorage.setItem("GLPLUS_EXPIRA", exp.toISOString());
-}
-
-/* Decodifica JWT do Google */
-function decodeJwt(token) {
-  try {
-    return JSON.parse(atob(token.split(".")[1]));
-  } catch {
-    return null;
-  }
-}
-
-/* Callback oficial do Google */
-window.handleCredentialResponse = function (response) {
-  const payload = decodeJwt(response.credential);
-  if (!payload) {
-    alert("Erro no login Google");
+  if (!googleBtn || !hiddenGoogleBtn) {
+    console.error("❌ Botão Google do modal ou hiddenGoogleBtn não encontrado");
     return;
   }
 
-  // salva usuário
-  localStorage.setItem("GLPLUS_GOOGLE_USER", JSON.stringify({
-    id: payload.sub,
-    name: payload.name,
-    email: payload.email,
-    picture: payload.picture
-  }));
-
-  // ATIVA PLUS (igual login familiar)
-  activatePlusLocal(30);
-
-  // Fecha modal e abre catálogo
-  if (typeof closePlusModal === "function") closePlusModal();
-  if (typeof hideAllMainSections === "function") hideAllMainSections();
-  if (typeof renderPlusCatalog === "function") renderPlusCatalog();
-
-  console.log("✅ Login Google Plus+ OK:", payload.email);
-};
-
-/* Inicializa Google */
-function initGoogleLogin() {
-  if (!window.google || !google.accounts || !google.accounts.id) return;
-
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: handleCredentialResponse
-  });
-}
-
-/* Liga botão do modal */
-const googleBtn = document.getElementById("plusGoogleLogin");
-if (googleBtn) {
   googleBtn.onclick = () => {
-    initGoogleLogin();
-    google.accounts.id.prompt();
+    console.log("🔐 Disparando login Google real...");
+    hiddenGoogleBtn.click();
   };
-}
 
-/* Garantia após load */
-window.addEventListener("load", initGoogleLogin);
+})();
 </script>
-
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-
+    
 </body>
 </html>
