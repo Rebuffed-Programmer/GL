@@ -4374,5 +4374,189 @@ if (plusLoginBtn) {
 }
 </script>
 
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<script>
+/* ============================================================
+   PLUS+ — SISTEMA FINAL (GOOGLE LOGIN + ASSINATURA)
+   Frontend ÚNICO • LIMPO • SEM TOKEN MANUAL
+============================================================ */
+
+/* ===================== CONFIGURAÇÕES ===================== */
+
+// 🔗 URL BASE DO SEU PROJETO (onde ficam as APIs)
+const API_BASE = "https://gl-alpha.vercel.app";
+
+// Endpoints
+const API_CHECK = API_BASE + "/api/checkSubscription";
+const API_TEST  = API_BASE + "/api/activateTest";
+
+// Google Client ID (O MESMO DO SITE DE ASSINATURA)
+const GOOGLE_CLIENT_ID = "467099082704-bbqe4ble2u63mbpgv0mkdars78pigi6i.apps.googleusercontent.com";
+
+// LocalStorage keys
+const LS_USER = "glplus_user";
+const LS_PLUS = "plus_google_subscription";
+
+/* ===================== ELEMENTOS ===================== */
+
+// Ajuste se seus IDs forem diferentes
+const plusSection = document.getElementById("plusSection");
+const plusButton  = document.querySelector('.bn-item[data-target="plus"]');
+const hiddenGoogleBtn = document.getElementById("hiddenGoogleBtn"); // opcional
+
+/* ===================== LIMPEZA TOTAL ===================== */
+
+(function removeOldSystem(){
+  const ids = [
+    "plusModal","plusBtnSou","plusBtnQuero",
+    "plusPosterImg","tokenInput","tokenModal"
+  ];
+  ids.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.remove();
+  });
+  console.log("🧹 Sistema antigo removido");
+})();
+
+/* ===================== UTIL ===================== */
+
+function decodeJWT(token){
+  try{
+    return JSON.parse(atob(token.split('.')[1]));
+  }catch{
+    return null;
+  }
+}
+
+function getUser(){
+  const u = localStorage.getItem(LS_USER);
+  return u ? JSON.parse(u) : null;
+}
+
+function activatePlusLocal(data){
+  localStorage.setItem(LS_PLUS, JSON.stringify({
+    active:true,
+    expiry:data?.expiry || null,
+    plan:data?.plan || "default"
+  }));
+  if(plusSection) plusSection.style.display = "block";
+  console.log("✅ Plus+ ATIVA");
+}
+
+function deactivatePlus(){
+  localStorage.removeItem(LS_PLUS);
+  if(plusSection) plusSection.style.display = "none";
+  console.log("🔒 Plus+ BLOQUEADA");
+}
+
+/* ===================== GOOGLE LOGIN ===================== */
+
+window.handleCredentialResponse = function(res){
+  const payload = decodeJWT(res.credential);
+  if(!payload) return;
+
+  const user = {
+    googleId: payload.sub,
+    name: payload.name,
+    email: payload.email,
+    picture: payload.picture
+  };
+
+  localStorage.setItem(LS_USER, JSON.stringify(user));
+  console.log("👤 Logado:", user.email);
+
+  checkSubscription(); // verifica assinatura após login
+};
+
+function initGoogle(){
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleCredentialResponse
+  });
+}
+
+function loginGoogle(){
+  google.accounts.id.prompt();
+}
+
+/* ===================== CHECK ASSINATURA ===================== */
+
+async function checkSubscription(){
+  const user = getUser();
+  if(!user){
+    deactivatePlus();
+    return false;
+  }
+
+  try{
+    const res = await fetch(`${API_CHECK}?googleId=${user.googleId}`);
+    const data = await res.json();
+
+    if(data.active){
+      activatePlusLocal(data);
+      return true;
+    }else{
+      deactivatePlus();
+      return false;
+    }
+  }catch(err){
+    console.error("Erro checkSubscription:", err);
+    deactivatePlus();
+    return false;
+  }
+}
+
+/* ===================== BOTÃO PLUS+ ===================== */
+
+if(plusButton){
+  plusButton.onclick = async (e)=>{
+    e.preventDefault();
+
+    const user = getUser();
+    if(!user){
+      loginGoogle();
+      return;
+    }
+
+    await checkSubscription();
+  };
+}
+
+/* ===================== BOTÃO TESTE (DEV) ===================== */
+
+window.activatePlusTest = async function(days=30){
+  const user = getUser();
+  if(!user){
+    alert("Faça login com Google primeiro");
+    return;
+  }
+
+  await fetch(API_TEST,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      googleId:user.googleId,
+      days
+    })
+  });
+
+  alert("Plus+ ativada para testes");
+  checkSubscription();
+};
+
+/* ===================== START ===================== */
+
+window.addEventListener("load", ()=>{
+  initGoogle();
+
+  // Se já estava logado, verifica direto
+  if(getUser()){
+    checkSubscription();
+  }
+});
+</script>
+
 </body>
 </html>
