@@ -4092,5 +4092,80 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+<script>
+/* =========================================================
+   PLUS+ — LOGIN VIA GOOGLE (INTEGRAÇÃO LIMPA)
+   ========================================================= */
+
+const GOOGLE_CLIENT_ID = "COLOQUE_AQUI_SEU_CLIENT_ID";
+
+/* Ativa Plus+ localmente (mesma lógica do token) */
+function activatePlusLocal(days = 30) {
+  const exp = new Date();
+  exp.setDate(exp.getDate() + days);
+
+  localStorage.setItem("GLPLUS_PREMIUM", "true");
+  localStorage.setItem("GLPLUS_EXPIRA", exp.toISOString());
+}
+
+/* Decodifica JWT do Google */
+function decodeJwt(token) {
+  try {
+    return JSON.parse(atob(token.split(".")[1]));
+  } catch {
+    return null;
+  }
+}
+
+/* Callback oficial do Google */
+window.handleCredentialResponse = function (response) {
+  const payload = decodeJwt(response.credential);
+  if (!payload) {
+    alert("Erro no login Google");
+    return;
+  }
+
+  // salva usuário
+  localStorage.setItem("GLPLUS_GOOGLE_USER", JSON.stringify({
+    id: payload.sub,
+    name: payload.name,
+    email: payload.email,
+    picture: payload.picture
+  }));
+
+  // ATIVA PLUS (igual login familiar)
+  activatePlusLocal(30);
+
+  // Fecha modal e abre catálogo
+  if (typeof closePlusModal === "function") closePlusModal();
+  if (typeof hideAllMainSections === "function") hideAllMainSections();
+  if (typeof renderPlusCatalog === "function") renderPlusCatalog();
+
+  console.log("✅ Login Google Plus+ OK:", payload.email);
+};
+
+/* Inicializa Google */
+function initGoogleLogin() {
+  if (!window.google || !google.accounts || !google.accounts.id) return;
+
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleCredentialResponse
+  });
+}
+
+/* Liga botão do modal */
+const googleBtn = document.getElementById("plusGoogleLogin");
+if (googleBtn) {
+  googleBtn.onclick = () => {
+    initGoogleLogin();
+    google.accounts.id.prompt();
+  };
+}
+
+/* Garantia após load */
+window.addEventListener("load", initGoogleLogin);
+</script>
+
 </body>
 </html>
