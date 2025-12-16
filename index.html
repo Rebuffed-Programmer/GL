@@ -4959,7 +4959,41 @@ document.addEventListener("DOMContentLoaded", () => {
 })();
 </script>
 
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+/* =====================================================
+   🔧 FIX DEFINITIVO — BOTÃO PLUS+ → MODAL NOVO
+   ===================================================== */
+
+(function () {
+
+  function bindPlusButton() {
+    const buttons = document.querySelectorAll(
+      '.bottom-nav a, .bottom-nav button, .bn-item'
+    );
+
+    buttons.forEach(btn => {
+      const text = (btn.textContent || "").toLowerCase();
+
+      if (text.includes("plus")) {
+        btn.onclick = function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          if (typeof showPlusAccessModal === "function") {
+            showPlusAccessModal();
+          } else {
+            console.error("❌ showPlusAccessModal não existe");
+          }
+        };
+      }
+    });
+  }
+
+  // garante após load
+  window.addEventListener("load", bindPlusButton);
+
+})();
+</script>
 
 </body>
 </html>
