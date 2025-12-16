@@ -4832,5 +4832,134 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+<script>
+/* =====================================================
+   PLUS+ — SCRIPT ÚNICO, LIMPO E FUNCIONAL
+   ===================================================== */
+
+(() => {
+
+  /* ========= CONFIG ========= */
+  const GOOGLE_CLIENT_ID = "SEU_CLIENT_ID_AQUI";
+  const CHECK_API = "https://gl-alpha.vercel.app/api/checkSubscription";
+
+  const LS_USER = "gl_user";
+  const LS_PLUS = "gl_plus_active";
+  const LS_EXP  = "gl_plus_exp";
+
+  /* ========= KILL TOTAL DO LEGADO ========= */
+  [
+    "openPlusModal",
+    "renderSouAssinante",
+    "renderQueroAssinar",
+    "activateTokenLocal",
+    "confirmPlan"
+  ].forEach(fn => window[fn] = () => {});
+
+  [
+    "plusModal",
+    "plusBtnSou",
+    "plusBtnQuero",
+    "plusPosterImg"
+  ].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  });
+
+  localStorage.removeItem("GLPLUS_TOKEN");
+  localStorage.removeItem("GLPLUS_PREMIUM");
+  localStorage.removeItem("GLPLUS_EXPIRA");
+
+  /* ========= CORE ========= */
+  window.isSubscriptionActive = function () {
+    const exp = localStorage.getItem(LS_EXP);
+    return localStorage.getItem(LS_PLUS) === "true"
+      && exp && new Date(exp) > new Date();
+  };
+
+  function activatePlus(expiry) {
+    localStorage.setItem(LS_PLUS, "true");
+    localStorage.setItem(LS_EXP, expiry);
+    renderPlusCatalog();
+  }
+
+  function deactivatePlus() {
+    localStorage.removeItem(LS_PLUS);
+    localStorage.removeItem(LS_EXP);
+    showHomeSections();
+  }
+
+  /* ========= GOOGLE ========= */
+  function decodeJwt(t) {
+    try { return JSON.parse(atob(t.split(".")[1])); }
+    catch { return null; }
+  }
+
+  window.handleCredentialResponse = async (res) => {
+    const p = decodeJwt(res.credential);
+    if (!p) return;
+
+    const user = {
+      googleId: p.sub,
+      email: p.email,
+      name: p.name
+    };
+
+    localStorage.setItem(LS_USER, JSON.stringify(user));
+    await checkSubscription();
+  };
+
+  function initGoogle() {
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleCredentialResponse
+    });
+  }
+
+  /* ========= BACKEND ========= */
+  async function checkSubscription() {
+    const raw = localStorage.getItem(LS_USER);
+    if (!raw) return google.accounts.id.prompt();
+
+    const user = JSON.parse(raw);
+
+    try {
+      const r = await fetch(`${CHECK_API}?googleId=${user.googleId}`);
+      const d = await r.json();
+
+      if (d.active) activatePlus(d.expiry);
+      else {
+        deactivatePlus();
+        alert("Assinatura Plus+ não ativa");
+      }
+    } catch {
+      alert("Erro ao verificar assinatura");
+    }
+  }
+
+  /* ========= BOTÃO PLUS+ ========= */
+  document.querySelectorAll('.bottom-nav a, .bottom-nav button')
+    .forEach(btn => {
+      if ((btn.textContent || "").toLowerCase().includes("plus")) {
+        btn.onclick = (e) => {
+          e.preventDefault();
+          isSubscriptionActive()
+            ? renderPlusCatalog()
+            : google.accounts.id.prompt();
+        };
+      }
+    });
+
+  /* ========= START ========= */
+  window.addEventListener("load", () => {
+    if (window.google?.accounts?.id) initGoogle();
+    if (!isSubscriptionActive()) deactivatePlus();
+  });
+
+})();
+</script>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
 </body>
 </html>
