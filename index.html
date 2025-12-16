@@ -4997,59 +4997,121 @@ document.addEventListener("DOMContentLoaded", () => {
 
 <script>
 /* =====================================================
-   ☢️ FIX NUCLEAR — MODAL PLUS+ (IMPOSSÍVEL FALHAR)
+   🔥 FIX FINAL — MODAL PLUS+ FUNCIONAL
    ===================================================== */
 
 (function () {
 
-  function isPlusClick(el) {
-    if (!el) return false;
+  const modalId = "plusAccessModal";
 
-    // texto
-    const txt = (el.textContent || "").toLowerCase();
-    if (txt.includes("plus")) return true;
-
-    // atributos comuns
-    if (el.dataset && (
-      el.dataset.target === "plus" ||
-      el.dataset.page === "plus" ||
-      el.dataset.tab === "plus"
-    )) return true;
-
-    // classes comuns
-    if (el.classList) {
-      if (
-        el.classList.contains("plus") ||
-        el.classList.contains("plus-btn") ||
-        el.classList.contains("bn-plus")
-      ) return true;
+  function openModal() {
+    const modal = document.getElementById(modalId);
+    if (!modal) {
+      console.error("❌ Modal Plus+ não encontrado");
+      return;
     }
-
-    return false;
+    modal.style.display = "flex";
+    document.body.style.overflow = "hidden";
+    console.log("✅ Modal Plus+ aberto");
   }
 
+  function closeModal() {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    modal.style.display = "none";
+    document.body.style.overflow = "";
+  }
+
+  /* =====================================================
+     1️⃣ INTERCEPTA CLIQUE NO BOTÃO PLUS (FORA DO MODAL)
+     ===================================================== */
   document.addEventListener("click", function (e) {
     let el = e.target;
 
-    while (el && el !== document.body) {
-      if (isPlusClick(el)) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
+    // ❗ IGNORA cliques DENTRO do modal
+    if (el.closest(`#${modalId}`)) return;
 
-        const modal = document.getElementById("plusAccessModal");
-        if (modal) {
-          modal.style.display = "flex";
-          document.body.style.overflow = "hidden";
-          console.log("✅ MODAL PLUS ABERTO (FIX NUCLEAR)");
-        } else {
-          console.error("❌ plusAccessModal NÃO EXISTE NO DOM");
-        }
+    while (el && el !== document.body) {
+      const txt = (el.textContent || "").toLowerCase();
+
+      if (
+        txt.includes("plus") ||
+        el.dataset?.target === "plus" ||
+        el.dataset?.page === "plus" ||
+        el.classList?.contains("bn-item")
+      ) {
+        e.preventDefault();
+        openModal();
         return;
       }
+
       el = el.parentElement;
     }
-  }, true); // <- CAPTURE = TRUE (antes de todos os scripts)
+  }, true);
+
+  /* =====================================================
+     2️⃣ BOTÃO X
+     ===================================================== */
+  const closeBtn = document.getElementById("plusAccessClose");
+  if (closeBtn) {
+    closeBtn.onclick = closeModal;
+  }
+
+  /* =====================================================
+     3️⃣ FECHAR AO CLICAR FORA
+     ===================================================== */
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  /* =====================================================
+     4️⃣ BOTÃO FAZER LOGIN
+     ===================================================== */
+  const loginBtn = document.getElementById("plusLoginBtn");
+  const loginOptions = document.getElementById("plusLoginOptions");
+
+  if (loginBtn && loginOptions) {
+    loginBtn.onclick = () => {
+      loginOptions.style.display = "block";
+    };
+  }
+
+  /* =====================================================
+     5️⃣ LOGIN FAMILIAR (TOKEN)
+     ===================================================== */
+  const tokenBtn = document.getElementById("plusTokenLogin");
+  if (tokenBtn) {
+    tokenBtn.onclick = () => {
+      alert("Login familiar ativado (simulação)");
+      closeModal();
+      if (window.renderPlusCatalog) window.renderPlusCatalog();
+    };
+  }
+
+  /* =====================================================
+     6️⃣ LOGIN GOOGLE
+     ===================================================== */
+  const googleBtn = document.getElementById("plusGoogleLogin");
+  if (googleBtn) {
+    googleBtn.onclick = () => {
+      const hidden = document.getElementById("hiddenGoogleBtn");
+      if (hidden) hidden.click();
+      else alert("Login Google não disponível");
+    };
+  }
+
+  /* =====================================================
+     7️⃣ BOTÃO QUERO ASSINAR
+     ===================================================== */
+  const subscribeBtn = document.getElementById("plusSubscribeBtn");
+  if (subscribeBtn) {
+    subscribeBtn.onclick = () => {
+      window.open("https://mpago.la/2SRyqam", "_blank");
+    };
+  }
 
 })();
 </script>
