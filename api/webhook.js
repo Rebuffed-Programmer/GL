@@ -1,56 +1,64 @@
+// pages/api/webhook.js (CORRIGIDO PARA USAR GOOGLE ID)
+
 import { createClient } from '@vercel/kv';
 
 const kv = createClient({
-  url: process.env.armazenamentoplus_KV_REST_API_URL,
-  token: process.env.armazenamentoplus_KV_REST_API_TOKEN,
+  url: process.env.ARMAZENAMENTOPLUS_KV_REST_API_URL, // Variável CORRETA (camelCase)
+  token: process.env.ARMAZENAMENTOPLUS_KV_REST_API_TOKEN, // Variável CORRETA (camelCase)
 });
 
 const DURATION = {
-  MENSAL: 30 * 24 * 60 * 60 * 1000,
-  ANUAL: 365 * 24 * 60 * 60 * 1000,
+  MENSAL: 30 * 24 * 60 * 60 * 1000,
+  ANUAL: 365 * 24 * 60 * 60 * 1000,
 };
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).end();
-  }
+  if (req.method !== "POST") {
+    return res.status(405).end();
+  }
 
-  const data = req.body?.data || req.body;
-  const status = data?.status;
-  const email = data?.payer?.email;
-  const plan = data?.metadata?.plan || "MENSAL";
+  const data = req.body?.data || req.body;
+  const status = data?.status;
 
-  if (!email) {
-    return res.status(200).json({ ok: true });
-  }
+  // 🛑 MUDANÇA CRUCIAL: PEGA O GOOGLE ID DO external_reference
+  const googleId = data.external_reference || req.body.resource?.external_reference; 
+  const plan = data?.metadata?.plan || "MENSAL"; // Mantém a leitura do plano
 
-  try {
-    if (status === "approved") {
-      const expiry = Date.now() + (DURATION[plan] || DURATION.MENSAL);
+  // Usa o Google ID para validação
+  if (!googleId) {
+    // Retorna 200 OK para o MP não tentar reenviar, mas registra o erro
+    return res.status(200).json({ received: true, error: "googleId_missing_in_external_reference" });
+  }
 
-      await kv.set(email, {
-        status: "active",
-        expiry,
-        plan,
-        paymentId: data.id
-      });
+  try {
+    if (status === "approved") {
+      const expiry = Date.now() + (DURATION[plan] || DURATION.MENSAL);
 
-      console.log("✅ Plus+ ATIVADO:", email);
-    }
+      // ✅ SALVA NO KV USANDO O GOOGLE ID COMO CHAVE
+      await kv.set(googleId, {
+        status: "active",
+        expiry,
+        plan,
+        paymentId: data.id || req.body.id
+      });
 
-    if (["cancelled", "refunded", "rejected"].includes(status)) {
-      await kv.set(email, {
-        status: "expired",
-        expiry: Date.now()
-      });
+      console.log("✅ Plus+ ATIVADO no KV (Google ID):", googleId);
+    }
 
-      console.log("❌ Plus+ REVOGADO:", email);
-    }
+    if (["cancelled", "refunded", "rejected"].includes(status)) {
+      // REVOGA USANDO O GOOGLE ID
+      await kv.set(googleId, {
+        status: "expired",
+        expiry: Date.now()
+      });
 
-    return res.json({ received: true });
+      console.log("❌ Plus+ REVOGADO no KV (Google ID):", googleId);
+    }
 
-  } catch (err) {
-    console.error("Webhook error:", err);
-    return res.status(500).json({ error: true });
-  }
+    return res.json({ received: true });
+
+  } catch (err) {
+    console.error("Webhook error:", err);
+    return res.status(500).json({ error: true });
+  }
 }
