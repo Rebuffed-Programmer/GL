@@ -4138,6 +4138,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
 })();
 </script>
-    
+    <script>
+/* =========================================
+   PLUS+ — MODAL USANDO LOGIN GOOGLE EXISTENTE
+========================================= */
+
+/* BOTÃO LOGIN GOOGLE DO MODAL */
+const modalGoogleBtn = document.getElementById("plusGoogleLogin");
+
+if (modalGoogleBtn) {
+  modalGoogleBtn.onclick = () => {
+    // tenta clicar no botão REAL do Google (topo)
+    const realGoogleBtn =
+      document.querySelector("#googleLoginBtn") ||        // id comum
+      document.querySelector(".google-login") ||           // classe comum
+      document.querySelector('[data-google-login]') ||     // data attr
+      document.querySelector(".g_id_signin");               // padrão Google
+
+    if (realGoogleBtn) {
+      realGoogleBtn.click();
+      console.log("✅ Login Google real disparado pelo modal");
+    } else {
+      alert("Login Google não encontrado no topo");
+      console.error("❌ Botão real de login Google não encontrado");
+    }
+  };
+}
+</script>
 </body>
 </html>
