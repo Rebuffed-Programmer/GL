@@ -4678,5 +4678,159 @@ document.addEventListener("DOMContentLoaded", () => {
 })();
 </script>
 
+<script>
+/* ============================================================
+   PLUS+ — SISTEMA ÚNICO FINAL (SEM TOKEN, SEM MODAL ANTIGO)
+   Login Google → Assinatura ativa → Conteúdos liberados
+   ============================================================ */
+
+/* =========================
+   CONFIGURAÇÕES
+========================= */
+const PLUS_API_CHECK = "https://gl-alpha.vercel.app/api/checkSubscription";
+const GOOGLE_CLIENT_ID = "SEU_GOOGLE_CLIENT_ID_AQUI";
+
+/* =========================
+   CHAVES LOCALSTORAGE
+========================= */
+const LS_USER = "glplus_user";
+const LS_PLUS = "glplus_active";
+
+/* =========================
+   KILL SWITCH — DESATIVA TUDO ANTIGO
+========================= */
+window.openPlusModal = () => {};
+window.renderSouAssinante = () => {};
+window.renderQueroAssinar = () => {};
+window.activateTokenLocal = () => {};
+window.confirmPlan = () => {};
+localStorage.removeItem("GLPLUS_TOKEN");
+localStorage.removeItem("GLPLUS_EXPIRA");
+localStorage.removeItem("GLPLUS_PREMIUM");
+
+/* =========================
+   GOOGLE LOGIN
+========================= */
+function loadGoogleLogin() {
+  if (window.google?.accounts?.id) return;
+
+  const s = document.createElement("script");
+  s.src = "https://accounts.google.com/gsi/client";
+  s.async = true;
+  s.defer = true;
+  document.head.appendChild(s);
+}
+
+function parseJwt(token) {
+  try {
+    return JSON.parse(atob(token.split('.')[1]));
+  } catch {
+    return null;
+  }
+}
+
+window.handleCredentialResponse = function(res) {
+  const data = parseJwt(res.credential);
+  if (!data) return;
+
+  const user = {
+    googleId: data.sub,
+    name: data.name,
+    email: data.email,
+    picture: data.picture
+  };
+
+  localStorage.setItem(LS_USER, JSON.stringify(user));
+  checkSubscription();
+};
+
+/* =========================
+   ASSINATURA
+========================= */
+function isSubscriptionActive() {
+  return localStorage.getItem(LS_PLUS) === "true";
+}
+
+function activatePlus() {
+  localStorage.setItem(LS_PLUS, "true");
+  renderPlusCatalog();
+}
+
+function deactivatePlus() {
+  localStorage.setItem(LS_PLUS, "false");
+  showHomeSections();
+}
+
+async function checkSubscription() {
+  const user = JSON.parse(localStorage.getItem(LS_USER));
+  if (!user) return requestLogin();
+
+  try {
+    const res = await fetch(`${PLUS_API_CHECK}?googleId=${user.googleId}`);
+    const data = await res.json();
+
+    if (data.active === true) {
+      activatePlus();
+    } else {
+      deactivatePlus();
+      alert("Você não possui uma assinatura ativa.");
+    }
+  } catch (e) {
+    console.error("Erro ao verificar assinatura:", e);
+    alert("Erro ao verificar assinatura Plus+.");
+  }
+}
+
+/* =========================
+   LOGIN
+========================= */
+function requestLogin() {
+  loadGoogleLogin();
+
+  const wait = setInterval(() => {
+    if (!window.google?.accounts?.id) return;
+
+    clearInterval(wait);
+
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleCredentialResponse
+    });
+
+    google.accounts.id.prompt();
+  }, 100);
+}
+
+/* =========================
+   BOTÃO PLUS+ (BOTTOM NAV)
+========================= */
+function bindPlusButton() {
+  const btns = document.querySelectorAll('.bottom-nav a, .bottom-nav button');
+
+  btns.forEach(btn => {
+    const txt = (btn.textContent || "").toLowerCase();
+    if (txt.includes("plus")) {
+      btn.onclick = (e) => {
+        e.preventDefault();
+        isSubscriptionActive()
+          ? renderPlusCatalog()
+          : requestLogin();
+      };
+    }
+  });
+}
+
+/* =========================
+   START
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  bindPlusButton();
+
+  if (isSubscriptionActive()) {
+    renderPlusCatalog();
+  }
+});
+</script>
+
 </body>
 </html>
