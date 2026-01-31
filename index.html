@@ -4252,35 +4252,18 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
-<script>
-// ==========================================================
-// FUNÇÃO PARA RENDERIZAR A SESSÃO DE ANÚNCIOS
-// ==========================================================
-function renderAdsSectionPlus() {
-    const main = document.querySelector("main");
-    if (!main) return;
-
-    // Criando o container da sessão seguindo o seu padrão CSS
-    const section = document.createElement("section");
-    section.id = "sessao-publicidade";
-    section.className = "movie-section"; 
-    section.style.padding = "20px 0";
-
-    // Estrutura interna com o seu código de anúncio
-    section.innerHTML = `
+<main>
+    <section class="movie-section">
         <h2 class="section-title">📢 Parceiros Plus+</h2>
-        <div style="width: 100%; display: flex; justify-content: center; padding: 10px;">
-            <div id="ad-wrapper" style="width: 100%; max-width: 900px; min-height: 120px; border-radius: 8px; overflow: hidden;">
-                
-                <script async="async" data-cfasync="false" src="https://pl28614849.effectivegatecpm.com/9fa17c44f1a00f42ddd2c50717caf57f/invoke.js"></script>
-                <div id="container-9fa17c44f1a00f42ddd2c50717caf57f"></div>
-                
-            </div>
+        <div style="padding: 10px; display: flex; justify-content: center;">
+            
+            <script async="async" data-cfasync="false" src="https://pl28614849.effectivegatecpm.com/9fa17c44f1a00f42ddd2c50717caf57f/invoke.js"></script>
+            <div id="container-9fa17c44f1a00f42ddd2c50717caf57f"></div>
+            
         </div>
-    `;
+    </section>
 
-    
-</script>
+    </main>
     
 </body>
 </html>
