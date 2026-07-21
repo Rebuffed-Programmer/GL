@@ -4493,8 +4493,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     ];
 
-    // -------------------------------------------------------------------------
-    // 2. INJEÇÃO AUTOMÁTICA DOS CARDS NO HTML (Garante que apareça conteúdo)
+   // -------------------------------------------------------------------------
+    // 2. INJEÇÃO AUTOMÁTICA DOS CARDS NO HTML (Com Delegação Global)
     // -------------------------------------------------------------------------
     let container = document.querySelector(".grid-filmes, .catalogo, main, body");
     
@@ -4518,12 +4518,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderMovies(moviesToRender) {
         gridView.innerHTML = "";
+        
+        // Criação otimizada dos elementos com dataset limpo
         moviesToRender.forEach(movie => {
             const card = document.createElement("div");
             card.className = "plus-card-item";
-            card.setAttribute("data-id", movie.id);
-            card.setAttribute("data-title", movie.title);
-            card.setAttribute("data-genre", movie.genres.join(", "));
+            card.dataset.movieId = movie.id;
             
             card.style.cssText = `
                 background: #181a20;
@@ -4545,14 +4545,27 @@ document.addEventListener("DOMContentLoaded", () => {
                     <span style="font-size: 10px; color: #888;">${movie.year} • ${movie.genres[0] || 'Clássico'}</span>
                 </div>
             `;
-
-            card.addEventListener("click", () => abrirDetalhesFilme(movie));
             gridView.appendChild(card);
         });
     }
 
     renderMovies(movieData);
 
+    // DELEGAÇÃO GLOBAL DE CLIQUE (Garante reconhecimento absoluto em qualquer parte do card)
+    if (!gridView.hasAttribute("data-listener-attached")) {
+        gridView.setAttribute("data-listener-attached", "true");
+        gridView.addEventListener("click", (e) => {
+            const cardTarget = e.target.closest(".plus-card-item");
+            if (!cardTarget) return;
+            
+            const movieId = cardTarget.dataset.movieId;
+            const selectedMovie = movieData.find(m => m.id == movieId);
+            
+            if (selectedMovie) {
+                abrirDetalhesFilme(selectedMovie);
+            }
+        });
+    }
     // -------------------------------------------------------------------------
     // 3. MENU INFERIOR: Botão de Pesquisa (Lupa) no lugar do Plus+
     // -------------------------------------------------------------------------
