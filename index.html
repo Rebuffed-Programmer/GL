@@ -4606,51 +4606,46 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // -------------------------------------------------------------------------
-// 3. SUBSTITUIÇÃO DO BOTÃO "PLUS+" PELO BOTÃO DE PESQUISA (LUPA)
+// -------------------------------------------------------------------------
+    // 3. BOTÃO DE PESQUISA FLUTUANTE / POSICIONADO EM CIMA
     // -------------------------------------------------------------------------
     function setupSearchButton() {
         if (document.getElementById("plus-search-btn-nav")) return;
 
-        // Tenta achar qualquer elemento na página (botão, link, item de menu) que contenha o texto "Plus" ou "PLUS"
-        const allElements = document.querySelectorAll("a, button, div, span");
-        let targetElement = null;
+        // Procura pelo container da barra de navegação (geralmente footer, nav ou um menu fixo)
+        const navBar = document.querySelector("nav") || document.querySelector("footer") || document.querySelector(".navbar") || document.body;
 
-        for (let el of allElements) {
-            if (el.children.length === 0 && el.textContent.trim().toUpperCase() === "PLUS+") {
-                targetElement = el;
-                break;
-            }
-        }
+        const searchNavBtn = document.createElement("div");
+        searchNavBtn.id = "plus-search-btn-nav";
+        searchNavBtn.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; padding: 4px;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <span style="font-size: 10px; margin-top: 2px;">Pesquisar</span>
+            </div>
+        `;
+        
+        // Estilo para garantir que ele fique posicionado exatamente onde você quer na barra
+        searchNavBtn.style.cssText = `
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer;
+            z-index: 999;
+        `;
+        
+        searchNavBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openSearchPanel();
+        });
 
-        if (targetElement) {
-            const searchNavBtn = document.createElement("div");
-            searchNavBtn.id = "plus-search-btn-nav";
-            searchNavBtn.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; padding: 4px;">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    <span style="font-size: 10px; margin-top: 10px;">Pesquisar</span>
-                </div>
-            `;
-            searchNavBtn.style.cssText = `display: inline-flex; align-items: center; justify-content: center; cursor: pointer;`;
-            
-            searchNavBtn.addEventListener("click", (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                openSearchPanel();
-            });
-
-            // Substitui o elemento "Plus+" antigo pelo novo botão de lupa
-            targetElement.replaceWith(searchNavBtn);
-        }
+        // Insere o botão de pesquisa diretamente no início ou junto aos menus de navegação
+        navBar.appendChild(searchNavBtn);
     }
-
-    // Executa imediatamente e tenta de novo caso o HTML demore um pouquinho para carregar
-    setupSearchButton();
-    setTimeout(setupSearchButton, 500);
-
+    
     // -------------------------------------------------------------------------
     // 4. CARROSSEL DE GÊNEROS FUNCIONAL
     // -------------------------------------------------------------------------
