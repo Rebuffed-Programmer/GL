@@ -4493,12 +4493,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     ];
 
-   // -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
     // 2. INJEÇÃO AUTOMÁTICA DOS CARDS NO HTML (Com Delegação Global)
     // -------------------------------------------------------------------------
-    let container = document.querySelector(".grid-filmes, .catalogo, main, body");
-    
-    // Cria uma área limpa de exibição caso o site esteja vazio
     let gridView = document.getElementById("plus-dinamic-grid");
     if (!gridView) {
         gridView = document.createElement("div");
@@ -4519,7 +4516,6 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderMovies(moviesToRender) {
         gridView.innerHTML = "";
         
-        // Criação otimizada dos elementos com dataset limpo
         moviesToRender.forEach(movie => {
             const card = document.createElement("div");
             card.className = "plus-card-item";
@@ -4551,7 +4547,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     renderMovies(movieData);
 
-    // DELEGAÇÃO GLOBAL DE CLIQUE (Garante reconhecimento absoluto em qualquer parte do card)
+    // DELEGAÇÃO GLOBAL DE CLIQUE
     if (!gridView.hasAttribute("data-listener-attached")) {
         gridView.setAttribute("data-listener-attached", "true");
         gridView.addEventListener("click", (e) => {
@@ -4566,6 +4562,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
     // -------------------------------------------------------------------------
     // 3. MENU INFERIOR: Botão de Pesquisa (Lupa) no lugar do Plus+
     // -------------------------------------------------------------------------
@@ -4670,48 +4667,118 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // -------------------------------------------------------------------------
-    // 5. PAINEL DE DETALHES DO FILME
+    // 5. PAINEL DE DETALHES DO FILME (Integrado com seu Modal Principal e Player)
     // -------------------------------------------------------------------------
     function abrirDetalhesFilme(filme) {
-        let modalDet = document.getElementById("plus-detalhes-modal");
-        if (!modalDet) {
-            modalDet = document.createElement("div");
-            modalDet.id = "plus-detalhes-modal";
-            modalDet.style.cssText = `
-                position: fixed;
-                top: 0; left: 0; width: 100%; height: 100%;
-                background: rgba(15, 16, 20, 0.95);
-                z-index: 9999999;
-                display: flex;
-                flex-direction: column;
-                padding: 20px;
-                box-sizing: border-box;
-                overflow-y: auto;
+        const modal = document.getElementById("movie-modal");
+        
+        // Se o seu HTML possui o modal padrão (#movie-modal), utiliza ele perfeitamente:
+        if (modal) {
+            const modalInfoContainer = document.getElementById("modal-info-container");
+            const modalVideoContainer = document.getElementById("modal-video-container");
+            const modalPoster = document.getElementById("modal-poster");
+            const modalTitle = document.getElementById("modal-title");
+            const modalYear = document.getElementById("modal-year");
+            const modalGenres = document.getElementById("modal-genres");
+            const modalDescription = document.getElementById("modal-description");
+            const modalWatchBtn = document.getElementById("modal-watch-btn");
+            const closeBtn = modal.querySelector(".close-btn");
+
+            if (modalPoster) modalPoster.src = filme.poster;
+            if (modalTitle) modalTitle.textContent = filme.title;
+            if (modalYear) modalYear.textContent = `Ano: ${filme.year}`;
+            if (modalGenres) modalGenres.textContent = `Gêneros: ${filme.genres.join(", ")}`;
+            if (modalDescription) modalDescription.textContent = filme.description;
+
+            if (modalInfoContainer) modalInfoContainer.style.display = "block";
+            if (modalVideoContainer) {
+                modalVideoContainer.style.display = "none";
+                modalVideoContainer.innerHTML = "";
+            }
+            modal.classList.remove("fullscreen-video");
+            modal.style.display = "flex";
+
+            if (modalWatchBtn) {
+                modalWatchBtn.onclick = (e) => {
+                    e.preventDefault();
+                    if (modalInfoContainer) modalInfoContainer.style.display = "none";
+                    if (modalVideoContainer) {
+                        modalVideoContainer.style.display = "block";
+                        modalVideoContainer.innerHTML = `
+                            <button class="back-to-info-btn"><i class="fas fa-arrow-left"></i> Voltar</button>
+                            <iframe src="${filme.videoUrl}" allowfullscreen></iframe>
+                        `;
+
+                        const backBtn = modalVideoContainer.querySelector(".back-to-info-btn");
+                        if (backBtn) {
+                            backBtn.onclick = () => {
+                                modalVideoContainer.style.display = "none";
+                                if (modalInfoContainer) modalInfoContainer.style.display = "block";
+                                modal.classList.remove("fullscreen-video");
+                                modalVideoContainer.innerHTML = "";
+                            };
+                        }
+                    }
+                    modal.classList.add("fullscreen-video");
+                };
+            }
+
+            if (closeBtn) {
+                closeBtn.onclick = () => {
+                    modal.style.display = "none";
+                    if (modalVideoContainer) modalVideoContainer.innerHTML = "";
+                };
+            }
+
+            window.onclick = (event) => {
+                if (event.target === modal) {
+                    modal.style.display = "none";
+                    if (modalVideoContainer) modalVideoContainer.innerHTML = "";
+                }
+            };
+
+        } else {
+            // Fallback elegante caso o modal nativo não exista na página
+            let modalDet = document.getElementById("plus-detalhes-modal");
+            if (!modalDet) {
+                modalDet = document.createElement("div");
+                modalDet.id = "plus-detalhes-modal";
+                modalDet.style.cssText = `
+                    position: fixed;
+                    top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(15, 16, 20, 0.95);
+                    z-index: 9999999;
+                    display: flex;
+                    flex-direction: column;
+                    padding: 20px;
+                    box-sizing: border-box;
+                    overflow-y: auto;
+                `;
+                document.body.appendChild(modalDet);
+            }
+
+            modalDet.innerHTML = `
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+                    <button id="plus-fechar-detalhes" style="background: none; border: none; color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; padding: 8px;">✕ Fechar</button>
+                </div>
+                <div style="max-width: 600px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 15px; padding-bottom: 30px;">
+                    ${filme.poster ? `<img src="${filme.poster}" style="width: 100%; max-height: 350px; object-fit: cover; border-radius: 12px;" />` : ''}
+                    <div style="font-size: 12px; color: #aaa;">ID do Conteúdo: #${filme.id} • ${filme.year}</div>
+                    <h2 style="color: #fff; margin: 0; font-size: 22px;">${filme.title}</h2>
+                    <p style="color: #ccc; font-size: 14px; line-height: 1.5; margin: 0;">${filme.description}</p>
+                    ${filme.videoUrl ? `
+                        <div style="margin-top: 15px;">
+                            <a href="${filme.videoUrl}" target="_blank" style="background: #e50914; color: #fff; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; display: block;">Assistir Conteúdo</a>
+                        </div>
+                    ` : '<div style="color: #888; font-size: 13px;">Vídeo indisponível no momento.</div>'}
+                </div>
             `;
-            document.body.appendChild(modalDet);
+
+            modalDet.style.display = "flex";
+            document.getElementById("plus-fechar-detalhes").onclick = () => {
+                modalDet.style.display = "none";
+            };
         }
-
-        modalDet.innerHTML = `
-            <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
-                <button id="plus-fechar-detalhes" style="background: none; border: none; color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; padding: 8px;">✕ Fechar</button>
-            </div>
-            <div style="max-width: 600px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 15px; padding-bottom: 30px;">
-                ${filme.poster ? `<img src="${filme.poster}" style="width: 100%; max-height: 350px; object-fit: cover; border-radius: 12px;" />` : ''}
-                <div style="font-size: 12px; color: #aaa;">ID do Conteúdo: #${filme.id} • ${filme.year}</div>
-                <h2 style="color: #fff; margin: 0; font-size: 22px;">${filme.title}</h2>
-                <p style="color: #ccc; font-size: 14px; line-height: 1.5; margin: 0;">${filme.description}</p>
-                ${filme.videoUrl ? `
-                    <div style="margin-top: 15px;">
-                        <a href="${filme.videoUrl}" target="_blank" style="background: #e50914; color: #fff; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; display: block;">Assistir Conteúdo</a>
-                    </div>
-                ` : '<div style="color: #888; font-size: 13px;">Vídeo indisponível no momento.</div>'}
-            </div>
-        `;
-
-        modalDet.style.display = "flex";
-        document.getElementById("plus-fechar-detalhes").onclick = () => {
-            modalDet.style.display = "none";
-        };
     }
 
     // -------------------------------------------------------------------------
@@ -4780,7 +4847,6 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => document.getElementById("plus-real-search-input").focus(), 100);
     }
 });
-</script>
     
 </body>
 </html>
