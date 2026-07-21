@@ -4493,8 +4493,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     ];
 
-  // -------------------------------------------------------------------------
-    // 2. PAINEL DE DETALHES DO FILME (Integrado com seu Modal Principal e Player)
+// 2. PAINEL DE DETALHES DO FILME
     // -------------------------------------------------------------------------
     function abrirDetalhesFilme(filme) {
         const modal = document.getElementById("movie-modal");
@@ -4680,7 +4679,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // -------------------------------------------------------------------------
-    // 4. SUBSTITUIÇÃO DO BOTÃO "PLUS+" PELO BOTÃO DE PESQUISA (LUPA)
+    // 4. OBSERVADOR BLINDADO PARA O BOTÃO "PLUS+" (Nunca mais some!)
     // -------------------------------------------------------------------------
     function setupSearchButton() {
         if (document.getElementById("plus-search-btn-nav")) return;
@@ -4689,6 +4688,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let targetElement = null;
 
         for (let el of allElements) {
+            // Procura o botão exato com o texto "Plus+" ou "PLUS+"
             if (el.children.length === 0 && el.textContent.trim().toUpperCase() === "PLUS+") {
                 targetElement = el;
                 break;
@@ -4719,8 +4719,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // Tenta aplicar imediatamente e cria um vigia (Observer) caso o site recarregue partes da página dinamicamente
     setupSearchButton();
-    setTimeout(setupSearchButton, 500);
+
+    const observer = new MutationObserver(() => {
+        if (!document.getElementById("plus-search-btn-nav")) {
+            setupSearchButton();
+        }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
 });
     // -------------------------------------------------------------------------
     // 5. PAINEL DE DETALHES DO FILME (Integrado com seu Modal Principal e Player)
