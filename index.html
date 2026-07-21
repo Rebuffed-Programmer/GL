@@ -4494,83 +4494,197 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
 
   // -------------------------------------------------------------------------
-    // 2. INJEÇÃO AUTOMÁTICA DOS CARDS NO HTML (Com Delegação Global)
+    // 2. PAINEL DE DETALHES DO FILME (Integrado com seu Modal Principal e Player)
     // -------------------------------------------------------------------------
-    let gridView = document.getElementById("plus-dinamic-grid");
-    if (!gridView) {
-        gridView = document.createElement("div");
-        gridView.id = "plus-dinamic-grid";
-        gridView.style.cssText = `
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
-            padding: 20px;
-            width: 100%;
-            box-sizing: border-box;
-        `;
+    function abrirDetalhesFilme(filme) {
+        const modal = document.getElementById("movie-modal");
         
-        const existingMain = document.querySelector("main") || document.body;
-        existingMain.appendChild(gridView);
+        if (modal) {
+            const modalInfoContainer = document.getElementById("modal-info-container");
+            const modalVideoContainer = document.getElementById("modal-video-container");
+            const modalPoster = document.getElementById("modal-poster");
+            const modalTitle = document.getElementById("modal-title");
+            const modalYear = document.getElementById("modal-year");
+            const modalGenres = document.getElementById("modal-genres");
+            const modalDescription = document.getElementById("modal-description");
+            const modalWatchBtn = document.getElementById("modal-watch-btn");
+            const closeBtn = modal.querySelector(".close-btn");
+
+            if (modalPoster) modalPoster.src = filme.poster;
+            if (modalTitle) modalTitle.textContent = filme.title;
+            if (modalYear) modalYear.textContent = `Ano: ${filme.year}`;
+            if (modalGenres) modalGenres.textContent = `Gêneros: ${filme.genres.join(", ")}`;
+            if (modalDescription) modalDescription.textContent = filme.description;
+
+            if (modalInfoContainer) modalInfoContainer.style.display = "block";
+            if (modalVideoContainer) {
+                modalVideoContainer.style.display = "none";
+                modalVideoContainer.innerHTML = "";
+            }
+            modal.classList.remove("fullscreen-video");
+            modal.style.display = "flex";
+
+            if (modalWatchBtn) {
+                modalWatchBtn.onclick = (e) => {
+                    e.preventDefault();
+                    if (modalInfoContainer) modalInfoContainer.style.display = "none";
+                    if (modalVideoContainer) {
+                        modalVideoContainer.style.display = "block";
+                        modalVideoContainer.innerHTML = `
+                            <button class="back-to-info-btn"><i class="fas fa-arrow-left"></i> Voltar</button>
+                            <iframe src="${filme.videoUrl}" allowfullscreen></iframe>
+                        `;
+
+                        const backBtn = modalVideoContainer.querySelector(".back-to-info-btn");
+                        if (backBtn) {
+                            backBtn.onclick = () => {
+                                modalVideoContainer.style.display = "none";
+                                if (modalInfoContainer) modalInfoContainer.style.display = "block";
+                                modal.classList.remove("fullscreen-video");
+                                modalVideoContainer.innerHTML = "";
+                            };
+                        }
+                    }
+                    modal.classList.add("fullscreen-video");
+                };
+            }
+
+            if (closeBtn) {
+                closeBtn.onclick = () => {
+                    modal.style.display = "none";
+                    if (modalVideoContainer) modalVideoContainer.innerHTML = "";
+                };
+            }
+
+            window.onclick = (event) => {
+                if (event.target === modal) {
+                    modal.style.display = "none";
+                    if (modalVideoContainer) modalVideoContainer.innerHTML = "";
+                }
+            };
+
+        } else {
+            let modalDet = document.getElementById("plus-detalhes-modal");
+            if (!modalDet) {
+                modalDet = document.createElement("div");
+                modalDet.id = "plus-detalhes-modal";
+                modalDet.style.cssText = `
+                    position: fixed;
+                    top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(15, 16, 20, 0.95);
+                    z-index: 9999999;
+                    display: flex;
+                    flex-direction: column;
+                    padding: 20px;
+                    box-sizing: border-box;
+                    overflow-y: auto;
+                `;
+                document.body.appendChild(modalDet);
+            }
+
+            modalDet.innerHTML = `
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+                    <button id="plus-fechar-detalhes" style="background: none; border: none; color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; padding: 8px;">✕ Fechar</button>
+                </div>
+                <div style="max-width: 600px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 15px; padding-bottom: 30px;">
+                    ${filme.poster ? `<img src="${filme.poster}" style="width: 100%; max-height: 350px; object-fit: cover; border-radius: 12px;" />` : ''}
+                    <div style="font-size: 12px; color: #aaa;">ID do Conteúdo: #${filme.id} • ${filme.year}</div>
+                    <h2 style="color: #fff; margin: 0; font-size: 22px;">${filme.title}</h2>
+                    <p style="color: #ccc; font-size: 14px; line-height: 1.5; margin: 0;">${filme.description}</p>
+                    ${filme.videoUrl ? `
+                        <div style="margin-top: 15px;">
+                            <a href="${filme.videoUrl}" target="_blank" style="background: #e50914; color: #fff; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; display: block;">Assistir Conteúdo</a>
+                        </div>
+                    ` : '<div style="color: #888; font-size: 13px;">Vídeo indisponível no momento.</div>'}
+                </div>
+            `;
+
+            modalDet.style.display = "flex";
+            document.getElementById("plus-fechar-detalhes").onclick = () => {
+                modalDet.style.display = "none";
+            };
+        }
     }
 
-    function renderMovies(moviesToRender) {
-        gridView.innerHTML = "";
-        
-        moviesToRender.forEach(movie => {
-            const card = document.createElement("div");
-            card.className = "plus-card-item";
-            card.dataset.movieId = movie.id;
-            
-            card.style.cssText = `
-                background: #181a20;
-                border-radius: 10px;
-                overflow: hidden;
+    // -------------------------------------------------------------------------
+    // 3. BARRA DE PESQUISA RÁPIDA (Com Limite de 10 Resultados)
+    // -------------------------------------------------------------------------
+    function openSearchPanel() {
+        let overlay = document.getElementById("plus-search-overlay");
+        if (!overlay) {
+            overlay = document.createElement("div");
+            overlay.id = "plus-search-overlay";
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0; left: 0; width: 100%; height: 100%;
+                background: #0f1014;
+                z-index: 999999;
                 display: flex;
                 flex-direction: column;
-                cursor: pointer;
-                transition: transform 0.2s;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                padding: 20px;
+                box-sizing: border-box;
             `;
-
-            card.innerHTML = `
-                <div style="width: 100%; height: 200px; background: #000; overflow: hidden; position: relative;">
-                    <img src="${movie.poster}" alt="${movie.title}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://via.placeholder.com/150?text=Indisponivel'">
+            overlay.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; background: #252830; border-radius: 8px; padding: 10px 14px; flex-grow: 1; margin-right: 15px;">
+                        <input type="text" id="plus-real-search-input" placeholder="Pesquisar por título ou ID..." style="background: transparent; border: none; color: #fff; font-size: 15px; width: 100%; outline: none;">
+                    </div>
+                    <button id="plus-close-search-btn" style="background: none; border: none; color: #fff; font-size: 14px; font-weight: bold; cursor: pointer; padding: 8px;">Cancelar</button>
                 </div>
-                <div style="padding: 10px; display: flex; flex-direction: column; gap: 4px; flex-grow: 1; justify-content: space-between;">
-                    <span style="font-size: 12px; font-weight: bold; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${movie.title}</span>
-                    <span style="font-size: 10px; color: #888;">${movie.year} • ${movie.genres[0] || 'Clássico'}</span>
-                </div>
+                <div style="color: #888; font-size: 12px; margin-bottom: 10px;" id="plus-search-counter">Digite para pesquisar (máx. 10 resultados):</div>
+                <div id="plus-real-search-results" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; overflow-y: auto; flex-grow: 1; align-content: start; padding-bottom: 20px;"></div>
             `;
-            gridView.appendChild(card);
-        });
-    }
+            document.body.appendChild(overlay);
 
-    renderMovies(movieData);
+            document.getElementById("plus-close-search-btn").addEventListener("click", () => {
+                overlay.style.display = "none";
+            });
 
-    // DELEGAÇÃO GLOBAL DE CLIQUE
-    if (!gridView.hasAttribute("data-listener-attached")) {
-        gridView.setAttribute("data-listener-attached", "true");
-        gridView.addEventListener("click", (e) => {
-            const cardTarget = e.target.closest(".plus-card-item");
-            if (!cardTarget) return;
-            
-            const movieId = cardTarget.dataset.movieId;
-            const selectedMovie = movieData.find(m => m.id == movieId);
-            
-            if (selectedMovie) {
-                abrirDetalhesFilme(selectedMovie);
-            }
-        });
+            document.getElementById("plus-real-search-input").addEventListener("input", (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                const resultsBox = document.getElementById("plus-real-search-results");
+                resultsBox.innerHTML = "";
+
+                if (query === "") return;
+
+                const found = movieData.filter(m => 
+                    m.title.toLowerCase().includes(query) || 
+                    m.id.toString().includes(query) ||
+                    m.genres.some(g => g.toLowerCase().includes(query))
+                );
+
+                const limitedFound = found.slice(0, 10);
+
+                if (limitedFound.length === 0) {
+                    resultsBox.innerHTML = `<div style="color: #777; font-size: 13px; grid-column: span 2; text-align: center; margin-top: 20px;">Nenhum filme encontrado.</div>`;
+                    return;
+                }
+
+                limitedFound.forEach(movie => {
+                    const card = document.createElement("div");
+                    card.style.cssText = `background: #181a20; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; padding: 8px;`;
+                    card.innerHTML = `
+                        <img src="${movie.poster}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 4px;" />
+                        <span style="font-size: 12px; color: #fff; margin-top: 5px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${movie.title}</span>
+                    `;
+                    card.addEventListener("click", () => {
+                        overlay.style.display = "none";
+                        abrirDetalhesFilme(movie);
+                    });
+                    resultsBox.appendChild(card);
+                });
+            });
+        }
+        overlay.style.display = "flex";
+        setTimeout(() => document.getElementById("plus-real-search-input").focus(), 100);
     }
 
     // -------------------------------------------------------------------------
-// -------------------------------------------------------------------------
-    // 3. SUBSTITUIÇÃO DO BOTÃO "PLUS+" PELO BOTÃO DE PESQUISA (LUPA)
+    // 4. SUBSTITUIÇÃO DO BOTÃO "PLUS+" PELO BOTÃO DE PESQUISA (LUPA)
     // -------------------------------------------------------------------------
     function setupSearchButton() {
         if (document.getElementById("plus-search-btn-nav")) return;
 
-        // Tenta achar qualquer elemento na página (botão, link, item de menu) que contenha o texto "Plus" ou "PLUS"
         const allElements = document.querySelectorAll("a, button, div, span");
         let targetElement = null;
 
@@ -4601,17 +4715,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 openSearchPanel();
             });
 
-            // Substitui o elemento "Plus+" antigo pelo novo botão de lupa
             targetElement.replaceWith(searchNavBtn);
         }
     }
 
-    // Executa imediatamente e tenta de novo caso o HTML demore um pouquinho para carregar
     setupSearchButton();
     setTimeout(setupSearchButton, 500);
-
-    // -------------------------------------------------------------------------
-
+});
     // -------------------------------------------------------------------------
     // 5. PAINEL DE DETALHES DO FILME (Integrado com seu Modal Principal e Player)
     // -------------------------------------------------------------------------
