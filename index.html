@@ -4315,6 +4315,154 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
     </section>
 </main>
+    <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // 1. Transformar o botão "Plus+" da barra de navegação inferior em um botão de pesquisa com ícone de lupa
+    const navButtons = document.querySelectorAll(".nav-bar button, nav button, .bottom-nav button, .navbar button");
+    let plusButton = null;
+
+    navButtons.forEach(btn => {
+      if (btn.textContent.trim().toLowerCase().includes("plus") || btn.innerHTML.toLowerCase().includes("plus")) {
+        plusButton = btn;
+      }
+    });
+
+    if (plusButton) {
+      plusButton.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 2px;">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <span style="font-size: 10px; display: block;">Pesquisa</span>
+      `;
+      
+      // Criação do modal/campo de pesquisa dinâmico ao clicar no botão
+      plusButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        let searchOverlay = document.getElementById("custom-search-overlay");
+        if (!searchOverlay) {
+          searchOverlay = document.createElement("div");
+          searchOverlay.id = "custom-search-overlay";
+          searchOverlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; display:flex; flex-direction:column; padding:20px; box-sizing:border-box;";
+          searchOverlay.innerHTML = `
+            <div style="display:flex; justify-content:flex-end; width:100%;">
+              <button id="close-search" style="background:none; border:none; color:#fff; font-size:24px; cursor:pointer; padding:10px;">&times;</button>
+            </div>
+            <div style="max-width:600px; width:100%; margin:20px auto; display:flex; flex-direction:column; gap:15px;">
+              <input type="text" id="custom-search-input" placeholder="Pesquisar filmes por nome ou termo..." style="width:100%; padding:12px 16px; font-size:16px; background:#222; border:1px solid #444; color:#fff; border-radius:8px; outline:none;">
+              <div id="custom-search-results" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap:10px; overflow-y:auto; max-height:70vh;"></div>
+            </div>
+          `;
+          document.body.appendChild(searchOverlay);
+
+          document.getElementById("close-search").addEventListener("click", () => {
+            searchOverlay.style.display = "none";
+          });
+
+          const searchInput = document.getElementById("custom-search-input");
+          searchInput.addEventListener("input", (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const resultsContainer = document.getElementById("custom-search-results");
+            resultsContainer.innerHTML = "";
+
+            if (query === "") return;
+
+            // Busca por elementos de filmes existentes na página (pôsteres e títulos)
+            const movieItems = document.querySelectorAll(".movie-card, .poster-item, [data-title], img");
+            const seenTitles = new Set();
+
+            movieItems.forEach(item => {
+              const title = item.getAttribute("data-title") || item.getAttribute("alt") || item.querySelector(".title")?.textContent || "";
+              if (title && title.toLowerCase().includes(query) && !seenTitles.has(title)) {
+                seenTitles.add(title);
+                const imgSrc = item.tagName === "IMG" ? item.src : item.querySelector("img")?.src || "";
+                
+                const card = document.createElement("div");
+                card.style.cssText = "cursor:pointer; display:flex; flex-direction:column; gap:5px;";
+                card.innerHTML = `
+                  <img src="${imgSrc}" style="width:100%; aspect-ratio:2/3; object-fit:cover; border-radius:4px;" />
+                  <span style="font-size:11px; color:#fff; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${title}</span>
+                `;
+                card.addEventListener("click", () => {
+                  item.click();
+                  searchOverlay.style.display = "none";
+                });
+                resultsContainer.appendChild(card);
+              }
+            });
+          });
+        }
+        searchOverlay.style.display = "flex";
+        document.getElementById("custom-search-input").focus();
+      });
+    }
+
+    // 2. Adicionar carrossel de gêneros estilo Hulu
+    const mainContainer = document.querySelector("main, .content, .container, body");
+    if (mainContainer && !document.getElementById("hulu-genre-bar")) {
+      const genres = ["Todos", "Comédia", "Animação", "Drama", "Ficção Científica", "Ação", "Terror", "Romance"];
+      const genreBar = document.createElement("div");
+      genreBar.id = "hulu-genre-bar";
+      genreBar.style.cssText = "display:flex; gap:10px; overflow-x:auto; padding:10px 15px; background:transparent; scrollbar-width:none; position:sticky; top:0; z-index:100; backdrop-filter:blur(5px);";
+      
+      genres.forEach((genre, index) => {
+        const btn = document.createElement("button");
+        btn.textContent = genre;
+        btn.style.cssText = `padding:6px 16px; border-radius:20px; border:1px solid ${index === 0 ? '#fff' : 'rgba(255,255,255,0.2)'}; background:${index === 0 ? '#fff' : 'rgba(255,255,255,0.1)'}; color:${index === 0 ? '#000' : '#fff'}; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; transition:all 0.2s;`;
+        
+        btn.addEventListener("click", () => {
+          document.querySelectorAll("#hulu-genre-bar button").forEach(b => {
+            b.style.background = "rgba(255,255,255,0.1)";
+            b.style.color = "#fff";
+            b.style.borderColor = "rgba(255,255,255,0.2)";
+          });
+          btn.style.background = "#fff";
+          btn.style.color = "#000";
+          btn.style.borderColor = "#fff";
+
+          // Filtragem de conteúdo baseada no gênero selecionado
+          const rows = document.querySelectorAll(".movie-row, .row, section, .category-row");
+          rows.forEach(row => {
+            if (genre === "Todos") {
+              row.style.display = "";
+            } else {
+              const rowTitle = row.querySelector("h2, h3, .row-title")?.textContent || "";
+              if (rowTitle.toLowerCase().includes(genre.toLowerCase())) {
+                row.style.display = "";
+              } else {
+                row.style.display = "none";
+              }
+            }
+          });
+        });
+        genreBar.appendChild(btn);
+      });
+      mainContainer.insertBefore(genreBar, mainContainer.firstChild);
+    }
+
+    // 3. Incluir títulos pequenos e elegantes abaixo de cada pôster de filme
+    const posters = document.querySelectorAll("img");
+    posters.forEach(img => {
+      // Ignorar imagens que não são pôsteres (ícones, logos, etc.)
+      if (img.width < 50 || img.height < 50 || img.parentNode.querySelector(".poster-title")) return;
+      
+      const titleText = img.getAttribute("alt") || img.getAttribute("data-title") || img.closest("[data-title]")?.getAttribute("data-title");
+      if (titleText && titleText.trim() !== "") {
+        const parent = img.parentNode;
+        if (getComputedStyle(parent).position === "static") {
+          parent.style.position = "relative";
+        }
+        if (!parent.querySelector(".poster-title")) {
+          const titleEl = document.createElement("div");
+          titleEl.className = "poster-title";
+          titleEl.textContent = titleText;
+          titleEl.style.cssText = "font-size:11px; color:#ccc; margin-top:4px; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:sans-serif;";
+          parent.appendChild(titleEl);
+        }
+      }
+    });
+  });
+</script>
     
 </body>
 </html>
