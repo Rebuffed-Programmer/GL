@@ -4606,50 +4606,64 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // -------------------------------------------------------------------------
-// 3. SUBSTITUIÇÃO DO BOTÃO "PLUS+" PELO BOTÃO DE PESQUISA (LUPA)
+// -------------------------------------------------------------------------
+    // 3. SUBSTITUIÇÃO DIRETA NA BARRA DE NAVEGAÇÃO
     // -------------------------------------------------------------------------
     function setupSearchButton() {
         if (document.getElementById("plus-search-btn-nav")) return;
 
-        // Tenta achar qualquer elemento na página (botão, link, item de menu) que contenha o texto "Plus" ou "PLUS"
-        const allElements = document.querySelectorAll("a, button, div, span");
-        let targetElement = null;
+        // Tenta encontrar a barra de navegação inferior ou menu do site
+        // (Ajuste o seletor caso sua barra tenha uma classe ou ID específico, ex: '.navbar' ou 'nav')
+        const navContainer = document.querySelector("nav") || document.querySelector("footer") || document.querySelector(".menu") || document.querySelector("div");
 
-        for (let el of allElements) {
-            if (el.children.length === 0 && el.textContent.trim().toUpperCase() === "PLUS+") {
-                targetElement = el;
-                break;
+        if (!navContainer) return;
+
+        const searchNavBtn = document.createElement("div");
+        searchNavBtn.id = "plus-search-btn-nav";
+        searchNavBtn.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; padding: 4px;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <span style="font-size: 10px; margin-top: 2px;">Pesquisar</span>
+            </div>
+        `;
+        
+        // Estilo flexível para encaixar perfeitamente na barra de menus
+        searchNavBtn.style.cssText = `
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer;
+            flex-grow: 1;
+        `;
+        
+        searchNavBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openSearchPanel();
+        });
+
+        // Se você quiser que ele fique exatamente na mesma faixa, 
+        // podemos adicionar no final do menu ou substituir o último filho que seria o botão antigo:
+        if (navContainer.children.length > 0) {
+            // Pega o último item da barra (geralmente onde fica o botão de mais/plus)
+            const oldButton = navContainer.lastElementChild;
+            if (oldButton) {
+                // Oculta ou substitui o botão antigo em cima do local exato
+                oldButton.style.display = "none"; 
+                navContainer.insertBefore(searchNavBtn, oldButton);
+            } else {
+                navContainer.appendChild(searchNavBtn);
             }
-        }
-
-        if (targetElement) {
-            const searchNavBtn = document.createElement("div");
-            searchNavBtn.id = "plus-search-btn-nav";
-            searchNavBtn.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; padding: 4px;">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    <span style="font-size: 10px; margin-top: 2px;">Pesquisar</span>
-                </div>
-            `;
-            searchNavBtn.style.cssText = `display: inline-flex; align-items: center; justify-content: center; cursor: pointer;`;
-            
-            searchNavBtn.addEventListener("click", (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                openSearchPanel();
-            });
-
-            // Substitui o elemento "Plus+" antigo pelo novo botão de lupa
-            targetElement.replaceWith(searchNavBtn);
         }
     }
 
-    // Executa imediatamente e tenta de novo caso o HTML demore um pouquinho para carregar
+    // Executa imediatamente e com delay para garantir que a barra carregou
     setupSearchButton();
     setTimeout(setupSearchButton, 500);
+    setTimeout(setupSearchButton, 1000);
 
     // -------------------------------------------------------------------------
     // 4. CARROSSEL DE GÊNEROS FUNCIONAL
