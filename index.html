@@ -4912,47 +4912,73 @@ document.addEventListener("DOMContentLoaded", () => {
 <script>
     document.addEventListener("DOMContentLoaded", () => {
     // -------------------------------------------------------------------------
-    // 1. CAPTURA OS FILMES E SEÇÕES QUE JÁ ESTÃO NA HOME
+    // 1. MAPEIA TODOS OS FILMES DA HOME E DETECTA O GÊNERO PELO CONTEXTO
     // -------------------------------------------------------------------------
-    function getHomeSectionsAndMovies() {
+    function getHomeMoviesByGenre() {
         const sections = document.querySelectorAll("main .movie-section, main .content-section");
-        const allData = [];
+        const allMovies = [];
 
         sections.forEach(section => {
             const titleEl = section.querySelector("h2, .section-title");
-            const sectionTitle = titleEl ? titleEl.textContent.trim().toLowerCase() : "";
+            const sectionTitle = titleEl ? titleEl.textContent.toLowerCase() : "";
             const items = section.querySelectorAll("li, .movie-item, .movie-card");
 
-            const moviesInSec = [];
             items.forEach((item, index) => {
                 const img = item.querySelector("img");
                 const nameEl = item.querySelector("span, h3, h4, .title");
+                
                 if (img) {
-                    moviesInSec.push({
-                        id: item.dataset.movieId || index,
-                        title: nameEl ? nameEl.textContent.trim() : (img.alt || "Filme"),
-                        poster: img.src,
-                        element: item
+                    const titleText = nameEl ? nameEl.textContent.toLowerCase() : (img.alt ? img.alt.toLowerCase() : "");
+                    
+                    // Descobre o gênero com base na seção onde o filme está ou pelo nome/poster
+                    let inferredGenres = ["geral"];
+                    
+                    if (sectionTitle.includes("comédia") || titleText.includes("comédia") || titleText.includes("popeye")) {
+                        inferredGenres.push("comédia");
+                    }
+                    if (sectionTitle.includes("terror") || titleText.includes("terror") || titleText.includes("frankenstein")) {
+                        inferredGenres.push("terror");
+                    }
+                    if (sectionTitle.includes("animação") || titleText.includes("animação") || titleText.includes("desenho")) {
+                        inferredGenres.push("animação");
+                    }
+                    if (sectionTitle.includes("drama") || titleText.includes("drama")) {
+                        inferredGenres.push("drama");
+                    }
+                    if (sectionTitle.includes("romance") || titleText.includes("romance")) {
+                        inferredGenres.push("romance");
+                    }
+                    if (sectionTitle.includes("aventura") || titleText.includes("aventura")) {
+                        inferredGenres.push("aventura");
+                    }
+                    if (sectionTitle.includes("suspense") || titleText.includes("suspense")) {
+                        inferredGenres.push("suspense");
+                    }
+                    if (sectionTitle.includes("ficção") || titleText.includes("sci-fi")) {
+                        inferredGenres.push("ficção científica");
+                    }
+
+                    // Se nenhum gênero específico foi pego pelas regras acima, categoriza de forma ampla
+                    if (inferredGenres.length === 1) {
+                        inferredGenres.push("drama", "clássico");
+                    }
+
+                    allMovies.push({
+                        element: item,
+                        section: section,
+                        genres: inferredGenres
                     });
                 }
             });
-
-            if (moviesInSec.length > 0) {
-                allData.push({
-                    sectionElement: section,
-                    sectionTitle: sectionTitle,
-                    movies: moviesInSec
-                });
-            }
         });
 
-        return allData;
+        return allMovies;
     }
 
-    const homeData = getHomeSectionsAndMovies();
+    const homeMovies = getHomeMoviesByGenre();
 
     // -------------------------------------------------------------------------
-    // 2. CARROSSEL DE GÊNEROS (Filtro Inteligente por Seção)
+    // 2. CRIA O CARROSSEL APENAS COM GÊNEROS PUROS
     // -------------------------------------------------------------------------
     if (!document.getElementById("plus-genre-carousel")) {
         const carousel = document.createElement("div");
@@ -4976,12 +5002,12 @@ document.addEventListener("DOMContentLoaded", () => {
         scrollStyle.innerText = `#plus-genre-carousel::-webkit-scrollbar { display: none; }`;
         document.head.appendChild(scrollStyle);
 
-        // Opções do carrossel vinculadas aos títulos/gêneros das seções da home
-        const filters = ["Todos", "Assista ao vivo", "Sugestões", "Nossa recomendação", "Os 10 melhores", "Bem avaliados", "Sucessos imperdíveis", "Talvez você irá gostar", "Cinema"];
+        // Apenas os botões de gêneros puros solicitados
+        const genres = ["Todos", "Comédia", "Terror", "Animação", "Drama", "Romance", "Aventura", "Suspense", "Ficção Científica"];
         
-        filters.forEach((filter, index) => {
+        genres.forEach((genre, index) => {
             const btn = document.createElement("button");
-            btn.innerText = filter;
+            btn.innerText = genre;
             const active = index === 0;
             
             btn.style.cssText = `
@@ -5004,19 +5030,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 btn.style.background = "#ffffff";
                 btn.style.color = "#000000";
                 
-                const query = filter.toLowerCase();
+                const query = genre.toLowerCase();
 
-                // Exibe ou oculta as seções inteiras com base na escolha do usuário
-                homeData.forEach(sec => {
+                // Filtra item por item da Home com base estritamente no gênero selecionado
+                homeMovies.forEach(movie => {
                     if (query === "todos") {
-                        sec.sectionElement.style.display = ""; // Mostra tudo
+                        movie.element.style.display = ""; // Mostra tudo de volta
                     } else {
-                        // Verifica se o título da seção da home corresponde ao filtro clicado
-                        if (sec.sectionTitle.includes(query)) {
-                            sec.sectionElement.style.display = "";
-                        } else {
-                            sec.sectionElement.style.display = "none";
-                        }
+                        const match = movie.genres.includes(query);
+                        movie.element.style.display = match ? "" : "none"; // Oculta se não bater com o gênero
+                    }
+                });
+
+                // Oculta seções inteiras que ficarem totalmente vazias após o filtro
+                document.querySelectorAll("main .movie-section, main .content-section").forEach(sec => {
+                    if (query === "todos") {
+                        sec.style.display = "";
+                    } else {
+                        const visibleItems = Array.from(sec.querySelectorAll("li, .movie-item, .movie-card"))
+                            .some(el => el.style.display !== "none");
+                        sec.style.display = visibleItems ? "" : "none";
                     }
                 });
             });
@@ -5024,7 +5057,7 @@ document.addEventListener("DOMContentLoaded", () => {
             carousel.appendChild(btn);
         });
 
-        // Insere o carrossel no topo do main
+        // Insere o carrossel no topo do <main>
         const mainElement = document.querySelector("main");
         if (mainElement) {
             mainElement.insertBefore(carousel, mainElement.firstChild);
