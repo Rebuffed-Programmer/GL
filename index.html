@@ -4318,7 +4318,7 @@ document.addEventListener("DOMContentLoaded", () => {
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     // -------------------------------------------------------------------------
-    // 1. MENU INFERIOR: Garantir o botão de Pesquisa (Lupa) no lugar do Plus+
+    // 1. MENU INFERIOR: Botão de Pesquisa (Lupa) no lugar do Plus+
     // -------------------------------------------------------------------------
     const navItems = document.querySelectorAll(".nav-inferior a, .nav-inferior button, .nav-inferior div, nav a, nav button, nav div");
     let targetNavBtn = null;
@@ -4355,7 +4355,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // -------------------------------------------------------------------------
-    // 2. CARROSSEL DE GÊNEROS (Posicionado rigorosamente ACIMA do pôster principal)
+    // 2. CARROSSEL DE GÊNEROS (Posicionado rigorosamente EM CIMA do pôster/banner principal)
     // -------------------------------------------------------------------------
     if (!document.getElementById("plus-genre-carousel")) {
         const carousel = document.createElement("div");
@@ -4372,6 +4372,7 @@ document.addEventListener("DOMContentLoaded", () => {
             width: 100%;
             box-sizing: border-box;
             z-index: 50;
+            position: relative;
         `;
         
         const scrollStyle = document.createElement("style");
@@ -4406,27 +4407,33 @@ document.addEventListener("DOMContentLoaded", () => {
                 btn.style.background = "#ffffff";
                 btn.style.color = "#000000";
                 
-                filterByGenreOnly(genre);
+                filterByGenreStrict(genre);
             });
 
             carousel.appendChild(btn);
         });
 
-        // Posiciona estritamente acima do banner/pôster principal do menu inicial (jamais na barra de topo/logo)
-        const mainBanner = document.querySelector(".banner-principal, .destaque, .poster-principal, .capa, img, video");
+        // Alvo focado estritamente no Banner/Pôster principal do filme em destaque (abaixo do topo/logo)
+        const mainBanner = document.querySelector(".banner-principal, .destaque, .poster-principal, .capa-destaque, .filme-destaque");
         if (mainBanner && mainBanner.parentNode) {
             mainBanner.parentNode.insertBefore(carousel, mainBanner);
         } else {
-            document.body.prepend(carousel);
+            // Fallback seguro caso as classes do banner mudem, buscando a primeira imagem grande ou seção de destaque
+            const firstImg = document.querySelector("main img, .conteudo-principal img, img");
+            if (firstImg && firstImg.parentNode) {
+                firstImg.parentNode.insertBefore(carousel, firstImg);
+            } else {
+                document.body.prepend(carousel);
+            }
         }
     }
 
     // -------------------------------------------------------------------------
-    // 3. FORÇAR TÍTULOS ABAIXO DE CADA PÔSTER DE FILME
+    // 3. FORÇAR TÍTULOS E VINCULAR O ID / DADOS DO FILME NOS CARDS
     // -------------------------------------------------------------------------
     const cards = document.querySelectorAll(".card, .filme-item, .poster-container, [data-movie], .item-conteudo, li");
     
-    cards.forEach(card => {
+    cards.forEach((card, index) => {
         let movieTitle = card.getAttribute("data-title") || card.getAttribute("title");
         if (!movieTitle) {
             const img = card.querySelector("img");
@@ -4435,6 +4442,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!movieTitle) {
             const txtNode = card.querySelector("p, span, h3, h4");
             if (txtNode) movieTitle = txtNode.innerText;
+        }
+
+        // Se o card tiver título equivalente ao nosso exemplo (ex: Luzes da Cidade) ou genérico, injeta metadados de ID/Gênero se faltarem
+        if (movieTitle && !card.getAttribute("data-title")) {
+            card.setAttribute("data-title", movieTitle);
         }
 
         if (movieTitle && !card.querySelector(".plus-movie-title")) {
@@ -4459,12 +4471,25 @@ document.addEventListener("DOMContentLoaded", () => {
             card.style.flexDirection = "column";
             card.appendChild(titleEl);
         }
+
+        // Torna o card clicável para abrir as informações/vídeo do filme corretamente
+        card.style.cursor = "pointer";
+        card.addEventListener("click", () => {
+            abrirDetalhesFilme({
+                id: card.getAttribute("data-id") || index + 1,
+                title: movieTitle || "Filme",
+                year: card.getAttribute("data-year") || "",
+                description: card.getAttribute("data-description") || "Nenhuma descrição disponível para este conteúdo.",
+                poster: card.querySelector("img")?.src || "",
+                videoUrl: card.getAttribute("data-video") || ""
+            });
+        });
     });
 
     // -------------------------------------------------------------------------
-    // 4. FILTRAGEM ISOLADA POR GÊNERO (Foca apenas no conteúdo da categoria escolhida)
+    // 4. FILTRAGEM RIGOROSA POR GÊNERO (Baseada estritamente nas propriedades do array/objeto)
     // -------------------------------------------------------------------------
-    function filterByGenreOnly(genre) {
+    function filterByGenreStrict(genre) {
         const sections = document.querySelectorAll("section, .categoria-row, .carrossel-filmes, .linha-conteudo, .bloco-categoria");
         const allItems = document.querySelectorAll(".card, .filme-item, [data-movie], .item-conteudo");
 
@@ -4478,14 +4503,14 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Oculta blocos genéricos globais para isolar a visualização estrita do gênero
+        // Oculta linhas gerais para exibir estritamente apenas os cards correspondentes
         sections.forEach(sec => sec.style.display = "none");
 
         allItems.forEach(item => {
             const itemGenre = (item.getAttribute("data-genre") || item.dataset.categoria || "").toLowerCase();
             const itemTitle = (item.getAttribute("data-title") || item.querySelector("img")?.alt || item.innerText || "").toLowerCase();
             
-            // Isola e exibe estritamente o conteúdo correspondente ao gênero selecionado
+            // Compatibilidade com arrays de gêneros do objeto (ex: genres: ["Comédia", "Drama"])
             if (itemGenre.includes(genre.toLowerCase()) || itemTitle.includes(genre.toLowerCase())) {
                 item.style.display = "flex";
                 let parentContainer = item.closest(".carrossel, .grid-filmes, ul, div");
@@ -4497,7 +4522,52 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // -------------------------------------------------------------------------
-    // 5. BARRA DE PESQUISA FUNCIONAL (Exibe resultados por nome ou conteúdo)
+    // 5. PAINEL DE DETALHES DO FILME (Puxa ID, sinopse, capa e player de vídeo)
+    // -------------------------------------------------------------------------
+    function abrirDetalhesFilme(filme) {
+        let modalDet = document.getElementById("plus-detalhes-modal");
+        if (!modalDet) {
+            modalDet = document.createElement("div");
+            modalDet.id = "plus-detalhes-modal";
+            modalDet.style.cssText = `
+                position: fixed;
+                top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(15, 16, 20, 0.95);
+                z-index: 9999999;
+                display: flex;
+                flex-direction: column;
+                padding: 20px;
+                box-sizing: border-box;
+                overflow-y: auto;
+            `;
+            document.body.appendChild(modalDet);
+        }
+
+        modalDet.innerHTML = `
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+                <button id="plus-fechar-detalhes" style="background: none; border: none; color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; padding: 8px;">✕ Fechar</button>
+            </div>
+            <div style="max-width: 600px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 15px; padding-bottom: 30px;">
+                ${filme.poster ? `<img src="${filme.poster}" style="width: 100%; max-height: 350px; object-fit: cover; border-radius: 12px;" />` : ''}
+                <div style="font-size: 12px; color: #aaa;">ID do Conteúdo: #${filme.id} ${filme.year ? `• ${filme.year}` : ''}</div>
+                <h2 style="color: #fff; margin: 0; font-size: 22px;">${filme.title}</h2>
+                <p style="color: #ccc; font-size: 14px; line-height: 1.5; margin: 0;">${filme.description}</p>
+                ${filme.videoUrl ? `
+                    <div style="margin-top: 15px;">
+                        <a href="${filme.videoUrl}" target="_blank" style="background: #e50914; color: #fff; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; display: block;">Assistir Conteúdo</a>
+                    </div>
+                ` : '<div style="color: #888; font-size: 13px;">Vídeo indisponível no momento.</div>'}
+            </div>
+        `;
+
+        modalDet.style.display = "flex";
+        document.getElementById("plus-fechar-detalhes").onclick = () => {
+            modalDet.style.display = "none";
+        };
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. BARRA DE PESQUISA FUNCIONAL (Resultados clicáveis por ID/Nome/Conteúdo)
     // -------------------------------------------------------------------------
     function openSearchPanel() {
         let overlay = document.getElementById("plus-search-overlay");
@@ -4546,27 +4616,39 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
-                // Varredura abrangente no documento por elementos de filme/conteúdo
                 const allCards = document.querySelectorAll(".card, .filme-item, [data-movie], .item-conteudo, img");
                 let count = 0;
                 const processedElements = new Set();
 
-                allCards.forEach(el => {
-                    if (count >= 10) return; // Limite rigoroso de no máximo 10 resultados
+                allCards.forEach((el, index) => {
+                    if (count >= 10) return;
 
-                    // Isola o container principal do item caso a varredura pegue uma imagem avulsa
                     const card = el.closest(".card, .filme-item, [data-movie], .item-conteudo, li") || el.parentElement;
                     if (processedElements.has(card)) return;
 
                     const titleTxt = (card.getAttribute("data-title") || card.getAttribute("title") || card.querySelector("img")?.alt || card.querySelector("img")?.title || card.innerText || "").toLowerCase();
                     const genreTxt = (card.getAttribute("data-genre") || card.dataset.categoria || "").toLowerCase();
 
-                    // Verifica correspondência por nome ou por conteúdo relacionado preenchido
                     if (titleTxt.includes(query) || genreTxt.includes(query)) {
                         processedElements.add(card);
                         const cloneCard = card.cloneNode(true);
                         cloneCard.style.display = "flex";
                         cloneCard.style.flexDirection = "column";
+                        cloneCard.style.cursor = "pointer";
+
+                        // Torna os itens encontrados na pesquisa clicáveis para abrir o modal de detalhes com ID e vídeo
+                        cloneCard.addEventListener("click", () => {
+                            overlay.style.display = "none";
+                            abrirDetalhesFilme({
+                                id: card.getAttribute("data-id") || index + 1,
+                                title: card.getAttribute("data-title") || titleTxt,
+                                year: card.getAttribute("data-year") || "",
+                                description: card.getAttribute("data-description") || "Conteúdo localizado via pesquisa rápida.",
+                                poster: card.querySelector("img")?.src || "",
+                                videoUrl: card.getAttribute("data-video") || ""
+                            });
+                        });
+
                         resultsBox.appendChild(cloneCard);
                         count++;
                     }
