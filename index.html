@@ -4355,7 +4355,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // -------------------------------------------------------------------------
-    // 2. CARROSSEL DE GÊNEROS (Posicionado rigorosamente EM CIMA do pôster/banner principal)
+    // 2. CARROSSEL DE GÊNEROS (Corrigido para 100% da largura, sem estouro de tela)
     // -------------------------------------------------------------------------
     if (!document.getElementById("plus-genre-carousel")) {
         const carousel = document.createElement("div");
@@ -4370,13 +4370,20 @@ document.addEventListener("DOMContentLoaded", () => {
             scrollbar-width: none;
             -ms-overflow-style: none;
             width: 100%;
+            max-width: 100vw;
             box-sizing: border-box;
             z-index: 50;
             position: relative;
+            left: 0;
+            right: 0;
+            margin: 0 auto 10px auto;
         `;
         
         const scrollStyle = document.createElement("style");
-        scrollStyle.innerText = `#plus-genre-carousel::-webkit-scrollbar { display: none; }`;
+        scrollStyle.innerText = `
+            #plus-genre-carousel::-webkit-scrollbar { display: none; }
+            body, html { overflow-x: hidden; }
+        `;
         document.head.appendChild(scrollStyle);
 
         const genres = ["Todos", "Comédia", "Animação", "Drama", "Aventura", "Ação", "Terror", "Romance"];
@@ -4413,12 +4420,11 @@ document.addEventListener("DOMContentLoaded", () => {
             carousel.appendChild(btn);
         });
 
-        // Alvo focado estritamente no Banner/Pôster principal do filme em destaque (abaixo do topo/logo)
+        // Posicionado exatamente em cima do banner/pôster principal do filme em destaque
         const mainBanner = document.querySelector(".banner-principal, .destaque, .poster-principal, .capa-destaque, .filme-destaque");
         if (mainBanner && mainBanner.parentNode) {
             mainBanner.parentNode.insertBefore(carousel, mainBanner);
         } else {
-            // Fallback seguro caso as classes do banner mudem, buscando a primeira imagem grande ou seção de destaque
             const firstImg = document.querySelector("main img, .conteudo-principal img, img");
             if (firstImg && firstImg.parentNode) {
                 firstImg.parentNode.insertBefore(carousel, firstImg);
@@ -4444,7 +4450,6 @@ document.addEventListener("DOMContentLoaded", () => {
             if (txtNode) movieTitle = txtNode.innerText;
         }
 
-        // Se o card tiver título equivalente ao nosso exemplo (ex: Luzes da Cidade) ou genérico, injeta metadados de ID/Gênero se faltarem
         if (movieTitle && !card.getAttribute("data-title")) {
             card.setAttribute("data-title", movieTitle);
         }
@@ -4472,7 +4477,6 @@ document.addEventListener("DOMContentLoaded", () => {
             card.appendChild(titleEl);
         }
 
-        // Torna o card clicável para abrir as informações/vídeo do filme corretamente
         card.style.cursor = "pointer";
         card.addEventListener("click", () => {
             abrirDetalhesFilme({
@@ -4487,7 +4491,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // -------------------------------------------------------------------------
-    // 4. FILTRAGEM RIGOROSA POR GÊNERO (Baseada estritamente nas propriedades do array/objeto)
+    // 4. FILTRAGEM RIGOROSA POR GÊNERO (Baseada nas propriedades reais e tags)
     // -------------------------------------------------------------------------
     function filterByGenreStrict(genre) {
         const sections = document.querySelectorAll("section, .categoria-row, .carrossel-filmes, .linha-conteudo, .bloco-categoria");
@@ -4503,14 +4507,12 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Oculta linhas gerais para exibir estritamente apenas os cards correspondentes
         sections.forEach(sec => sec.style.display = "none");
 
         allItems.forEach(item => {
             const itemGenre = (item.getAttribute("data-genre") || item.dataset.categoria || "").toLowerCase();
             const itemTitle = (item.getAttribute("data-title") || item.querySelector("img")?.alt || item.innerText || "").toLowerCase();
             
-            // Compatibilidade com arrays de gêneros do objeto (ex: genres: ["Comédia", "Drama"])
             if (itemGenre.includes(genre.toLowerCase()) || itemTitle.includes(genre.toLowerCase())) {
                 item.style.display = "flex";
                 let parentContainer = item.closest(".carrossel, .grid-filmes, ul, div");
@@ -4636,7 +4638,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         cloneCard.style.flexDirection = "column";
                         cloneCard.style.cursor = "pointer";
 
-                        // Torna os itens encontrados na pesquisa clicáveis para abrir o modal de detalhes com ID e vídeo
                         cloneCard.addEventListener("click", () => {
                             overlay.style.display = "none";
                             abrirDetalhesFilme({
