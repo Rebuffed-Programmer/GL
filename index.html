@@ -4315,262 +4315,157 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
     </section>
 </main>
-    <script>
-document.addEventListener("DOMContentLoaded", () => {
-    // -------------------------------------------------------------------------
-    // 1. MENU INFERIOR: Garantir o botão de Pesquisa (Lupa) no lugar do Plus+
-    // -------------------------------------------------------------------------
-    const navItems = document.querySelectorAll(".nav-inferior a, .nav-inferior button, .nav-inferior div, nav a, nav button, nav div");
-    let targetNavBtn = null;
-
-    navItems.forEach(el => {
-        const txt = el.innerText ? el.innerText.trim().toUpperCase() : "";
-        if (txt === "PLUS+" || txt === "PLUS" || el.querySelector("span")?.innerText.trim().toUpperCase() === "PLUS+") {
-            targetNavBtn = el;
-        }
-    });
-
-    if (targetNavBtn) {
-        if (targetNavBtn.tagName === "A") targetNavBtn.removeAttribute("href");
-        
-        targetNavBtn.innerHTML = `
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto;">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <span style="font-size: 10px; display: block; margin-top: 2px; text-align: center;">Pesquisar</span>
-        `;
-        targetNavBtn.style.cursor = "pointer";
-        targetNavBtn.style.opacity = "1";
-        targetNavBtn.style.pointerEvents = "auto";
-
-        const freshBtn = targetNavBtn.cloneNode(true);
-        targetNavBtn.parentNode.replaceChild(freshBtn, targetNavBtn);
-
-        freshBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            openSearchPanel();
-        });
-    }
-
-    // -------------------------------------------------------------------------
-    // 2. CARROSSEL DE GÊNEROS (Inserido exatamente no espaço circulado na imagem)
-    // -------------------------------------------------------------------------
-    if (!document.getElementById("plus-genre-carousel")) {
-        const carousel = document.createElement("div");
-        carousel.id = "plus-genre-carousel";
-        carousel.style.cssText = `
-            display: flex;
-            overflow-x: auto;
-            gap: 8px;
-            padding: 10px 16px;
-            background: transparent;
-            white-space: nowrap;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            width: 100%;
-            box-sizing: border-box;
-            z-index: 50;
-        `;
-        
-        const scrollStyle = document.createElement("style");
-        scrollStyle.innerText = `#plus-genre-carousel::-webkit-scrollbar { display: none; }`;
-        document.head.appendChild(scrollStyle);
-
-        const genres = ["Todos", "Comédia", "Animação", "Drama", "Aventura", "Ação", "Terror", "Romance"];
-        
-        genres.forEach((genre, index) => {
-            const btn = document.createElement("button");
-            btn.innerText = genre;
-            const active = index === 0;
-            
-            btn.style.cssText = `
-                background: ${active ? "#ffffff" : "rgba(255, 255, 255, 0.15)"};
-                color: ${active ? "#000000" : "#ffffff"};
-                border: none;
-                padding: 6px 16px;
-                border-radius: 20px;
-                font-size: 13px;
-                font-weight: 700;
-                cursor: pointer;
-                transition: background 0.2s, color 0.2s;
-                flex-shrink: 0;
-            `;
-
-            btn.addEventListener("click", () => {
-                document.querySelectorAll("#plus-genre-carousel button").forEach(b => {
-                    b.style.background = "rgba(255, 255, 255, 0.15)";
-                    b.style.color = "#ffffff";
-                });
-                btn.style.background = "#ffffff";
-                btn.style.color = "#000000";
-                
-                filterByGenreOnly(genre);
-            });
-
-            carousel.appendChild(btn);
-        });
-
-        // Encontra o elemento logo acima do banner principal onde foi feito o círculo na imagem
-        const mainBanner = document.querySelector(".banner-principal, .destaque, img, video, .poster-principal, .capa");
-        if (mainBanner && mainBanner.parentNode) {
-            mainBanner.parentNode.insertBefore(carousel, mainBanner);
-        } else {
-            const logo = document.querySelector("header, .logo");
-            if (logo && logo.parentNode) {
-                logo.parentNode.insertBefore(carousel, logo.nextSibling);
-            } else {
-                document.body.prepend(carousel);
+<script>
+window.addEventListener('load', () => {
+    // 1. Substituir o botão Plus+ da barra inferior por Pesquisa (Lupa)
+    document.querySelectorAll('a, button, div, span').forEach(el => {
+        if (el.innerText && el.innerText.trim().toUpperCase() === 'PLUS+') {
+            const container = el.closest('a') || el.closest('button') || el.closest('div');
+            if (container) {
+                if (container.tagName === 'A') container.removeAttribute('href');
+                container.innerHTML = `
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: 0 auto; display: block;">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <span style="font-size: 10px; display: block; text-align: center; margin-top: 2px;">Pesquisar</span>
+                `;
+                container.style.cursor = 'pointer';
+                container.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    abrirPesquisaPlus();
+                };
             }
         }
+    });
+
+    // 2. Inserir o Carrossel exatamente no vão abaixo do logo e acima do pôster principal
+    if (!document.getElementById('carrossel-generos-plus')) {
+        const carrossel = document.createElement('div');
+        carrossel.id = 'carrossel-generos-plus';
+        carrossel.style.cssText = `
+            display: flex; overflow-x: auto; gap: 8px; padding: 8px 12px;
+            background: transparent; white-space: nowrap; width: 100%; box-sizing: border-box;
+            z-index: 99; margin-bottom: 10px; scrollbar-width: none;
+        `;
+        
+        const generos = ["Todos", "Comédia", "Animação", "Drama", "Aventura", "Ação", "Terror", "Romance"];
+        generos.forEach((gen, idx) => {
+            const btn = document.createElement('button');
+            btn.innerText = gen;
+            btn.style.cssText = `
+                background: ${idx === 0 ? '#ffffff' : 'rgba(255, 255, 255, 0.15)'};
+                color: ${idx === 0 ? '#000000' : '#ffffff'};
+                border: none; padding: 6px 14px; border-radius: 20px; font-size: 13px;
+                font-weight: bold; cursor: pointer; flex-shrink: 0;
+            `;
+            btn.onclick = () => {
+                document.querySelectorAll('#carrossel-generos-plus button').forEach(b => {
+                    b.style.background = 'rgba(255, 255, 255, 0.15)';
+                    b.style.color = '#ffffff';
+                });
+                btn.style.background = '#ffffff';
+                btn.style.color = '#000000';
+                filtrarPorGeneroExato(gen);
+            };
+            carrossel.appendChild(btn);
+        });
+
+        // Tenta achar o local exato do vão na tela
+        const banners = document.querySelectorAll('img, video, .banner, .destaque');
+        if (banners.length > 0) {
+            banners[0].parentNode.insertBefore(carrossel, banners[0]);
+        } else {
+            document.body.prepend(carrossel);
+        }
     }
 
-    // -------------------------------------------------------------------------
-    // 3. FORÇAR TÍTULOS ABAIXO DE CADA PÔSTER DE FILME
-    // -------------------------------------------------------------------------
-    const cards = document.querySelectorAll(".card, .filme-item, .poster-container, [data-movie], .item-conteudo, li");
-    
-    cards.forEach(card => {
-        let movieTitle = card.getAttribute("data-title") || card.getAttribute("title");
-        if (!movieTitle) {
-            const img = card.querySelector("img");
-            if (img) movieTitle = img.getAttribute("alt") || img.getAttribute("title");
-        }
-        if (!movieTitle) {
-            const txtNode = card.querySelector("p, span, h3, h4");
-            if (txtNode) movieTitle = txtNode.innerText;
-        }
-
-        if (movieTitle && !card.querySelector(".plus-movie-title")) {
-            const titleEl = document.createElement("div");
-            titleEl.className = "plus-movie-title";
-            titleEl.innerText = movieTitle;
-            titleEl.style.cssText = `
-                font-size: 11px !important;
-                color: #cccccc !important;
-                text-align: left !important;
-                margin-top: 5px !important;
-                font-weight: 500 !important;
-                overflow: hidden !important;
-                text-overflow: ellipsis !important;
-                white-space: nowrap !important;
-                width: 100% !important;
-                display: block !important;
-                visibility: visible !important;
-                opacity: 1 !important;
+    // 3. Forçar títulos abaixo de cada pôster
+    document.querySelectorAll('img').forEach(img => {
+        const altText = img.getAttribute('alt') || img.getAttribute('title');
+        const parent = img.closest('.card, .filme-item, div, li');
+        if (altText && parent && !parent.querySelector('.titulo-filme-forçado')) {
+            const t = document.createElement('div');
+            t.className = 'titulo-filme-forçado';
+            t.innerText = altText;
+            t.style.cssText = `
+                font-size: 11px !important; color: #b3b3b3 !important; text-align: left !important;
+                margin-top: 4px !important; overflow: hidden !important; text-overflow: ellipsis !important;
+                white-space: nowrap !important; width: 100% !important; display: block !important;
             `;
-            card.style.display = "flex";
-            card.style.flexDirection = "column";
-            card.appendChild(titleEl);
+            parent.style.display = 'flex';
+            parent.style.flexDirection = 'column';
+            parent.appendChild(t);
         }
     });
 
-    // -------------------------------------------------------------------------
-    // 4. FILTRAGEM RESTRITA POR GÊNERO (Oculta seções e cards que não correspondem)
-    // -------------------------------------------------------------------------
-    function filterByGenreOnly(genre) {
-        const sections = document.querySelectorAll("section, .categoria-row, .carrossel-filmes, .linha-conteudo, .bloco-categoria");
-        const allItems = document.querySelectorAll(".card, .filme-item, [data-movie], .item-conteudo");
+    // 4. Função de Filtragem Exclusiva
+    function filtrarPorGeneroExato(genero) {
+        const blocos = document.querySelectorAll('section, .categoria-row, .carrossel-filmes, .linha');
+        const itens = document.querySelectorAll('.card, .filme-item, li');
 
-        if (genre === "Todos") {
-            sections.forEach(sec => sec.style.display = "");
-            allItems.forEach(item => item.style.display = "");
+        if (genero === "Todos") {
+            blocos.forEach(b => b.style.display = '');
+            itens.forEach(i => i.style.display = '');
             return;
         }
 
-        // Esconde todas as seções genéricas e exibe apenas os itens que batem com o gênero exato
-        sections.forEach(sec => sec.style.display = "none");
-
-        allItems.forEach(item => {
-            const itemGenre = (item.getAttribute("data-genre") || item.dataset.categoria || "").toLowerCase();
-            const itemTitle = (item.getAttribute("data-title") || item.querySelector("img")?.alt || item.innerText || "").toLowerCase();
-            
-            // Verifica correspondência exata ou parcial com o gênero selecionado
-            if (itemGenre.includes(genre.toLowerCase()) || itemTitle.includes(genre.toLowerCase())) {
-                item.style.display = "flex";
-                // Garante que o container pai imediato do item apareça para o usuário visualizar
-                let parentContainer = item.closest(".carrossel, .grid-filmes, ul, div");
-                if (parentContainer) parentContainer.style.display = "flex";
+        blocos.forEach(b => b.style.display = 'none');
+        itens.forEach(i => {
+            const texto = i.innerText.toLowerCase() + (i.querySelector('img')?.alt || '').toLowerCase();
+            if (texto.includes(genero.toLowerCase())) {
+                i.style.display = 'flex';
+                if (i.parentElement) i.parentElement.style.display = 'flex';
             } else {
-                item.style.display = "none";
+                i.style.display = 'none';
             }
         });
     }
 
-    // -------------------------------------------------------------------------
-    // 5. BARRA DE PESQUISA FUNCIONAL (Máximo de 10 filmes em fileiras)
-    // -------------------------------------------------------------------------
-    function openSearchPanel() {
-        let overlay = document.getElementById("plus-search-overlay");
-        if (!overlay) {
-            overlay = document.createElement("div");
-            overlay.id = "plus-search-overlay";
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0; left: 0; width: 100%; height: 100%;
-                background: #0f1014;
-                z-index: 999999;
-                display: flex;
-                flex-direction: column;
-                padding: 20px;
-                box-sizing: border-box;
+    // 5. Função da Barra de Pesquisa (Máximo de 10 resultados em fileiras)
+    function abrirPesquisaPlus() {
+        let modal = document.getElementById('modal-busca-plus');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'modal-busca-plus';
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: #0f1014; z-index: 999999; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box;
             `;
-            overlay.innerHTML = `
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-                    <div style="display: flex; align-items: center; background: #252830; border-radius: 8px; padding: 10px 14px; flex-grow: 1; margin-right: 15px;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" style="margin-right: 10px;">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
-                        <input type="text" id="plus-real-search-input" placeholder="Pesquisar por nome ou conteúdo relacionado..." style="background: transparent; border: none; color: #fff; font-size: 15px; width: 100%; outline: none;">
-                    </div>
-                    <button id="plus-close-search-btn" style="background: none; border: none; color: #fff; font-size: 14px; font-weight: bold; cursor: pointer; padding: 8px;">Cancelar</button>
+            modal.innerHTML = `
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="text" id="input-busca-plus" placeholder="Pesquisar filme ou conteúdo..." style="flex: 1; background: #222; border: none; padding: 12px; color: #fff; border-radius: 8px; font-size: 15px; outline: none;">
+                    <button id="fechar-busca-plus" style="background: none; border: none; color: #fff; font-weight: bold; cursor: pointer;">Cancelar</button>
                 </div>
-                <div style="color: #888; font-size: 12px; margin-bottom: 10px;" id="plus-search-counter">Digite para pesquisar (máx. 10 resultados):</div>
-                <div id="plus-real-search-results" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; overflow-y: auto; flex-grow: 1; align-content: start; padding-bottom: 20px;"></div>
+                <div id="contador-busca-plus" style="font-size: 12px; color: #888; margin-bottom: 10px;">Exibindo até 10 resultados:</div>
+                <div id="resultados-busca-plus" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; overflow-y: auto; flex: 1;"></div>
             `;
-            document.body.appendChild(overlay);
+            document.body.appendChild(modal);
 
-            document.getElementById("plus-close-search-btn").addEventListener("click", () => {
-                overlay.style.display = "none";
-            });
+            document.getElementById('fechar-busca-plus').onclick = () => modal.style.display = 'none';
 
-            const searchInput = document.getElementById("plus-real-search-input");
-            searchInput.addEventListener("input", (e) => {
-                const query = e.target.value.toLowerCase().trim();
-                const resultsBox = document.getElementById("plus-real-search-results");
-                const counterBox = document.getElementById("plus-search-counter");
-                resultsBox.innerHTML = "";
+            document.getElementById('input-busca-plus').oninput = (e) => {
+                const q = e.target.value.toLowerCase().trim();
+                const resBox = document.getElementById('resultados-busca-plus');
+                resBox.innerHTML = '';
+                if (!q) return;
 
-                if (query === "") {
-                    counterBox.innerText = "Digite para pesquisar (máx. 10 resultados):";
-                    return;
-                }
-
-                const allCards = document.querySelectorAll(".card, .filme-item, [data-movie], .item-conteudo");
-                let count = 0;
-
-                allCards.forEach(card => {
-                    if (count >= 10) return; // Limite rigoroso de no máximo 10 filmes
-
-                    const titleTxt = (card.getAttribute("data-title") || card.querySelector("img")?.alt || card.innerText || "").toLowerCase();
-                    const genreTxt = (card.getAttribute("data-genre") || "").toLowerCase();
-
-                    if (titleTxt.includes(query) || genreTxt.includes(query)) {
-                        const cloneCard = card.cloneNode(true);
-                        cloneCard.style.display = "flex";
-                        cloneCard.style.flexDirection = "column";
-                        resultsBox.appendChild(cloneCard);
-                        count++;
+                let contador = 0;
+                document.querySelectorAll('.card, .filme-item, li').forEach(item => {
+                    if (contador >= 10) return;
+                    const txt = (item.innerText + ' ' + (item.querySelector('img')?.alt || '')).toLowerCase();
+                    if (txt.includes(q)) {
+                        const clone = item.cloneNode(true);
+                        clone.style.display = 'flex';
+                        resBox.appendChild(clone);
+                        contador++;
                     }
                 });
-
-                counterBox.innerText = `Resultados encontrados: ${count} (Exibindo até 10)`;
-            });
+            };
         }
-        overlay.style.display = "flex";
-        setTimeout(() => document.getElementById("plus-real-search-input").focus(), 100);
+        modal.style.display = 'flex';
+        setTimeout(() => document.getElementById('input-busca-plus').focus(), 100);
     }
 });
 </script>
