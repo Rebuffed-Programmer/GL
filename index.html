@@ -4606,7 +4606,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // -------------------------------------------------------------------------
- // 3. SUBSTITUIÇÃO DO BOTÃO "PLUS+" PELO BOTÃO DE PESQUISA (LUPA)
+// 3. SUBSTITUIÇÃO DO BOTÃO "PLUS+" PELO BOTÃO DE PESQUISA (LUPA)
     // -------------------------------------------------------------------------
     function setupSearchButton() {
         if (document.getElementById("plus-search-btn-nav")) return;
@@ -4650,57 +4650,73 @@ document.addEventListener("DOMContentLoaded", () => {
     // Executa imediatamente e tenta de novo caso o HTML demore um pouquinho para carregar
     setupSearchButton();
     setTimeout(setupSearchButton, 500);
+
     // -------------------------------------------------------------------------
-    // 4. OBSERVADOR BLINDADO PARA O BOTÃO "PLUS+" (Nunca mais some!)
+    // 4. CARROSSEL DE GÊNEROS FUNCIONAL
     // -------------------------------------------------------------------------
-    function setupSearchButton() {
-        if (document.getElementById("plus-search-btn-nav")) return;
+    if (!document.getElementById("plus-genre-carousel")) {
+        const carousel = document.createElement("div");
+        carousel.id = "plus-genre-carousel";
+        carousel.style.cssText = `
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            padding: 10px 16px;
+            background: transparent;
+            white-space: nowrap;
+            scrollbar-width: none;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 50;
+            position: relative;
+            margin: 10px auto;
+        `;
+        
+        const scrollStyle = document.createElement("style");
+        scrollStyle.innerText = `#plus-genre-carousel::-webkit-scrollbar { display: none; }`;
+        document.head.appendChild(scrollStyle);
 
-        const allElements = document.querySelectorAll("a, button, div, span");
-        let targetElement = null;
-
-        for (let el of allElements) {
-            // Procura o botão exato com o texto "Plus+" ou "PLUS+"
-            if (el.children.length === 0 && el.textContent.trim().toUpperCase() === "PLUS+") {
-                targetElement = el;
-                break;
-            }
-        }
-
-        if (targetElement) {
-            const searchNavBtn = document.createElement("div");
-            searchNavBtn.id = "plus-search-btn-nav";
-            searchNavBtn.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; padding: 4px;">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    <span style="font-size: 10px; margin-top: 2px;">Pesquisar</span>
-                </div>
-            `;
-            searchNavBtn.style.cssText = `display: inline-flex; align-items: center; justify-content: center; cursor: pointer;`;
+        const genres = ["Todos", "Drama", "Comédia", "Animação", "Aventura", "Suspense", "Romance", "Terror", "Ficção Científica"];
+        
+        genres.forEach((genre, index) => {
+            const btn = document.createElement("button");
+            btn.innerText = genre;
+            const active = index === 0;
             
-            searchNavBtn.addEventListener("click", (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                openSearchPanel();
+            btn.style.cssText = `
+                background: ${active ? "#ffffff" : "rgba(255, 255, 255, 0.15)"};
+                color: ${active ? "#000000" : "#ffffff"};
+                border: none;
+                padding: 6px 16px;
+                border-radius: 20px;
+                font-size: 13px;
+                font-weight: 700;
+                cursor: pointer;
+                flex-shrink: 0;
+            `;
+
+            btn.addEventListener("click", () => {
+                document.querySelectorAll("#plus-genre-carousel button").forEach(b => {
+                    b.style.background = "rgba(255, 255, 255, 0.15)";
+                    b.style.color = "#ffffff";
+                });
+                btn.style.background = "#ffffff";
+                btn.style.color = "#000000";
+                
+                if (genre === "Todos") {
+                    renderMovies(movieData);
+                } else {
+                    const filtered = movieData.filter(m => m.genres.some(g => g.toLowerCase().includes(genre.toLowerCase())));
+                    renderMovies(filtered);
+                }
             });
 
-            targetElement.replaceWith(searchNavBtn);
-        }
+            carousel.appendChild(btn);
+        });
+
+        gridView.parentNode.insertBefore(carousel, gridView);
     }
 
-    // Tenta aplicar imediatamente e cria um vigia (Observer) caso o site recarregue partes da página dinamicamente
-    setupSearchButton();
-
-    const observer = new MutationObserver(() => {
-        if (!document.getElementById("plus-search-btn-nav")) {
-            setupSearchButton();
-        }
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-});
     // -------------------------------------------------------------------------
     // 5. PAINEL DE DETALHES DO FILME (Integrado com seu Modal Principal e Player)
     // -------------------------------------------------------------------------
