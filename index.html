@@ -4320,14 +4320,29 @@ document.addEventListener("DOMContentLoaded", () => {
     // ----------------------------------------------------
     // 1. MENU INFERIOR: Substituir o botão "Plus+" por Pesquisa (Lupa)
     // ----------------------------------------------------
-    const allNavButtons = document.querySelectorAll("a, button, div, span");
-    const plusNavButton = Array.from(allNavButtons).find(el => {
+    const navButtons = document.querySelectorAll(".nav-inferior a, .nav-inferior button, .nav-inferior div, nav a, nav button, nav div");
+    let plusNavButton = null;
+
+    navButtons.forEach(el => {
         const text = el.innerText ? el.innerText.trim().toUpperCase() : "";
-        return text === "PLUS+" || text === "PLUS";
+        if (text === "PLUS+" || text === "PLUS" || el.querySelector("span")?.innerText.trim().toUpperCase() === "PLUS+") {
+            plusNavButton = el;
+        }
     });
 
+    // Fallback agressivo baseando-se na imagem (último item da barra inferior)
+    if (!plusNavButton) {
+        const allNavItems = document.querySelectorAll("nav *, .nav-inferior *");
+        // Procura especificamente pelo elemento que contém o texto ou ícone do Plus+ na barra inferior
+        for (let item of allNavItems) {
+            if (item.textContent && item.textContent.includes("Plus+")) {
+                plusNavButton = item.closest("a") || item.closest("button") || item.closest("div");
+                break;
+            }
+        }
+    }
+
     if (plusNavButton) {
-        // Se for um link, removemos o href para evitar redirecionamentos indesejados
         if (plusNavButton.tagName === "A") {
             plusNavButton.removeAttribute("href");
         }
@@ -4340,15 +4355,22 @@ document.addEventListener("DOMContentLoaded", () => {
             <span style="font-size: 10px; display: block; margin-top: 2px; text-align: center;">Pesquisar</span>
         `;
         plusNavButton.style.cursor = "pointer";
+        plusNavButton.style.opacity = "1";
+        plusNavButton.style.pointerEvents = "auto";
         
-        plusNavButton.addEventListener("click", (e) => {
+        // Remove ouvintes antigos clonando e substituindo
+        const newPlusBtn = plusNavButton.cloneNode(true);
+        plusNavButton.parentNode.replaceChild(newPlusBtn, plusNavButton);
+
+        newPlusBtn.addEventListener("click", (e) => {
             e.preventDefault();
+            e.stopPropagation();
             openSearchInterface();
         });
     }
 
     // ----------------------------------------------------
-    // 2. CARROSSEL SUPERIOR DE GÊNEROS (Estilo Hulu)
+    // 2. CARROSSEL DE GÊNEROS (Posicionado no vão acima do pôster principal)
     // ----------------------------------------------------
     if (!document.getElementById("hulu-genre-carousel")) {
         const categoriesContainer = document.createElement("div");
@@ -4357,22 +4379,22 @@ document.addEventListener("DOMContentLoaded", () => {
             display: flex;
             overflow-x: auto;
             gap: 8px;
-            padding: 12px 16px;
+            padding: 8px 16px;
+            margin: 10px 0 15px 0;
             background: transparent;
             white-space: nowrap;
             scrollbar-width: none;
             -ms-overflow-style: none;
-            position: sticky;
-            top: 0;
-            z-index: 99;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 10;
         `;
         
-        // Esconde a barra de rolagem no Chrome/Safari
         const styleSheet = document.createElement("style");
         styleSheet.innerText = `#hulu-genre-carousel::-webkit-scrollbar { display: none; }`;
         document.head.appendChild(styleSheet);
 
-        const genres = ["Todos", "Filmes", "Animações", "Comédia", "Aventura", "Ficção", "Terror", "Suspense"];
+        const genres = ["Todos", "Comédia", "Animação", "Drama", "Aventura", "Ação", "Terror", "Romance"];
         
         genres.forEach((genre, index) => {
             const btn = document.createElement("button");
@@ -4387,7 +4409,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 border-radius: 20px;
                 font-size: 13px;
                 font-weight: 700;
-                letter-spacing: 0.5px;
                 cursor: pointer;
                 transition: background 0.2s, color 0.2s;
                 flex-shrink: 0;
@@ -4407,19 +4428,23 @@ document.addEventListener("DOMContentLoaded", () => {
             categoriesContainer.appendChild(btn);
         });
 
-        // Insere logo abaixo do cabeçalho principal
-        const headerTarget = document.querySelector("header") || document.querySelector(".topo") || document.body.firstChild;
-        if (headerTarget && headerTarget.parentNode) {
-            headerTarget.parentNode.insertBefore(categoriesContainer, headerTarget.nextSibling);
+        // Posiciona exatamente no vão entre o logo/topo e o pôster principal da tela
+        const mainBanner = document.querySelector(".banner-principal, .destaque, img, video, .poster-principal") || document.querySelector("h1, h2");
+        const logoElement = document.querySelector(".logo, img[alt*='Plus'], header");
+
+        if (logoElement && logoElement.parentNode) {
+            logoElement.parentNode.insertBefore(categoriesContainer, logoElement.nextSibling);
+        } else if (mainBanner && mainBanner.parentNode) {
+            mainBanner.parentNode.insertBefore(categoriesContainer, mainBanner);
         } else {
             document.body.prepend(categoriesContainer);
         }
     }
 
     // ----------------------------------------------------
-    // 3. TÍTULOS PEQUENOS ABAIXO DOS PÔSTERES
+    // 3. TÍTULOS ABAIXO DOS PÔSTERES (Garantindo que apareçam de forma limpa)
     // ----------------------------------------------------
-    const movieCards = document.querySelectorAll(".card, .filme-item, .poster-container, [data-movie], .item-conteudo");
+    const movieCards = document.querySelectorAll(".card, .filme-item, .poster-container, [data-movie], .item-conteudo, li");
     
     movieCards.forEach(card => {
         let titleText = card.getAttribute("data-title") || card.getAttribute("title");
@@ -4428,7 +4453,6 @@ document.addEventListener("DOMContentLoaded", () => {
             if (img) titleText = img.getAttribute("alt") || img.getAttribute("title");
         }
         
-        // Se ainda não tiver o rótulo injetado, cria um limpo e discreto
         if (titleText && !card.querySelector(".hulu-title-label")) {
             const label = document.createElement("div");
             label.className = "hulu-title-label";
@@ -4437,12 +4461,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 font-size: 11px;
                 color: #b3b3b3;
                 text-align: left;
-                margin-top: 5px;
+                margin-top: 4px;
                 font-weight: 500;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
                 max-width: 100%;
+                display: block !important;
             `;
             card.style.display = "flex";
             card.style.flexDirection = "column";
@@ -4451,25 +4476,50 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // ----------------------------------------------------
-    // 4. FUNÇÕES DE FILTRAGEM E PESQUISA
+    // 4. FUNÇÕES DE FILTRAGEM REAL (Oculta seções inteiras/itens que não correspondem)
     // ----------------------------------------------------
     function filterContent(genre) {
+        // Seleciona linhas, seções de categorias e os cards de filmes individualmente
+        const sections = document.querySelectorAll("section, .categoria-row, .carrossel-filmes, .linha-conteudo");
         const items = document.querySelectorAll(".card, .filme-item, [data-movie], .item-conteudo");
+
+        if (genre === "Todos") {
+            sections.forEach(sec => sec.style.display = "");
+            items.forEach(item => item.style.display = "");
+            return;
+        }
+
+        // Se escolheu um gênero específico, filtra de forma restritiva
+        sections.forEach(sec => {
+            const secTitle = sec.innerText.toLowerCase();
+            const hasMatchingItem = Array.from(sec.querySelectorAll(".card, .filme-item, [data-movie], .item-conteudo")).some(item => {
+                const itemGenre = (item.getAttribute("data-genre") || item.dataset.categoria || item.className || "").toLowerCase();
+                const itemTitle = (item.getAttribute("data-title") || item.innerText || "").toLowerCase();
+                return itemGenre.includes(genre.toLowerCase()) || itemTitle.includes(genre.toLowerCase()) || secTitle.includes(genre.toLowerCase());
+            });
+
+            if (secTitle.includes(genre.toLowerCase()) || hasMatchingItem) {
+                sec.style.display = "";
+            } else {
+                sec.style.display = "none";
+            }
+        });
+
         items.forEach(item => {
-            if (genre === "Todos") {
+            const itemGenre = (item.getAttribute("data-genre") || item.dataset.categoria || item.className || "").toLowerCase();
+            const itemTitle = (item.getAttribute("data-title") || item.innerText || "").toLowerCase();
+            
+            if (itemGenre.includes(genre.toLowerCase()) || itemTitle.includes(genre.toLowerCase())) {
                 item.style.display = "";
             } else {
-                const itemGenre = (item.getAttribute("data-genre") || item.dataset.categoria || "").toLowerCase();
-                // Se o item combinar com o gênero ou se for exibição geral, mantém visível
-                if (itemGenre.includes(genre.toLowerCase())) {
-                    item.style.display = "";
-                } else {
-                    item.style.display = "none";
-                }
+                item.style.display = "none";
             }
         });
     }
 
+    // ----------------------------------------------------
+    // 5. MODAL DE PESQUISA (Abre ao clicar na Lupa)
+    // ----------------------------------------------------
     function openSearchInterface() {
         let searchModal = document.getElementById("hulu-search-overlay");
         if (!searchModal) {
@@ -4492,7 +4542,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
-                        <input type="text" id="hulu-search-input" placeholder="Pesquisar filmes, séries, animações..." style="background: transparent; border: none; color: #fff; font-size: 15px; width: 100%; outline: none;">
+                        <input type="text" id="hulu-search-input" placeholder="Pesquisar por nome ou conteúdo relacionado..." style="background: transparent; border: none; color: #fff; font-size: 15px; width: 100%; outline: none;">
                     </div>
                     <button id="hulu-close-search" style="background: none; border: none; color: #fff; font-size: 14px; font-weight: bold; cursor: pointer; padding: 8px;">Cancelar</button>
                 </div>
