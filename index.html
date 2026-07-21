@@ -4316,91 +4316,101 @@ document.addEventListener("DOMContentLoaded", () => {
     </section>
 </main>
 <script>
-window.addEventListener('load', () => {
-    // 1. Substituir o botão Plus+ da barra inferior por Pesquisa (Lupa)
-    document.querySelectorAll('a, button, div, span').forEach(el => {
-        if (el.innerText && el.innerText.trim().toUpperCase() === 'PLUS+') {
-            const container = el.closest('a') || el.closest('button') || el.closest('div');
-            if (container) {
-                if (container.tagName === 'A') container.removeAttribute('href');
-                container.innerHTML = `
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: 0 auto; display: block;">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    <span style="font-size: 10px; display: block; text-align: center; margin-top: 2px;">Pesquisar</span>
-                `;
-                container.style.cursor = 'pointer';
-                container.onclick = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    abrirPesquisaPlus();
-                };
+(function() {
+    function injetarMelhoriasPlus() {
+        // 1. Substituir o botão "Plus+" da barra inferior por Pesquisa (Lupa)
+        document.querySelectorAll('a, button, div, span').forEach(el => {
+            if (el.innerText && el.innerText.trim().toUpperCase() === 'PLUS+') {
+                const container = el.closest('a') || el.closest('button') || el.closest('div');
+                if (container && !container.dataset.modificado) {
+                    container.dataset.modificado = "true";
+                    if (container.tagName === 'A') container.removeAttribute('href');
+                    container.innerHTML = `
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: 0 auto; display: block;">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <span style="font-size: 10px; display: block; text-align: center; margin-top: 2px;">Pesquisar</span>
+                    `;
+                    container.style.cursor = 'pointer';
+                    container.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        abrirPesquisaPlus();
+                    };
+                }
             }
-        }
-    });
-
-    // 2. Inserir o Carrossel exatamente no vão abaixo do logo e acima do pôster principal
-    if (!document.getElementById('carrossel-generos-plus')) {
-        const carrossel = document.createElement('div');
-        carrossel.id = 'carrossel-generos-plus';
-        carrossel.style.cssText = `
-            display: flex; overflow-x: auto; gap: 8px; padding: 8px 12px;
-            background: transparent; white-space: nowrap; width: 100%; box-sizing: border-box;
-            z-index: 99; margin-bottom: 10px; scrollbar-width: none;
-        `;
-        
-        const generos = ["Todos", "Comédia", "Animação", "Drama", "Aventura", "Ação", "Terror", "Romance"];
-        generos.forEach((gen, idx) => {
-            const btn = document.createElement('button');
-            btn.innerText = gen;
-            btn.style.cssText = `
-                background: ${idx === 0 ? '#ffffff' : 'rgba(255, 255, 255, 0.15)'};
-                color: ${idx === 0 ? '#000000' : '#ffffff'};
-                border: none; padding: 6px 14px; border-radius: 20px; font-size: 13px;
-                font-weight: bold; cursor: pointer; flex-shrink: 0;
-            `;
-            btn.onclick = () => {
-                document.querySelectorAll('#carrossel-generos-plus button').forEach(b => {
-                    b.style.background = 'rgba(255, 255, 255, 0.15)';
-                    b.style.color = '#ffffff';
-                });
-                btn.style.background = '#ffffff';
-                btn.style.color = '#000000';
-                filtrarPorGeneroExato(gen);
-            };
-            carrossel.appendChild(btn);
         });
 
-        // Tenta achar o local exato do vão na tela
-        const banners = document.querySelectorAll('img, video, .banner, .destaque');
-        if (banners.length > 0) {
-            banners[0].parentNode.insertBefore(carrossel, banners[0]);
-        } else {
-            document.body.prepend(carrossel);
+        // 2. Inserir o Carrossel exatamente no vão abaixo do logo e acima do pôster principal
+        if (!document.getElementById('carrossel-generos-plus')) {
+            const carrossel = document.createElement('div');
+            carrossel.id = 'carrossel-generos-plus';
+            carrossel.style.cssText = `
+                display: flex; overflow-x: auto; gap: 8px; padding: 10px 16px;
+                background: transparent; white-space: nowrap; width: 100%; box-sizing: border-box;
+                z-index: 99; scrollbar-width: none;
+            `;
+            
+            const generos = ["Todos", "Comédia", "Animação", "Drama", "Aventura", "Ação", "Terror", "Romance"];
+            generos.forEach((gen, idx) => {
+                const btn = document.createElement('button');
+                btn.innerText = gen;
+                btn.style.cssText = `
+                    background: ${idx === 0 ? '#ffffff' : 'rgba(255, 255, 255, 0.15)'};
+                    color: ${idx === 0 ? '#000000' : '#ffffff'};
+                    border: none; padding: 6px 14px; border-radius: 20px; font-size: 13px;
+                    font-weight: bold; cursor: pointer; flex-shrink: 0;
+                `;
+                btn.onclick = () => {
+                    document.querySelectorAll('#carrossel-generos-plus button').forEach(b => {
+                        b.style.background = 'rgba(255, 255, 255, 0.15)';
+                        b.style.color = '#ffffff';
+                    });
+                    btn.style.background = '#ffffff';
+                    btn.style.color = '#000000';
+                    filtrarPorGeneroExato(gen);
+                };
+                carrossel.appendChild(btn);
+            });
+
+            const alvoBanner = document.querySelector('img, video, .banner, .destaque, .poster-principal');
+            if (alvoBanner && alvoBanner.parentNode) {
+                alvoBanner.parentNode.insertBefore(carrossel, alvoBanner);
+            } else {
+                document.body.prepend(carrossel);
+            }
         }
+
+        // 3. Forçar títulos abaixo de cada pôster
+        document.querySelectorAll('img').forEach(img => {
+            const altText = img.getAttribute('alt') || img.getAttribute('title');
+            const parent = img.closest('.card, .filme-item, div, li');
+            if (altText && parent && !parent.querySelector('.titulo-filme-forçado')) {
+                const t = document.createElement('div');
+                t.className = 'titulo-filme-forçado';
+                t.innerText = altText;
+                t.style.cssText = `
+                    font-size: 11px !important; color: #b3b3b3 !important; text-align: left !important;
+                    margin-top: 4px !important; overflow: hidden !important; text-overflow: ellipsis !important;
+                    white-space: nowrap !important; width: 100% !important; display: block !important;
+                `;
+                parent.style.display = 'flex';
+                parent.style.flexDirection = 'column';
+                parent.appendChild(t);
+            }
+        });
     }
 
-    // 3. Forçar títulos abaixo de cada pôster
-    document.querySelectorAll('img').forEach(img => {
-        const altText = img.getAttribute('alt') || img.getAttribute('title');
-        const parent = img.closest('.card, .filme-item, div, li');
-        if (altText && parent && !parent.querySelector('.titulo-filme-forçado')) {
-            const t = document.createElement('div');
-            t.className = 'titulo-filme-forçado';
-            t.innerText = altText;
-            t.style.cssText = `
-                font-size: 11px !important; color: #b3b3b3 !important; text-align: left !important;
-                margin-top: 4px !important; overflow: hidden !important; text-overflow: ellipsis !important;
-                white-space: nowrap !important; width: 100% !important; display: block !important;
-            `;
-            parent.style.display = 'flex';
-            parent.style.flexDirection = 'column';
-            parent.appendChild(t);
-        }
-    });
+    // Executa imediatamente e reforça caso a página carregue dinamicamente
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', injetarMelhoriasPlus);
+    } else {
+        injetarMelhoriasPlus();
+    }
+    window.addEventListener('load', injetarMelhoriasPlus);
 
-    // 4. Função de Filtragem Exclusiva
+    // 4. Função de Filtragem Exclusiva por Gênero
     function filtrarPorGeneroExato(genero) {
         const blocos = document.querySelectorAll('section, .categoria-row, .carrossel-filmes, .linha');
         const itens = document.querySelectorAll('.card, .filme-item, li');
@@ -4413,7 +4423,7 @@ window.addEventListener('load', () => {
 
         blocos.forEach(b => b.style.display = 'none');
         itens.forEach(i => {
-            const texto = i.innerText.toLowerCase() + (i.querySelector('img')?.alt || '').toLowerCase();
+            const texto = (i.innerText + ' ' + (i.querySelector('img')?.alt || '')).toLowerCase();
             if (texto.includes(genero.toLowerCase())) {
                 i.style.display = 'flex';
                 if (i.parentElement) i.parentElement.style.display = 'flex';
@@ -4467,7 +4477,7 @@ window.addEventListener('load', () => {
         modal.style.display = 'flex';
         setTimeout(() => document.getElementById('input-busca-plus').focus(), 100);
     }
-});
+})();
 </script>
     
 </body>
