@@ -4908,5 +4908,129 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+    // -------------------------------------------------------------------------
+    // 1. CAPTURA OS FILMES E SEÇÕES QUE JÁ ESTÃO NA HOME
+    // -------------------------------------------------------------------------
+    function getHomeSectionsAndMovies() {
+        const sections = document.querySelectorAll("main .movie-section, main .content-section");
+        const allData = [];
+
+        sections.forEach(section => {
+            const titleEl = section.querySelector("h2, .section-title");
+            const sectionTitle = titleEl ? titleEl.textContent.trim().toLowerCase() : "";
+            const items = section.querySelectorAll("li, .movie-item, .movie-card");
+
+            const moviesInSec = [];
+            items.forEach((item, index) => {
+                const img = item.querySelector("img");
+                const nameEl = item.querySelector("span, h3, h4, .title");
+                if (img) {
+                    moviesInSec.push({
+                        id: item.dataset.movieId || index,
+                        title: nameEl ? nameEl.textContent.trim() : (img.alt || "Filme"),
+                        poster: img.src,
+                        element: item
+                    });
+                }
+            });
+
+            if (moviesInSec.length > 0) {
+                allData.push({
+                    sectionElement: section,
+                    sectionTitle: sectionTitle,
+                    movies: moviesInSec
+                });
+            }
+        });
+
+        return allData;
+    }
+
+    const homeData = getHomeSectionsAndMovies();
+
+    // -------------------------------------------------------------------------
+    // 2. CARROSSEL DE GÊNEROS (Filtro Inteligente por Seção)
+    // -------------------------------------------------------------------------
+    if (!document.getElementById("plus-genre-carousel")) {
+        const carousel = document.createElement("div");
+        carousel.id = "plus-genre-carousel";
+        carousel.style.cssText = `
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            padding: 10px 16px;
+            background: transparent;
+            white-space: nowrap;
+            scrollbar-width: none;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 50;
+            position: relative;
+            margin: 10px auto;
+        `;
+        
+        const scrollStyle = document.createElement("style");
+        scrollStyle.innerText = `#plus-genre-carousel::-webkit-scrollbar { display: none; }`;
+        document.head.appendChild(scrollStyle);
+
+        // Opções do carrossel vinculadas aos títulos/gêneros das seções da home
+        const filters = ["Todos", "Assista ao vivo", "Sugestões", "Nossa recomendação", "Os 10 melhores", "Bem avaliados", "Sucessos imperdíveis", "Talvez você irá gostar", "Cinema"];
+        
+        filters.forEach((filter, index) => {
+            const btn = document.createElement("button");
+            btn.innerText = filter;
+            const active = index === 0;
+            
+            btn.style.cssText = `
+                background: ${active ? "#ffffff" : "rgba(255, 255, 255, 0.15)"};
+                color: ${active ? "#000000" : "#ffffff"};
+                border: none;
+                padding: 6px 16px;
+                border-radius: 20px;
+                font-size: 13px;
+                font-weight: 700;
+                cursor: pointer;
+                flex-shrink: 0;
+            `;
+
+            btn.addEventListener("click", () => {
+                document.querySelectorAll("#plus-genre-carousel button").forEach(b => {
+                    b.style.background = "rgba(255, 255, 255, 0.15)";
+                    b.style.color = "#ffffff";
+                });
+                btn.style.background = "#ffffff";
+                btn.style.color = "#000000";
+                
+                const query = filter.toLowerCase();
+
+                // Exibe ou oculta as seções inteiras com base na escolha do usuário
+                homeData.forEach(sec => {
+                    if (query === "todos") {
+                        sec.sectionElement.style.display = ""; // Mostra tudo
+                    } else {
+                        // Verifica se o título da seção da home corresponde ao filtro clicado
+                        if (sec.sectionTitle.includes(query)) {
+                            sec.sectionElement.style.display = "";
+                        } else {
+                            sec.sectionElement.style.display = "none";
+                        }
+                    }
+                });
+            });
+
+            carousel.appendChild(btn);
+        });
+
+        // Insere o carrossel no topo do main
+        const mainElement = document.querySelector("main");
+        if (mainElement) {
+            mainElement.insertBefore(carousel, mainElement.firstChild);
+        }
+    }
+});
+</script>
 </body>
 </html>
