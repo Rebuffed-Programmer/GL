@@ -5230,7 +5230,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================================
 
     const API_KEY = "AIzaSyBV8Ps8L0grv5yT-tDOFO41dC7kLDpVm_Y";
-    const CHANNEL_HANDLE = "@classixapp";
+    const CHANNEL_ID = "UCiFwZdu_-hLv1Psy2MGVWYQ"; // Usado para buscar diretamente
 
     const API = "https://www.googleapis.com/youtube/v3";
 
@@ -5497,7 +5497,7 @@ document.addEventListener("DOMContentLoaded", () => {
     async function findUploadsPlaylist() {
         const params = new URLSearchParams({
             part: "contentDetails",
-            forHandle: CHANNEL_HANDLE,
+            id: CHANNEL_ID, // Correção: busca direta pelo ID do canal
             key: API_KEY
         });
 
@@ -5579,9 +5579,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // Busca duração e informações dos vídeos.
+            // Busca duração e informações dos vídeos (adicionado 'status' no part)
             const videoParams = new URLSearchParams({
-                part: "snippet,contentDetails",
+                part: "snippet,contentDetails,status",
                 id: ids.join(","),
                 key: API_KEY
             });
@@ -5631,7 +5631,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (nextPageToken) {
                 moreButton.hidden = false;
-                moreButton.textContent = "Carregar mais";
+                moreButton.textContent = "Carregando mais";
             } else {
                 moreButton.hidden = true;
             }
@@ -5677,7 +5677,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 })();
 </script>
-
-
+    
 </body>
 </html>
