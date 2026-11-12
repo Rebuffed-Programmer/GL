@@ -2038,5 +2038,535 @@ window.onload = () => {
     }
 };
 </script>
+    <script>
+(function () {
+    // ==========================================
+    // PLUS+ | PLAYER MULTIFONTE (CORRIGIDO)
+    // ==========================================
+
+    const CHANNEL_ID = "UCiFwZdu_-hLv1Psy2MGVWYQ";
+    const CLASSIX_UPLOADS = "UUiFwZdu_-hLv1Psy2MGVWYQ";
+
+    function getYouTubeInfo(url) {
+        if (!url) return null;
+
+        try {
+            const value = String(url).trim();
+
+            if (/^[a-zA-Z0-9_-]{11}$/.test(value)) {
+                return { type: "video", id: value };
+            }
+
+            const parsed = new URL(value);
+            const host = parsed.hostname.replace(/^www\./, "");
+            const path = parsed.pathname;
+
+            if (
+                host === "youtu.be" ||
+                host.endsWith("youtube.com") ||
+                host === "youtube-nocookie.com"
+            ) {
+                const playlist = parsed.searchParams.get("list");
+
+                if (playlist && path.includes("playlist")) {
+                    return { type: "playlist", id: playlist };
+                }
+
+                const videoId =
+                    parsed.searchParams.get("v") ||
+                    path.match(/\/(?:embed|shorts|live)\/([a-zA-Z0-9_-]{11})/)?.[1] ||
+                    (host === "youtu.be" ? path.slice(1).split("/")[0] : null);
+
+                if (videoId && /^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
+                    return { type: "video", id: videoId };
+                }
+
+                if (playlist) {
+                    return { type: "playlist", id: playlist };
+                }
+            }
+        } catch (error) {
+            console.warn("Link não reconhecido:", error);
+        }
+
+        return null;
+    }
+
+    // Guarda a função original se existir
+    const originalSwitchToVideo = window.switchToVideo;
+
+    // Função unificada para abrir qualquer vídeo (Drive ou YouTube)
+    window.switchToVideo = function (videoUrl) {
+        const youtube = getYouTubeInfo(videoUrl);
+
+        // Se não for YouTube, tenta rodar o player original do Drive
+        if (!youtube) {
+            if (typeof originalSwitchToVideo === "function") {
+                return originalSwitchToVideo(videoUrl);
+            }
+            console.error("Player original do Google Drive não encontrado.");
+            return;
+        }
+
+        const modal = document.getElementById("movie-modal");
+        const info = document.getElementById("modal-info-container");
+        const videoContainer = document.getElementById("modal-video-container");
+
+        if (!modal || !videoContainer) {
+            console.error("Estrutura do player Plus+ não encontrada.");
+            return;
+        }
+
+        // Esconde informações se o container de info existir
+        if (info) info.style.display = "none";
+        videoContainer.style.display = "block";
+        modal.classList.add("fullscreen-video");
+        videoContainer.innerHTML = "";
+
+        // Botão para voltar ao catálogo.
+        const backButton = document.createElement("button");
+        backButton.className = "back-to-info-btn";
+        backButton.textContent = "← Voltar ao Catálogo";
+        backButton.style.cssText = "position:absolute; top:20px; left:20px; z-index:99; padding:8px 16px; background:#fff; color:#000; font-weight:bold; border:0; border-radius:4px; cursor:pointer;";
+
+        backButton.onclick = function () {
+            videoContainer.innerHTML = "";
+            videoContainer.style.display = "none";
+            if (info) info.style.display = "block";
+            modal.classList.remove("fullscreen-video");
+            modal.style.display = "none";
+            document.body.style.overflow = "auto";
+
+            try {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                }
+                if (screen.orientation?.unlock) {
+                    screen.orientation.unlock();
+                }
+            } catch (e) {}
+        };
+
+        videoContainer.appendChild(backButton);
+
+        const iframe = document.createElement("iframe");
+
+        if (youtube.type === "playlist") {
+            iframe.src =
+                "https://www.youtube.com/embed/videoseries?list=" +
+                encodeURIComponent(youtube.id) +
+                "&autoplay=1&rel=0&playsinline=1";
+        } else {
+            iframe.src =
+                "https://www.youtube.com/embed/" +
+                encodeURIComponent(youtube.id) +
+                "?autoplay=1&rel=0&playsinline=1";
+        }
+
+        iframe.allow = "autoplay; encrypted-media; picture-in-picture; web-share";
+        iframe.allowFullscreen = true;
+        iframe.referrerPolicy = "strict-origin-when-cross-origin";
+
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+        iframe.style.position = "absolute";
+        iframe.style.inset = "0";
+        iframe.style.border = "0";
+
+        const wrapper = document.createElement("div");
+        wrapper.style.position = "relative";
+        wrapper.style.width = "100%";
+        wrapper.style.height = "100%";
+
+        wrapper.appendChild(iframe);
+        videoContainer.appendChild(wrapper);
+
+        modal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+    };
+})();
+</script>
+    <script>
+(() => {
+    "use strict";
+
+    // ==========================================
+    // PLUS+ | CLASSIX (YouTube Direto)
+    // ==========================================
+
+    const API_KEY = "AIzaSyBV8Ps8L0grv5yT-tDOFO41dC7kLDpVm_Y";
+    const CHANNEL_HANDLE = "classixapp";
+
+    const API = "https://www.googleapis.com/youtube/v3";
+
+    let uploadsPlaylist = "";
+    let nextPageToken = "";
+    let loading = false;
+    let loadedIds = new Set();
+
+    let grid, status, moreButton;
+
+    // ==========================================
+    // VISUAL (GRADE HORIZONTAL 16:9)
+    // ==========================================
+
+    const css = document.createElement("style");
+
+    css.textContent = `
+        #classix-section {
+            width: 100%;
+            padding: 0 12px;
+            margin: 28px 0;
+            box-sizing: border-box;
+        }
+
+        #classix-section .classix-heading {
+            color: #fff;
+            font-size: 21px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        #classix-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .classix-card {
+            min-width: 0;
+            cursor: pointer;
+            transition: transform .2s ease;
+        }
+
+        .classix-card:hover {
+            transform: scale(1.025);
+        }
+
+        .classix-thumb {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #222;
+        }
+
+        .classix-title {
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.35;
+            margin-top: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        #classix-status {
+            color: rgba(255,255,255,.65);
+            font-size: 13px;
+            padding: 15px 0;
+        }
+
+        #classix-load-more {
+            display: block;
+            margin: 22px auto;
+            padding: 11px 24px;
+            border: 0;
+            border-radius: 25px;
+            background: #fff;
+            color: #111;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        #classix-load-more:disabled {
+            opacity: .5;
+        }
+
+        @media (max-width: 600px) {
+            #classix-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
+            }
+
+            .classix-title {
+                font-size: 12px;
+            }
+        }
+    `;
+
+    document.head.appendChild(css);
+
+    // ==========================================
+    // CRIA A SEÇÃO NA PÁGINA
+    // ==========================================
+
+    function createSection() {
+        if (document.getElementById("classix-section")) return;
+
+        const section = document.createElement("section");
+        section.id = "classix-section";
+
+        section.innerHTML = `
+            <h2 class="classix-heading">🎞️ Filmes Clássicos</h2>
+            <ul id="classix-grid"></ul>
+            <div id="classix-status">Carregando conteúdos...</div>
+            <button id="classix-load-more" hidden>Carregar mais</button>
+        `;
+
+        const existing = document.getElementById("all-movies-master");
+        const main = document.querySelector("main") || document.body;
+
+        if (existing) {
+            existing.insertAdjacentElement("afterend", section);
+        } else {
+            main.appendChild(section);
+        }
+
+        grid = document.getElementById("classix-grid");
+        status = document.getElementById("classix-status");
+        moreButton = document.getElementById("classix-load-more");
+
+        moreButton.addEventListener("click", loadVideos);
+    }
+
+    // ==========================================
+    // CLIQUE NO VÍDEO (Abre direto no player do seu site)
+    // ==========================================
+
+    function openVideo(video) {
+        // Tenta usar a função nativa do seu primeiro script se ela existir
+        if (typeof window.switchToVideo === "function") {
+            window.switchToVideo("https://www.youtube.com/watch?v=" + video.id);
+            return;
+        }
+
+        // Se não encontrar, cria um player flutuante na hora na tela inteira
+        let overlay = document.getElementById("classix-player-overlay");
+        if (!overlay) {
+            overlay = document.createElement("div");
+            overlay.id = "classix-player-overlay";
+            overlay.style.cssText = "position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:99999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;";
+            
+            overlay.innerHTML = `
+                <button id="classix-close-btn" style="align-self:flex-end; margin-bottom:10px; padding:8px 16px; background:#fff; color:#000; font-weight:bold; border:0; border-radius:4px; cursor:pointer;">Fechar ✕</button>
+                <div style="position:relative; width:100%; max-width:900px; aspect-ratio:16/9; background:#000;">
+                    <iframe id="classix-iframe" src="" style="width:100%; height:100%; border:0;" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            document.getElementById("classix-close-btn").addEventListener("click", () => {
+                overlay.style.display = "none";
+                document.getElementById("classix-iframe").src = "";
+            });
+        }
+
+        document.getElementById("classix-iframe").src = "https://www.youtube.com/embed/" + video.id + "?autoplay=1";
+        overlay.style.display = "flex";
+    }
+
+    // ==========================================
+    // CRIA CADA CARD NA GRADE
+    // ==========================================
+
+    function addCard(video) {
+        if (!video.id || loadedIds.has(video.id)) return;
+        loadedIds.add(video.id);
+
+        const card = document.createElement("li");
+        card.className = "classix-card";
+
+        const image = document.createElement("img");
+        image.className = "classix-thumb";
+        image.src = video.thumbnail;
+        image.alt = video.title;
+        image.loading = "lazy";
+
+        const name = document.createElement("div");
+        name.className = "classix-title";
+        name.textContent = video.title;
+
+        card.appendChild(image);
+        card.appendChild(name);
+
+        card.addEventListener("click", () => openVideo(video));
+
+        grid.appendChild(card);
+    }
+
+    // ==========================================
+    // CONVERTE DURAÇÃO DO YOUTUBE EM SEGUNDOS
+    // ==========================================
+
+    function durationInSeconds(duration) {
+        const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+        if (!match) return 0;
+
+        return (
+            Number(match[1] || 0) * 3600 +
+            Number(match[2] || 0) * 60 +
+            Number(match[3] || 0)
+        );
+    }
+
+    // ==========================================
+    // BUSCA A PLAYLIST DE UPLOADS DO CANAL
+    // ==========================================
+
+    async function findUploadsPlaylist() {
+        const params = new URLSearchParams({
+            part: "contentDetails",
+            forHandle: CHANNEL_HANDLE,
+            key: API_KEY
+        });
+
+        const response = await fetch(API + "/channels?" + params);
+        const data = await response.json();
+
+        if (!response.ok || !data.items?.length) {
+            throw new Error(data.error?.message || "Canal @classixapp não encontrado.");
+        }
+
+        return data.items[0].contentDetails.relatedPlaylists.uploads;
+    }
+
+    // ==========================================
+    // CARREGA E FILTRA OS VÍDEOS (>= 10 MIN)
+    // ==========================================
+
+    async function loadVideos() {
+        if (loading) return;
+
+        if (!API_KEY) {
+            status.textContent = "Configure sua chave da API.";
+            return;
+        }
+
+        loading = true;
+        moreButton.disabled = true;
+        moreButton.textContent = "Carregando...";
+        status.textContent = "Buscando filmes...";
+
+        try {
+            if (!uploadsPlaylist) {
+                uploadsPlaylist = await findUploadsPlaylist();
+            }
+
+            const params = new URLSearchParams({
+                part: "snippet",
+                playlistId: uploadsPlaylist,
+                maxResults: "50",
+                key: API_KEY
+            });
+
+            if (nextPageToken) {
+                params.set("pageToken", nextPageToken);
+            }
+
+            const response = await fetch(API + "/playlistItems?" + params);
+            const playlistData = await response.json();
+
+            if (!response.ok) {
+                throw new Error(playlistData.error?.message || "Erro na playlist.");
+            }
+
+            const items = playlistData.items || [];
+            nextPageToken = playlistData.nextPageToken || "";
+
+            const ids = items
+                .map(item => item.snippet?.resourceId?.videoId)
+                .filter(Boolean);
+
+            if (!ids.length) {
+                status.textContent = "Nenhum conteúdo encontrado.";
+                moreButton.hidden = true;
+                return;
+            }
+
+            const videoParams = new URLSearchParams({
+                part: "snippet,contentDetails,status",
+                id: ids.join(","),
+                key: API_KEY
+            });
+
+            const videoResponse = await fetch(API + "/videos?" + videoParams);
+            const videoData = await videoResponse.json();
+
+            if (!videoResponse.ok) {
+                throw new Error(videoData.error?.message || "Erro ao buscar detalhes dos vídeos.");
+            }
+
+            const videos = videoData.items || [];
+
+            videos.forEach(video => {
+                const seconds = durationInSeconds(video.contentDetails?.duration || "");
+
+                // Ignora Shorts e vídeos com menos de 10 minutos
+                if (seconds < 600) return;
+
+                // Ignora vídeos privados ou não listados
+                if (video.status?.privacyStatus !== "public") return;
+
+                const thumbnails = video.snippet.thumbnails || {};
+                const thumbnail =
+                    thumbnails.medium?.url ||
+                    thumbnails.high?.url ||
+                    "https://i.ytimg.com/vi/" + video.id + "/mqdefault.jpg";
+
+                addCard({
+                    id: video.id,
+                    title: video.snippet.title || "Filme clássico",
+                    thumbnail
+                });
+            });
+
+            if (nextPageToken) {
+                moreButton.hidden = false;
+                moreButton.textContent = "Carregar mais";
+            } else {
+                moreButton.hidden = true;
+            }
+
+            if (grid.children.length === 0 && !nextPageToken) {
+                status.textContent = "Nenhum vídeo com 10 minutos ou mais foi encontrado.";
+            } else {
+                status.textContent = "";
+            }
+
+        } catch (error) {
+            console.error("PLUS+ CLASSIX:", error);
+            status.textContent = "Erro ao carregar: " + error.message;
+            moreButton.hidden = false;
+            moreButton.textContent = "Tentar novamente";
+        } finally {
+            loading = false;
+            moreButton.disabled = false;
+        }
+    }
+
+    // ==========================================
+    // INICIALIZAÇÃO
+    // ==========================================
+
+    function init() {
+        createSection();
+        if (grid) loadVideos();
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+    } else {
+        init();
+    }
+
+})();
+</script>
 </body>
 </html>
