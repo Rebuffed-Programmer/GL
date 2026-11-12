@@ -5226,7 +5226,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "use strict";
 
     // ==========================================
-    // PLUS+ | CLASSIX
+    // PLUS+ | CLASSIX (YouTube Direto)
     // ==========================================
 
     const API_KEY = "AIzaSyBV8Ps8L0grv5yT-tDOFO41dC7kLDpVm_Y";
@@ -5372,46 +5372,39 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================================
-    // REPRODUÇÃO DIRETA DO VÍDEO
+    // CLIQUE NO VÍDEO (Abre direto no player do seu site)
     // ==========================================
 
     function openVideo(video) {
-        // Tenta usar a função global de player se ela existir e estiver funcional
+        // Tenta usar a função nativa do seu primeiro script se ela existir
         if (typeof window.switchToVideo === "function") {
-            try {
-                window.switchToVideo("https://www.youtube.com/watch?v=" + video.id);
-                return;
-            } catch (e) {
-                console.warn("switchToVideo falhou, abrindo via fallback nativo:", e);
-            }
+            window.switchToVideo("https://www.youtube.com/watch?v=" + video.id);
+            return;
         }
 
-        // Fallback robusto caso o modal do site falhe: Procura o modal manualmente ou cria um player na tela
-        const modal = document.getElementById("movie-modal");
-        const videoContainer = document.getElementById("modal-video-container");
-
-        if (modal && videoContainer) {
-            const info = document.getElementById("modal-info-container");
-            if (info) info.style.display = "none";
-            videoContainer.style.display = "block";
-            modal.classList.add("fullscreen-video");
-            modal.style.display = "flex";
-            document.body.style.overflow = "hidden";
-
-            videoContainer.innerHTML = `
-                <button class="back-to-info-btn" style="position:absolute; top:20px; left:20px; z-index:99; padding:8px 16px; background:#fff; color:#000; border:0; border-radius:4px; cursor:pointer;" onclick="
-                    document.getElementById('modal-video-container').style.display='none';
-                    document.getElementById('modal-video-container').innerHTML='';
-                    if(document.getElementById('modal-info-container')) document.getElementById('modal-info-container').style.display='block';
-                    document.getElementById('movie-modal').style.display='none';
-                    document.body.style.overflow='auto';
-                ">← Voltar</button>
-                <iframe src="https://www.youtube.com/embed/${video.id}?autoplay=1&rel=0&playsinline=1" style="width:100%; height:100%; position:absolute; inset:0; border:0;" allow="autoplay; encrypted-media; picture-in-picture; web-share" allowfullscreen></iframe>
+        // Se não encontrar, cria um player flutuante na hora na tela inteira
+        let overlay = document.getElementById("classix-player-overlay");
+        if (!overlay) {
+            overlay = document.createElement("div");
+            overlay.id = "classix-player-overlay";
+            overlay.style.cssText = "position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:99999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;";
+            
+            overlay.innerHTML = `
+                <button id="classix-close-btn" style="align-self:flex-end; margin-bottom:10px; padding:8px 16px; background:#fff; color:#000; font-weight:bold; border:0; border-radius:4px; cursor:pointer;">Fechar ✕</button>
+                <div style="position:relative; width:100%; max-width:900px; aspect-ratio:16/9; background:#000;">
+                    <iframe id="classix-iframe" src="" style="width:100%; height:100%; border:0;" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+                </div>
             `;
-        } else {
-            // Se não houver modal nenhum no site, abre o vídeo direto no YouTube em nova aba ou alerta
-            window.open("https://www.youtube.com/watch?v=" + video.id, "_blank");
+            document.body.appendChild(overlay);
+
+            document.getElementById("classix-close-btn").addEventListener("click", () => {
+                overlay.style.display = "none";
+                document.getElementById("classix-iframe").src = "";
+            });
         }
+
+        document.getElementById("classix-iframe").src = "https://www.youtube.com/embed/" + video.id + "?autoplay=1";
+        overlay.style.display = "flex";
     }
 
     // ==========================================
