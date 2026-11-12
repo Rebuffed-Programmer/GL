@@ -5220,5 +5220,468 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </script>
 
+<script>
+(() => {
+    "use strict";
+
+    // ==========================================
+    // PLUS+ | CLASSIX - FILMES CLÁSSICOS
+    // YouTube Data API v3
+    // ==========================================
+
+    const API_KEY = "AIzaSyBV8Ps8L0grv5yT-tDOFO41dC7kLDpVm_Y";
+
+    // Playlist de todos os vídeos enviados pelo canal Classix.
+    const CLASSIX_PLAYLIST_ID = "UUiFwZdu_-hLv1Psy2MGVWYQ";
+
+    const API_URL =
+        "https://www.googleapis.com/youtube/v3/playlistItems";
+
+    const state = {
+        nextPageToken: null,
+        loading: false,
+        initialized: false
+    };
+
+    let grid;
+    let status;
+    let loadMoreButton;
+
+    // ==========================================
+    // ESTILIZAÇÃO
+    // ==========================================
+
+    const style = document.createElement("style");
+
+    style.textContent = `
+        #classix-section {
+            display: block;
+            width: 100%;
+            margin: 30px 0;
+            padding: 0 12px;
+        }
+
+        #classix-section .classix-heading {
+            font-size: 21px;
+            font-weight: 800;
+            margin: 0 0 8px;
+            color: #fff;
+        }
+
+        #classix-section .classix-subtitle {
+            color: rgba(255,255,255,.65);
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+
+        #classix-section .classix-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fill, minmax(135px, 1fr));
+            gap: 15px;
+            padding: 0;
+            list-style: none;
+        }
+
+        #classix-section .classix-card {
+            cursor: pointer;
+            min-width: 0;
+            position: relative;
+            transition: transform .2s ease;
+        }
+
+        #classix-section .classix-card:hover {
+            transform: scale(1.035);
+        }
+
+        #classix-section .classix-card img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 2 / 3;
+            object-fit: cover;
+            border-radius: 9px;
+            background: #222;
+        }
+
+        #classix-section .classix-card-title {
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.35;
+            margin-top: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        #classix-section .classix-card-date {
+            color: rgba(255,255,255,.55);
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        #classix-status {
+            color: rgba(255,255,255,.7);
+            font-size: 13px;
+            padding: 15px 0;
+        }
+
+        #classix-load-more {
+            display: block;
+            margin: 25px auto;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            background: #fff;
+            color: #111;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        #classix-load-more:disabled {
+            opacity: .5;
+            cursor: wait;
+        }
+
+        @media (max-width: 480px) {
+            #classix-section .classix-grid {
+                grid-template-columns:
+                    repeat(3, minmax(0, 1fr));
+                gap: 10px;
+            }
+
+            #classix-section .classix-heading {
+                font-size: 19px;
+            }
+        }
+    `;
+
+    document.head.appendChild(style);
+
+    // ==========================================
+    // CRIA A SEÇÃO NO CATÁLOGO
+    // ==========================================
+
+    function createSection() {
+        if (document.getElementById("classix-section")) {
+            return;
+        }
+
+        const main = document.querySelector("main");
+
+        if (!main) {
+            console.error("Plus+: elemento main não encontrado.");
+            return;
+        }
+
+        const section = document.createElement("section");
+
+        section.id = "classix-section";
+
+        section.innerHTML = `
+            <h2 class="classix-heading">
+                
+            </h2>
+
+            <p class="classix-subtitle">
+                
+            </p>
+
+            <ul class="classix-grid" id="classix-grid"></ul>
+
+            <div id="classix-status">
+                Carregando filmes clássicos...
+            </div>
+
+            <button id="classix-load-more" type="button" hidden>
+                Carregar mais filmes
+            </button>
+        `;
+
+        const existingSection =
+            document.getElementById("all-movies-master");
+
+        if (existingSection) {
+            existingSection.insertAdjacentElement(
+                "afterend",
+                section
+            );
+        } else {
+            main.appendChild(section);
+        }
+
+        grid = document.getElementById("classix-grid");
+        status = document.getElementById("classix-status");
+        loadMoreButton =
+            document.getElementById("classix-load-more");
+
+        loadMoreButton.addEventListener("click", loadVideos);
+    }
+
+    // ==========================================
+    // ABRE O MODAL EXISTENTE DO PLUS+
+    // ==========================================
+
+    function openClassixModal(video) {
+        const modal = document.getElementById("movie-modal");
+        const info = document.getElementById("modal-info-container");
+        const videoContainer =
+            document.getElementById("modal-video-container");
+
+        if (!modal || !info || !videoContainer) {
+            console.error("Estrutura do modal Plus+ não encontrada.");
+            return;
+        }
+
+        const poster = document.getElementById("modal-poster");
+        const title = document.getElementById("modal-title");
+        const year = document.getElementById("modal-year");
+        const genres = document.getElementById("modal-genres");
+        const description =
+            document.getElementById("modal-description");
+
+        const watchButton =
+            document.getElementById("modal-watch-btn");
+
+        if (poster) {
+            poster.src = video.poster;
+            poster.alt = video.title;
+        }
+
+        if (title) title.textContent = video.title;
+
+        if (year) {
+            year.textContent = video.publishedAt
+                ? "Publicado no canal em " +
+                  new Date(video.publishedAt).toLocaleDateString("pt-BR")
+                : "Filme clássico";
+        }
+
+        if (genres) {
+            genres.textContent = "Classix • Filmes clássicos";
+        }
+
+        if (description) {
+            description.textContent =
+                video.description || "Disponível no canal Classix.";
+        }
+
+        // Esconde recomendações de outros catálogos.
+        const recommended =
+            info.querySelector(".recommended-section");
+
+        if (recommended) {
+            recommended.style.display = "none";
+        }
+
+        // Prepara o modal para mostrar as informações.
+        info.style.display = "block";
+        videoContainer.style.display = "none";
+        videoContainer.innerHTML = "";
+
+        modal.classList.remove("fullscreen-video");
+
+        if (watchButton) {
+            watchButton.textContent = "▶ ASSISTIR";
+
+            watchButton.onclick = function(event) {
+                event.preventDefault();
+
+                if (typeof window.switchToVideo === "function") {
+                    window.switchToVideo(video.videoId);
+                } else {
+                    alert("O player do Plus+ não foi encontrado.");
+                }
+            };
+        }
+
+        modal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+    }
+
+    // ==========================================
+    // CRIA OS CARDS
+    // ==========================================
+
+    function createVideoCard(item) {
+        const snippet = item.snippet || {};
+
+        const videoId =
+            snippet.resourceId &&
+            snippet.resourceId.videoId;
+
+        if (!videoId) return;
+
+        const title =
+            snippet.title || "Filme clássico";
+
+        const thumbnails = snippet.thumbnails || {};
+
+        const poster =
+            (thumbnails.maxres && thumbnails.maxres.url) ||
+            (thumbnails.high && thumbnails.high.url) ||
+            (thumbnails.medium && thumbnails.medium.url) ||
+            "https://i.ytimg.com/vi/" +
+            videoId +
+            "/hqdefault.jpg";
+
+        const card = document.createElement("li");
+
+        card.className = "classix-card";
+
+        const image = document.createElement("img");
+        image.src = poster;
+        image.alt = title;
+        image.loading = "lazy";
+
+        const cardTitle = document.createElement("div");
+        cardTitle.className = "classix-card-title";
+        cardTitle.textContent = title;
+
+        const date = document.createElement("div");
+        date.className = "classix-card-date";
+
+        if (snippet.publishedAt) {
+            date.textContent = new Date(
+                snippet.publishedAt
+            ).toLocaleDateString("pt-BR");
+        }
+
+        card.appendChild(image);
+        card.appendChild(cardTitle);
+        card.appendChild(date);
+
+        card.addEventListener("click", () => {
+            openClassixModal({
+                videoId,
+                title,
+                poster,
+                description: snippet.description || "",
+                publishedAt: snippet.publishedAt
+            });
+        });
+
+        grid.appendChild(card);
+    }
+
+    // ==========================================
+    // BUSCA OS VÍDEOS NA YOUTUBE DATA API
+    // ==========================================
+
+    async function loadVideos() {
+        if (state.loading) return;
+
+        if (
+            !API_KEY ||
+            API_KEY === "COLE_SUA_NOVA_CHAVE_AQUI"
+        ) {
+            status.textContent =
+                "Configure sua chave da YouTube Data API no código.";
+            return;
+        }
+
+        state.loading = true;
+
+        loadMoreButton.disabled = true;
+        loadMoreButton.textContent = "Carregando...";
+
+        status.textContent = "Buscando filmes clássicos...";
+
+        try {
+            const params = new URLSearchParams({
+                part: "snippet",
+                playlistId: CLASSIX_PLAYLIST_ID,
+                maxResults: "50",
+                key: API_KEY
+            });
+
+            if (state.nextPageToken) {
+                params.set("pageToken", state.nextPageToken);
+            }
+
+            const response = await fetch(
+                API_URL + "?" + params.toString()
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || data.error) {
+                throw new Error(
+                    data.error?.message ||
+                    "Não foi possível carregar os vídeos."
+                );
+            }
+
+            const videos = data.items || [];
+
+            if (videos.length === 0 && !state.initialized) {
+                status.textContent =
+                    "Nenhum vídeo encontrado nessa playlist.";
+                return;
+            }
+
+            videos.forEach(createVideoCard);
+
+            state.nextPageToken =
+                data.nextPageToken || null;
+
+            state.initialized = true;
+
+            status.textContent =
+                "Filmes clássicos carregados: " +
+                grid.children.length;
+
+            if (state.nextPageToken) {
+                loadMoreButton.hidden = false;
+                loadMoreButton.textContent =
+                    "Carregar mais filmes";
+            } else {
+                loadMoreButton.hidden = true;
+
+                status.textContent +=
+                    " • Você chegou ao final do catálogo.";
+            }
+
+        } catch (error) {
+            console.error("Classix API:", error);
+
+            status.textContent =
+                "Erro ao carregar o Classix: " +
+                error.message;
+
+            loadMoreButton.hidden = false;
+            loadMoreButton.textContent = "Tentar novamente";
+
+        } finally {
+            state.loading = false;
+            loadMoreButton.disabled = false;
+        }
+    }
+
+    // ==========================================
+    // INICIALIZAÇÃO
+    // ==========================================
+
+    function initializeClassix() {
+        createSection();
+
+        if (!grid) return;
+
+        loadVideos();
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener(
+            "DOMContentLoaded",
+            initializeClassix
+        );
+    } else {
+        initializeClassix();
+    }
+
+})();
+</script>
+
 </body>
 </html>
