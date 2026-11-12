@@ -5069,14 +5069,10 @@ document.addEventListener("DOMContentLoaded", () => {
 <script>
 (function () {
     // ==========================================
-    // PLUS+ | PLAYER MULTIFONTE
-    // GOOGLE DRIVE + YOUTUBE
+    // PLUS+ | PLAYER MULTIFONTE (CORRIGIDO)
     // ==========================================
 
     const CHANNEL_ID = "UCiFwZdu_-hLv1Psy2MGVWYQ";
-
-    // Playlist automática de vídeos enviados pelo canal.
-    // O prefixo UU corresponde à playlist de uploads.
     const CLASSIX_UPLOADS = "UUiFwZdu_-hLv1Psy2MGVWYQ";
 
     function getYouTubeInfo(url) {
@@ -5085,7 +5081,6 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const value = String(url).trim();
 
-            // Aceita também um ID de vídeo puro.
             if (/^[a-zA-Z0-9_-]{11}$/.test(value)) {
                 return { type: "video", id: value };
             }
@@ -5125,19 +5120,18 @@ document.addEventListener("DOMContentLoaded", () => {
         return null;
     }
 
-    // Guarda o player original do Drive.
+    // Guarda a função original se existir
     const originalSwitchToVideo = window.switchToVideo;
 
-    // Substitui a função por uma versão que reconhece as duas fontes.
+    // Função unificada para abrir qualquer vídeo (Drive ou YouTube)
     window.switchToVideo = function (videoUrl) {
         const youtube = getYouTubeInfo(videoUrl);
 
-        // Se não for YouTube, mantém o player original do Drive.
+        // Se não for YouTube, tenta rodar o player original do Drive
         if (!youtube) {
             if (typeof originalSwitchToVideo === "function") {
                 return originalSwitchToVideo(videoUrl);
             }
-
             console.error("Player original do Google Drive não encontrado.");
             return;
         }
@@ -5146,12 +5140,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const info = document.getElementById("modal-info-container");
         const videoContainer = document.getElementById("modal-video-container");
 
-        if (!modal || !info || !videoContainer) {
+        if (!modal || !videoContainer) {
             console.error("Estrutura do player Plus+ não encontrada.");
             return;
         }
 
-        info.style.display = "none";
+        // Esconde informações se o container de info existir
+        if (info) info.style.display = "none";
         videoContainer.style.display = "block";
         modal.classList.add("fullscreen-video");
         videoContainer.innerHTML = "";
@@ -5160,12 +5155,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const backButton = document.createElement("button");
         backButton.className = "back-to-info-btn";
         backButton.textContent = "← Voltar ao Catálogo";
+        backButton.style.cssText = "position:absolute; top:20px; left:20px; z-index:99; padding:8px 16px; background:#fff; color:#000; font-weight:bold; border:0; border-radius:4px; cursor:pointer;";
 
         backButton.onclick = function () {
             videoContainer.innerHTML = "";
             videoContainer.style.display = "none";
-            info.style.display = "block";
+            if (info) info.style.display = "block";
             modal.classList.remove("fullscreen-video");
+            modal.style.display = "none";
+            document.body.style.overflow = "auto";
 
             try {
                 if (document.fullscreenElement) {
@@ -5193,9 +5191,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "?autoplay=1&rel=0&playsinline=1";
         }
 
-        iframe.allow =
-            "autoplay; encrypted-media; picture-in-picture; web-share";
-
+        iframe.allow = "autoplay; encrypted-media; picture-in-picture; web-share";
         iframe.allowFullscreen = true;
         iframe.referrerPolicy = "strict-origin-when-cross-origin";
 
@@ -5214,12 +5210,10 @@ document.addEventListener("DOMContentLoaded", () => {
         videoContainer.appendChild(wrapper);
 
         modal.style.display = "flex";
+        document.body.style.overflow = "hidden";
     };
-
-
-
+})();
 </script>
-
 
 <script>
 (() => {
