@@ -5230,7 +5230,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================================
 
     const API_KEY = "AIzaSyBV8Ps8L0grv5yT-tDOFO41dC7kLDpVm_Y";
-    const CHANNEL_HANDLE = "classixapp"; // Sem o @, exigido pela API do YouTube para busca por handle
+    const CHANNEL_HANDLE = "classixapp";
 
     const API = "https://www.googleapis.com/youtube/v3";
 
@@ -5242,7 +5242,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let grid, status, moreButton;
 
     // ==========================================
-    // VISUAL
+    // VISUAL (GRADE HORIZONTAL 16:9)
     // ==========================================
 
     const css = document.createElement("style");
@@ -5252,6 +5252,7 @@ document.addEventListener("DOMContentLoaded", () => {
             width: 100%;
             padding: 0 12px;
             margin: 28px 0;
+            box-sizing: border-box;
         }
 
         #classix-section .classix-heading {
@@ -5291,7 +5292,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         .classix-title {
             color: #fff;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
             line-height: 1.35;
             margin-top: 6px;
@@ -5338,7 +5339,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.head.appendChild(css);
 
     // ==========================================
-    // CRIA A SEÇÃO
+    // CRIA A SEÇÃO NA PÁGINA
     // ==========================================
 
     function createSection() {
@@ -5348,30 +5349,19 @@ document.addEventListener("DOMContentLoaded", () => {
         section.id = "classix-section";
 
         section.innerHTML = `
-            <h2 class="classix-heading">
-                🎞️ Filmes Clássicos
-            </h2>
-
+            <h2 class="classix-heading">🎞️ Filmes Clássicos</h2>
             <ul id="classix-grid"></ul>
-
-            <div id="classix-status">
-                Carregando conteúdos...
-            </div>
-
-            <button id="classix-load-more" hidden>
-                Carregar mais
-            </button>
+            <div id="classix-status">Carregando conteúdos...</div>
+            <button id="classix-load-more" hidden>Carregar mais</button>
         `;
 
         const existing = document.getElementById("all-movies-master");
-        const main = document.querySelector("main");
+        const main = document.querySelector("main") || document.body;
 
         if (existing) {
             existing.insertAdjacentElement("afterend", section);
-        } else if (main) {
-            main.appendChild(section);
         } else {
-            return;
+            main.appendChild(section);
         }
 
         grid = document.getElementById("classix-grid");
@@ -5382,34 +5372,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================================
-    // REPRODUÇÃO NO PLAYER EXISTENTE
+    // ABRE O MODAL DO PLAYER EXISTENTE
     // ==========================================
 
     function openVideo(video) {
         const modal = document.getElementById("movie-modal");
         const info = document.getElementById("modal-info-container");
-        const videoContainer =
-            document.getElementById("modal-video-container");
+        const videoContainer = document.getElementById("modal-video-container");
 
-        if (!modal || !info || !videoContainer) return;
+        if (!modal || !info || !videoContainer) {
+            // Caso o modal não exista na página, abre direto no player se disponível
+            if (typeof window.switchToVideo === "function") {
+                window.switchToVideo("https://www.youtube.com/watch?v=" + video.id);
+            }
+            return;
+        }
 
         const poster = document.getElementById("modal-poster");
         const title = document.getElementById("modal-title");
         const year = document.getElementById("modal-year");
         const genres = document.getElementById("modal-genres");
-        const description =
-            document.getElementById("modal-description");
+        const description = document.getElementById("modal-description");
 
         if (poster) poster.src = video.poster;
         if (title) title.textContent = video.title;
-
         if (year) year.textContent = "Classix • Filmes clássicos";
         if (genres) genres.textContent = "";
         if (description) description.textContent = "";
 
-        const recommended =
-            info.querySelector(".recommended-section");
-
+        const recommended = info.querySelector(".recommended-section");
         if (recommended) recommended.style.display = "none";
 
         info.style.display = "block";
@@ -5422,14 +5413,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (watch) {
             watch.textContent = "▶ ASSISTIR";
-
-            watch.onclick = function(e) {
+            watch.onclick = function (e) {
                 e.preventDefault();
-
                 if (typeof window.switchToVideo === "function") {
-                    window.switchToVideo(
-                        "https://www.youtube.com/watch?v=" + video.id
-                    );
+                    window.switchToVideo("https://www.youtube.com/watch?v=" + video.id);
                 } else {
                     alert("Player do Plus+ não encontrado.");
                 }
@@ -5441,12 +5428,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================================
-    // CARDS HORIZONTAIS
+    // CRIA CADA CARD NA GRADE
     // ==========================================
 
     function addCard(video) {
         if (!video.id || loadedIds.has(video.id)) return;
-
         loadedIds.add(video.id);
 
         const card = document.createElement("li");
@@ -5454,9 +5440,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const image = document.createElement("img");
         image.className = "classix-thumb";
-        image.src =
-            video.thumbnail ||
-            "https://i.ytimg.com/vi/" + video.id + "/hqdefault.jpg";
+        image.src = video.thumbnail;
         image.alt = video.title;
         image.loading = "lazy";
 
@@ -5477,10 +5461,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================================
 
     function durationInSeconds(duration) {
-        const match = duration.match(
-            /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/
-        );
-
+        const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
         if (!match) return 0;
 
         return (
@@ -5491,42 +5472,34 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================================
-    // DESCOBRE A PLAYLIST DE UPLOADS USANDO O HANDLE
+    // BUSCA A PLAYLIST DE UPLOADS DO CANAL
     // ==========================================
 
     async function findUploadsPlaylist() {
         const params = new URLSearchParams({
-            part: "snippet,contentDetails",
+            part: "contentDetails",
             forHandle: CHANNEL_HANDLE,
             key: API_KEY
         });
 
-        const response = await fetch(
-            API + "/channels?" + params
-        );
-
+        const response = await fetch(API + "/channels?" + params);
         const data = await response.json();
 
         if (!response.ok || !data.items?.length) {
-            throw new Error(
-                data.error?.message || "Canal Classix não encontrado pelo handle."
-            );
+            throw new Error(data.error?.message || "Canal @classixapp não encontrado.");
         }
 
         return data.items[0].contentDetails.relatedPlaylists.uploads;
     }
 
     // ==========================================
-    // CARREGA VÍDEOS E FILTRA OS MENORES DE 10 MIN
+    // CARREGA E FILTRA OS VÍDEOS (>= 10 MIN)
     // ==========================================
 
     async function loadVideos() {
         if (loading) return;
 
-        if (
-            !API_KEY ||
-            API_KEY === "AIzaSyBV8Ps8L0grv5yT-tDOFO41dC7kLDpVm_Y"
-        ) {
+        if (!API_KEY) {
             status.textContent = "Configure sua chave da API.";
             return;
         }
@@ -5534,8 +5507,7 @@ document.addEventListener("DOMContentLoaded", () => {
         loading = true;
         moreButton.disabled = true;
         moreButton.textContent = "Carregando...";
-
-        status.textContent = "Buscando filmes com 10 minutos ou mais...";
+        status.textContent = "Buscando filmes...";
 
         try {
             if (!uploadsPlaylist) {
@@ -5553,20 +5525,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 params.set("pageToken", nextPageToken);
             }
 
-            const response = await fetch(
-                API + "/playlistItems?" + params
-            );
-
+            const response = await fetch(API + "/playlistItems?" + params);
             const playlistData = await response.json();
 
             if (!response.ok) {
-                throw new Error(
-                    playlistData.error?.message || "Erro na playlist."
-                );
+                throw new Error(playlistData.error?.message || "Erro na playlist.");
             }
 
             const items = playlistData.items || [];
-
             nextPageToken = playlistData.nextPageToken || "";
 
             const ids = items
@@ -5579,54 +5545,50 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // IMPORTANTE: Adicionado 'status' na requisição para o filtro funcionar
+            // Pede snippet, duração (contentDetails) e privacidade (status)
             const videoParams = new URLSearchParams({
                 part: "snippet,contentDetails,status",
                 id: ids.join(","),
                 key: API_KEY
             });
 
-            const videoResponse = await fetch(
-                API + "/videos?" + videoParams
-            );
-
+            const videoResponse = await fetch(API + "/videos?" + videoParams);
             const videoData = await videoResponse.json();
 
             if (!videoResponse.ok) {
-                throw new Error(
-                    videoData.error?.message || "Erro ao buscar durações."
-                );
+                throw new Error(videoData.error?.message || "Erro ao buscar detalhes dos vídeos.");
             }
 
             const videos = videoData.items || [];
 
-            let added = 0;
-
             videos.forEach(video => {
-                const seconds = durationInSeconds(
-                    video.contentDetails?.duration || ""
-                );
+                const seconds = durationInSeconds(video.contentDetails?.duration || "");
 
-                // Remove vídeos com menos de 10 minutos (600 segundos).
+                // Ignora Shorts e vídeos com menos de 10 minutos (600 segundos)
                 if (seconds < 600) return;
 
-                // Remove vídeos que não estão públicos.
+                // Ignora vídeos privados ou não listados
                 if (video.status?.privacyStatus !== "public") return;
 
                 const thumbnails = video.snippet.thumbnails || {};
 
+                // Capa horizontal para o card e capa maior para o modal
                 const thumbnail =
                     thumbnails.medium?.url ||
                     thumbnails.high?.url ||
-                    thumbnails.default?.url;
+                    "https://i.ytimg.com/vi/" + video.id + "/mqdefault.jpg";
+
+                const poster =
+                    thumbnails.maxres?.url ||
+                    thumbnails.high?.url ||
+                    thumbnail;
 
                 addCard({
                     id: video.id,
                     title: video.snippet.title || "Filme clássico",
-                    thumbnail
+                    thumbnail,
+                    poster
                 });
-
-                added++;
             });
 
             if (nextPageToken) {
@@ -5637,22 +5599,16 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (grid.children.length === 0 && !nextPageToken) {
-                status.textContent =
-                    "Nenhum vídeo com 10 minutos ou mais foi encontrado.";
+                status.textContent = "Nenhum vídeo com 10 minutos ou mais foi encontrado.";
             } else {
-                status.textContent =
-                    grid.children.length + " conteúdos disponíveis";
+                status.textContent = ""; // Limpa o texto de carregamento quando os filmes aparecem
             }
 
         } catch (error) {
             console.error("PLUS+ CLASSIX:", error);
-
-            status.textContent =
-                "Não foi possível carregar: " + error.message;
-
+            status.textContent = "Erro ao carregar: " + error.message;
             moreButton.hidden = false;
             moreButton.textContent = "Tentar novamente";
-
         } finally {
             loading = false;
             moreButton.disabled = false;
@@ -5665,7 +5621,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function init() {
         createSection();
-
         if (grid) loadVideos();
     }
 
