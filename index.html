@@ -5069,7 +5069,7 @@ document.addEventListener("DOMContentLoaded", () => {
 <script>
 (function () {
     // ==========================================
-    // PLUS+ | PLAYER MULTIFONTE (CORRIGIDO)
+    // PLUS+ | PLAYER MULTIFONTE COM BLOQUEIO DE CLIQUE
     // ==========================================
 
     const CHANNEL_ID = "UCiFwZdu_-hLv1Psy2MGVWYQ";
@@ -5120,14 +5120,11 @@ document.addEventListener("DOMContentLoaded", () => {
         return null;
     }
 
-    // Guarda a função original se existir
     const originalSwitchToVideo = window.switchToVideo;
 
-    // Função unificada para abrir qualquer vídeo (Drive ou YouTube)
     window.switchToVideo = function (videoUrl) {
         const youtube = getYouTubeInfo(videoUrl);
 
-        // Se não for YouTube, tenta rodar o player original do Drive
         if (!youtube) {
             if (typeof originalSwitchToVideo === "function") {
                 return originalSwitchToVideo(videoUrl);
@@ -5145,17 +5142,18 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Esconde informações se o container de info existir
         if (info) info.style.display = "none";
         videoContainer.style.display = "block";
         modal.classList.add("fullscreen-video");
         videoContainer.innerHTML = "";
 
-        // Botão para voltar ao catálogo.
+        // ==========================================
+        // 1. BOTÃO DE VOLTAR AO CATÁLOGO (Fica livre para clique)
+        // ==========================================
         const backButton = document.createElement("button");
         backButton.className = "back-to-info-btn";
         backButton.textContent = "← Voltar ao Catálogo";
-        backButton.style.cssText = "position:absolute; top:20px; left:20px; z-index:99; padding:8px 16px; background:#fff; color:#000; font-weight:bold; border:0; border-radius:4px; cursor:pointer;";
+        backButton.style.cssText = "position:absolute; top:20px; left:20px; z-index:99999; padding:8px 16px; background:#fff; color:#000; font-weight:bold; border:0; border-radius:4px; cursor:pointer;";
 
         backButton.onclick = function () {
             videoContainer.innerHTML = "";
@@ -5177,36 +5175,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
         videoContainer.appendChild(backButton);
 
+        // ==========================================
+        // 2. CONTAINER DO VÍDEO COM BLOQUEIO DE CLIQUE
+        // ==========================================
+        const wrapper = document.createElement("div");
+        wrapper.style.position = "relative";
+        wrapper.style.width = "100%";
+        wrapper.style.height = "100%";
+
         const iframe = document.createElement("iframe");
+        
+        // Parâmetros para limpar ao máximo o player do YouTube
+        const ytSrc = youtube.type === "playlist"
+            ? "https://www.youtube.com/embed/videoseries?list=" + encodeURIComponent(youtube.id)
+            : "https://www.youtube.com/embed/" + encodeURIComponent(youtube.id);
 
-        if (youtube.type === "playlist") {
-            iframe.src =
-                "https://www.youtube.com/embed/videoseries?list=" +
-                encodeURIComponent(youtube.id) +
-                "&autoplay=1&rel=0&playsinline=1";
-        } else {
-            iframe.src =
-                "https://www.youtube.com/embed/" +
-                encodeURIComponent(youtube.id) +
-                "?autoplay=1&rel=0&playsinline=1";
-        }
-
+        iframe.src = ytSrc + "?autoplay=1&rel=0&modestbranding=1&controls=0&disablekb=1&iv_load_policy=3&playsinline=1";
+        
         iframe.allow = "autoplay; encrypted-media; picture-in-picture; web-share";
         iframe.allowFullscreen = true;
         iframe.referrerPolicy = "strict-origin-when-cross-origin";
-
         iframe.style.width = "100%";
         iframe.style.height = "100%";
         iframe.style.position = "absolute";
         iframe.style.inset = "0";
         iframe.style.border = "0";
 
-        const wrapper = document.createElement("div");
-        wrapper.style.position = "relative";
-        wrapper.style.width = "100%";
-        wrapper.style.height = "100%";
+        // ==========================================
+        // 3. CAMADA INVISÍVEL DE BLOQUEIO (Bloqueia cliques no vídeo)
+        // ==========================================
+        const blocker = document.createElement("div");
+        blocker.style.position = "absolute";
+        blocker.style.inset = "0";
+        blocker.style.zIndex = "999"; // Fica por cima do vídeo, mas abaixo do botão voltar
+        blocker.style.background = "transparent";
 
         wrapper.appendChild(iframe);
+        wrapper.appendChild(blocker); // A capa protetora fica aqui
         videoContainer.appendChild(wrapper);
 
         modal.style.display = "flex";
