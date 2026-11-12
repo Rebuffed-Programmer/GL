@@ -5372,59 +5372,46 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================================
-    // ABRE O MODAL DO PLAYER EXISTENTE
+    // REPRODUÇÃO DIRETA DO VÍDEO
     // ==========================================
 
     function openVideo(video) {
+        // Tenta usar a função global de player se ela existir e estiver funcional
+        if (typeof window.switchToVideo === "function") {
+            try {
+                window.switchToVideo("https://www.youtube.com/watch?v=" + video.id);
+                return;
+            } catch (e) {
+                console.warn("switchToVideo falhou, abrindo via fallback nativo:", e);
+            }
+        }
+
+        // Fallback robusto caso o modal do site falhe: Procura o modal manualmente ou cria um player na tela
         const modal = document.getElementById("movie-modal");
-        const info = document.getElementById("modal-info-container");
         const videoContainer = document.getElementById("modal-video-container");
 
-        if (!modal || !info || !videoContainer) {
-            // Caso o modal não exista na página, abre direto no player se disponível
-            if (typeof window.switchToVideo === "function") {
-                window.switchToVideo("https://www.youtube.com/watch?v=" + video.id);
-            }
-            return;
+        if (modal && videoContainer) {
+            const info = document.getElementById("modal-info-container");
+            if (info) info.style.display = "none";
+            videoContainer.style.display = "block";
+            modal.classList.add("fullscreen-video");
+            modal.style.display = "flex";
+            document.body.style.overflow = "hidden";
+
+            videoContainer.innerHTML = `
+                <button class="back-to-info-btn" style="position:absolute; top:20px; left:20px; z-index:99; padding:8px 16px; background:#fff; color:#000; border:0; border-radius:4px; cursor:pointer;" onclick="
+                    document.getElementById('modal-video-container').style.display='none';
+                    document.getElementById('modal-video-container').innerHTML='';
+                    if(document.getElementById('modal-info-container')) document.getElementById('modal-info-container').style.display='block';
+                    document.getElementById('movie-modal').style.display='none';
+                    document.body.style.overflow='auto';
+                ">← Voltar</button>
+                <iframe src="https://www.youtube.com/embed/${video.id}?autoplay=1&rel=0&playsinline=1" style="width:100%; height:100%; position:absolute; inset:0; border:0;" allow="autoplay; encrypted-media; picture-in-picture; web-share" allowfullscreen></iframe>
+            `;
+        } else {
+            // Se não houver modal nenhum no site, abre o vídeo direto no YouTube em nova aba ou alerta
+            window.open("https://www.youtube.com/watch?v=" + video.id, "_blank");
         }
-
-        const poster = document.getElementById("modal-poster");
-        const title = document.getElementById("modal-title");
-        const year = document.getElementById("modal-year");
-        const genres = document.getElementById("modal-genres");
-        const description = document.getElementById("modal-description");
-
-        if (poster) poster.src = video.poster;
-        if (title) title.textContent = video.title;
-        if (year) year.textContent = "Classix • Filmes clássicos";
-        if (genres) genres.textContent = "";
-        if (description) description.textContent = "";
-
-        const recommended = info.querySelector(".recommended-section");
-        if (recommended) recommended.style.display = "none";
-
-        info.style.display = "block";
-        videoContainer.style.display = "none";
-        videoContainer.innerHTML = "";
-
-        modal.classList.remove("fullscreen-video");
-
-        const watch = document.getElementById("modal-watch-btn");
-
-        if (watch) {
-            watch.textContent = "▶ ASSISTIR";
-            watch.onclick = function (e) {
-                e.preventDefault();
-                if (typeof window.switchToVideo === "function") {
-                    window.switchToVideo("https://www.youtube.com/watch?v=" + video.id);
-                } else {
-                    alert("Player do Plus+ não encontrado.");
-                }
-            };
-        }
-
-        modal.style.display = "flex";
-        document.body.style.overflow = "hidden";
     }
 
     // ==========================================
@@ -5545,7 +5532,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // Pede snippet, duração (contentDetails) e privacidade (status)
             const videoParams = new URLSearchParams({
                 part: "snippet,contentDetails,status",
                 id: ids.join(","),
@@ -5564,30 +5550,22 @@ document.addEventListener("DOMContentLoaded", () => {
             videos.forEach(video => {
                 const seconds = durationInSeconds(video.contentDetails?.duration || "");
 
-                // Ignora Shorts e vídeos com menos de 10 minutos (600 segundos)
+                // Ignora Shorts e vídeos com menos de 10 minutos
                 if (seconds < 600) return;
 
                 // Ignora vídeos privados ou não listados
                 if (video.status?.privacyStatus !== "public") return;
 
                 const thumbnails = video.snippet.thumbnails || {};
-
-                // Capa horizontal para o card e capa maior para o modal
                 const thumbnail =
                     thumbnails.medium?.url ||
                     thumbnails.high?.url ||
                     "https://i.ytimg.com/vi/" + video.id + "/mqdefault.jpg";
 
-                const poster =
-                    thumbnails.maxres?.url ||
-                    thumbnails.high?.url ||
-                    thumbnail;
-
                 addCard({
                     id: video.id,
                     title: video.snippet.title || "Filme clássico",
-                    thumbnail,
-                    poster
+                    thumbnail
                 });
             });
 
@@ -5601,7 +5579,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (grid.children.length === 0 && !nextPageToken) {
                 status.textContent = "Nenhum vídeo com 10 minutos ou mais foi encontrado.";
             } else {
-                status.textContent = ""; // Limpa o texto de carregamento quando os filmes aparecem
+                status.textContent = "";
             }
 
         } catch (error) {
