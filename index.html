@@ -5230,7 +5230,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================================
 
     const API_KEY = "AIzaSyBV8Ps8L0grv5yT-tDOFO41dC7kLDpVm_Y";
-    const CHANNEL_ID = "UCiFwZdu_-hLv1Psy2MGVWYQ"; // Usado para buscar diretamente
+    const CHANNEL_HANDLE = "classixapp"; // Sem o @, exigido pela API do YouTube para busca por handle
 
     const API = "https://www.googleapis.com/youtube/v3";
 
@@ -5491,13 +5491,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================================
-    // DESCOBRE A PLAYLIST DE UPLOADS DO CANAL
+    // DESCOBRE A PLAYLIST DE UPLOADS USANDO O HANDLE
     // ==========================================
 
     async function findUploadsPlaylist() {
         const params = new URLSearchParams({
-            part: "contentDetails",
-            id: CHANNEL_ID, // Correção: busca direta pelo ID do canal
+            part: "snippet,contentDetails",
+            forHandle: CHANNEL_HANDLE,
             key: API_KEY
         });
 
@@ -5509,7 +5509,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!response.ok || !data.items?.length) {
             throw new Error(
-                data.error?.message || "Canal Classix não encontrado."
+                data.error?.message || "Canal Classix não encontrado pelo handle."
             );
         }
 
@@ -5579,7 +5579,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // Busca duração e informações dos vídeos (adicionado 'status' no part)
+            // IMPORTANTE: Adicionado 'status' na requisição para o filtro funcionar
             const videoParams = new URLSearchParams({
                 part: "snippet,contentDetails,status",
                 id: ids.join(","),
@@ -5607,10 +5607,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     video.contentDetails?.duration || ""
                 );
 
-                // Remove vídeos com menos de 10 minutos.
+                // Remove vídeos com menos de 10 minutos (600 segundos).
                 if (seconds < 600) return;
 
-                // Remove vídeos que não estão disponíveis publicamente.
+                // Remove vídeos que não estão públicos.
                 if (video.status?.privacyStatus !== "public") return;
 
                 const thumbnails = video.snippet.thumbnails || {};
@@ -5631,7 +5631,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (nextPageToken) {
                 moreButton.hidden = false;
-                moreButton.textContent = "Carregando mais";
+                moreButton.textContent = "Carregar mais";
             } else {
                 moreButton.hidden = true;
             }
@@ -5677,6 +5677,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
 })();
 </script>
-    
 </body>
 </html>
