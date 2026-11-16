@@ -2721,5 +2721,226 @@ window.onload = () => {
 
 })();
 </script>
+    <script>
+(function() {
+    const EXPIRACAO_MS = 3 * 24 * 60 * 60 * 1000; // 3 dias (ajuste se quiser)
+
+    // 1. Injeta a seção "Continuar Assistindo" logo abaixo do banner principal
+    function injetarSecao() {
+        if (document.getElementById('continue-watching-section')) return;
+        const main = document.getElementById('mainContent') || document.body;
+        const sec = document.createElement('section');
+        sec.className = 'movie-section';
+        sec.id = 'continue-watching-section';
+        sec.style.display = 'none';
+        sec.innerHTML = `
+            <div class="section-header">
+                <h2 class="section-title">Continuar Assistindo</h2>
+            </div>
+            <ul class="movie-grid" id="continue-watching-grid"></ul>
+        `;
+        main.prepend(sec);
+    }
+
+    // 2. Salva o filme clicado com o horário atual
+    function salvarHistorico(movieId) {
+        if (!movieId) return;
+        const hist = JSON.parse(localStorage.getItem('plus_continuar') || '{}');
+        hist[movieId] = Date.now();
+        localStorage.setItem('plus_continuar', JSON.stringify(hist));
+        atualizarContinuar();
+    }
+
+    // 3. Renderiza e limpa os expirados pelo timer
+    function atualizarContinuar() {
+        const sec = document.getElementById('continue-watching-section');
+        const grid = document.getElementById('continue-watching-grid');
+        if (!sec || !grid || typeof movieData === 'undefined') return;
+
+        const hist = JSON.parse(localStorage.getItem('plus_continuar') || '{}');
+        const agora = Date.now();
+        const validos = [];
+
+        Object.keys(hist).forEach(id => {
+            if (agora - hist[id] > EXPIRACAO_MS) {
+                delete hist[id]; // Passou do tempo, remove
+            } else {
+                const filme = movieData.find(m => String(m.id) === String(id));
+                if (filme) validos.push({ filme, time: hist[id] });
+            }
+        });
+
+        localStorage.setItem('plus_continuar', JSON.stringify(hist));
+
+        if (validos.length === 0) {
+            sec.style.display = 'none';
+            return;
+        }
+
+        // Ordena do mais recente para o mais antigo
+        validos.sort((a, b) => b.time - a.time);
+
+        sec.style.display = 'block';
+        grid.innerHTML = '';
+        validos.forEach(item => {
+            if (typeof createMovieItem === 'function') {
+                grid.appendChild(createMovieItem(item.filme));
+            }
+        });
+    }
+
+    // 4. Intercepta cliques nos cards e no botão "Assistir"
+    document.addEventListener('click', (e) => {
+        const card = e.target.closest('.movie-item[data-movie-id]');
+        if (card) {
+            salvarHistorico(card.getAttribute('data-movie-id'));
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        injetarSecao();
+        atualizarContinuar();
+    });
+})();
+</script>
+    
+<script>
+(function() {
+    function montarRoleta() {
+        // Pega os filmes do seu catálogo existente
+        const catalogo = (typeof movieData !== 'undefined' && movieData.length > 0) ? movieData : [];
+        if (catalogo.length === 0) return;
+
+        // Sorteia filmes aleatórios para os slots de conteúdo
+        const filmeGratis = catalogo[Math.floor(Math.random() * catalogo.length)];
+        const filmeCompra = catalogo[Math.floor(Math.random() * catalogo.length)];
+
+        // Os 4 slots da sua roleta (misturando filmes do seu acervo e anúncios)
+        const slots = [
+            {
+                tag: "DESTAQUE DA SEMANA",
+                titulo: filmeGratis.title,
+                meta: `${filmeGratis.year || '1940'} • Gratuito no Plus+`,
+                descricao: filmeGratis.description || "Assista agora este clássico imperdível no acervo do Plus+.",
+                imagem: filmeGratis.poster,
+                textoBotao: "Assistir Agora",
+                icone: "fas fa-play",
+                tipo: "filme",
+                filmeId: filmeGratis.id
+            },
+            {
+                tag: "LOJA DIGITAL • R$ 19,99",
+                titulo: `Edição Especial: ${filmeCompra.title}`,
+                meta: `${filmeCompra.year || '1930'} • Acesso Permanente`,
+                descricao: "Garanta este clássico exclusivo na sua coleção digital sem anúncios.",
+                imagem: filmeCompra.poster,
+                textoBotao: "Comprar Agora",
+                icone: "fas fa-shopping-bag",
+                tipo: "link",
+                url: "https://mpago.la/2qGqDpc"
+            },
+            {
+                tag: "ESPAÇO DISPONÍVEL",
+                titulo: "Anuncie sua Marca no Plus+",
+                meta: "Alcance milhares de telas • Android, iOS e TV Box",
+                descricao: "Coloque sua empresa ou produto na tela inicial do Plus+ com planos semanais e mensais.",
+                imagem: "https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg",
+                textoBotao: "Anunciar Aqui",
+                icone: "fab fa-whatsapp",
+                tipo: "link",
+                url: "https://wa.me/5551999999999?text=Olá!%20Quero%20anunciar%20na%20roleta%20do%20Plus%2B"
+            },
+            {
+                tag: "PATROCINADOR OFICIAL",
+                titulo: "Oferta Especial Parceiro",
+                meta: "Publicidade • Apoie o Plus+",
+                descricao: "Conheça os produtos e novidades exclusivas dos nossos parceiros oficiais.",
+                imagem: "https://i.postimg.cc/XJ3Pgkwv/Plano-Mensal.jpg",
+                textoBotao: "Saiba Mais",
+                icone: "fas fa-external-link-alt",
+                tipo: "link",
+                url: "https://mpago.la/2SRyqam"
+            }
+        ];
+
+        // Embaralha os 4 slots aleatoriamente
+        const slotsEmbaralhados = slots.sort(() => Math.random() - 0.5);
+
+        const banner = document.querySelector('.hero-banner');
+        if (!banner) return;
+
+        // Adiciona umas setinhas discretas e bolinhas se já não existirem
+        if (!banner.querySelector('.roleta-dots')) {
+            const dotsDiv = document.createElement('div');
+            dotsDiv.className = 'roleta-dots';
+            dotsDiv.style.cssText = 'position: absolute; bottom: 20px; right: 24px; display: flex; gap: 8px; z-index: 10;';
+            slotsEmbaralhados.forEach((_, i) => {
+                dotsDiv.innerHTML += `<button class="roleta-dot ${i === 0 ? 'active' : ''}" style="width: 10px; height: 10px; border-radius: 50%; background: ${i === 0 ? '#48c948' : 'rgba(255,255,255,0.3)'}; border: none; cursor: pointer; transition: 0.3s;"></button>`;
+            });
+            banner.style.position = 'relative';
+            banner.appendChild(dotsDiv);
+        }
+
+        let indice = 0;
+
+        function aplicarSlide(i) {
+            const item = slotsEmbaralhados[i];
+            
+            // Usa o próprio banner que você já criou
+            banner.style.backgroundImage = `linear-gradient(to top, #0d0f10 10%, rgba(13, 15, 16, 0.4) 60%, rgba(13, 15, 16, 0.8) 100%), url('${item.imagem}')`;
+            banner.style.backgroundSize = 'cover';
+            banner.style.backgroundPosition = 'center';
+
+            const tag = banner.querySelector('.hero-tag');
+            if (tag) tag.innerHTML = `<i class="fas fa-bolt"></i> ${item.tag}`;
+
+            const titulo = banner.querySelector('.title');
+            if (titulo) titulo.textContent = item.titulo;
+
+            const meta = banner.querySelector('.hero-meta');
+            if (meta) meta.innerHTML = `<span>${item.meta}</span>`;
+
+            const desc = banner.querySelector('.description');
+            if (desc) desc.textContent = item.descricao;
+
+            const btn = banner.querySelector('.watch-btn-hero');
+            if (btn) {
+                btn.innerHTML = `<i class="${item.icone}"></i> ${item.textoBotao}`;
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    if (item.tipo === "filme") {
+                        const filmeAlvo = catalogo.find(m => String(m.id) === String(item.filmeId));
+                        if (filmeAlvo && typeof populateModal === 'function') {
+                            populateModal(filmeAlvo);
+                        }
+                    } else {
+                        window.open(item.url, "_blank");
+                    }
+                };
+            }
+
+            // Atualiza as bolinhas indicadoras
+            const dots = banner.querySelectorAll('.roleta-dot');
+            dots.forEach((d, idx) => {
+                d.style.background = idx === i ? '#48c948' : 'rgba(255,255,255,0.3)';
+                d.style.width = idx === i ? '24px' : '10px';
+                d.style.borderRadius = idx === i ? '6px' : '50%';
+            });
+        }
+
+        // Roda o primeiro slide
+        aplicarSlide(0);
+
+        // Gira automaticamente a cada 6 segundos usando o banner base
+        setInterval(() => {
+            indice = (indice + 1) % slotsEmbaralhados.length;
+            aplicarSlide(indice);
+        }, 6000);
+    }
+
+    window.addEventListener('DOMContentLoaded', montarRoleta);
+})();
+</script>
+
 </body>
 </html>
