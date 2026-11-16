@@ -2809,17 +2809,32 @@ window.onload = () => {
 </script>
     <script>
 (function() {
+    // Função para limpar a palavra "Classix" de qualquer título ou texto
+    function limparTitulo(texto) {
+        if (!texto) return '';
+        return texto.replace(/classix/gi, '').trim();
+    }
+
     function montarRoleta() {
         const catalogo = (typeof movieData !== 'undefined' && movieData.length > 0) ? movieData : [];
         if (catalogo.length === 0) return;
 
-        const filmeGratis = catalogo[Math.floor(Math.random() * catalogo.length)];
-        const filmeCompra = catalogo[Math.floor(Math.random() * catalogo.length)];
+        // Separa o catálogo entre gratuitos e pagos/loja (com base no preço ou tag de compra)
+        const filmesGratis = catalogo.filter(m => !m.price && !m.isPaid && !String(m.tag || '').toLowerCase().includes('compra'));
+        const filmesPagos = catalogo.filter(m => m.price || m.isPaid || String(m.tag || '').toLowerCase().includes('compra') || Number(m.price) > 0);
+
+        // Fallback caso algum filtro venha vazio
+        const listaGratis = filmesGratis.length > 0 ? filmesGratis : catalogo;
+        const listaPagos = filmesPagos.length > 0 ? filmesPagos : catalogo;
+
+        // Sorteia aleatoriamente respeitando as categorias certas
+        const filmeGratis = listaGratis[Math.floor(Math.random() * listaGratis.length)];
+        const filmeCompra = listaPagos[Math.floor(Math.random() * listaPagos.length)];
 
         const slots = [
             {
                 tag: "DESTAQUE DO CATÁLOGO",
-                titulo: filmeGratis.title,
+                titulo: limparTitulo(filmeGratis.title),
                 meta: `${filmeGratis.year || '1940'} • Gratuito no Plus+`,
                 descricao: filmeGratis.description || "Assista agora este clássico imperdível no acervo do Plus+.",
                 imagem: filmeGratis.poster,
@@ -2829,15 +2844,15 @@ window.onload = () => {
                 filmeId: filmeGratis.id
             },
             {
-                tag: "LOJA DIGITAL • R$ 19,99",
-                titulo: `Edição Exclusiva: ${filmeCompra.title}`,
+                tag: `LOJA DIGITAL • ${filmeCompra.price || 'R$ 19,99'}`,
+                titulo: limparTitulo(filmeCompra.title),
                 meta: `${filmeCompra.year || '1930'} • Acesso Permanente`,
                 descricao: "Garanta este clássico exclusivo na sua coleção digital sem anúncios.",
                 imagem: filmeCompra.poster,
                 textoBotao: "Comprar Agora",
                 icone: "fas fa-shopping-bag",
                 tipo: "link",
-                url: "https://mpago.la/2qGqDpc"
+                url: filmeCompra.checkoutUrl || "https://mpago.la/2qGqDpc"
             },
             {
                 tag: "ESPAÇO DISPONÍVEL",
@@ -2870,7 +2885,6 @@ window.onload = () => {
         let indice = 0;
         let timer = null;
 
-        // Cria as setas de Voltar e Avançar
         if (!banner.querySelector('.roleta-prev')) {
             const btnStyle = 'position: absolute; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border-radius: 50%; background: rgba(13, 15, 16, 0.75); border: 1px solid rgba(255,255,255,0.2); color: #fff; cursor: pointer; z-index: 25; display: flex; align-items: center; justify-content: center;';
             
@@ -2890,7 +2904,6 @@ window.onload = () => {
             banner.appendChild(next);
         }
 
-        // Cria as bolinhas clicáveis
         if (!banner.querySelector('.roleta-dots')) {
             const dotsDiv = document.createElement('div');
             dotsDiv.className = 'roleta-dots';
@@ -2905,7 +2918,6 @@ window.onload = () => {
             banner.appendChild(dotsDiv);
         }
 
-        // Suporte para arrastar (Touch/Swipe) no celular
         let touchStartX = 0;
         banner.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
         banner.addEventListener('touchend', (e) => {
