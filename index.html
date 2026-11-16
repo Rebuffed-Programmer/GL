@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 
-<!-- ================= INTRO PLUS+ (ESTRUTURA HULU + ZOOM DE TRANSIÇÃO) ================= -->
+<!-- ================= INTRO PLUS+ (PAUSA DE 5S + PULSO SUAVE + ZOOM FINAL) ================= -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Plus+Jakarta+Sans:wght@700&display=swap" rel="stylesheet">
@@ -40,19 +40,19 @@
     user-select: none;
   }
 
-  /* Transição exata pedida: as letras dão um zoom forte para frente ao encerrar */
+  /* Transição de Zoom Final das letras abrindo para o menu */
   #plus-hulu-intro.intro-zoom-out {
     pointer-events: none;
   }
 
   #plus-hulu-intro.intro-zoom-out #logo-text {
-    animation: zoomOutTransition 0.75s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation: zoomOutTransition 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 
   #plus-hulu-intro.intro-zoom-out #green-filter,
   #plus-hulu-intro.intro-zoom-out .gradient {
     opacity: 0;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.6s ease;
   }
 
   @keyframes zoomOutTransition {
@@ -62,13 +62,13 @@
       filter: blur(0);
     }
     100% {
-      transform: scale(4.5);
+      transform: scale(5);
       opacity: 0;
-      filter: blur(12px);
+      filter: blur(14px);
     }
   }
 
-  /* Filtro Verde e Gradientes idênticos ao Hulu */
+  /* Filtro Verde e Gradientes */
   #green-filter {
     position: absolute;
     inset: 0;
@@ -76,7 +76,7 @@
     z-index: 1;
     pointer-events: none;
     opacity: 0;
-    animation: fadeInFilter 0.6s ease 0.3s forwards;
+    animation: fadeInFilter 0.8s ease 5.2s forwards;
   }
 
   .gradient {
@@ -124,13 +124,13 @@
     pointer-events: none;
   }
 
-  /* Anéis de pulso de luz (com leve atraso para dar a pausa inicial) */
+  /* Anéis de pulso mais lentos, suaves e elegantes (iniciam após os ~5s de tela preta) */
   #logo-border {
     width: 140px;
     height: 140px;
     border: 2px solid rgba(72, 201, 72, 0.45);
     opacity: 0;
-    animation: pulseRing 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+    animation: pulseRing 2.4s cubic-bezier(0.16, 1, 0.3, 1) 5.2s forwards;
   }
 
   #logo-border-inner {
@@ -138,10 +138,10 @@
     height: 90px;
     border: 1px solid rgba(255, 255, 255, 0.25);
     opacity: 0;
-    animation: pulseRingInner 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+    animation: pulseRingInner 2.2s cubic-bezier(0.16, 1, 0.3, 1) 5.35s forwards;
   }
 
-  /* Textos da Logo */
+  /* Texto da Logo revelado suavemente após o pulso */
   #logo-text {
     display: flex;
     flex-direction: column;
@@ -149,7 +149,7 @@
     opacity: 0;
     transform: scale(0.85);
     filter: blur(6px);
-    animation: logoTextReveal 1s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
+    animation: logoTextReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 5.8s forwards;
   }
 
   #hulu-text {
@@ -186,13 +186,13 @@
   @keyframes pulseRing {
     0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
     50% { opacity: 1; }
-    100% { transform: translate(-50%, -50%) scale(3.5); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(4); opacity: 0; }
   }
 
   @keyframes pulseRingInner {
     0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
     50% { opacity: 0.85; }
-    100% { transform: translate(-50%, -50%) scale(2.6); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
   }
 
   @keyframes logoTextReveal {
@@ -234,21 +234,19 @@
       closed = true;
       sessionStorage.setItem('plus_intro_played', '1');
       
-      // Aciona o efeito de zoom nas letras
+      // Dispara o zoom final das letras
       intro.classList.add('intro-zoom-out');
       
-      // Remove o elemento do DOM após a animação de zoom terminar
       setTimeout(() => {
         intro.remove();
-        // Dispara um evento opcional caso seu menu precise saber o momento exato que a intro acabou
         window.dispatchEvent(new CustomEvent('plusIntroFinished'));
-      }, 750);
+      }, 800);
     }
 
-    // Duração total sincronizada (com a pausa inicial + exibição + zoom final)
-    const timer = setTimeout(finishIntro, 4300);
+    // Duração total ajustada: ~5 segundos de suspense + tempo da animação + zoom (total ~9.2 segundos)
+    const timer = setTimeout(finishIntro, 9200);
 
-    // Pular com clique ou controle remoto da TV
+    // Pular com clique ou controle remoto da TV a qualquer momento
     intro.addEventListener('click', () => {
       clearTimeout(timer);
       finishIntro();
