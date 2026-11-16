@@ -2721,11 +2721,11 @@ window.onload = () => {
 
 })();
 </script>
-    <script>
+<script>
 (function() {
-    const EXPIRACAO_MS = 3 * 24 * 60 * 60 * 1000; // 3 dias (ajuste se quiser)
+    const EXPIRACAO_MS = 3 * 24 * 60 * 60 * 1000; // 3 dias
+    let ultimoFilmeAbertoId = null;
 
-    // 1. Injeta a seção "Continuar Assistindo" logo abaixo do banner principal
     function injetarSecao() {
         if (document.getElementById('continue-watching-section')) return;
         const main = document.getElementById('mainContent') || document.body;
@@ -2742,7 +2742,6 @@ window.onload = () => {
         main.prepend(sec);
     }
 
-    // 2. Salva o filme clicado com o horário atual
     function salvarHistorico(movieId) {
         if (!movieId) return;
         const hist = JSON.parse(localStorage.getItem('plus_continuar') || '{}');
@@ -2751,7 +2750,6 @@ window.onload = () => {
         atualizarContinuar();
     }
 
-    // 3. Renderiza e limpa os expirados pelo timer
     function atualizarContinuar() {
         const sec = document.getElementById('continue-watching-section');
         const grid = document.getElementById('continue-watching-grid');
@@ -2763,7 +2761,7 @@ window.onload = () => {
 
         Object.keys(hist).forEach(id => {
             if (agora - hist[id] > EXPIRACAO_MS) {
-                delete hist[id]; // Passou do tempo, remove
+                delete hist[id];
             } else {
                 const filme = movieData.find(m => String(m.id) === String(id));
                 if (filme) validos.push({ filme, time: hist[id] });
@@ -2777,9 +2775,7 @@ window.onload = () => {
             return;
         }
 
-        // Ordena do mais recente para o mais antigo
         validos.sort((a, b) => b.time - a.time);
-
         sec.style.display = 'block';
         grid.innerHTML = '';
         validos.forEach(item => {
@@ -2789,11 +2785,19 @@ window.onload = () => {
         });
     }
 
-    // 4. Intercepta cliques nos cards e no botão "Assistir"
     document.addEventListener('click', (e) => {
+        // Apenas memoriza qual pôster foi aberto (NÃO salva no histórico ainda)
         const card = e.target.closest('.movie-item[data-movie-id]');
         if (card) {
-            salvarHistorico(card.getAttribute('data-movie-id'));
+            ultimoFilmeAbertoId = card.getAttribute('data-movie-id');
+            return;
+        }
+
+        // Só salva de verdade se clicar no botão de "Assistir" dentro do modal ou player
+        const btnAssistir = e.target.closest('#modalWatchBtn, .watch-btn, .play-btn, [data-action="watch"]');
+        if (btnAssistir) {
+            const idAlvo = btnAssistir.getAttribute('data-movie-id') || ultimoFilmeAbertoId;
+            if (idAlvo) salvarHistorico(idAlvo);
         }
     });
 
@@ -2803,22 +2807,15 @@ window.onload = () => {
     });
 })();
 </script>
-    
-<script>
+    <script>
 (function() {
     function montarRoleta() {
         const catalogo = (typeof movieData !== 'undefined' && movieData.length > 0) ? movieData : [];
         if (catalogo.length === 0) return;
 
-        // Sorteia os filmes aleatórios para as posições de conteúdo
         const filmeGratis = catalogo[Math.floor(Math.random() * catalogo.length)];
         const filmeCompra = catalogo[Math.floor(Math.random() * catalogo.length)];
 
-        // SEQUÊNCIA EXATA SOLICITADA:
-        // 1. Conteúdo do Catálogo (Gratuito)
-        // 2. Filme para Comprar
-        // 3. Anuncie Aqui
-        // 4. Patrocinador / Anúncio Extra
         const slots = [
             {
                 tag: "DESTAQUE DO CATÁLOGO",
@@ -2868,19 +2865,61 @@ window.onload = () => {
 
         const banner = document.querySelector('.hero-banner');
         if (!banner) return;
+        banner.style.position = 'relative';
 
+        let indice = 0;
+        let timer = null;
+
+        // Cria as setas de Voltar e Avançar
+        if (!banner.querySelector('.roleta-prev')) {
+            const btnStyle = 'position: absolute; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border-radius: 50%; background: rgba(13, 15, 16, 0.75); border: 1px solid rgba(255,255,255,0.2); color: #fff; cursor: pointer; z-index: 25; display: flex; align-items: center; justify-content: center;';
+            
+            const prev = document.createElement('button');
+            prev.className = 'roleta-prev';
+            prev.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prev.style.cssText = btnStyle + ' left: 12px;';
+            prev.onclick = (e) => { e.stopPropagation(); mudarPara(indice - 1); };
+
+            const next = document.createElement('button');
+            next.className = 'roleta-next';
+            next.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            next.style.cssText = btnStyle + ' right: 12px;';
+            next.onclick = (e) => { e.stopPropagation(); mudarPara(indice + 1); };
+
+            banner.appendChild(prev);
+            banner.appendChild(next);
+        }
+
+        // Cria as bolinhas clicáveis
         if (!banner.querySelector('.roleta-dots')) {
             const dotsDiv = document.createElement('div');
             dotsDiv.className = 'roleta-dots';
-            dotsDiv.style.cssText = 'position: absolute; bottom: 20px; right: 24px; display: flex; gap: 8px; z-index: 10;';
+            dotsDiv.style.cssText = 'position: absolute; bottom: 20px; right: 24px; display: flex; gap: 8px; z-index: 25;';
             slots.forEach((_, i) => {
-                dotsDiv.innerHTML += `<button class="roleta-dot ${i === 0 ? 'active' : ''}" style="width: 10px; height: 10px; border-radius: 50%; background: ${i === 0 ? '#48c948' : 'rgba(255,255,255,0.3)'}; border: none; cursor: pointer; transition: 0.3s;"></button>`;
+                const dot = document.createElement('button');
+                dot.className = 'roleta-dot';
+                dot.style.cssText = 'width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.3); border: none; cursor: pointer; transition: 0.3s; padding: 0;';
+                dot.onclick = (e) => { e.stopPropagation(); mudarPara(i); };
+                dotsDiv.appendChild(dot);
             });
-            banner.style.position = 'relative';
             banner.appendChild(dotsDiv);
         }
 
-        let indice = 0;
+        // Suporte para arrastar (Touch/Swipe) no celular
+        let touchStartX = 0;
+        banner.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+        banner.addEventListener('touchend', (e) => {
+            const diff = touchStartX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 40) {
+                mudarPara(diff > 0 ? indice + 1 : indice - 1);
+            }
+        }, { passive: true });
+
+        function mudarPara(novoIndice) {
+            indice = (novoIndice + slots.length) % slots.length;
+            aplicarSlide(indice);
+            reiniciarTimer();
+        }
 
         function aplicarSlide(i) {
             const item = slots[i];
@@ -2925,17 +2964,17 @@ window.onload = () => {
             });
         }
 
-        aplicarSlide(0);
+        function reiniciarTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => mudarPara(indice + 1), 6000);
+        }
 
-        setInterval(() => {
-            indice = (indice + 1) % slots.length;
-            aplicarSlide(indice);
-        }, 6000);
+        aplicarSlide(0);
+        reiniciarTimer();
     }
 
     window.addEventListener('DOMContentLoaded', montarRoleta);
 })();
 </script>
-
 </body>
 </html>
