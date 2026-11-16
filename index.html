@@ -21,13 +21,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 
-<!-- ================= INTRO IDÊNTICA AO HULU (ADAPTADA PLUS+) ================= -->
+<!-- ================= INTRO PLUS+ (ESTRUTURA HULU EXATA) ================= -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Plus+Jakarta+Sans:wght@700&display=swap" rel="stylesheet">
 
 <style>
-  #plus-hulu-container {
+  #plus-hulu-intro {
     position: fixed;
     inset: 0;
     background: #000000;
@@ -41,13 +41,13 @@
     transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  #plus-hulu-container.intro-hidden {
+  #plus-hulu-intro.intro-hidden {
     opacity: 0;
     transform: scale(1.08);
     pointer-events: none;
   }
 
-  /* Filtro e gradientes do template original */
+  /* Filtro Verde e Gradientes idênticos ao Hulu */
   #green-filter {
     position: absolute;
     inset: 0;
@@ -101,7 +101,7 @@
     pointer-events: none;
   }
 
-  /* Anéis de pulso de luz do Hulu */
+  /* Anéis de pulso de luz */
   #logo-border {
     width: 140px;
     height: 140px;
@@ -116,7 +116,7 @@
     animation: pulseRingInner 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
   }
 
-  /* Revelação do Texto */
+  /* Textos da Logo */
   #logo-text {
     display: flex;
     flex-direction: column;
@@ -172,11 +172,10 @@
   }
 </style>
 
-<div id="plus-hulu-container" aria-hidden="true">
+<div id="plus-hulu-intro" aria-hidden="true">
   <div id="green-filter"></div>
   <div id="top-gradient" class="gradient"></div>
   <div id="bottom-gradient" class="gradient"></div>
-  
   <div id="logo-wrapper">
     <div id="logo">
       <div id="logo-border" class="absolute-centered"></div>
@@ -191,12 +190,12 @@
 
 <script>
   (function () {
-    const container = document.getElementById('plus-hulu-container');
-    if (!container) return;
+    const intro = document.getElementById('plus-hulu-intro');
+    if (!intro) return;
 
     // Roda apenas uma vez por sessão
     if (sessionStorage.getItem('plus_intro_played') === '1') {
-      container.remove();
+      intro.remove();
       return;
     }
 
@@ -205,15 +204,15 @@
       if (closed) return;
       closed = true;
       sessionStorage.setItem('plus_intro_played', '1');
-      container.classList.add('intro-hidden');
-      setTimeout(() => container.remove(), 700);
+      intro.classList.add('intro-hidden');
+      setTimeout(() => intro.remove(), 700);
     }
 
-    // Duração exata de 4 segundos
+    // Duração total: 4 segundos
     const timer = setTimeout(finishIntro, 4000);
 
-    // Permite pular clicando em qualquer lugar ou usando o controle da TV
-    container.addEventListener('click', () => {
+    // Pular com clique ou controle remoto
+    intro.addEventListener('click', () => {
       clearTimeout(timer);
       finishIntro();
     });
