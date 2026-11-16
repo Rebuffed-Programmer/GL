@@ -2720,9 +2720,42 @@ window.onload = () => {
     }
 
 })();
-</script>
-    <script>
+</script><script>
 (function() {
+    // =====================================================================
+    // CADASTRO MANUAL DOS PARCEIROS (Roleta 4)
+    // Adicione, edite ou remova quantos anunciantes quiser aqui!
+    // =====================================================================
+    const storeParceiros = [
+        {
+            titulo: "Oferta Especial Parceiro 1",
+            meta: "Publicidade • Apoie o Plus+",
+            descricao: "Conheça os produtos e novidades exclusivas dos nossos parceiros oficiais da região.",
+            imagem: "https://i.postimg.cc/XJ3Pgkwv/Plano-Mensal.jpg",
+            textoBotao: "Saiba Mais",
+            icone: "fas fa-external-link-alt",
+            url: "https://mpago.la/2SRyqam"
+        },
+        {
+            titulo: "Loja de Eletrônicos Parceira",
+            meta: "Desconto Exclusivo • TV Box e Acessórios",
+            descricao: "Compre equipamentos com frete grátis usando o cupom oficial do aplicativo Plus+.",
+            imagem: "https://a.imagem.app/BC1RYX.jpeg",
+            textoBotao: "Ver Ofertas",
+            icone: "fas fa-shopping-cart",
+            url: "https://wa.me/5551999999999?text=Olá!%20Vim%20pelo%20Plus%2B%20e%20quero%20o%20desconto"
+        },
+        {
+            titulo: "Açaí & Lanches Novo Hamburgo",
+            meta: "Gastronomia • Sabor e Qualidade",
+            descricao: "Peça o melhor açaí da região direto pelo WhatsApp com entrega rápida na sua casa.",
+            imagem: "https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg",
+            textoBotao: "Pedir Agora",
+            icone: "fab fa-whatsapp",
+            url: "https://wa.me/5551999999999?text=Olá!%20Quero%20pedir%20pelo%20anúncio%20do%20Plus%2B"
+        }
+    ];
+
     function limparTitulo(texto) {
         if (!texto) return '';
         return texto.replace(/classix/gi, '').trim();
@@ -2764,7 +2797,18 @@ window.onload = () => {
 
         const precoTexto = filmeCompra.precoSessao ? formatarPrecoBRL(filmeCompra.precoSessao) : 'R$ 19,99';
 
-        // Ordem exata: 1º Catálogo Gratuito -> 2º Loja (storeCatalog) -> 3º Anuncie Aqui -> 4º Parceiro
+        // Sorteia um parceiro aleatório da lista manual acima
+        const parceiroSorteado = storeParceiros.length > 0 ? storeParceiros[Math.floor(Math.random() * storeParceiros.length)] : {
+            titulo: "Oferta Especial Parceiro",
+            meta: "Publicidade • Apoie o Plus+",
+            descricao: "Conheça os produtos e novidades exclusivas dos nossos parceiros oficiais.",
+            imagem: "https://i.postimg.cc/XJ3Pgkwv/Plano-Mensal.jpg",
+            textoBotao: "Saiba Mais",
+            icone: "fas fa-external-link-alt",
+            url: "https://mpago.la/2SRyqam"
+        };
+
+        // Ordem exata: 1º Catálogo Gratuito -> 2º Loja (storeCatalog) -> 3º Anuncie Aqui -> 4º Parceiro Sorteado
         const slots = [
             {
                 tag: "DESTAQUE DO CATÁLOGO",
@@ -2801,14 +2845,14 @@ window.onload = () => {
             },
             {
                 tag: "PATROCINADOR OFICIAL",
-                titulo: "Oferta Especial Parceiro",
-                meta: "Publicidade • Apoie o Plus+",
-                descricao: "Conheça os produtos e novidades exclusivas dos nossos parceiros oficiais.",
-                imagem: "https://i.postimg.cc/XJ3Pgkwv/Plano-Mensal.jpg",
-                textoBotao: "Saiba Mais",
-                icone: "fas fa-external-link-alt",
+                titulo: limparTitulo(parceiroSorteado.titulo),
+                meta: parceiroSorteado.meta,
+                descricao: parceiroSorteado.descricao,
+                imagem: parceiroSorteado.imagem,
+                textoBotao: parceiroSorteado.textoBotao,
+                icone: parceiroSorteado.icone,
                 tipo: "link",
-                url: "https://mpago.la/2SRyqam"
+                url: parceiroSorteado.url
             }
         ];
 
