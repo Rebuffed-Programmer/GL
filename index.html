@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 
-<!-- ================= INTRO PLUS+ (ESTILO HULU ADAPTADO) ================= -->
+<!-- ================= INTRO IDÊNTICA AO HULU (ADAPTADA PLUS+) ================= -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Plus+Jakarta+Sans:wght@700&display=swap" rel="stylesheet">
@@ -47,11 +47,11 @@
     pointer-events: none;
   }
 
-  /* Filtro e gradientes baseados no seu template */
+  /* Filtro e gradientes do template original */
   #green-filter {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at center, rgba(72, 201, 72, 0.18) 0%, transparent 70%);
+    background: radial-gradient(circle at center, rgba(72, 201, 72, 0.22) 0%, transparent 70%);
     z-index: 1;
     pointer-events: none;
   }
@@ -101,22 +101,22 @@
     pointer-events: none;
   }
 
-  /* Anéis de borda com animação de pulso */
+  /* Anéis de pulso de luz do Hulu */
   #logo-border {
     width: 140px;
     height: 140px;
-    border: 2px solid rgba(72, 201, 72, 0.35);
+    border: 2px solid rgba(72, 201, 72, 0.45);
     animation: pulseRing 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   #logo-border-inner {
     width: 90px;
     height: 90px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.25);
     animation: pulseRingInner 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
   }
 
-  /* Texto da Logo */
+  /* Revelação do Texto */
   #logo-text {
     display: flex;
     flex-direction: column;
@@ -129,12 +129,12 @@
 
   #hulu-text {
     font-family: 'Great Vibes', cursive, sans-serif;
-    font-size: clamp(68px, 11vw, 112px);
+    font-size: clamp(72px, 11vw, 116px);
     font-weight: 400;
     color: #ffffff;
     line-height: 1;
     letter-spacing: 0.04em;
-    text-shadow: 0 0 25px rgba(72, 201, 72, 0.65), 0 0 50px rgba(138, 43, 226, 0.35);
+    text-shadow: 0 0 25px rgba(72, 201, 72, 0.7), 0 0 50px rgba(138, 43, 226, 0.4);
     margin: 0;
   }
 
@@ -147,44 +147,23 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: clamp(11px, 1.5vw, 13px);
     font-weight: 700;
-    letter-spacing: 0.4em;
+    letter-spacing: 0.42em;
     color: #a5b4fc;
     margin-top: 8px;
     text-transform: uppercase;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
   }
 
-  /* Botão de restart discreto no canto */
-  #restart-button {
-    position: absolute;
-    bottom: 24px;
-    right: 24px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: #a5b4fc;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    z-index: 10;
-    transition: background 0.2s;
-  }
-  #restart-button:hover {
-    background: rgba(255, 255, 255, 0.18);
-    color: #fff;
-  }
-
   @keyframes pulseRing {
     0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
     50% { opacity: 1; }
-    100% { transform: translate(-50%, -50%) scale(3.2); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(3.5); opacity: 0; }
   }
 
   @keyframes pulseRingInner {
     0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
-    50% { opacity: 0.8; }
-    100% { transform: translate(-50%, -50%) scale(2.4); opacity: 0; }
+    50% { opacity: 0.85; }
+    100% { transform: translate(-50%, -50%) scale(2.6); opacity: 0; }
   }
 
   @keyframes logoTextReveal {
@@ -203,22 +182,19 @@
       <div id="logo-border" class="absolute-centered"></div>
       <div id="logo-border-inner" class="absolute-centered"></div>
       <div id="logo-text">
-        <div id="hulu-text"><span class="cursive-word">Plus</span><span class="plus-symbol">+</span></div>
+        <div id="hulu-text">Plus<span class="plus-symbol">+</span></div>
         <div id="originals-text">ORIGINALS</div>
       </div>
     </div>
   </div>
-
-  <button id="restart-button" type="button">Restart</button>
 </div>
 
 <script>
   (function () {
     const container = document.getElementById('plus-hulu-container');
-    const restartBtn = document.getElementById('restart-button');
     if (!container) return;
 
-    // Roda apenas uma vez por sessão automaticamente
+    // Roda apenas uma vez por sessão
     if (sessionStorage.getItem('plus_intro_played') === '1') {
       container.remove();
       return;
@@ -233,23 +209,14 @@
       setTimeout(() => container.remove(), 700);
     }
 
-    // Duração total: 4 segundos
+    // Duração exata de 4 segundos
     const timer = setTimeout(finishIntro, 4000);
 
-    // Pular com clique ou controle remoto
-    container.addEventListener('click', (e) => {
-      if (e.target === restartBtn) return;
+    // Permite pular clicando em qualquer lugar ou usando o controle da TV
+    container.addEventListener('click', () => {
       clearTimeout(timer);
       finishIntro();
     });
-
-    if (restartBtn) {
-      restartBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        sessionStorage.removeItem('plus_intro_played');
-        location.reload();
-      });
-    }
 
     window.addEventListener('keydown', () => {
       clearTimeout(timer);
@@ -257,7 +224,6 @@
     }, { once: true });
   })();
 </script>
-    
     <style>
         :root {
             --bg-primary: #0d0f10;
