@@ -20,16 +20,16 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-<!-- ================= INTRO CINEMATOGRÁFICA TIPOGRAFIA PLUS+ ================= -->
+<!-- ================= INTRO PLUS+ (DINÂMICA DE FEIXES E ÍCONE) ================= -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
 
 <style>
-  #plus-intro-stage {
+  #gp-style-intro {
     position: fixed;
     inset: 0;
-    background: radial-gradient(circle at center, #081408 0%, #000000 72%);
+    background: #030604;
     z-index: 999999;
     display: flex;
     align-items: center;
@@ -37,224 +37,270 @@
     overflow: hidden;
     cursor: pointer;
     user-select: none;
-    transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1), transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  #plus-intro-stage.stage-fadeout {
+  #gp-style-intro.gp-exit {
     opacity: 0;
-    transform: scale(1.12);
+    transform: scale(1.1);
     pointer-events: none;
   }
 
-  /* Aura de fundo que pulsa no ritmo da logo */
-  .plus-ambient-glow {
+  /* Camada de feixes luminosos em movimento (efeito abertura) */
+  .gp-streaks-layer {
     position: absolute;
-    width: 420px;
-    height: 420px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(72, 201, 72, 0.22) 0%, transparent 70%);
-    opacity: 0;
-    transform: scale(0.4);
-    animation: ambientPulse 2.8s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
-  }
-
-  /* Linha de horizonte sutil */
-  .plus-horizon-line {
-    position: absolute;
-    height: 1px;
-    width: 0;
-    background: linear-gradient(90deg, transparent, rgba(72, 201, 72, 0.7), transparent);
-    animation: horizonExpand 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
-  }
-
-  /* Container Tipográfico Central */
-  .plus-wordmark {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-weight: 800;
-    line-height: 1;
-  }
-
-  /* Texto "Plus" revelado com máscara e espaçamento */
-  .plus-text-clip {
+    inset: -30%;
+    transform: rotate(-28deg);
+    pointer-events: none;
     overflow: hidden;
-    display: inline-flex;
-    padding-right: 4px;
   }
 
-  .plus-letters {
-    font-size: clamp(54px, 8vw, 96px);
-    color: #ffffff;
-    letter-spacing: 0.28em;
+  .gp-streak {
+    position: absolute;
+    height: 14px;
+    border-radius: 999px;
     opacity: 0;
-    transform: translateX(36px);
-    filter: blur(8px);
-    background: linear-gradient(110deg, #ffffff 35%, #b8ffba 50%, #ffffff 65%);
-    background-size: 220% 100%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation:
-      lettersReveal 1.15s cubic-bezier(0.16, 1, 0.3, 1) 0.85s forwards,
-      textShimmer 1.2s ease-in-out 1.75s forwards;
+    filter: blur(2px);
   }
 
-  /* Símbolo "+" desenhado em CSS puro */
-  .plus-symbol-wrap {
+  .gp-streak.s1 {
+    top: 28%;
+    left: -40%;
+    width: 55%;
+    background: linear-gradient(90deg, transparent, #1b5e20, #48c948, #ffffff);
+    animation: gpStreakPass 1.15s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
+  }
+
+  .gp-streak.s2 {
+    top: 44%;
+    right: -40%;
+    width: 65%;
+    height: 22px;
+    background: linear-gradient(270deg, transparent, #2e7d32, #48c948, #b9f6ca);
+    animation: gpStreakPassReverse 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+  }
+
+  .gp-streak.s3 {
+    top: 56%;
+    left: -40%;
+    width: 70%;
+    height: 18px;
+    background: linear-gradient(90deg, transparent, #00e676, #48c948, #ffffff);
+    animation: gpStreakPass 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards;
+  }
+
+  .gp-streak.s4 {
+    top: 70%;
+    right: -40%;
+    width: 50%;
+    height: 10px;
+    background: linear-gradient(270deg, transparent, #48c948, #ffffff);
+    animation: gpStreakPassReverse 1.05s cubic-bezier(0.16, 1, 0.3, 1) 0.32s forwards;
+  }
+
+  /* Aura radial central no momento do encontro dos feixes */
+  .gp-core-flare {
+    position: absolute;
+    width: 340px;
+    height: 340px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(72, 201, 72, 0.42) 0%, rgba(27, 94, 32, 0.14) 45%, transparent 72%);
+    opacity: 0;
+    transform: scale(0.3);
+    animation: gpFlareBloom 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.75s forwards;
+  }
+
+  /* Conjunto Central: Ícone "+" + Tipografia "Plus" */
+  .gp-brand-lockup {
     position: relative;
-    width: clamp(44px, 6.2vw, 74px);
-    height: clamp(44px, 6.2vw, 74px);
+    z-index: 3;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-left: 6px;
-    transform: translateX(-115px) scale(0) rotate(-90deg);
+    gap: 14px;
+  }
+
+  /* Ícone "+" formado por camadas vibrantes */
+  .gp-icon-box {
+    position: relative;
+    width: clamp(54px, 7vw, 84px);
+    height: clamp(54px, 7vw, 84px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateX(82px) scale(0.2);
     opacity: 0;
     animation:
-      plusBirth 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s forwards,
-      plusSlideRight 1.05s cubic-bezier(0.16, 1, 0.3, 1) 0.85s forwards;
+      gpIconPop 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s forwards,
+      gpIconShift 0.85s cubic-bezier(0.22, 1, 0.36, 1) 1.55s forwards;
   }
 
-  .plus-bar-h,
-  .plus-bar-v {
+  /* Camada traseira de energia do ícone */
+  .gp-icon-glow-h,
+  .gp-icon-glow-v {
     position: absolute;
-    background: #48c948;
-    border-radius: 6px;
-    box-shadow: 0 0 24px rgba(72, 201, 72, 0.9), 0 0 48px rgba(72, 201, 72, 0.45);
+    background: #00e676;
+    border-radius: 14px;
+    filter: blur(10px);
+    opacity: 0.75;
+  }
+  .gp-icon-glow-h { width: 108%; height: 34%; }
+  .gp-icon-glow-v { width: 34%; height: 108%; }
+
+  /* Camada principal do ícone "+" */
+  .gp-icon-main-h,
+  .gp-icon-main-v {
+    position: absolute;
+    background: linear-gradient(135deg, #69f0ae 0%, #48c948 55%, #2e7d32 100%);
+    border-radius: 12px;
+    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.55);
+  }
+  .gp-icon-main-h { width: 100%; height: 28%; }
+  .gp-icon-main-v { width: 28%; height: 100%; }
+
+  /* Tipografia "Plus" */
+  .gp-word-mask {
+    overflow: hidden;
+    display: flex;
+    align-items: center;
   }
 
-  .plus-bar-h {
-    width: 100%;
-    height: 24%;
+  .gp-word-text {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 800;
+    font-size: clamp(52px, 7.2vw, 88px);
+    letter-spacing: -0.03em;
+    color: #ffffff;
+    line-height: 1;
+    opacity: 0;
+    transform: translateX(-105%);
+    animation: gpWordSlideIn 0.85s cubic-bezier(0.22, 1, 0.36, 1) 1.6s forwards;
   }
 
-  .plus-bar-v {
-    width: 24%;
-    height: 100%;
+  @keyframes gpStreakPass {
+    0% { transform: translateX(0); opacity: 0; }
+    25% { opacity: 1; }
+    100% { transform: translateX(185vw); opacity: 0; }
   }
 
-  @keyframes ambientPulse {
-    0% { opacity: 0; transform: scale(0.4); }
-    45% { opacity: 1; transform: scale(1.15); }
-    100% { opacity: 0.55; transform: scale(1.5); }
+  @keyframes gpStreakPassReverse {
+    0% { transform: translateX(0); opacity: 0; }
+    25% { opacity: 1; }
+    100% { transform: translateX(-185vw); opacity: 0; }
   }
 
-  @keyframes horizonExpand {
-    0% { width: 0; opacity: 0; }
-    40% { width: 70vw; opacity: 1; }
-    100% { width: 100vw; opacity: 0; }
+  @keyframes gpFlareBloom {
+    0% { opacity: 0; transform: scale(0.3); }
+    45% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.45; transform: scale(1.6); }
   }
 
-  @keyframes plusBirth {
+  @keyframes gpIconPop {
     0% {
       opacity: 0;
-      transform: translateX(-115px) scale(0) rotate(-90deg);
+      transform: translateX(82px) scale(0.2) rotate(-45deg);
     }
     100% {
       opacity: 1;
-      transform: translateX(-115px) scale(1.15) rotate(0deg);
+      transform: translateX(82px) scale(1.1) rotate(0deg);
     }
   }
 
-  @keyframes plusSlideRight {
+  @keyframes gpIconShift {
     0% {
-      transform: translateX(-115px) scale(1.15) rotate(0deg);
+      transform: translateX(82px) scale(1.1);
     }
     100% {
-      transform: translateX(0) scale(1) rotate(0deg);
+      transform: translateX(0) scale(1);
     }
   }
 
-  @keyframes lettersReveal {
+  @keyframes gpWordSlideIn {
     0% {
       opacity: 0;
-      letter-spacing: 0.28em;
-      transform: translateX(36px);
-      filter: blur(8px);
+      transform: translateX(-105%);
     }
     100% {
       opacity: 1;
-      letter-spacing: -0.03em;
       transform: translateX(0);
-      filter: blur(0);
     }
-  }
-
-  @keyframes textShimmer {
-    0% { background-position: 100% 0; }
-    100% { background-position: -100% 0; }
   }
 
   @media (max-width: 600px) {
-    .plus-symbol-wrap {
-      transform: translateX(-72px) scale(0) rotate(-90deg);
+    .gp-icon-box {
+      transform: translateX(58px) scale(0.2);
       animation:
-        plusBirthMobile 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s forwards,
-        plusSlideRightMobile 1.05s cubic-bezier(0.16, 1, 0.3, 1) 0.85s forwards;
+        gpIconPopMobile 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s forwards,
+        gpIconShiftMobile 0.85s cubic-bezier(0.22, 1, 0.36, 1) 1.55s forwards;
     }
 
-    @keyframes plusBirthMobile {
-      0% { opacity: 0; transform: translateX(-72px) scale(0) rotate(-90deg); }
-      100% { opacity: 1; transform: translateX(-72px) scale(1.15) rotate(0deg); }
+    @keyframes gpIconPopMobile {
+      0% { opacity: 0; transform: translateX(58px) scale(0.2) rotate(-45deg); }
+      100% { opacity: 1; transform: translateX(58px) scale(1.1) rotate(0deg); }
     }
 
-    @keyframes plusSlideRightMobile {
-      0% { transform: translateX(-72px) scale(1.15) rotate(0deg); }
-      100% { transform: translateX(0) scale(1) rotate(0deg); }
+    @keyframes gpIconShiftMobile {
+      0% { transform: translateX(58px) scale(1.1); }
+      100% { transform: translateX(0) scale(1); }
     }
   }
 </style>
 
-<div id="plus-intro-stage" aria-hidden="true">
-  <div class="plus-ambient-glow"></div>
-  <div class="plus-horizon-line"></div>
+<div id="gp-style-intro" aria-hidden="true">
+  <div class="gp-streaks-layer">
+    <div class="gp-streak s1"></div>
+    <div class="gp-streak s2"></div>
+    <div class="gp-streak s3"></div>
+    <div class="gp-streak s4"></div>
+  </div>
 
-  <div class="plus-wordmark">
-    <div class="plus-text-clip">
-      <span class="plus-letters">Plus</span>
+  <div class="gp-core-flare"></div>
+
+  <div class="gp-brand-lockup">
+    <div class="gp-icon-box">
+      <span class="gp-icon-glow-h"></span>
+      <span class="gp-icon-glow-v"></span>
+      <span class="gp-icon-main-h"></span>
+      <span class="gp-icon-main-v"></span>
     </div>
-    <div class="plus-symbol-wrap">
-      <span class="plus-bar-h"></span>
-      <span class="plus-bar-v"></span>
+    <div class="gp-word-mask">
+      <span class="gp-word-text">Plus</span>
     </div>
   </div>
 </div>
 
 <script>
   (function () {
-    const stage = document.getElementById('plus-intro-stage');
-    if (!stage) return;
+    const intro = document.getElementById('gp-style-intro');
+    if (!intro) return;
 
-    // Roda 1x por sessão para não travar a navegação no dia a dia
+    // Roda 1 vez por sessão para não atrapalhar o uso contínuo
     if (sessionStorage.getItem('plus_intro_played') === '1') {
-      stage.remove();
+      intro.remove();
       return;
     }
 
-    let finished = false;
-    function closeIntro() {
-      if (finished) return;
-      finished = true;
+    let closed = false;
+    function endIntro() {
+      if (closed) return;
+      closed = true;
       sessionStorage.setItem('plus_intro_played', '1');
-      stage.classList.add('stage-fadeout');
-      setTimeout(() => stage.remove(), 760);
+      intro.classList.add('gp-exit');
+      setTimeout(() => intro.remove(), 650);
     }
 
-    // Duração total cinematográfica: 3.4 segundos
-    const timer = setTimeout(closeIntro, 3400);
+    // Duração completa: 3.6 segundos
+    const timer = setTimeout(endIntro, 3600);
 
-    // Permite pular com toque/clique ou qualquer tecla do controle remoto
-    stage.addEventListener('click', () => {
+    // Clique ou tecla do controle remoto pula na hora
+    intro.addEventListener('click', () => {
       clearTimeout(timer);
-      closeIntro();
+      endIntro();
     });
 
-    window.addEventListener('keydown', function skipOnKey() {
+    window.addEventListener('keydown', () => {
       clearTimeout(timer);
-      closeIntro();
+      endIntro();
     }, { once: true });
   })();
 </script>
