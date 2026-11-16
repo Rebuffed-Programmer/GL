@@ -3105,5 +3105,50 @@ window.onload = () => {
     });
 })();
 </script>
+    <script>
+(function() {
+    // Intercepta cliques em botões de categoria ou sessões
+    document.addEventListener('click', function(e) {
+        // Procura se o elemento clicado é um botão de filtro/categoria ou link de sessão
+        const btn = e.target.closest('[data-category], [data-genre], .category-btn, .genre-btn, .section-link, a[href^="#"]');
+        if (!btn) return;
+
+        // Pega o nome da categoria ou o ID de destino
+        const categoria = btn.getAttribute('data-category') || btn.getAttribute('data-genre') || btn.textContent.trim();
+        const targetHref = btn.getAttribute('href');
+
+        // Se for um link interno (#id)
+        if (targetHref && targetHref.startsWith('#') && targetHref.length > 1) {
+            const elementoAlvo = document.querySelector(targetHref);
+            if (elementoAlvo) {
+                e.preventDefault();
+                elementoAlvo.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return;
+            }
+        }
+
+        // Se o seu app usa uma função global de filtro (ex: filterMovies, changeCategory, etc.)
+        if (typeof window.filterMovies === 'function') {
+            e.preventDefault();
+            window.filterMovies(categoria);
+            return;
+        } else if (typeof window.mudarCategoria === 'function') {
+            e.preventDefault();
+            window.mudarCategoria(categoria);
+            return;
+        }
+
+        // Fallback: Se encontrar uma seção com título ou ID parecido na página, rola até ela
+        const secoes = document.querySelectorAll('section, .movie-section, h2');
+        for (let sec of secoes) {
+            if (sec.textContent.toLowerCase().includes(categoria.toLowerCase())) {
+                e.preventDefault();
+                sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                break;
+            }
+        }
+    });
+})();
+</script>
 </body>
 </html>
