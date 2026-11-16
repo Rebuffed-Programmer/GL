@@ -3150,5 +3150,17 @@ window.onload = () => {
     });
 })();
 </script>
+    <style>
+    /* Trava o player do Drive para não criar camadas duplicadas ou estourar o layout */
+    iframe[src*="drive.google.com"], 
+    .video-container iframe, 
+    #playerContainer iframe {
+        width: 100% !important;
+        height: 100% !important;
+        border: none !important;
+        position: relative !important;
+        display: block !important;
+    }
+</style>
 </body>
 </html>
