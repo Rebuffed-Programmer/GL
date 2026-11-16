@@ -2807,18 +2807,21 @@ window.onload = () => {
 <script>
 (function() {
     function montarRoleta() {
-        // Pega os filmes do seu catálogo existente
         const catalogo = (typeof movieData !== 'undefined' && movieData.length > 0) ? movieData : [];
         if (catalogo.length === 0) return;
 
-        // Sorteia filmes aleatórios para os slots de conteúdo
+        // Sorteia os filmes aleatórios para as posições de conteúdo
         const filmeGratis = catalogo[Math.floor(Math.random() * catalogo.length)];
         const filmeCompra = catalogo[Math.floor(Math.random() * catalogo.length)];
 
-        // Os 4 slots da sua roleta (misturando filmes do seu acervo e anúncios)
+        // SEQUÊNCIA EXATA SOLICITADA:
+        // 1. Conteúdo do Catálogo (Gratuito)
+        // 2. Filme para Comprar
+        // 3. Anuncie Aqui
+        // 4. Patrocinador / Anúncio Extra
         const slots = [
             {
-                tag: "DESTAQUE DA SEMANA",
+                tag: "DESTAQUE DO CATÁLOGO",
                 titulo: filmeGratis.title,
                 meta: `${filmeGratis.year || '1940'} • Gratuito no Plus+`,
                 descricao: filmeGratis.description || "Assista agora este clássico imperdível no acervo do Plus+.",
@@ -2830,7 +2833,7 @@ window.onload = () => {
             },
             {
                 tag: "LOJA DIGITAL • R$ 19,99",
-                titulo: `Edição Especial: ${filmeCompra.title}`,
+                titulo: `Edição Exclusiva: ${filmeCompra.title}`,
                 meta: `${filmeCompra.year || '1930'} • Acesso Permanente`,
                 descricao: "Garanta este clássico exclusivo na sua coleção digital sem anúncios.",
                 imagem: filmeCompra.poster,
@@ -2863,18 +2866,14 @@ window.onload = () => {
             }
         ];
 
-        // Embaralha os 4 slots aleatoriamente
-        const slotsEmbaralhados = slots.sort(() => Math.random() - 0.5);
-
         const banner = document.querySelector('.hero-banner');
         if (!banner) return;
 
-        // Adiciona umas setinhas discretas e bolinhas se já não existirem
         if (!banner.querySelector('.roleta-dots')) {
             const dotsDiv = document.createElement('div');
             dotsDiv.className = 'roleta-dots';
             dotsDiv.style.cssText = 'position: absolute; bottom: 20px; right: 24px; display: flex; gap: 8px; z-index: 10;';
-            slotsEmbaralhados.forEach((_, i) => {
+            slots.forEach((_, i) => {
                 dotsDiv.innerHTML += `<button class="roleta-dot ${i === 0 ? 'active' : ''}" style="width: 10px; height: 10px; border-radius: 50%; background: ${i === 0 ? '#48c948' : 'rgba(255,255,255,0.3)'}; border: none; cursor: pointer; transition: 0.3s;"></button>`;
             });
             banner.style.position = 'relative';
@@ -2884,9 +2883,8 @@ window.onload = () => {
         let indice = 0;
 
         function aplicarSlide(i) {
-            const item = slotsEmbaralhados[i];
+            const item = slots[i];
             
-            // Usa o próprio banner que você já criou
             banner.style.backgroundImage = `linear-gradient(to top, #0d0f10 10%, rgba(13, 15, 16, 0.4) 60%, rgba(13, 15, 16, 0.8) 100%), url('${item.imagem}')`;
             banner.style.backgroundSize = 'cover';
             banner.style.backgroundPosition = 'center';
@@ -2919,7 +2917,6 @@ window.onload = () => {
                 };
             }
 
-            // Atualiza as bolinhas indicadoras
             const dots = banner.querySelectorAll('.roleta-dot');
             dots.forEach((d, idx) => {
                 d.style.background = idx === i ? '#48c948' : 'rgba(255,255,255,0.3)';
@@ -2928,12 +2925,10 @@ window.onload = () => {
             });
         }
 
-        // Roda o primeiro slide
         aplicarSlide(0);
 
-        // Gira automaticamente a cada 6 segundos usando o banner base
         setInterval(() => {
-            indice = (indice + 1) % slotsEmbaralhados.length;
+            indice = (indice + 1) % slots.length;
             aplicarSlide(indice);
         }, 6000);
     }
