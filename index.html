@@ -20,174 +20,245 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-<!-- ================= INTRO EXCLUSIVA PLUS+ ================= -->
+<!-- ================= INTRO CINEMATOGRÁFICA TIPOGRAFIA PLUS+ ================= -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
+
 <style>
-  #plus-intro-overlay {
+  #plus-intro-stage {
     position: fixed;
     inset: 0;
-    background: #000000;
+    background: radial-gradient(circle at center, #081408 0%, #000000 72%);
     z-index: 999999;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     cursor: pointer;
-    transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1), transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1), transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  #plus-intro-overlay.intro-exit {
+  #plus-intro-stage.stage-fadeout {
     opacity: 0;
-    transform: scale(1.08);
+    transform: scale(1.12);
     pointer-events: none;
   }
 
-  /* Feixes que cruzam formando o "+" */
-  .plus-beam-h,
-  .plus-beam-v {
+  /* Aura de fundo que pulsa no ritmo da logo */
+  .plus-ambient-glow {
     position: absolute;
-    background: linear-gradient(90deg, transparent, #48c948, #b8ffba, #48c948, transparent);
-    box-shadow: 0 0 24px rgba(72, 201, 72, 0.85);
-    opacity: 0;
-  }
-
-  .plus-beam-h {
-    width: 0;
-    height: 3px;
-    animation: beamHorizontal 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  .plus-beam-v {
-    width: 3px;
-    height: 0;
-    background: linear-gradient(180deg, transparent, #48c948, #b8ffba, #48c948, transparent);
-    animation: beamVertical 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  /* Clarão na colisão central */
-  .plus-ignition-flash {
-    position: absolute;
-    width: 14px;
-    height: 14px;
+    width: 420px;
+    height: 420px;
     border-radius: 50%;
-    background: #48c948;
-    box-shadow: 0 0 60px 30px rgba(72, 201, 72, 0.6);
+    background: radial-gradient(circle, rgba(72, 201, 72, 0.22) 0%, transparent 70%);
     opacity: 0;
-    transform: scale(0.2);
-    animation: centerIgnition 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.28s forwards;
+    transform: scale(0.4);
+    animation: ambientPulse 2.8s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
   }
 
-  /* Container da Logo */
-  .plus-intro-logo-wrap {
+  /* Linha de horizonte sutil */
+  .plus-horizon-line {
+    position: absolute;
+    height: 1px;
+    width: 0;
+    background: linear-gradient(90deg, transparent, rgba(72, 201, 72, 0.7), transparent);
+    animation: horizonExpand 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+  }
+
+  /* Container Tipográfico Central */
+  .plus-wordmark {
     position: relative;
     z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  /* Texto "Plus" revelado com máscara e espaçamento */
+  .plus-text-clip {
+    overflow: hidden;
+    display: inline-flex;
+    padding-right: 4px;
+  }
+
+  .plus-letters {
+    font-size: clamp(54px, 8vw, 96px);
+    color: #ffffff;
+    letter-spacing: 0.28em;
     opacity: 0;
-    transform: scale(1.22);
-    filter: brightness(1.6) drop-shadow(0 0 25px rgba(72, 201, 72, 0.5));
-    animation: logoReveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.38s forwards;
+    transform: translateX(36px);
+    filter: blur(8px);
+    background: linear-gradient(110deg, #ffffff 35%, #b8ffba 50%, #ffffff 65%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation:
+      lettersReveal 1.15s cubic-bezier(0.16, 1, 0.3, 1) 0.85s forwards,
+      textShimmer 1.2s ease-in-out 1.75s forwards;
   }
 
-  .plus-intro-logo-wrap img {
-    height: 76px;
-    width: auto;
-    display: block;
-    object-fit: contain;
+  /* Símbolo "+" desenhado em CSS puro */
+  .plus-symbol-wrap {
+    position: relative;
+    width: clamp(44px, 6.2vw, 74px);
+    height: clamp(44px, 6.2vw, 74px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 6px;
+    transform: translateX(-115px) scale(0) rotate(-90deg);
+    opacity: 0;
+    animation:
+      plusBirth 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s forwards,
+      plusSlideRight 1.05s cubic-bezier(0.16, 1, 0.3, 1) 0.85s forwards;
   }
 
-  /* Reflexo metálico passando pela logo */
-  .plus-intro-logo-wrap::after {
-    content: "";
+  .plus-bar-h,
+  .plus-bar-v {
     position: absolute;
-    top: 0;
-    left: -120%;
-    width: 80%;
-    height: 100%;
-    background: linear-gradient(115deg, transparent 20%, rgba(255, 255, 255, 0.55) 50%, transparent 80%);
-    transform: skewX(-20deg);
-    animation: logoShimmer 0.75s ease-out 0.75s forwards;
+    background: #48c948;
+    border-radius: 6px;
+    box-shadow: 0 0 24px rgba(72, 201, 72, 0.9), 0 0 48px rgba(72, 201, 72, 0.45);
   }
 
-  @keyframes beamHorizontal {
-    0% { width: 0; opacity: 1; }
-    60% { width: 65vw; opacity: 1; }
+  .plus-bar-h {
+    width: 100%;
+    height: 24%;
+  }
+
+  .plus-bar-v {
+    width: 24%;
+    height: 100%;
+  }
+
+  @keyframes ambientPulse {
+    0% { opacity: 0; transform: scale(0.4); }
+    45% { opacity: 1; transform: scale(1.15); }
+    100% { opacity: 0.55; transform: scale(1.5); }
+  }
+
+  @keyframes horizonExpand {
+    0% { width: 0; opacity: 0; }
+    40% { width: 70vw; opacity: 1; }
     100% { width: 100vw; opacity: 0; }
   }
 
-  @keyframes beamVertical {
-    0% { height: 0; opacity: 1; }
-    60% { height: 55vh; opacity: 1; }
-    100% { height: 100vh; opacity: 0; }
-  }
-
-  @keyframes centerIgnition {
-    0% { opacity: 0; transform: scale(0.2); }
-    35% { opacity: 0.9; transform: scale(3.5); }
-    100% { opacity: 0; transform: scale(9); }
-  }
-
-  @keyframes logoReveal {
+  @keyframes plusBirth {
     0% {
       opacity: 0;
-      transform: scale(1.22);
-      filter: brightness(1.8) drop-shadow(0 0 32px rgba(72, 201, 72, 0.8));
+      transform: translateX(-115px) scale(0) rotate(-90deg);
     }
     100% {
       opacity: 1;
-      transform: scale(1);
-      filter: brightness(1) drop-shadow(0 0 12px rgba(72, 201, 72, 0.25));
+      transform: translateX(-115px) scale(1.15) rotate(0deg);
     }
   }
 
-  @keyframes logoShimmer {
-    0% { left: -120%; }
-    100% { left: 160%; }
+  @keyframes plusSlideRight {
+    0% {
+      transform: translateX(-115px) scale(1.15) rotate(0deg);
+    }
+    100% {
+      transform: translateX(0) scale(1) rotate(0deg);
+    }
+  }
+
+  @keyframes lettersReveal {
+    0% {
+      opacity: 0;
+      letter-spacing: 0.28em;
+      transform: translateX(36px);
+      filter: blur(8px);
+    }
+    100% {
+      opacity: 1;
+      letter-spacing: -0.03em;
+      transform: translateX(0);
+      filter: blur(0);
+    }
+  }
+
+  @keyframes textShimmer {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+  }
+
+  @media (max-width: 600px) {
+    .plus-symbol-wrap {
+      transform: translateX(-72px) scale(0) rotate(-90deg);
+      animation:
+        plusBirthMobile 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s forwards,
+        plusSlideRightMobile 1.05s cubic-bezier(0.16, 1, 0.3, 1) 0.85s forwards;
+    }
+
+    @keyframes plusBirthMobile {
+      0% { opacity: 0; transform: translateX(-72px) scale(0) rotate(-90deg); }
+      100% { opacity: 1; transform: translateX(-72px) scale(1.15) rotate(0deg); }
+    }
+
+    @keyframes plusSlideRightMobile {
+      0% { transform: translateX(-72px) scale(1.15) rotate(0deg); }
+      100% { transform: translateX(0) scale(1) rotate(0deg); }
+    }
   }
 </style>
 
-<div id="plus-intro-overlay" aria-hidden="true">
-  <div class="plus-beam-h"></div>
-  <div class="plus-beam-v"></div>
-  <div class="plus-ignition-flash"></div>
-  <div class="plus-intro-logo-wrap">
-    <img src="https://i.postimg.cc/fbm60y7Q/logo.png" alt="Plus+">
+<div id="plus-intro-stage" aria-hidden="true">
+  <div class="plus-ambient-glow"></div>
+  <div class="plus-horizon-line"></div>
+
+  <div class="plus-wordmark">
+    <div class="plus-text-clip">
+      <span class="plus-letters">Plus</span>
+    </div>
+    <div class="plus-symbol-wrap">
+      <span class="plus-bar-h"></span>
+      <span class="plus-bar-v"></span>
+    </div>
   </div>
 </div>
 
 <script>
   (function () {
-    const intro = document.getElementById('plus-intro-overlay');
-    if (!intro) return;
+    const stage = document.getElementById('plus-intro-stage');
+    if (!stage) return;
 
-    // Roda apenas uma vez por sessão para não atrapalhar a navegação
+    // Roda 1x por sessão para não travar a navegação no dia a dia
     if (sessionStorage.getItem('plus_intro_played') === '1') {
-      intro.remove();
+      stage.remove();
       return;
     }
 
-    let closed = false;
-    function finishIntro() {
-      if (closed) return;
-      closed = true;
+    let finished = false;
+    function closeIntro() {
+      if (finished) return;
+      finished = true;
       sessionStorage.setItem('plus_intro_played', '1');
-      intro.classList.add('intro-exit');
-      setTimeout(() => intro.remove(), 560);
+      stage.classList.add('stage-fadeout');
+      setTimeout(() => stage.remove(), 760);
     }
 
-    // Fecha automaticamente após a vinheta (1.85s)
-    const timer = setTimeout(finishIntro, 1850);
+    // Duração total cinematográfica: 3.4 segundos
+    const timer = setTimeout(closeIntro, 3400);
 
-    // Permite pular com clique ou qualquer tecla (útil no controle remoto da TV)
-    intro.addEventListener('click', () => {
+    // Permite pular com toque/clique ou qualquer tecla do controle remoto
+    stage.addEventListener('click', () => {
       clearTimeout(timer);
-      finishIntro();
+      closeIntro();
     });
 
-    window.addEventListener('keydown', function onKeySkip() {
+    window.addEventListener('keydown', function skipOnKey() {
       clearTimeout(timer);
-      finishIntro();
-      window.removeEventListener('keydown', onKeySkip);
+      closeIntro();
     }, { once: true });
   })();
 </script>
+
     <style>
         :root {
             --bg-primary: #0d0f10;
