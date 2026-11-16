@@ -20,9 +20,9 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-<!-- ================= INTRO MORPHING COM LOGO CURSIVA PLUS+ ================= -->
+<<!-- ================= INTRO PLUS+ FLUIDA (OTIMIZADA PARA TV) ================= -->
 <style>
-  #plus-globoplay-intro {
+  #plus-smooth-intro {
     position: fixed;
     inset: 0;
     background: #000000;
@@ -33,140 +33,64 @@
     overflow: hidden;
     cursor: pointer;
     user-select: none;
-    transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+    transition: opacity 0.5s ease, transform 0.6s ease;
   }
 
-  #plus-globoplay-intro.intro-done {
+  #plus-smooth-intro.intro-finished {
     opacity: 0;
-    transform: scale(1.08);
+    transform: scale(1.05);
     pointer-events: none;
   }
 
-  /* Feixes luminosos diagonais de fundo (estilo Globoplay) */
-  .intro-streaks {
-    position: absolute;
-    inset: -40%;
-    transform: rotate(-25deg);
-    pointer-events: none;
-    overflow: hidden;
-  }
-
-  .intro-streak-line {
-    position: absolute;
-    height: 12px;
-    border-radius: 999px;
-    opacity: 0;
-    filter: blur(2px);
-  }
-
-  .intro-streak-line.st1 {
-    top: 30%;
-    left: -50%;
-    width: 60%;
-    background: linear-gradient(90deg, transparent, #1b5e20, #48c948, #ffffff);
-    animation: streakMove 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
-  }
-
-  .intro-streak-line.st2 {
-    top: 52%;
-    right: -50%;
-    width: 70%;
-    height: 18px;
-    background: linear-gradient(270deg, transparent, #2e7d32, #48c948, #b9f6ca);
-    animation: streakMoveRev 1.15s cubic-bezier(0.16, 1, 0.3, 1) 0.12s forwards;
-  }
-
-  /* Clarão central que ilumina a logo */
-  .intro-radial-glow {
-    position: absolute;
-    width: 380px;
-    height: 380px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(72, 201, 72, 0.35) 0%, rgba(27, 94, 32, 0.12) 45%, transparent 70%);
-    opacity: 0;
-    transform: scale(0.3);
-    animation: glowBloom 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
-  }
-
-  /* Container da Logo Cursiva */
-  .intro-logo-container {
+  /* Container da logo com animação limpa baseada em GPU (transform/opacity) */
+  .smooth-logo-wrap {
     position: relative;
-    z-index: 3;
+    z-index: 2;
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
-    transform: scale(0.15) scaleX(1.4);
-    filter: drop-shadow(0 0 24px rgba(72, 201, 72, 0.55));
-    animation: logoMorphReveal 1.25s cubic-bezier(0.22, 1, 0.36, 1) 0.5s forwards;
+    transform: scale(0.6);
+    animation: smoothLogoPlay 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
-  .intro-logo-container img {
-    max-width: min(82vw, 360px);
+  .smooth-logo-wrap img {
+    max-width: min(80vw, 340px);
     height: auto;
     display: block;
     object-fit: contain;
-    /* Filtro para deixar a logo em branco puro ou com leve brilho neon se desejar */
-    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.85)) drop-shadow(0 0 25px rgba(72, 201, 72, 0.65));
   }
 
-  @keyframes streakMove {
-    0% { transform: translateX(0); opacity: 0; }
-    30% { opacity: 1; }
-    100% { transform: translateX(190vw); opacity: 0; }
-  }
-
-  @keyframes streakMoveRev {
-    0% { transform: translateX(0); opacity: 0; }
-    30% { opacity: 1; }
-    100% { transform: translateX(-190vw); opacity: 0; }
-  }
-
-  @keyframes glowBloom {
-    0% { opacity: 0; transform: scale(0.3); }
-    45% { opacity: 1; transform: scale(1.25); }
-    100% { opacity: 0.5; transform: scale(1.65); }
-  }
-
-  @keyframes logoMorphReveal {
+  @keyframes smoothLogoPlay {
     0% {
       opacity: 0;
-      transform: scale(0.12) scaleX(1.6);
-      filter: blur(6px) drop-shadow(0 0 35px rgba(72, 201, 72, 0.9));
+      transform: scale(0.6);
     }
-    45% {
+    25% {
       opacity: 1;
-      transform: scale(1.12) scaleX(0.92);
-      filter: blur(0);
+      transform: scale(1.04);
     }
-    75% {
-      transform: scale(0.96) scaleX(1.02);
+    82% {
+      opacity: 1;
+      transform: scale(1);
     }
     100% {
-      opacity: 1;
-      transform: scale(1) scaleX(1);
-      filter: drop-shadow(0 0 16px rgba(72, 201, 72, 0.4));
+      opacity: 0;
+      transform: scale(1.08);
     }
   }
 </style>
 
-<div id="plus-globoplay-intro" aria-hidden="true">
-  <div class="intro-streaks">
-    <div class="intro-streak-line st1"></div>
-    <div class="intro-streak-line st2"></div>
-  </div>
-
-  <div class="intro-radial-glow"></div>
-
-  <div class="intro-logo-container">
-    <!-- Imagem embutida em Base64 para carregar de forma instantânea e sem falhas -->
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYYAAA..." alt="Plus+">
+<div id="plus-smooth-intro" aria-hidden="true">
+  <div class="smooth-logo-wrap">
+    <img src="https://i.postimg.cc/fRJHk4Vh/IMG-2741.png" alt="Plus+">
   </div>
 </div>
 
 <script>
   (function () {
-    const intro = document.getElementById('plus-globoplay-intro');
+    const intro = document.getElementById('plus-smooth-intro');
     if (!intro) return;
 
     // Roda apenas uma vez por sessão
@@ -175,27 +99,27 @@
       return;
     }
 
-    let ended = false;
-    function closeIntro() {
-      if (ended) return;
-      ended = true;
+    let closed = false;
+    function dismissIntro() {
+      if (closed) return;
+      closed = true;
       sessionStorage.setItem('plus_intro_played', '1');
-      intro.classList.add('intro-done');
-      setTimeout(() => intro.remove(), 650);
+      intro.classList.add('intro-finished');
+      setTimeout(() => intro.remove(), 520);
     }
 
-    // Duração total: 3.2 segundos
-    const timer = setTimeout(closeIntro, 3200);
+    // Duração exata: 2.4 segundos (fluida, elegante e sem travar)
+    const timer = setTimeout(dismissIntro, 2400);
 
-    // Permite pular clicando ou apertando qualquer tecla (ótimo para Smart TV / Controle Remoto)
+    // Permite pular clicando na tela ou apertando qualquer tecla no controle da TV
     intro.addEventListener('click', () => {
       clearTimeout(timer);
-      closeIntro();
+      dismissIntro();
     });
 
     window.addEventListener('keydown', () => {
       clearTimeout(timer);
-      closeIntro();
+      dismissIntro();
     }, { once: true });
   })();
 </script>
