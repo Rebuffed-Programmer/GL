@@ -3162,5 +3162,39 @@ window.onload = () => {
         display: block !important;
     }
 </style>
+    <style>
+    /* Trava absoluta para o iframe do Google Drive ignorar camadas duplicadas e barras nativas */
+    iframe[src*="drive.google.com"] {
+        pointer-events: auto !important;
+    }
+    /* Esconde elementos sobrepostos extras gerados pelo preview do Drive se necessário */
+    .video-container, #playerContainer {
+        position: relative !important;
+        overflow: hidden !important;
+        background: #000 !important;
+    }
+</style>
+
+<script>
+(function() {
+    // Injeta parâmetros de limpeza diretamente nos iframes do Drive para desativar controles extras
+    function limparIframesDrive() {
+        document.querySelectorAll('iframe[src*="drive.google.com"]').forEach(iframe => {
+            let src = iframe.getAttribute('src');
+            if (src && !src.includes('usp=sharing') && !src.includes('embedded=true')) {
+                // Adiciona parâmetros para forçar o player limpo sem sobreposições desnecessárias
+                if (!src.includes('rm=minimal')) {
+                    iframe.src = src + (src.includes('?') ? '&' : '?') + 'rm=minimal&autoplay=1';
+                }
+            }
+        });
+    }
+
+    // Executa ao carregar e fica vigiando caso novos players abram
+    window.addEventListener('DOMContentLoaded', limparIframesDrive);
+    const observer = new MutationObserver(limparIframesDrive);
+    observer.observe(document.body, { childList: true, subtree: true });
+})();
+</script>
 </body>
 </html>
