@@ -2724,7 +2724,6 @@ window.onload = () => {
 <script>
 (function() {
     const EXPIRACAO_MS = 3 * 24 * 60 * 60 * 1000; // 3 dias
-    let ultimoFilmeAbertoId = null;
 
     function injetarSecao() {
         if (document.getElementById('continue-watching-section')) return;
@@ -2742,13 +2741,14 @@ window.onload = () => {
         main.prepend(sec);
     }
 
-    function salvarHistorico(movieId) {
+    // Função pública para salvar no histórico de qualquer lugar do app
+    window.salvarNoContinuarAssistindo = function(movieId) {
         if (!movieId) return;
         const hist = JSON.parse(localStorage.getItem('plus_continuar') || '{}');
         hist[movieId] = Date.now();
         localStorage.setItem('plus_continuar', JSON.stringify(hist));
         atualizarContinuar();
-    }
+    };
 
     function atualizarContinuar() {
         const sec = document.getElementById('continue-watching-section');
@@ -2785,25 +2785,62 @@ window.onload = () => {
         });
     }
 
+    // Intercepta qualquer clique em botões de "Assistir" ou players
     document.addEventListener('click', (e) => {
-        // Apenas memoriza qual pôster foi aberto (NÃO salva no histórico ainda)
-        const card = e.target.closest('.movie-item[data-movie-id]');
-        if (card) {
-            ultimoFilmeAbertoId = card.getAttribute('data-movie-id');
-            return;
-        }
+        const btn = e.target.closest('button, a, div');
+        if (!btn) return;
 
-        // Só salva de verdade se clicar no botão de "Assistir" dentro do modal ou player
-        const btnAssistir = e.target.closest('#modalWatchBtn, .watch-btn, .play-btn, [data-action="watch"]');
-        if (btnAssistir) {
-            const idAlvo = btnAssistir.getAttribute('data-movie-id') || ultimoFilmeAbertoId;
-            if (idAlvo) salvarHistorico(idAlvo);
+        const texto = (btn.textContent || '').toLowerCase();
+        const onclickAttr = btn.getAttribute('onclick') || '';
+        const idAttr = btn.getAttribute('data-movie-id') || btn.closest('[data-movie-id]')?.getAttribute('data-movie-id');
+
+        // Se o elemento clicado indicar ação de assistir/play
+        if (texto.includes('assistir') || texto.includes('play') || onclickAttr.includes('play') || onclickAttr.includes('watch') || btn.classList.contains('watch-btn')) {
+            if (idAttr) {
+                window.salvarNoContinuarAssistindo(idAttr);
+            }
         }
     });
 
     window.addEventListener('DOMContentLoaded', () => {
         injetarSecao();
         atualizarContinuar();
+    });
+})();
+</script>
+
+<script>
+// Limpador implacável da palavra "Classix" (em títulos, cards, modais e YouTube)
+(function() {
+    function limparTexto(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            if (node.nodeValue && /classix/i.test(node.nodeValue)) {
+                node.nodeValue = node.nodeValue.replace(/classix/gi, '').trim();
+            }
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+            if (node.tagName === 'INPUT' || node.tagName === 'TEXTAREA') {
+                if (node.value && /classix/i.test(node.value)) {
+                    node.value = node.value.replace(/classix/gi, '').trim();
+                }
+            }
+            for (let child of node.childNodes) {
+                limparTexto(child);
+            }
+        }
+    }
+
+    // Executa a limpeza na página inteira continuamente
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                limparTexto(node);
+            });
+        });
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        limparTexto(document.body);
+        observer.observe(document.body, { childList: true, subtree: true });
     });
 })();
 </script>
