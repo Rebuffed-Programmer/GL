@@ -2720,7 +2720,8 @@ window.onload = () => {
     }
 
 })();
-</script><script>
+</script>
+    <script>
 (function() {
     // =====================================================================
     // CADASTRO MANUAL DOS PARCEIROS (Roleta 4)
@@ -2728,13 +2729,13 @@ window.onload = () => {
     // =====================================================================
     const storeParceiros = [
         {
-            titulo: "Oferta Especial Parceiro 1",
+            titulo: "Visual National",
             meta: "Publicidade • Apoie o Plus+",
-            descricao: "Conheça os produtos e novidades exclusivas dos nossos parceiros oficiais da região.",
-            imagem: "https://i.postimg.cc/XJ3Pgkwv/Plano-Mensal.jpg",
+            descricao: "estilo conforto e qualidade em todas as peças.",
+            imagem: "https://i.postimg.cc/dVLGLhCg/IMG-9654.jpg",
             textoBotao: "Saiba Mais",
             icone: "fas fa-external-link-alt",
-            url: "https://mpago.la/2SRyqam"
+            url: "https://reserva.ink/glvisualnational" // Link de redirecionamento do parceiro
         },
         {
             titulo: "Loja de Eletrônicos Parceira",
@@ -3407,60 +3408,6 @@ window.onload = () => {
     });
 
     window.addEventListener('DOMContentLoaded', criarContainerPlayer);
-})();
-</script>
-    <script>
-(function() {
-    // Lista de Parceiros para a Roleta 4 (Adicione/Edite aqui)
-    const storeParceiros = [
-        {
-            titulo: "Visual National",
-            meta: "Publicidade • Apoie o Plus+",
-            descricao: "estilo conforto e qualidade em todas as peças.",
-            imagem: "https://i.postimg.cc/dVLGLhCg/IMG-9654.jpg",
-            textoBotao: "Saiba Mais",
-            icone: "fas fa-external-link-alt",
-            url: "https://reserva.ink/glvisualnational" // Link de redirecionamento do parceiro
-        },
-        {
-            titulo: "Loja de Eletrônicos Parceira",
-            meta: "Desconto Exclusivo • TV Box e Acessórios",
-            descricao: "Compre equipamentos com frete grátis usando o cupom oficial do aplicativo Plus+.",
-            imagem: "https://a.imagem.app/BC1RYX.jpeg",
-            textoBotao: "Ver Ofertas",
-            icone: "fas fa-shopping-cart",
-            url: "https://wa.me/5551999999999?text=Olá!%20Vim%20pelo%20Plus%2B%20e%20quero%20o%20desconto"
-        },
-        {
-            titulo: "Açaí & Lanches Novo Hamburgo",
-            meta: "Gastronomia • Sabor e Qualidade",
-            descricao: "Peça o melhor açaí da região direto pelo WhatsApp com entrega rápida na sua casa.",
-            imagem: "https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg",
-            textoBotao: "Pedir Agora",
-            icone: "fab fa-whatsapp",
-            url: "https://wa.me/5551999999999?text=Olá!%20Quero%20pedir%20pelo%20anúncio%20do%20Plus%2B"
-        }
-    ];
-
-    // Intercepta e injeta o parceiro sorteado quando a roleta rodar
-    window.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => {
-            if (window.slotsRoleta && Array.isArray(window.slotsRoleta)) {
-                const sorteado = storeParceiros[Math.floor(Math.random() * storeParceiros.length)];
-                window.slotsRoleta[3] = {
-                    tag: "PATROCINADOR OFICIAL",
-                    titulo: sorteado.titulo,
-                    meta: sorteado.meta,
-                    descricao: sorteado.descricao,
-                    imagem: sorteado.imagem,
-                    textoBotao: sorteado.textoBotao,
-                    icone: sorteado.icone,
-                    tipo: "link",
-                    url: sorteado.url
-                };
-            }
-        }, 300);
-    });
 })();
 </script>
 </body>
