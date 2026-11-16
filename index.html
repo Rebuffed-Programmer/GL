@@ -3365,5 +3365,241 @@ window.onload = () => {
     window.addEventListener('DOMContentLoaded', criarContainerPlayer);
 })();
 </script>
+    <script>
+(function() {
+    // =====================================================================
+    // CADASTRO MANUAL DOS PARCEIROS (Adicione quantos quiser aqui!)
+    // O sistema vai sortear um diferente automaticamente a cada acesso.
+    // =====================================================================
+    const storeParceiros = [
+        {
+            titulo: "Visual National",
+            meta: "Publicidade • Apoie o Plus+",
+            descricao: "estilo conforto e qualidade em todas as peças.",
+            imagem: "https://i.postimg.cc/dVLGLhCg/IMG-9654.jpg",
+            textoBotao: "Saiba Mais",
+            icone: "fas fa-external-link-alt",
+            url: "https://reserva.ink/glvisualnational" // Link de redirecionamento do parceiro
+        },
+        {
+            titulo: "Loja de Eletrônicos Parceira",
+            meta: "Desconto Exclusivo • TV Box e Acessórios",
+            descricao: "Compre equipamentos com frete grátis usando o cupom oficial do aplicativo Plus+.",
+            imagem: "https://a.imagem.app/BC1RYX.jpeg", // Pode colocar o link da imagem do banner do parceiro
+            textoBotao: "Ver Ofertas",
+            icone: "fas fa-shopping-cart",
+            url: "https://wa.me/5551999999999?text=Olá!%20Vim%20pelo%20Plus%2B%20e%20quero%20o%20desconto"
+        },
+        {
+            titulo: "Açaí & Lanches Novo Hamburgo",
+            meta: "Gastronomia • Sabor e Qualidade",
+            descricao: "Peça o melhor açaí da região direto pelo WhatsApp com entrega rápida na sua casa.",
+            imagem: "https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg",
+            textoBotao: "Pedir Agora",
+            icone: "fab fa-whatsapp",
+            url: "https://wa.me/5551999999999?text=Olá!%20Quero%20pedir%20pelo%20anúncio%20do%20Plus%2B"
+        }
+        // Para adicionar mais parceiros no futuro, basta copiar um bloco acima, 
+        // colar abaixo colando uma vírgula no anterior, e alterar os textos/links!
+    ];
+
+    function limparTitulo(texto) {
+        if (!texto) return '';
+        return texto.replace(/classix/gi, '').replace(/full\s*movie/gi, '').replace(/\bhd\b/gi, '').trim();
+    }
+
+    function formatarPrecoBRL(valor) {
+        return 'R$ ' + Number(valor).toFixed(2).replace('.', ',');
+    }
+
+    function montarRoleta() {
+        const catalogo = (typeof movieData !== 'undefined' && movieData.length > 0) ? movieData : [];
+        if (catalogo.length === 0) return;
+
+        // 1. Pega os filmes da storeCatalog para a Loja
+        let filmesLoja = [];
+        if (typeof storeCatalog !== 'undefined' && Array.isArray(storeCatalog)) {
+            storeCatalog.forEach(sessao => {
+                if (Array.isArray(sessao.items)) {
+                    sessao.items.forEach(item => {
+                        filmesLoja.push({ ...item, precoSessao: sessao.price });
+                    });
+                }
+            });
+        }
+
+        const idsPagos = new Set(filmesLoja.map(f => String(f.id)));
+        const filmesGratis = catalogo.filter(m => !idsPagos.has(String(m.id)));
+        const listaGratis = filmesGratis.length > 0 ? filmesGratis : catalogo;
+
+        // 2. Sorteios aleatórios para cada slot da roleta
+        const filmeGratis = listaGratis[Math.floor(Math.random() * listaGratis.length)];
+        const filmeCompra = filmesLoja.length > 0 ? filmesLoja[Math.floor(Math.random() * filmesLoja.length)] : catalogo[0];
+        
+        // Sorteio randomizado do parceiro na lista cadastrada acima!
+        const parceiroSorteado = storeParceiros.length > 0 ? storeParceiros[Math.floor(Math.random() * storeParceiros.length)] : {
+            titulo: "Anuncie Aqui", meta: "Parceiro", descricao: "Espaço disponível.", imagem: "https://i.postimg.cc/XJ3Pgkwv/Plano-Mensal.jpg", textoBotao: "Saiba Mais", icone: "fas fa-star", url: "#"
+        };
+
+        const precoTexto = filmeCompra.precoSessao ? formatarPrecoBRL(filmeCompra.precoSessao) : 'R$ 19,99';
+
+        // ORDEM EXATA: 1. Catálogo | 2. Compra | 3. Anuncie Aqui | 4. Parceiro Randomizado
+        const slots = [
+            {
+                tag: "DESTAQUE DO CATÁLOGO",
+                titulo: limparTitulo(filmeGratis.title),
+                meta: `${filmeGratis.year || '1940'} • Gratuito no Plus+`,
+                descricao: filmeGratis.description || "Assista agora este clássico imperdível no acervo do Plus+.",
+                imagem: filmeGratis.poster,
+                textoBotao: "Assistir Agora",
+                icone: "fas fa-play",
+                tipo: "filme",
+                filmeId: filmeGratis.id
+            },
+            {
+                tag: `LOJA DIGITAL • ${precoTexto}`,
+                titulo: limparTitulo(filmeCompra.title),
+                meta: `${filmeCompra.year || '1930'} • Compra Avulsa`,
+                descricao: filmeCompra.description || "Adquira este título exclusivo na sua coleção digital.",
+                imagem: filmeCompra.poster,
+                textoBotao: `Comprar por ${precoTexto}`,
+                icone: "fas fa-shopping-bag",
+                tipo: "link",
+                url: filmeCompra.checkoutUrl || "https://mpago.la/2qGqDpc"
+            },
+            {
+                tag: "ESPAÇO DISPONÍVEL",
+                titulo: "Anuncie sua Marca no Plus+",
+                meta: "Alcance milhares de telas • Android, iOS e TV Box",
+                descricao: "Coloque sua empresa ou produto na tela inicial do Plus+ com planos semanais e mensais.",
+                imagem: "https://i.postimg.cc/yN37MSRy/P-ster-das-assinaturas-Plus.jpg",
+                textoBotao: "Anunciar Aqui",
+                icone: "fab fa-whatsapp",
+                tipo: "link",
+                url: "https://wa.me/5551999999999?text=Olá!%20Quero%20anunciar%20na%20roleta%20do%20Plus%2B"
+            },
+            {
+                tag: "PATROCINADOR OFICIAL",
+                titulo: limparTitulo(parceiroSorteado.titulo),
+                meta: parceiroSorteado.meta,
+                descricao: parceiroSorteado.descricao,
+                imagem: parceiroSorteado.imagem,
+                textoBotao: parceiroSorteado.textoBotao,
+                icone: parceiroSorteado.icone,
+                tipo: "link",
+                url: parceiroSorteado.url
+            }
+        ];
+
+        const banner = document.querySelector('.hero-banner');
+        if (!banner) return;
+        banner.style.position = 'relative';
+
+        let indice = 0;
+        let timer = null;
+
+        if (!banner.querySelector('.roleta-prev')) {
+            const btnStyle = 'position: absolute; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border-radius: 50%; background: rgba(13, 15, 16, 0.75); border: 1px solid rgba(255,255,255,0.2); color: #fff; cursor: pointer; z-index: 25; display: flex; align-items: center; justify-content: center;';
+            
+            const prev = document.createElement('button');
+            prev.className = 'roleta-prev';
+            prev.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prev.style.cssText = btnStyle + ' left: 12px;';
+            prev.onclick = (e) => { e.stopPropagation(); mudarPara(indice - 1); };
+
+            const next = document.createElement('button');
+            next.className = 'roleta-next';
+            next.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            next.style.cssText = btnStyle + ' right: 12px;';
+            next.onclick = (e) => { e.stopPropagation(); mudarPara(indice + 1); };
+
+            banner.appendChild(prev);
+            banner.appendChild(next);
+        }
+
+        if (!banner.querySelector('.roleta-dots')) {
+            const dotsDiv = document.createElement('div');
+            dotsDiv.className = 'roleta-dots';
+            dotsDiv.style.cssText = 'position: absolute; bottom: 20px; right: 24px; display: flex; gap: 8px; z-index: 25;';
+            slots.forEach((_, i) => {
+                const dot = document.createElement('button');
+                dot.className = 'roleta-dot';
+                dot.style.cssText = 'width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.3); border: none; cursor: pointer; transition: 0.3s; padding: 0;';
+                dot.onclick = (e) => { e.stopPropagation(); mudarPara(i); };
+                dotsDiv.appendChild(dot);
+            });
+            banner.appendChild(dotsDiv);
+        }
+
+        let touchStartX = 0;
+        banner.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+        banner.addEventListener('touchend', (e) => {
+            const diff = touchStartX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 40) {
+                mudarPara(diff > 0 ? indice + 1 : indice - 1);
+            }
+        }, { passive: true });
+
+        function mudarPara(novoIndice) {
+            indice = (novoIndice + slots.length) % slots.length;
+            aplicarSlide(indice);
+            reiniciarTimer();
+        }
+
+        function aplicarSlide(i) {
+            const item = slots[i];
+            
+            banner.style.backgroundImage = `linear-gradient(to top, #0d0f10 10%, rgba(13, 15, 16, 0.4) 60%, rgba(13, 15, 16, 0.8) 100%), url('${item.imagem}')`;
+            banner.style.backgroundSize = 'cover';
+            banner.style.backgroundPosition = 'center';
+
+            const tag = banner.querySelector('.hero-tag');
+            if (tag) tag.innerHTML = `<i class="fas fa-bolt"></i> ${item.tag}`;
+
+            const titulo = banner.querySelector('.title');
+            if (titulo) titulo.textContent = item.titulo;
+
+            const meta = banner.querySelector('.hero-meta');
+            if (meta) meta.innerHTML = `<span>${item.meta}</span>`;
+
+            const desc = banner.querySelector('.description');
+            if (desc) desc.textContent = item.descricao;
+
+            const btn = banner.querySelector('.watch-btn-hero');
+            if (btn) {
+                btn.innerHTML = `<i class="${item.icone}"></i> ${item.textoBotao}`;
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    if (item.tipo === "filme") {
+                        const filmeAlvo = catalogo.find(m => String(m.id) === String(item.filmeId));
+                        if (filmeAlvo && typeof populateModal === 'function') {
+                            populateModal(filmeAlvo);
+                        }
+                    } else {
+                        window.open(item.url, "_blank");
+                    }
+                };
+            }
+
+            const dots = banner.querySelectorAll('.roleta-dot');
+            dots.forEach((d, idx) => {
+                d.style.background = idx === i ? '#48c948' : 'rgba(255,255,255,0.3)';
+                d.style.width = idx === i ? '24px' : '10px';
+                d.style.borderRadius = idx === i ? '6px' : '50%';
+            });
+        }
+
+        function reiniciarTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => mudarPara(indice + 1), 6000);
+        }
+
+        aplicarSlide(0);
+        reiniciarTimer();
+    }
+
+    window.addEventListener('DOMContentLoaded', montarRoleta);
+})();
+</script>
 </body>
 </html>
