@@ -20,9 +20,9 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-<!-- ================= INTRO PREMIUM PLUS+ (ESTILO CINEMATOGRÁFICO) ================= -->
+<!-- ================= INTRO CALIGRAFIA EMENDADA PLUS+ ================= -->
 <style>
-  #plus-cinematic-intro {
+  #plus-stroke-intro {
     position: fixed;
     inset: 0;
     background: radial-gradient(circle at center, #0f1026 0%, #070814 60%, #020308 100%);
@@ -34,188 +34,146 @@
     overflow: hidden;
     cursor: pointer;
     user-select: none;
-    transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.7s ease, transform 0.8s ease;
   }
 
-  #plus-cinematic-intro.intro-fading {
+  #plus-stroke-intro.intro-done {
     opacity: 0;
     transform: scale(1.06);
     pointer-events: none;
   }
 
-  /* Ponto de luz orbital inicial (Fase 0s - 2.5s) */
-  .orbit-container {
-    position: absolute;
-    width: 280px;
-    height: 280px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: orbitDisappear 0.2s ease 2.45s forwards;
-  }
-
-  .light-point {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    background: #ffffff;
-    border-radius: 50%;
-    box-shadow: 0 0 25px 8px rgba(138, 43, 226, 0.85), 0 0 50px 16px rgba(0, 191, 255, 0.6);
-    animation: lightOrbit 2.4s cubic-bezier(0.37, 0, 0.63, 1) forwards;
-  }
-
-  /* Container da Logo e Tagline (Fase 2.5s em diante) */
-  .brand-reveal-box {
-    position: relative;
-    z-index: 3;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    opacity: 0;
-    transform: scale(0.85);
-    animation: brandAppear 0.9s cubic-bezier(0.16, 1, 0.3, 1) 2.45s forwards;
-  }
-
-  /* Logo Image com reflexo brilhante (shimmer) */
-  .brand-logo-wrap {
-    position: relative;
-    overflow: hidden;
-    display: inline-block;
-  }
-
-  .brand-logo-wrap img {
-    max-width: min(84vw, 380px);
+  /* Container do SVG que desenha a caligrafia */
+  .stroke-logo-svg-wrap {
+    width: min(85vw, 420px);
     height: auto;
-    display: block;
-    object-fit: contain;
-    filter: drop-shadow(0 0 20px rgba(138, 43, 226, 0.45));
+    overflow: visible;
   }
 
-  /* Brilho varrendo as letras da esquerda para a direita */
-  .brand-logo-wrap::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -140%;
-    width: 60%;
-    height: 100%;
-    background: linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.6) 50%, transparent 80%);
-    transform: skewX(-22deg);
-    animation: logoShimmerPass 0.9s ease-out 2.8s forwards;
+  /* Estilização dos traços da fonte cursiva emendada */
+  .cursive-path {
+    fill: none;
+    stroke: url(#plusNeonGradient);
+    stroke-width: 4.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1200;
+    stroke-dashoffset: 1200;
+    animation: drawCursiveScript 2.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
 
-  /* Slogan / Tagline abaixo da logo */
-  .brand-tagline {
-    margin-top: 18px;
+  /* Preenchimento suave do corpo da letra após o traçado */
+  .cursive-fill {
+    fill: #ffffff;
+    opacity: 0;
+    filter: drop-shadow(0 0 16px rgba(138, 43, 226, 0.55));
+    animation: fillCursiveBody 0.8s ease 2.2s forwards;
+  }
+
+  /* Slogan abaixo */
+  .stroke-tagline {
+    margin-top: 22px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: clamp(13px, 1.8vw, 16px);
+    font-size: clamp(13px, 1.8vw, 15px);
     font-weight: 400;
-    letter-spacing: 0.32em;
+    letter-spacing: 0.35em;
     color: #a5b4fc;
     text-transform: uppercase;
     opacity: 0;
-    transform: translateY(10px);
-    animation: taglineAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1) 3.1s forwards;
+    transform: translateY(12px);
+    animation: taglineFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 2.6s forwards;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
   }
 
-  /* Animações Keyframes */
-  @keyframes lightOrbit {
+  /* Animação do traçado da caneta de luz */
+  @keyframes drawCursiveScript {
     0% {
-      transform: rotate(0deg) translateX(110px) rotate(0deg) scale(0.4);
-      opacity: 0.2;
+      stroke-dashoffset: 1200;
+      filter: drop-shadow(0 0 25px rgba(0, 191, 255, 0.9));
     }
-    50% {
-      transform: rotate(360deg) translateX(55px) rotate(-360deg) scale(1.4);
-      opacity: 1;
+    80% {
+      stroke-dashoffset: 0;
+      filter: drop-shadow(0 0 15px rgba(138, 43, 226, 0.7));
     }
     100% {
-      transform: rotate(720deg) translateX(0px) rotate(-720deg) scale(0.1);
-      opacity: 0;
+      stroke-dashoffset: 0;
+      stroke: #ffffff;
+      filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
     }
   }
 
-  @keyframes orbitDisappear {
-    to { opacity: 0; visibility: hidden; }
+  @keyframes fillCursiveBody {
+    0% { opacity: 0; transform: scale(0.98); }
+    100% { opacity: 1; transform: scale(1); }
   }
 
-  @keyframes brandAppear {
-    0% {
-      opacity: 0;
-      transform: scale(0.85);
-      filter: blur(4px);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1);
-      filter: blur(0);
-    }
-  }
-
-  @keyframes logoShimmerPass {
-    0% { left: -140%; }
-    100% { left: 160%; }
-  }
-
-  @keyframes taglineAppear {
-    0% {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    100% {
-      opacity: 0.85;
-      transform: translateY(0);
-    }
+  @keyframes taglineFadeIn {
+    0% { opacity: 0; transform: translateY(12px); }
+    100% { opacity: 0.9; transform: translateY(0); }
   }
 </style>
 
-<div id="plus-cinematic-intro" aria-hidden="true">
-  <!-- Órbita de luz inicial -->
-  <div class="orbit-container">
-    <div class="light-point"></div>
+<div id="plus-stroke-intro" aria-hidden="true">
+  <div class="stroke-logo-svg-wrap">
+    <!-- SVG vetorizado simulando perfeitamente a caligrafia emendada do lettering Plus+ -->
+    <svg viewBox="0 0 450 160" width="100%" height="100%">
+      <defs>
+        <linearGradient id="plusNeonGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#00bfff" />
+          <stop offset="50%" stop-color="#8a2be2" />
+          <stop offset="100%" stop-color="#ffffff" />
+        </linearGradient>
+      </defs>
+
+      <!-- Corpo preenchido que acende após o traço -->
+      <g class="cursive-fill">
+        <!-- Letra P inicial cursiva -->
+        <path d="M45,120 C35,120 28,105 32,85 C38,60 55,30 85,22 C105,17 115,30 110,48 C102,78 75,112 52,125 C42,130 38,138 45,138 C58,138 72,128 85,118" />
+        <!-- Ligação e letras l, u, s emendadas -->
+        <path d="M85,118 C105,102 122,82 142,65 C148,60 155,75 148,82 C132,98 115,115 102,125 C98,128 102,135 110,132 C128,120 152,98 172,80 C182,72 190,88 180,96 C162,112 142,128 125,138 C120,141 125,148 132,145 C155,132 182,110 205,92 C212,87 220,98 212,106 C195,122 172,140 155,148 C150,150 155,158 162,155 C192,140 225,118 252,96 C262,88 268,102 258,110 C235,128 212,145 195,155 C190,158 195,165 202,162 C232,148 265,125 292,102" />
+        <!-- Símbolo + emendado no final -->
+        <path d="M330,85 L390,85 M360,55 L360,115" stroke-width="12" stroke-linecap="round" />
+        <path d="M395,95 L425,75 M410,65 L410,105" stroke-width="8" stroke-linecap="round" />
+      </g>
+
+      <!-- Linha de luz que desenha o contorno cursivo em tempo real -->
+      <path class="cursive-path" d="M45,120 C35,120 28,105 32,85 C38,60 55,30 85,22 C105,17 115,30 110,48 C102,78 75,112 52,125 C42,130 38,138 45,138 C58,138 72,128 85,118 C105,102 122,82 142,65 C148,60 155,75 148,82 C132,98 115,115 102,125 C98,128 102,135 110,132 C128,120 152,98 172,80 C182,72 190,88 180,96 C162,112 142,128 125,138 C120,141 125,148 132,145 C155,132 182,110 205,92 C212,87 220,98 212,106 C195,122 172,140 155,148 C150,150 155,158 162,155 C192,140 225,118 252,96 C262,88 268,102 258,110 C235,128 212,145 195,155 C190,158 195,165 202,162 C232,148 265,125 292,102 M330,85 L390,85 M360,55 L360,115 M395,95 L425,75 M410,65 L410,105" />
+    </svg>
   </div>
 
-  <!-- Revelação da marca e assinatura -->
-  <div class="brand-reveal-box">
-    <div class="brand-logo-wrap">
-      <img src="https://i.postimg.cc/fRJHk4Vh/IMG-2741.png" alt="Plus+">
-    </div>
-    <div class="brand-tagline">Seu mundo. Em destaque.</div>
-  </div>
+  <div class="stroke-tagline">Seu mundo. Em destaque.</div>
 </div>
 
 <script>
   (function () {
-    const intro = document.getElementById('plus-cinematic-intro');
+    const intro = document.getElementById('plus-stroke-intro');
     if (!intro) return;
 
-    // Roda apenas uma vez por sessão
     if (sessionStorage.getItem('plus_intro_played') === '1') {
       intro.remove();
       return;
     }
 
-    let dismissed = false;
-    function closeIntro() {
-      if (dismissed) return;
-      dismissed = true;
+    let finished = false;
+    function dismissIntro() {
+      if (finished) return;
+      finished = true;
       sessionStorage.setItem('plus_intro_played', '1');
-      intro.classList.add('intro-fading');
-      setTimeout(() => intro.remove(), 750);
+      intro.classList.add('intro-done');
+      setTimeout(() => intro.remove(), 700);
     }
 
-    // Duração total exata de 5 segundos
-    const timer = setTimeout(closeIntro, 5000);
+    // Duração total exata de 4.8 segundos
+    const timer = setTimeout(dismissIntro, 4800);
 
-    // Permite pular com clique ou controle remoto da TV
     intro.addEventListener('click', () => {
       clearTimeout(timer);
-      closeIntro();
+      dismissIntro();
     });
 
     window.addEventListener('keydown', () => {
       clearTimeout(timer);
-      closeIntro();
+      dismissIntro();
     }, { once: true });
   })();
 </script>
