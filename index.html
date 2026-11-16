@@ -1,39 +1,15 @@
-
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Plus+</title>
-
-    <!-- Favicons -->
-    <link rel="icon" type="image/png" sizes="16x16" href="https://i.postimg.cc/FzXbNpLT/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="https://i.postimg.cc/d3cRw6yH/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="https://i.postimg.cc/FzXbNpS5/apple-touch-icon-96x96.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="https://i.postimg.cc/fyQ7DC9q/android-icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="https://i.postimg.cc/5yW5bgzb/apple-touch-icon-180x180.png">
-
-    <!-- PWA Meta Tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="GL+">
-    <meta name="mobile-web-app-capable" content="yes">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-<!-- ================= INTRO PLUS+ TIPOGRAFIA CURSIVA (SEM IMAGEM) ================= -->
+<!-- ================= INTRO PLUS+ (ESTILO HULU ADAPTADO) ================= -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Plus+Jakarta+Sans:wght@700&display=swap" rel="stylesheet">
 
 <style>
-  #plus-font-intro {
+  #plus-hulu-container {
     position: fixed;
     inset: 0;
     background: #000000;
     z-index: 999999;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     overflow: hidden;
@@ -42,72 +18,121 @@
     transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  #plus-font-intro.intro-exit {
+  #plus-hulu-container.intro-hidden {
     opacity: 0;
     transform: scale(1.08);
     pointer-events: none;
   }
 
-  /* Pulso de luz central (estilo Hulu) */
-  .font-pulse-glow {
+  /* Filtro e gradientes baseados no seu template */
+  #green-filter {
     position: absolute;
-    width: 140px;
-    height: 140px;
-    background: radial-gradient(circle, rgba(72, 201, 72, 0.9) 0%, rgba(138, 43, 226, 0.45) 50%, transparent 75%);
-    border-radius: 50%;
-    filter: blur(14px);
-    opacity: 0;
-    transform: scale(0.2);
-    animation: fontPulseExpand 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(72, 201, 72, 0.18) 0%, transparent 70%);
+    z-index: 1;
+    pointer-events: none;
   }
 
-  /* Container da Tipografia Cursiva Real */
-  .font-logo-wrapper {
-    position: relative;
+  .gradient {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 35vh;
     z-index: 2;
+    pointer-events: none;
+  }
+
+  #top-gradient {
+    top: 0;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.95), transparent);
+  }
+
+  #bottom-gradient {
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent);
+  }
+
+  /* Wrapper e Logo */
+  #logo-wrapper {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #logo {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 48px;
+  }
+
+  .absolute-centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* Anéis de borda com animação de pulso */
+  #logo-border {
+    width: 140px;
+    height: 140px;
+    border: 2px solid rgba(72, 201, 72, 0.35);
+    animation: pulseRing 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  #logo-border-inner {
+    width: 90px;
+    height: 90px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: pulseRingInner 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+  }
+
+  /* Texto da Logo */
+  #logo-text {
     display: flex;
     flex-direction: column;
     align-items: center;
     opacity: 0;
-    transform: scale(0.8);
+    transform: scale(0.85);
     filter: blur(6px);
-    animation: fontLogoReveal 1s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
+    animation: logoTextReveal 1s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
   }
 
-  /* O texto escrito com fonte cursiva emendada real */
-  .cursive-brand-text {
+  #hulu-text {
     font-family: 'Great Vibes', cursive, sans-serif;
-    font-size: clamp(72px, 12vw, 128px);
+    font-size: clamp(68px, 11vw, 112px);
     font-weight: 400;
     color: #ffffff;
     line-height: 1;
     letter-spacing: 0.04em;
-    text-shadow: 0 0 25px rgba(72, 201, 72, 0.7), 0 0 50px rgba(138, 43, 226, 0.4);
+    text-shadow: 0 0 25px rgba(72, 201, 72, 0.65), 0 0 50px rgba(138, 43, 226, 0.35);
     margin: 0;
   }
 
-  .cursive-brand-text .plus-sign {
+  #hulu-text .plus-symbol {
     color: #48c948;
     text-shadow: 0 0 30px rgba(72, 201, 72, 0.9);
   }
 
-  /* Slogan abaixo */
-  .font-tagline {
-    margin-top: 16px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: clamp(12px, 1.6vw, 14px);
-    font-weight: 400;
-    letter-spacing: 0.35em;
+  #originals-text {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(11px, 1.5vw, 13px);
+    font-weight: 700;
+    letter-spacing: 0.4em;
     color: #a5b4fc;
+    margin-top: 8px;
     text-transform: uppercase;
-    opacity: 0;
-    transform: translateY(10px);
-    animation: fontTaglineIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
   }
 
-  /* Botão de teste rápido */
-  #font-restart-test {
+  /* Botão de restart discreto no canto */
+  #restart-button {
     position: absolute;
     bottom: 24px;
     right: 24px;
@@ -122,94 +147,77 @@
     z-index: 10;
     transition: background 0.2s;
   }
-  #font-restart-test:hover {
+  #restart-button:hover {
     background: rgba(255, 255, 255, 0.18);
     color: #fff;
   }
 
-  @keyframes fontPulseExpand {
-    0% {
-      opacity: 0;
-      transform: scale(0.2);
-    }
-    40% {
-      opacity: 1;
-      transform: scale(5);
-    }
-    100% {
-      opacity: 0;
-      transform: scale(10);
-    }
+  @keyframes pulseRing {
+    0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(3.2); opacity: 0; }
   }
 
-  @keyframes fontLogoReveal {
-    0% {
-      opacity: 0;
-      transform: scale(0.8);
-      filter: blur(6px);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1);
-      filter: blur(0);
-    }
+  @keyframes pulseRingInner {
+    0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+    50% { opacity: 0.8; }
+    100% { transform: translate(-50%, -50%) scale(2.4); opacity: 0; }
   }
 
-  @keyframes fontTaglineIn {
-    0% {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    100% {
-      opacity: 0.85;
-      transform: translateY(0);
-    }
+  @keyframes logoTextReveal {
+    0% { opacity: 0; transform: scale(0.85); filter: blur(6px); }
+    100% { opacity: 1; transform: scale(1); filter: blur(0); }
   }
 </style>
 
-<div id="plus-font-intro" aria-hidden="true">
-  <!-- Pulso de luz estilo Hulu -->
-  <div class="font-pulse-glow"></div>
-
-  <!-- Tipografia cursiva real formada em texto -->
-  <div class="font-logo-wrapper">
-    <h1 class="cursive-brand-text">Plus<span class="plus-sign">+</span></h1>
-    <div class="font-tagline">Seu mundo. Em destaque.</div>
+<div id="plus-hulu-container" aria-hidden="true">
+  <div id="green-filter"></div>
+  <div id="top-gradient" class="gradient"></div>
+  <div id="bottom-gradient" class="gradient"></div>
+  
+  <div id="logo-wrapper">
+    <div id="logo">
+      <div id="logo-border" class="absolute-centered"></div>
+      <div id="logo-border-inner" class="absolute-centered"></div>
+      <div id="logo-text">
+        <div id="hulu-text"><span class="cursive-word">Plus</span><span class="plus-symbol">+</span></div>
+        <div id="originals-text">ORIGINALS</div>
+      </div>
+    </div>
   </div>
 
-  <!-- Botão de teste rápido -->
-  <button id="font-restart-test" type="button">Repetir Intro</button>
+  <button id="restart-button" type="button">Restart</button>
 </div>
 
 <script>
   (function () {
-    const intro = document.getElementById('plus-font-intro');
-    const restartBtn = document.getElementById('font-restart-test');
-    if (!intro) return;
+    const container = document.getElementById('plus-hulu-container');
+    const restartBtn = document.getElementById('restart-button');
+    if (!container) return;
 
     // Roda apenas uma vez por sessão automaticamente
     if (sessionStorage.getItem('plus_intro_played') === '1') {
-      intro.remove();
+      container.remove();
       return;
     }
 
-    let finished = false;
-    function closeIntro() {
-      if (finished) return;
-      finished = true;
+    let closed = false;
+    function finishIntro() {
+      if (closed) return;
+      closed = true;
       sessionStorage.setItem('plus_intro_played', '1');
-      intro.classList.add('intro-exit');
-      setTimeout(() => intro.remove(), 650);
+      container.classList.add('intro-hidden');
+      setTimeout(() => container.remove(), 700);
     }
 
     // Duração total: 4 segundos
-    const timer = setTimeout(closeIntro, 4000);
+    const timer = setTimeout(finishIntro, 4000);
 
-    // Pular com clique ou controle remoto da TV
-    intro.addEventListener('click', (e) => {
+    // Pular com clique ou controle remoto
+    container.addEventListener('click', (e) => {
       if (e.target === restartBtn) return;
       clearTimeout(timer);
-      closeIntro();
+      finishIntro();
     });
 
     if (restartBtn) {
@@ -222,7 +230,7 @@
 
     window.addEventListener('keydown', () => {
       clearTimeout(timer);
-      closeIntro();
+      finishIntro();
     }, { once: true });
   })();
 </script>
