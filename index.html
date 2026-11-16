@@ -3365,14 +3365,10 @@ window.onload = () => {
     window.addEventListener('DOMContentLoaded', criarContainerPlayer);
 })();
 </script>
-
     <script>
 (function() {
-    // =====================================================================
-    // CADASTRO MANUAL DOS PARCEIROS (Roleta 4)
-    // Cadastre quantos quiser. O script vai sortear um por acesso.
-    // =====================================================================
-    window.storeParceiros = [
+    // Lista de Parceiros para a Roleta 4 (Adicione/Edite aqui)
+    const storeParceiros = [
         {
             titulo: "Visual National",
             meta: "Publicidade • Apoie o Plus+",
@@ -3402,14 +3398,25 @@ window.onload = () => {
         }
     ];
 
-    // Injeta ou atualiza o parceiro sorteado para o app consumir
-    function injetarParceiroAleatorio() {
-        if (!window.storeParceiros || window.storeParceiros.length === 0) return;
-        const sorteado = window.storeParceiros[Math.floor(Math.random() * window.storeParceiros.length)];
-        window.parceiroAtivoRoleta = sorteado;
-    }
-
-    window.addEventListener('DOMContentLoaded', injetarParceiroAleatorio);
+    // Intercepta e injeta o parceiro sorteado quando a roleta rodar
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            if (window.slotsRoleta && Array.isArray(window.slotsRoleta)) {
+                const sorteado = storeParceiros[Math.floor(Math.random() * storeParceiros.length)];
+                window.slotsRoleta[3] = {
+                    tag: "PATROCINADOR OFICIAL",
+                    titulo: sorteado.titulo,
+                    meta: sorteado.meta,
+                    descricao: sorteado.descricao,
+                    imagem: sorteado.imagem,
+                    textoBotao: sorteado.textoBotao,
+                    icone: sorteado.icone,
+                    tipo: "link",
+                    url: sorteado.url
+                };
+            }
+        }, 300);
+    });
 })();
 </script>
 </body>
