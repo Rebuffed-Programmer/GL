@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 
-<!-- ================= INTRO PLUS+ (ESTRUTURA HULU EXATA) ================= -->
+<!-- ================= INTRO PLUS+ (ESTRUTURA HULU + ZOOM DE TRANSIÇÃO) ================= -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Plus+Jakarta+Sans:wght@700&display=swap" rel="stylesheet">
@@ -38,13 +38,34 @@
     overflow: hidden;
     cursor: pointer;
     user-select: none;
-    transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  #plus-hulu-intro.intro-hidden {
-    opacity: 0;
-    transform: scale(1.08);
+  /* Transição exata pedida: as letras dão um zoom forte para frente ao encerrar */
+  #plus-hulu-intro.intro-zoom-out {
     pointer-events: none;
+  }
+
+  #plus-hulu-intro.intro-zoom-out #logo-text {
+    animation: zoomOutTransition 0.75s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  #plus-hulu-intro.intro-zoom-out #green-filter,
+  #plus-hulu-intro.intro-zoom-out .gradient {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  @keyframes zoomOutTransition {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+      filter: blur(0);
+    }
+    100% {
+      transform: scale(4.5);
+      opacity: 0;
+      filter: blur(12px);
+    }
   }
 
   /* Filtro Verde e Gradientes idênticos ao Hulu */
@@ -54,6 +75,8 @@
     background: radial-gradient(circle at center, rgba(72, 201, 72, 0.22) 0%, transparent 70%);
     z-index: 1;
     pointer-events: none;
+    opacity: 0;
+    animation: fadeInFilter 0.6s ease 0.3s forwards;
   }
 
   .gradient {
@@ -101,19 +124,21 @@
     pointer-events: none;
   }
 
-  /* Anéis de pulso de luz */
+  /* Anéis de pulso de luz (com leve atraso para dar a pausa inicial) */
   #logo-border {
     width: 140px;
     height: 140px;
     border: 2px solid rgba(72, 201, 72, 0.45);
-    animation: pulseRing 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    animation: pulseRing 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
   }
 
   #logo-border-inner {
     width: 90px;
     height: 90px;
     border: 1px solid rgba(255, 255, 255, 0.25);
-    animation: pulseRingInner 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+    opacity: 0;
+    animation: pulseRingInner 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
   }
 
   /* Textos da Logo */
@@ -124,7 +149,7 @@
     opacity: 0;
     transform: scale(0.85);
     filter: blur(6px);
-    animation: logoTextReveal 1s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+    animation: logoTextReveal 1s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
   }
 
   #hulu-text {
@@ -152,6 +177,10 @@
     margin-top: 8px;
     text-transform: uppercase;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+  }
+
+  @keyframes fadeInFilter {
+    to { opacity: 1; }
   }
 
   @keyframes pulseRing {
@@ -204,14 +233,22 @@
       if (closed) return;
       closed = true;
       sessionStorage.setItem('plus_intro_played', '1');
-      intro.classList.add('intro-hidden');
-      setTimeout(() => intro.remove(), 700);
+      
+      // Aciona o efeito de zoom nas letras
+      intro.classList.add('intro-zoom-out');
+      
+      // Remove o elemento do DOM após a animação de zoom terminar
+      setTimeout(() => {
+        intro.remove();
+        // Dispara um evento opcional caso seu menu precise saber o momento exato que a intro acabou
+        window.dispatchEvent(new CustomEvent('plusIntroFinished'));
+      }, 750);
     }
 
-    // Duração total: 4 segundos
-    const timer = setTimeout(finishIntro, 4000);
+    // Duração total sincronizada (com a pausa inicial + exibição + zoom final)
+    const timer = setTimeout(finishIntro, 4300);
 
-    // Pular com clique ou controle remoto
+    // Pular com clique ou controle remoto da TV
     intro.addEventListener('click', () => {
       clearTimeout(timer);
       finishIntro();
