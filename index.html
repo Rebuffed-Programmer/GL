@@ -3150,50 +3150,99 @@ window.onload = () => {
     });
 })();
 </script>
-    <style>
-    /* Trava o player do Drive para não criar camadas duplicadas ou estourar o layout */
-    iframe[src*="drive.google.com"], 
-    .video-container iframe, 
-    #playerContainer iframe {
-        width: 100% !important;
-        height: 100% !important;
-        border: none !important;
-        position: relative !important;
-        display: block !important;
-    }
-</style>
-    <style>
-    /* Trava absoluta para o iframe do Google Drive ignorar camadas duplicadas e barras nativas */
-    iframe[src*="drive.google.com"] {
-        pointer-events: auto !important;
-    }
-    /* Esconde elementos sobrepostos extras gerados pelo preview do Drive se necessário */
-    .video-container, #playerContainer {
-        position: relative !important;
-        overflow: hidden !important;
-        background: #000 !important;
-    }
-</style>
-
 <script>
 (function() {
-    // Injeta parâmetros de limpeza diretamente nos iframes do Drive para desativar controles extras
-    function limparIframesDrive() {
-        document.querySelectorAll('iframe[src*="drive.google.com"]').forEach(iframe => {
-            let src = iframe.getAttribute('src');
-            if (src && !src.includes('usp=sharing') && !src.includes('embedded=true')) {
-                // Adiciona parâmetros para forçar o player limpo sem sobreposições desnecessárias
-                if (!src.includes('rm=minimal')) {
-                    iframe.src = src + (src.includes('?') ? '&' : '?') + 'rm=minimal&autoplay=1';
-                }
-            }
-        });
+    // 1. Cria a estrutura HTML do Player em Tela Cheia (se já não existir no seu app)
+    function criarContainerPlayer() {
+        if (document.getElementById('plus-player-overlay')) return;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'plus-player-overlay';
+        overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; display: none; flex-direction: column;';
+        overlay.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: #0d0f10; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <button id="plus-voltar-btn" style="background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-arrow-left"></i> Voltar ao Catálogo
+                </button>
+                <span id="plus-player-titulo" style="color: #fff; font-size: 16px; font-weight: bold;">Reproduzindo</span>
+                <div style="width: 100px;"></div>
+            </div>
+            <div style="flex: 1; width: 100%; height: 100%; position: relative;" id="plus-iframe-box"></div>
+        `;
+        document.body.appendChild(overlay);
+
+        // Ação do botão "Voltar ao Catálogo"
+        document.getElementById('plus-voltar-btn').onclick = () => {
+            fecharPlayerDinamico();
+        };
     }
 
-    // Executa ao carregar e fica vigiando caso novos players abram
-    window.addEventListener('DOMContentLoaded', limparIframesDrive);
-    const observer = new MutationObserver(limparIframesDrive);
-    observer.observe(document.body, { childList: true, subtree: true });
+    // 2. Função para abrir o player com autoplay imediato
+    window.abrirPlayerImediato = function(filme) {
+        criarContainerPlayer();
+
+        const overlay = document.getElementById('plus-player-overlay');
+        const box = document.getElementById('plus-iframe-box');
+        const tituloEl = document.getElementById('plus-player-titulo');
+
+        if (!overlay || !box) return;
+
+        tituloEl.textContent = filme.title || "Reproduzindo";
+
+        // Pega o link do Drive e força o autoplay e formato limpo
+        let linkDrive = filme.videoUrl || filme.embedUrl || filme.checkoutUrl;
+        
+        // Se for um link de preview do drive, garante os parâmetros para autoplay direto
+        if (linkDrive && linkDrive.includes('drive.google.com')) {
+            if (!linkDrive.includes('preview')) {
+                linkDrive = linkDrive.replace(/\/view.*$/, '/preview').replace(/\/edit.*$/, '/preview');
+            }
+            // Adiciona parâmetros para rodar automático e sem poluição
+            if (!linkDrive.includes('autoplay=1')) {
+                linkDrive += (linkDrive.includes('?') ? '&' : '?') + 'autoplay=1&rm=minimal';
+            }
+        }
+
+        // Injeta o iframe rodando na hora
+        box.innerHTML = `<iframe src="${linkDrive}" style="width:100%; height:100%; border:none;" allow="autoplay" allowfullscreen></iframe>`;
+        
+        overlay.style.display = 'flex';
+
+        // Salva automaticamente no "Continuar Assistindo" que configuramos antes
+        if (typeof window.salvarNoContinuarAssistindo === 'function' && filme.id) {
+            window.salvarNoContinuarAssistindo(filme.id);
+        }
+    };
+
+    // 3. Fecha o player e limpa o iframe para o vídeo parar (Voltar ao Catálogo)
+    function fecharPlayerDinamico() {
+        const overlay = document.getElementById('plus-player-overlay');
+        const box = document.getElementById('plus-iframe-box');
+        if (box) box.innerHTML = ''; // Destrói o iframe para parar o áudio/vídeo imediatamente
+        if (overlay) overlay.style.display = 'none';
+    }
+
+    // 4. Intercepta os cliques nos botões de "Assistir Agora" para acionar o player direto
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('#modalWatchBtn, .watch-btn, .watch-btn-hero, [data-action="watch"]');
+        if (!btn) return;
+
+        // Tenta descobrir qual filme está ativo no modal ou selecionado
+        let filmeId = btn.getAttribute('data-movie-id');
+        
+        // Se o seu app armazena o filme atual do modal em alguma variável global, pegamos ela aqui
+        // (Exemplo padrão: se houver um objeto global do modal aberto)
+        if (typeof movieData !== 'undefined' && filmeId) {
+            const filme = movieData.find(m => String(m.id) === String(filmeId));
+            if (filme && filme.videoUrl) {
+                e.preventDefault();
+                e.stopPropagation();
+                abrirPlayerImediato(filme);
+            }
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', criarContainerPlayer);
 })();
 </script>
 </body>
