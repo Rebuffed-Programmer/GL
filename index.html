@@ -3527,73 +3527,41 @@ window.onload = () => {
     window.addEventListener('DOMContentLoaded', criarContainerPlayer);
 })();
 </script>
-   <style>
-    /* Estilo infalível para o player em tela cheia (independente do layout antigo) */
-    #plus-player-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: #0d0f10;
-        z-index: 99999;
-        display: none;
-        flex-direction: column;
-    }
-    .plus-player-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 14px 20px;
-        background: #15181a;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    .plus-player-wrapper {
-        position: relative;
-        width: 100%;
-        flex: 1;
-        background: #000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .plus-player-wrapper iframe {
-        width: 100%;
-        height: 100%;
-        border: none;
-    }
-</style>
-
-<script>
+   <script>
 (function() {
-    // 1. Cria o container universal do player no body se não existir
-    function criarContainerPlayerGlobal() {
+    // Cria o container do player global se não existir
+    function garantirContainerPlayer() {
         if (document.getElementById('plus-player-overlay')) return;
 
         const overlay = document.createElement('div');
         overlay.id = 'plus-player-overlay';
+        overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0d0f10; z-index: 99999; display: none; flex-direction: column;';
         overlay.innerHTML = `
-            <div class="plus-player-header">
-                <button id="plus-voltar-btn" style="background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: #15181a; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <button id="plus-voltar-btn" style="background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">
                     <i class="fas fa-arrow-left"></i> Voltar ao Catálogo
                 </button>
                 <span id="plus-player-titulo" style="color: #fff; font-size: 15px; font-weight: bold; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Reproduzindo</span>
                 <div style="width: 80px;"></div>
             </div>
-            <div class="plus-player-wrapper" id="plus-iframe-box">
-                <!-- O iframe otimizado do Drive entra aqui -->
+            <div style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; background: #000;">
+                <div style="position: relative; width: 100%; height: 100%;" id="plus-iframe-box"></div>
             </div>
         `;
         document.body.appendChild(overlay);
 
-        document.getElementById('plus-voltar-btn').onclick = () => {
-            fecharPlayerGlobal();
+        document.getElementById('plus-voltar-btn').onclick = function() {
+            const box = document.getElementById('plus-iframe-box');
+            if (box) box.innerHTML = ''; // Destrói o iframe para parar o vídeo/áudio na hora
+            overlay.style.display = 'none';
+            document.documentElement.classList.remove('cinema-active');
+            document.body.style.overflow = 'auto';
         };
     }
 
-    // 2. Função principal que abre o player imediatamente e trata o link do Drive (mesmo com arquivos de 4GB)
-    window.abrirPlayerImediato = function(filme) {
-        criarContainerPlayerGlobal();
+    // FUNÇÃO GLOBAL DE VÍDEO UNIFICADA (Substitui qualquer outra função antiga)
+    window.switchToVideo = function(videoUrl, tituloFilme) {
+        garantirContainerPlayer();
 
         const overlay = document.getElementById('plus-player-overlay');
         const box = document.getElementById('plus-iframe-box');
@@ -3601,70 +3569,60 @@ window.onload = () => {
 
         if (!overlay || !box) return;
 
-        tituloEl.textContent = filme.title || "Reproduzindo";
+        tituloEl.textContent = tituloFilme || "Reproduzindo";
 
-        let linkDrive = filme.videoUrl || filme.embedUrl || "";
-        
-        // Formata o link do Google Drive perfeitamente para streaming em iframe sem travar
-        if (linkDrive && linkDrive.includes('drive.google.com')) {
-            if (!linkDrive.includes('preview')) {
-                linkDrive = linkDrive.replace(/\/view.*$/, '/preview').replace(/\/edit.*$/, '/preview');
+        let linkFinal = videoUrl || "";
+
+        // Se for link do Google Drive, otimiza para stream contínuo
+        if (linkFinal.includes('drive.google.com')) {
+            if (!linkFinal.includes('preview')) {
+                linkFinal = linkFinal.replace(/\/view.*$/, '/preview').replace(/\/edit.*$/, '/preview');
             }
-            if (!linkDrive.includes('autoplay=1')) {
-                linkDrive += (linkDrive.includes('?') ? '&' : '?') + 'autoplay=1&rm=minimal';
+            if (!linkFinal.includes('autoplay=1')) {
+                linkFinal += (linkFinal.includes('?') ? '&' : '?') + 'autoplay=1&rm=minimal';
+            }
+        } 
+        // Se for link do YouTube (ID curto ou URL completa)
+        else if (/^[a-zA-Z0-9_-]{11}$/.test(linkFinal.trim())) {
+            linkFinal = `https://www.youtube.com/embed/${linkFinal.trim()}?autoplay=1&modestbranding=1&rel=0`;
+        } else if (linkFinal.includes('youtube.com') || linkFinal.includes('youtu.be')) {
+            // Tenta extrair o ID do YouTube se for URL
+            const match = linkFinal.match(/(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+            if (match && match[1]) {
+                linkFinal = `https://www.youtube.com/embed/${match[1]}?autoplay=1&modestbranding=1&rel=0`;
             }
         }
 
-        box.innerHTML = `<iframe src="${linkDrive}" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>`;
+        // Injeta o player limpo em tela cheia
+        box.innerHTML = `<iframe src="${linkFinal}" style="width:100%; height:100%; border:none;" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>`;
         
         overlay.style.display = 'flex';
         document.documentElement.classList.add('cinema-active');
         document.body.style.overflow = 'hidden';
-
-        // Salva automaticamente no histórico "Continuar Assistindo"
-        if (typeof window.salvarNoContinuarAssistindo === 'function' && filme.id) {
-            window.salvarNoContinuarAssistindo(filme.id);
-        }
     };
 
-    // 3. Fecha o player, destrói o iframe (para o vídeo/áudio instantaneamente) e libera a tela
-    function fecharPlayerGlobal() {
-        const overlay = document.getElementById('plus-player-overlay');
-        const box = document.getElementById('plus-iframe-box');
-        
-        if (box) box.innerHTML = '';
-        if (overlay) overlay.style.display = 'none';
-        
-        document.documentElement.classList.remove('cinema-active');
-        document.body.style.overflow = 'auto';
-    }
-
-    // 4. Intercepta cliques nos botões de "Assistir" para disparar a função nova sem conflitos
+    // Intercepta cliques nos botões de "Assistir" e cards para puxar a nova função unificada
     document.addEventListener('click', (e) => {
-        const btn = e.target.closest('#modalWatchBtn, .watch-btn, .watch-btn-hero, [data-action="watch"]');
+        const btn = e.target.closest('#modalWatchBtn, .watch-btn, .watch-btn-hero, [data-action="watch"], .classix-card, .movie-item');
         if (!btn) return;
 
-        let filmeId = btn.getAttribute('data-movie-id');
-        if (!filmeId && typeof filmeAtivoNoModal !== 'undefined') {
-            filmeId = filmeAtivoNoModal;
-        }
+        // Fecha o modal de detalhes antigo se estiver aberto
+        const modalDetalhes = document.getElementById('movie-modal');
+        if (modalDetalhes) modalDetalhes.style.display = 'none';
 
+        // Se for card do catálogo do app
+        let filmeId = btn.getAttribute('data-movie-id');
         if (typeof movieData !== 'undefined' && filmeId) {
             const filme = movieData.find(m => String(m.id) === String(filmeId));
             if (filme && filme.videoUrl) {
                 e.preventDefault();
                 e.stopPropagation();
-
-                // Fecha o modal antigo de detalhes se ele estiver aberto na tela
-                const modalDetalhes = document.getElementById('movie-modal');
-                if (modalDetalhes) modalDetalhes.style.display = 'none';
-
-                abrirPlayerImediato(filme);
+                window.switchToVideo(filme.videoUrl, filme.title);
             }
         }
-    });
+    }, true);
 
-    window.addEventListener('DOMContentLoaded', criarContainerPlayerGlobal);
+    window.addEventListener('DOMContentLoaded', garantirContainerPlayer);
 })();
 </script>
 </body>
