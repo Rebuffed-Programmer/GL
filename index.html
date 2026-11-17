@@ -3432,40 +3432,36 @@ window.onload = () => {
     });
 })();
 </script>
-
 <script>
 (function() {
-    // 1. Cria o overlay universal de player mobile no corpo da página se não existir
-    function garantirPlayerGlobal() {
+    // 1. Cria a estrutura HTML do Player em Tela Cheia (se já não existir no seu app)
+    function criarContainerPlayer() {
         if (document.getElementById('plus-player-overlay')) return;
 
         const overlay = document.createElement('div');
         overlay.id = 'plus-player-overlay';
-        overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 999999; display: none; flex-direction: column;';
+        overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; display: none; flex-direction: column;';
         overlay.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: #15181a; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <button id="plus-voltar-btn" style="background: rgba(255,255,255,0.15); border: none; color: #fff; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;">
-                    ← Voltar
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: #0d0f10; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <button id="plus-voltar-btn" style="background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-arrow-left"></i> Voltar ao Catálogo
                 </button>
-                <span id="plus-player-titulo" style="color: #fff; font-size: 14px; font-weight: bold; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Reproduzindo</span>
-                <div style="width: 60px;"></div>
+                <span id="plus-player-titulo" style="color: #fff; font-size: 16px; font-weight: bold;">Reproduzindo</span>
+                <div style="width: 100px;"></div>
             </div>
-            <div style="flex: 1; width: 100%; background: #000; position: relative;" id="plus-iframe-box"></div>
+            <div style="flex: 1; width: 100%; height: 100%; position: relative;" id="plus-iframe-box"></div>
         `;
         document.body.appendChild(overlay);
 
-        // Ação do botão Voltar
-        document.getElementById('plus-voltar-btn').onclick = function() {
-            const box = document.getElementById('plus-iframe-box');
-            if (box) box.innerHTML = ''; // Destrói o iframe para parar o áudio/vídeo imediatamente
-            overlay.style.display = 'none';
-            document.body.style.overflow = 'auto';
+        // Ação do botão "Voltar ao Catálogo"
+        document.getElementById('plus-voltar-btn').onclick = () => {
+            fecharPlayerDinamico();
         };
     }
 
-    // 2. Função global unificada que abre qualquer vídeo (Google Drive ou YouTube)
-    window.switchToVideo = function(videoUrl, tituloFilme) {
-        garantirPlayerGlobal();
+    // 2. Função para abrir o player com autoplay imediato
+    window.abrirPlayerImediato = function(filme) {
+        criarContainerPlayer();
 
         const overlay = document.getElementById('plus-player-overlay');
         const box = document.getElementById('plus-iframe-box');
@@ -3473,53 +3469,166 @@ window.onload = () => {
 
         if (!overlay || !box) return;
 
-        tituloEl.textContent = tituloFilme || "GL+ Mobile";
+        tituloEl.textContent = filme.title || "Reproduzindo";
 
-        let linkFinal = videoUrl || "";
-
-        // Tratamento otimizado para arquivos de 4GB do Google Drive
-        if (linkFinal.includes('drive.google.com')) {
-            if (!linkFinal.includes('preview')) {
-                linkFinal = linkFinal.replace(/\/view.*$/, '/preview').replace(/\/edit.*$/, '/preview');
+        // Pega o link do Drive e força o autoplay e formato limpo
+        let linkDrive = filme.videoUrl || filme.embedUrl || filme.checkoutUrl;
+        
+        // Se for um link de preview do drive, garante os parâmetros para autoplay direto
+        if (linkDrive && linkDrive.includes('drive.google.com')) {
+            if (!linkDrive.includes('preview')) {
+                linkDrive = linkDrive.replace(/\/view.*$/, '/preview').replace(/\/edit.*$/, '/preview');
             }
-            if (!linkFinal.includes('autoplay=1')) {
-                linkFinal += (linkFinal.includes('?') ? '&' : '?') + 'autoplay=1&rm=minimal';
-            }
-        } 
-        // Tratamento para links do YouTube (removendo poluição visual)
-        else {
-            let ytId = "";
-            if (/^[a-zA-Z0-9_-]{11}$/.test(linkFinal.trim())) {
-                ytId = linkFinal.trim();
-            } else {
-                const match = linkFinal.match(/(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-                if (match && match[1]) ytId = match[1];
-            }
-            if (ytId) {
-                linkFinal = `https://www.youtube.com/embed/${ytId}?autoplay=1&modestbranding=1&rel=0&playsinline=1`;
+            // Adiciona parâmetros para rodar automático e sem poluição
+            if (!linkDrive.includes('autoplay=1')) {
+                linkDrive += (linkDrive.includes('?') ? '&' : '?') + 'autoplay=1&rm=minimal';
             }
         }
 
-        // Injeta o player em tela cheia real
-        box.innerHTML = `<iframe src="${linkFinal}" style="width:100%; height:100%; border:none;" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>`;
+        // Injeta o iframe rodando na hora
+        box.innerHTML = `<iframe src="${linkDrive}" style="width:100%; height:100%; border:none;" allow="autoplay" allowfullscreen></iframe>`;
         
         overlay.style.display = 'flex';
-        document.body.style.overflow = 'hidden'; // Trava o scroll da página de fundo
 
-        // Fecha o modal antigo de detalhes se estiver aberto na tela
-        const modalDetalhes = document.getElementById('movie-modal');
-        if (modalDetalhes) modalDetalhes.style.display = 'none';
+        // Salva automaticamente no "Continuar Assistindo" que configuramos antes
+        if (typeof window.salvarNoContinuarAssistindo === 'function' && filme.id) {
+            window.salvarNoContinuarAssistindo(filme.id);
+        }
     };
 
-    // 3. Intercepta com prioridade máxima qualquer clique em botões de "Assistir"
+    // 3. Fecha o player e limpa o iframe para o vídeo parar (Voltar ao Catálogo)
+    function fecharPlayerDinamico() {
+        const overlay = document.getElementById('plus-player-overlay');
+        const box = document.getElementById('plus-iframe-box');
+        if (box) box.innerHTML = ''; // Destrói o iframe para parar o áudio/vídeo imediatamente
+        if (overlay) overlay.style.display = 'none';
+    }
+
+    // 4. Intercepta os cliques nos botões de "Assistir Agora" para acionar o player direto
     document.addEventListener('click', (e) => {
-        const btn = e.target.closest('#modal-watch-btn, #modalWatchBtn, .watch-btn, .watch-btn-hero, [data-action="watch"]');
+        const btn = e.target.closest('#modalWatchBtn, .watch-btn, .watch-btn-hero, [data-action="watch"]');
         if (!btn) return;
 
-        e.preventDefault();
-        e.stopPropagation();
+        // Tenta descobrir qual filme está ativo no modal ou selecionado
+        let filmeId = btn.getAttribute('data-movie-id');
+        
+        // Se o seu app armazena o filme atual do modal em alguma variável global, pegamos ela aqui
+        // (Exemplo padrão: se houver um objeto global do modal aberto)
+        if (typeof movieData !== 'undefined' && filmeId) {
+            const filme = movieData.find(m => String(m.id) === String(filmeId));
+            if (filme && filme.videoUrl) {
+                e.preventDefault();
+                e.stopPropagation();
+                abrirPlayerImediato(filme);
+            }
+        }
+    });
 
-        // Tenta descobrir qual filme está ativo no modal atual
+    window.addEventListener('DOMContentLoaded', criarContainerPlayer);
+})();
+</script>
+    <style>
+    /* Estilo perfeito para o container do player em tamanho real, sem estouro */
+    #plus-player-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #0d0f10;
+        z-index: 99999;
+        display: none;
+        flex-direction: column;
+    }
+    .plus-player-wrapper {
+        position: relative;
+        width: 100%;
+        height: 0;
+        padding-bottom: 56.25%; /* Proporção exata 16:9 */
+        background: #000;
+        margin: auto 0;
+    }
+    .plus-player-wrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+</style>
+
+<script>
+(function() {
+    function criarContainerPlayer() {
+        if (document.getElementById('plus-player-overlay')) return;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'plus-player-overlay';
+        overlay.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: #15181a; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <button id="plus-voltar-btn" style="background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-arrow-left"></i> Voltar ao Catálogo
+                </button>
+                <span id="plus-player-titulo" style="color: #fff; font-size: 15px; font-weight: bold; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Reproduzindo</span>
+                <div style="width: 80px;"></div>
+            </div>
+            <div style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; padding: 0;">
+                <div class="plus-player-wrapper" id="plus-iframe-box">
+                    <!-- O iframe entra aqui travado na proporção certa -->
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        document.getElementById('plus-voltar-btn').onclick = () => {
+            fecharPlayerDinamico();
+        };
+    }
+
+    window.abrirPlayerImediato = function(filme) {
+        criarContainerPlayer();
+
+        const overlay = document.getElementById('plus-player-overlay');
+        const box = document.getElementById('plus-iframe-box');
+        const tituloEl = document.getElementById('plus-player-titulo');
+
+        if (!overlay || !box) return;
+
+        tituloEl.textContent = filme.title || "Reproduzindo";
+
+        let linkDrive = filme.videoUrl || filme.embedUrl || filme.checkoutUrl;
+        
+        if (linkDrive && linkDrive.includes('drive.google.com')) {
+            if (!linkDrive.includes('preview')) {
+                linkDrive = linkDrive.replace(/\/view.*$/, '/preview').replace(/\/edit.*$/, '/preview');
+            }
+            // Parametrização limpa para evitar tela gigante e forçar autoplay controlado
+            if (!linkDrive.includes('autoplay=1')) {
+                linkDrive += (linkDrive.includes('?') ? '&' : '?') + 'autoplay=1&rm=minimal';
+            }
+        }
+
+        box.innerHTML = `<iframe src="${linkDrive}" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+        overlay.style.display = 'flex';
+
+        if (typeof window.salvarNoContinuarAssistindo === 'function' && filme.id) {
+            window.salvarNoContinuarAssistindo(filme.id);
+        }
+    };
+
+    function fecharPlayerDinamico() {
+        const overlay = document.getElementById('plus-player-overlay');
+        const box = document.getElementById('plus-iframe-box');
+        if (box) box.innerHTML = '';
+        if (overlay) overlay.style.display = 'none';
+    }
+
+    // Intercepta o clique no botão de assistir do seu modal/app
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('#modalWatchBtn, .watch-btn, .watch-btn-hero, [data-action="watch"]');
+        if (!btn) return;
+
         let filmeId = btn.getAttribute('data-movie-id');
         if (!filmeId && typeof filmeAtivoNoModal !== 'undefined') {
             filmeId = filmeAtivoNoModal;
@@ -3528,19 +3637,14 @@ window.onload = () => {
         if (typeof movieData !== 'undefined' && filmeId) {
             const filme = movieData.find(m => String(m.id) === String(filmeId));
             if (filme && filme.videoUrl) {
-                window.switchToVideo(filme.videoUrl, filme.title);
-                return;
+                e.preventDefault();
+                e.stopPropagation();
+                abrirPlayerImediato(filme);
             }
         }
+    });
 
-        // Fallback: se o botão tiver um href direto de vídeo
-        let href = btn.getAttribute('href');
-        if (href && href.startsWith('http')) {
-            window.switchToVideo(href, "Reproduzindo");
-        }
-    }, true);
-
-    window.addEventListener('DOMContentLoaded', garantirPlayerGlobal);
+    window.addEventListener('DOMContentLoaded', criarContainerPlayer);
 })();
 </script>
 </body>
