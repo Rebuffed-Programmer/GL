@@ -3658,56 +3658,175 @@ window.onload = () => {
   <div id="player-container" style="width:100%; height:100%;"></div>
 </div>
 
+<style>
+  #gl-video-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: #000;
+    overflow: hidden; /* Corta tudo que sair da borda */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Aumenta o iframe para jogar o título do canal e o botão "Assistir no YouTube" para fora da tela */
+  #yt-crop-container {
+    width: 100%;
+    height: 100%;
+    transform: scale(1.18); 
+    pointer-events: none; /* Impede cliques diretos no player do YouTube */
+  }
+
+  #yt-crop-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  /* Camada invisível que captura o clique/OK da TV para pausar/dar play */
+  #gl-click-shield {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    cursor: pointer;
+  }
+
+  /* Barra de controles própria do GL+ */
+  #gl-custom-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    padding: 24px 40px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: opacity 0.3s ease;
+  }
+
+  .gl-btn {
+    background: #48c948;
+    color: #000;
+    border: none;
+    padding: 10px 22px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .gl-btn:focus {
+    outline: 3px solid #fff;
+  }
+
+  #gl-progress-bar {
+    flex: 1;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+  }
+
+  #gl-progress-fill {
+    width: 0%;
+    height: 100%;
+    background: #48c948;
+    border-radius: 4px;
+  }
+</style>
+
+<div id="gl-video-wrapper">
+  <div id="yt-crop-container">
+    <div id="yt-player-target"></div>
+  </div>
+
+  <!-- Escudo invisível para pausar/reproduzir sem abrir o YouTube -->
+  <div id="gl-click-shield" onclick="togglePlayGL()"></div>
+
+  <!-- Controles 100% seus -->
+  <div id="gl-custom-controls">
+    <button id="btn-play-pause" class="gl-btn" onclick="togglePlayGL()">Pausar</button>
+    <div id="gl-progress-bar" onclick="seekVideoGL(event)">
+      <div id="gl-progress-fill"></div>
+    </div>
+    <button class="gl-btn" style="background:#222; color:#fff;" onclick="fecharPlayerGL()">Sair</button>
+  </div>
+</div>
+
+<!-- API oficial leve do YouTube -->
+<script src="https://www.youtube.com/iframe_api"></script>
 <script>
-  let plyrInstance = null;
+  let ytPlayer = null;
+  let progressInterval = null;
 
-  // 1. Quando você monta os cards do canal automaticamente:
-  function criarCardFilme(titulo, thumbnailUrl, videoId) {
-    const card = document.createElement('div');
-    card.className = 'filme-card';
-    card.tabIndex = 0; // Essencial para foco no controle remoto da TV
-    card.innerHTML = `
-      <img src="${thumbnailUrl}" alt="${titulo}" />
-      <h3>${titulo}</h3>
-    `;
-
-    // Ao clicar ou apertar OK/Enter na TV, envia o videoId direto pro seu player
-    card.addEventListener('click', () => abrirNoPlayerCustomizado(videoId));
-    card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.keyCode === 13) abrirNoPlayerCustomizado(videoId);
-    });
-
-    document.getElementById('catalogo-classix').appendChild(card);
-  }
-
-  // 2. Função que injeta o ID do YouTube dentro do Plyr.io limpo
-  function abrirNoPlayerCustomizado(videoId) {
-    const modal = document.getElementById('modal-player');
-    const container = document.getElementById('player-container');
-
-    // Destrói o player anterior se já existir
-    if (plyrInstance) {
-      plyrInstance.destroy();
+  function iniciarPlayerGL(videoId) {
+    if (ytPlayer) {
+      ytPlayer.loadVideoById(videoId);
+      return;
     }
 
-    // Cria a div com o ID dinâmico que veio do canal
-    container.innerHTML = `<div id="gl-plyr" data-plyr-provider="youtube" data-plyr-embed-id="${videoId}"></div>`;
-    modal.style.display = 'block';
-
-    // Inicia o Plyr com visual limpo e cores do GL+
-    plyrInstance = new Plyr('#gl-plyr', {
-      autoplay: true,
-      controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
-      youtube: { noCookie: true, rel: 0, showinfo: 0, iv_load_policy: 3, modestbranding: 1 }
+    ytPlayer = new YT.Player('yt-player-target', {
+      videoId: videoId,
+      playerVars: {
+        autoplay: 1,
+        controls: 0,      // Desativa a barra padrão do YouTube
+        disablekb: 1,     // Desativa atalhos padrão do YouTube
+        fs: 0,            // Esconde botão de tela cheia nativo
+        rel: 0,           // Evita recomendações externas
+        playsinline: 1
+      },
+      events: {
+        onReady: () => {
+          document.getElementById('btn-play-pause').focus();
+          atualizarBarraProgresso();
+        }
+      }
     });
   }
 
-  function fecharPlayer() {
-    if (plyrInstance) {
-      plyrInstance.destroy();
-      plyrInstance = null;
+  function togglePlayGL() {
+    if (!ytPlayer) return;
+    const state = ytPlayer.getPlayerState();
+    const btn = document.getElementById('btn-play-pause');
+    if (state === YT.PlayerState.PLAYING) {
+      ytPlayer.pauseVideo();
+      btn.innerText = 'Assistir';
+    } else {
+      ytPlayer.playVideo();
+      btn.innerText = 'Pausar';
     }
-    document.getElementById('modal-player').style.display = 'none';
+  }
+
+  function seekVideoGL(e) {
+    if (!ytPlayer) return;
+    const bar = document.getElementById('gl-progress-bar');
+    const rect = bar.getBoundingClientRect();
+    const pos = (e.clientX - rect.left) / rect.width;
+    const duration = ytPlayer.getDuration();
+    ytPlayer.seekTo(pos * duration, true);
+  }
+
+  function atualizarBarraProgresso() {
+    clearInterval(progressInterval);
+    progressInterval = setInterval(() => {
+      if (ytPlayer && ytPlayer.getCurrentTime) {
+        const current = ytPlayer.getCurrentTime();
+        const total = ytPlayer.getDuration();
+        if (total > 0) {
+          document.getElementById('gl-progress-fill').style.width = ((current / total) * 100) + '%';
+        }
+      }
+    }, 500);
+  }
+
+  function fecharPlayerGL() {
+    if (ytPlayer) ytPlayer.stopVideo();
+    clearInterval(progressInterval);
+    document.getElementById('gl-video-wrapper').style.display = 'none';
   }
 </script>
 </body>
