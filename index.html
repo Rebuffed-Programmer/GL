@@ -3433,105 +3433,101 @@ window.onload = () => {
 })();
 </script>
 
-    <!-- OVERLAY DO PLAYER ALTERNATIVO DO YOUTUBE -->
-<div id="youtube-alt-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; display: none; flex-direction: column;">
-    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: #111; border-bottom: 1px solid rgba(255,255,255,0.1);">
-        <button id="yt-alt-back-btn" style="background: rgba(255,255,255,0.15); border: none; color: #fff; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">
-            <i class="fas fa-arrow-left"></i> Voltar ao Catálogo
+<!-- OVERLAY MOBILE DO GL+ -->
+<div id="mobile-player-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 999999; flex-direction: column;">
+    <!-- Barra Superior Mobile -->
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #111; border-bottom: 1px solid #222;">
+        <button id="mobile-voltar-btn" style="background: #222; border: 1px solid #444; color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 6px;">
+            <i class="fas fa-arrow-left"></i> Voltar
         </button>
-        <span id="yt-alt-title" style="color: #fff; font-size: 15px; font-weight: bold;">Reproduzindo YouTube</span>
-        <div style="width: 80px;"></div>
+        <span id="mobile-player-titulo" style="color: #fff; font-size: 14px; font-weight: bold; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Reproduzindo</span>
+        <div style="width: 60px;"></div>
     </div>
-    <div style="flex: 1; width: 100%; height: 100%; position: relative;">
-        <!-- Elemento onde a API do YouTube vai injetar o player limpo -->
-        <div id="yt-player-target" style="width: 100%; height: 100%;"></div>
-    </div>
+    <!-- Área do Vídeo -->
+    <div style="flex: 1; width: 100%; background: #000; position: relative;" id="mobile-iframe-container"></div>
 </div>
 
-<!-- Carrega a API oficial do YouTube Iframe -->
-<script src="https://www.youtube.com/iframe_api"></script>
-
 <script>
-let playerYouTubeAlt = null;
+(function() {
+    // Função universal para abrir qualquer vídeo no mobile (Drive ou YouTube)
+    window.abrirPlayerMobile = function(urlVideo, tituloFilme) {
+        const overlay = document.getElementById('mobile-player-overlay');
+        const container = document.getElementById('mobile-iframe-container');
+        const tituloEl = document.getElementById('mobile-player-titulo');
 
-// Esta função chamada globalmente inicializa o player alternativo do YouTube
-function abrirPlayerYouTubeAlternativo(videoId, titulo) {
-    const overlay = document.getElementById('youtube-alt-overlay');
-    const titleEl = document.getElementById('yt-alt-title');
-    
-    if (!overlay) return;
+        if (!overlay || !container) return;
 
-    titleEl.textContent = titulo || "Reproduzindo YouTube";
-    overlay.style.display = 'flex';
-    document.documentElement.classList.add('cinema-active');
-    document.body.style.overflow = 'hidden';
+        tituloEl.textContent = tituloFilme || "GL+ Mobile";
 
-    // Se o player já foi criado antes, apenas troca o vídeo (evita recriar a API do zero)
-    if (playerYouTubeAlt && typeof playerYouTubeAlt.loadVideoById === 'function') {
-        playerYouTubeAlt.loadVideoById(videoId);
-        playerYouTubeAlt.playVideo();
-        return;
-    }
+        let linkFinal = urlVideo || "";
 
-    // Inicializa o player oficial embutido do YouTube com parâmetros restritos de limpeza
-    playerYouTubeAlt = new YT.Player('yt-player-target', {
-        height: '100%',
-        width: '100%',
-        videoId: videoId,
-        playerVars: {
-            'autoplay': 1,
-            'controls': 1,          // Mantém os controles básicos para a TV conseguir pausar
-            'modestbranding': 1,    // Remove o selo grande do YouTube
-            'rel': 0,               // Evita sugerir vídeos de terceiros no final (foca no canal)
-            'iv_load_policy': 3,    // Esconde anotações de tela
-            'playsinline': 1
-        },
-        events: {
-            'onReady': (event) => {
-                event.target.playVideo();
+        // Trata link do Google Drive para mobile
+        if (linkFinal.includes('drive.google.com')) {
+            if (!linkFinal.includes('preview')) {
+                linkFinal = linkFinal.replace(/\/view.*$/, '/preview').replace(/\/edit.*$/, '/preview');
+            }
+            if (!linkFinal.includes('autoplay=1')) {
+                linkFinal += (linkFinal.includes('?') ? '&' : '?') + 'autoplay=1&rm=minimal';
+            }
+        } 
+        // Trata link do YouTube para mobile (removendo poluição visual)
+        else {
+            let ytId = "";
+            if (/^[a-zA-Z0-9_-]{11}$/.test(linkFinal.trim())) {
+                ytId = linkFinal.trim();
+            } else {
+                const match = linkFinal.match(/(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+                if (match && match[1]) ytId = match[1];
+            }
+
+            if (ytId) {
+                linkFinal = `https://www.youtube.com/embed/${ytId}?autoplay=1&modestbranding=1&rel=0&playsinline=1`;
             }
         }
-    });
-}
 
-// Botão de fechar / voltar
-document.getElementById('yt-alt-back-btn').onclick = function() {
-    const overlay = document.getElementById('youtube-alt-overlay');
-    
-    if (playerYouTubeAlt && typeof playerYouTubeAlt.stopVideo === 'function') {
-        playerYouTubeAlt.stopVideo(); // Para o áudio imediatamente
-    }
+        // Injeta o iframe cobrindo a tela do celular
+        container.innerHTML = `<iframe src="${linkFinal}" style="width:100%; height:100%; border:none;" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>`;
+        
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Trava o scroll da página de fundo no celular
 
-    if (overlay) overlay.style.display = 'none';
-    document.documentElement.classList.remove('cinema-active');
-    document.body.style.overflow = 'auto';
-};
+        // Salva no "Continuar Assistindo" se a função existir
+        if (typeof window.salvarNoContinuarAssistindo === 'function' && typeof filmeAtivoNoModal !== 'undefined') {
+            window.salvarNoContinuarAssistindo(filmeAtivoNoModal);
+        }
+    };
 
-// Função auxiliar para extrair o ID de qualquer link do YouTube (curto, completo ou embed)
-function extrairIdYouTube(url) {
-    if (!url) return "";
-    let val = String(url).trim();
-    if (/^[a-zA-Z0-9_-]{11}$/.test(val)) return val;
-    const match = val.match(/(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-    return match && match[1] ? match[1] : "";
-}
+    // Botão de voltar do mobile
+    document.getElementById('mobile-voltar-btn').onclick = function() {
+        const overlay = document.getElementById('mobile-player-overlay');
+        const container = document.getElementById('mobile-iframe-container');
+        
+        if (container) container.innerHTML = ''; // Mata o iframe na hora para cortar o áudio
+        if (overlay) overlay.style.display = 'none';
+        
+        document.body.style.overflow = 'auto'; // Destrava o scroll
+    };
 
-// Interceptador para quando você clicar em um card ou canal do YouTube (como o Classix)
-document.addEventListener('click', (e) => {
-    const cardYT = e.target.closest('.classix-card, [data-live-id], .youtube-trigger');
-    if (!cardYT) return;
+    // Intercepta qualquer clique em botões de Assistir ou cards na versão mobile
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('#modalWatchBtn, .watch-btn, .watch-btn-hero, [data-action="watch"], .classix-card, .movie-item');
+        if (!btn) return;
 
-    // Tenta pegar o ID ou link do YouTube do elemento clicado
-    let ytUrl = cardYT.getAttribute('data-youtube-url') || cardYT.getAttribute('data-playlist-id') || '';
-    let titulo = cardYT.querySelector('.classix-title, .card-caption-title')?.textContent || "Vídeo YouTube";
+        // Fecha o modal de detalhes do app se estiver aberto
+        const modalDetalhes = document.getElementById('movie-modal');
+        if (modalDetalhes) modalDetalhes.style.display = 'none';
 
-    let videoId = extrairIdYouTube(ytUrl);
-    if (videoId) {
-        e.preventDefault();
-        e.stopPropagation();
-        abrirPlayerYouTubeAlternativo(videoId, titulo);
-    }
-});
+        let filmeId = btn.getAttribute('data-movie-id');
+        if (typeof movieData !== 'undefined' && filmeId) {
+            const filme = movieData.find(m => String(m.id) === String(filmeId));
+            if (filme && filme.videoUrl) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.abrirPlayerMobile(filme.videoUrl, filme.title);
+            }
+        }
+    }, true);
+})();
 </script>
 </body>
 </html>
