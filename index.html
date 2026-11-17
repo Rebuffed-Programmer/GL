@@ -3432,5 +3432,106 @@ window.onload = () => {
     });
 })();
 </script>
+
+    <!-- OVERLAY DO PLAYER ALTERNATIVO DO YOUTUBE -->
+<div id="youtube-alt-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 99999; display: none; flex-direction: column;">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: #111; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <button id="yt-alt-back-btn" style="background: rgba(255,255,255,0.15); border: none; color: #fff; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">
+            <i class="fas fa-arrow-left"></i> Voltar ao Catálogo
+        </button>
+        <span id="yt-alt-title" style="color: #fff; font-size: 15px; font-weight: bold;">Reproduzindo YouTube</span>
+        <div style="width: 80px;"></div>
+    </div>
+    <div style="flex: 1; width: 100%; height: 100%; position: relative;">
+        <!-- Elemento onde a API do YouTube vai injetar o player limpo -->
+        <div id="yt-player-target" style="width: 100%; height: 100%;"></div>
+    </div>
+</div>
+
+<!-- Carrega a API oficial do YouTube Iframe -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+let playerYouTubeAlt = null;
+
+// Esta função chamada globalmente inicializa o player alternativo do YouTube
+function abrirPlayerYouTubeAlternativo(videoId, titulo) {
+    const overlay = document.getElementById('youtube-alt-overlay');
+    const titleEl = document.getElementById('yt-alt-title');
+    
+    if (!overlay) return;
+
+    titleEl.textContent = titulo || "Reproduzindo YouTube";
+    overlay.style.display = 'flex';
+    document.documentElement.classList.add('cinema-active');
+    document.body.style.overflow = 'hidden';
+
+    // Se o player já foi criado antes, apenas troca o vídeo (evita recriar a API do zero)
+    if (playerYouTubeAlt && typeof playerYouTubeAlt.loadVideoById === 'function') {
+        playerYouTubeAlt.loadVideoById(videoId);
+        playerYouTubeAlt.playVideo();
+        return;
+    }
+
+    // Inicializa o player oficial embutido do YouTube com parâmetros restritos de limpeza
+    playerYouTubeAlt = new YT.Player('yt-player-target', {
+        height: '100%',
+        width: '100%',
+        videoId: videoId,
+        playerVars: {
+            'autoplay': 1,
+            'controls': 1,          // Mantém os controles básicos para a TV conseguir pausar
+            'modestbranding': 1,    // Remove o selo grande do YouTube
+            'rel': 0,               // Evita sugerir vídeos de terceiros no final (foca no canal)
+            'iv_load_policy': 3,    // Esconde anotações de tela
+            'playsinline': 1
+        },
+        events: {
+            'onReady': (event) => {
+                event.target.playVideo();
+            }
+        }
+    });
+}
+
+// Botão de fechar / voltar
+document.getElementById('yt-alt-back-btn').onclick = function() {
+    const overlay = document.getElementById('youtube-alt-overlay');
+    
+    if (playerYouTubeAlt && typeof playerYouTubeAlt.stopVideo === 'function') {
+        playerYouTubeAlt.stopVideo(); // Para o áudio imediatamente
+    }
+
+    if (overlay) overlay.style.display = 'none';
+    document.documentElement.classList.remove('cinema-active');
+    document.body.style.overflow = 'auto';
+};
+
+// Função auxiliar para extrair o ID de qualquer link do YouTube (curto, completo ou embed)
+function extrairIdYouTube(url) {
+    if (!url) return "";
+    let val = String(url).trim();
+    if (/^[a-zA-Z0-9_-]{11}$/.test(val)) return val;
+    const match = val.match(/(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    return match && match[1] ? match[1] : "";
+}
+
+// Interceptador para quando você clicar em um card ou canal do YouTube (como o Classix)
+document.addEventListener('click', (e) => {
+    const cardYT = e.target.closest('.classix-card, [data-live-id], .youtube-trigger');
+    if (!cardYT) return;
+
+    // Tenta pegar o ID ou link do YouTube do elemento clicado
+    let ytUrl = cardYT.getAttribute('data-youtube-url') || cardYT.getAttribute('data-playlist-id') || '';
+    let titulo = cardYT.querySelector('.classix-title, .card-caption-title')?.textContent || "Vídeo YouTube";
+
+    let videoId = extrairIdYouTube(ytUrl);
+    if (videoId) {
+        e.preventDefault();
+        e.stopPropagation();
+        abrirPlayerYouTubeAlternativo(videoId, titulo);
+    }
+});
+</script>
 </body>
 </html>
