@@ -3433,98 +3433,97 @@ window.onload = () => {
 })();
 </script>
 
-<!-- OVERLAY MOBILE DO GL+ -->
-<div id="mobile-player-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 999999; flex-direction: column;">
-    <!-- Barra Superior Mobile -->
+<!-- OVERLAY MOBILE DEFINITIVO -->
+<div id="gl-mobile-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 999999; flex-direction: column;">
     <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #111; border-bottom: 1px solid #222;">
-        <button id="mobile-voltar-btn" style="background: #222; border: 1px solid #444; color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 6px;">
-            <i class="fas fa-arrow-left"></i> Voltar
+        <button id="gl-mobile-back" style="background: #222; border: 1px solid #444; color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 14px; font-weight: bold;">
+            ← Voltar
         </button>
-        <span id="mobile-player-titulo" style="color: #fff; font-size: 14px; font-weight: bold; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Reproduzindo</span>
+        <span id="gl-mobile-title" style="color: #fff; font-size: 14px; font-weight: bold; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">GL+</span>
         <div style="width: 60px;"></div>
     </div>
-    <!-- Área do Vídeo -->
-    <div style="flex: 1; width: 100%; background: #000; position: relative;" id="mobile-iframe-container"></div>
+    <div style="flex: 1; width: 100%; background: #000;" id="gl-mobile-content"></div>
 </div>
 
 <script>
 (function() {
-    // Função universal para abrir qualquer vídeo no mobile (Drive ou YouTube)
-    window.abrirPlayerMobile = function(urlVideo, tituloFilme) {
-        const overlay = document.getElementById('mobile-player-overlay');
-        const container = document.getElementById('mobile-iframe-container');
-        const tituloEl = document.getElementById('mobile-player-titulo');
+    function abrirPlayer(url, titulo) {
+        const overlay = document.getElementById('gl-mobile-overlay');
+        const content = document.getElementById('gl-mobile-content');
+        const titleEl = document.getElementById('gl-mobile-title');
+        
+        if (!overlay || !content) return;
 
-        if (!overlay || !container) return;
+        titleEl.textContent = titulo || "Reproduzindo";
 
-        tituloEl.textContent = tituloFilme || "GL+ Mobile";
+        let link = url || "";
 
-        let linkFinal = urlVideo || "";
-
-        // Trata link do Google Drive para mobile
-        if (linkFinal.includes('drive.google.com')) {
-            if (!linkFinal.includes('preview')) {
-                linkFinal = linkFinal.replace(/\/view.*$/, '/preview').replace(/\/edit.*$/, '/preview');
+        // Trata Google Drive para mobile
+        if (link.includes('drive.google.com')) {
+            if (!link.includes('preview')) {
+                link = link.replace(/\/view.*$/, '/preview').replace(/\/edit.*$/, '/preview');
             }
-            if (!linkFinal.includes('autoplay=1')) {
-                linkFinal += (linkFinal.includes('?') ? '&' : '?') + 'autoplay=1&rm=minimal';
+            if (!link.includes('autoplay=1')) {
+                link += (link.includes('?') ? '&' : '?') + 'autoplay=1&rm=minimal';
             }
         } 
-        // Trata link do YouTube para mobile (removendo poluição visual)
+        // Trata YouTube para mobile
         else {
             let ytId = "";
-            if (/^[a-zA-Z0-9_-]{11}$/.test(linkFinal.trim())) {
-                ytId = linkFinal.trim();
+            if (/^[a-zA-Z0-9_-]{11}$/.test(link.trim())) {
+                ytId = link.trim();
             } else {
-                const match = linkFinal.match(/(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+                const match = link.match(/(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
                 if (match && match[1]) ytId = match[1];
             }
-
             if (ytId) {
-                linkFinal = `https://www.youtube.com/embed/${ytId}?autoplay=1&modestbranding=1&rel=0&playsinline=1`;
+                link = `https://www.youtube.com/embed/${ytId}?autoplay=1&modestbranding=1&rel=0&playsinline=1`;
             }
         }
 
-        // Injeta o iframe cobrindo a tela do celular
-        container.innerHTML = `<iframe src="${linkFinal}" style="width:100%; height:100%; border:none;" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>`;
-        
+        content.innerHTML = `<iframe src="${link}" style="width:100%; height:100%; border:none;" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>`;
         overlay.style.display = 'flex';
-        document.body.style.overflow = 'hidden'; // Trava o scroll da página de fundo no celular
+        document.body.style.overflow = 'hidden';
+    }
 
-        // Salva no "Continuar Assistindo" se a função existir
-        if (typeof window.salvarNoContinuarAssistindo === 'function' && typeof filmeAtivoNoModal !== 'undefined') {
-            window.salvarNoContinuarAssistindo(filmeAtivoNoModal);
-        }
-    };
-
-    // Botão de voltar do mobile
-    document.getElementById('mobile-voltar-btn').onclick = function() {
-        const overlay = document.getElementById('mobile-player-overlay');
-        const container = document.getElementById('mobile-iframe-container');
-        
-        if (container) container.innerHTML = ''; // Mata o iframe na hora para cortar o áudio
+    document.getElementById('gl-mobile-back').onclick = function() {
+        const overlay = document.getElementById('gl-mobile-overlay');
+        const content = document.getElementById('gl-mobile-content');
+        if (content) content.innerHTML = '';
         if (overlay) overlay.style.display = 'none';
-        
-        document.body.style.overflow = 'auto'; // Destrava o scroll
+        document.body.style.overflow = 'auto';
     };
 
-    // Intercepta qualquer clique em botões de Assistir ou cards na versão mobile
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('#modalWatchBtn, .watch-btn, .watch-btn-hero, [data-action="watch"], .classix-card, .movie-item');
-        if (!btn) return;
+    // CAPTURA GLOBAL DE CLIQUES EM QUALQUER BOTÃO OU CARD
+    document.addEventListener('click', function(e) {
+        // Procura qualquer elemento clicado que pareça um botão de assistir ou card
+        const trigger = e.target.closest('button, a, .card, .movie-item, [onclick], [data-movie-id], [data-video-url]');
+        if (!trigger) return;
 
-        // Fecha o modal de detalhes do app se estiver aberto
-        const modalDetalhes = document.getElementById('movie-modal');
-        if (modalDetalhes) modalDetalhes.style.display = 'none';
+        // Tenta achar a URL do vídeo de atributos comuns
+        let videoUrl = trigger.getAttribute('data-video-url') || trigger.getAttribute('data-url') || trigger.href;
+        let titulo = trigger.getAttribute('data-title') || trigger.textContent.trim();
 
-        let filmeId = btn.getAttribute('data-movie-id');
-        if (typeof movieData !== 'undefined' && filmeId) {
-            const filme = movieData.find(m => String(m.id) === String(filmeId));
-            if (filme && filme.videoUrl) {
-                e.preventDefault();
-                e.stopPropagation();
-                window.abrirPlayerMobile(filme.videoUrl, filme.title);
+        // Se o elemento clicado tiver ID de filme cadastrado no seu array global `movieData`
+        let movieId = trigger.getAttribute('data-movie-id');
+        if (!videoUrl && movieId && typeof movieData !== 'undefined') {
+            const filme = movieData.find(m => String(m.id) === String(movieId));
+            if (filme) {
+                videoUrl = filme.videoUrl || filme.embedUrl;
+                titulo = filme.title;
             }
+        }
+
+        // Se encontrou uma URL válida de vídeo ou YouTube/Drive, intercepta e abre o player mobile
+        if (videoUrl && (videoUrl.includes('drive.google.com') || videoUrl.includes('youtube') || videoUrl.includes('youtu.be') || /^[a-zA-Z0-9_-]{11}$/.test(videoUrl))) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Fecha modais antigos que estejam atrapalhando
+            const modalAntigo = document.getElementById('movie-modal');
+            if (modalAntigo) modalAntigo.style.display = 'none';
+
+            abrirPlayer(videoUrl, titulo);
         }
     }, true);
 })();
