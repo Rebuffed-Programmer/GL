@@ -3647,5 +3647,68 @@ window.onload = () => {
     window.addEventListener('DOMContentLoaded', criarContainerPlayer);
 })();
 </script>
+    <!-- Container onde os cards do canal são renderizados -->
+<div id="catalogo-classix"></div>
+
+<!-- Modal do Player Customizado -->
+<div id="modal-player" style="display:none; position:fixed; inset:0; background:#000; z-index:99999;">
+  <button onclick="fecharPlayer()" style="position:absolute; top:20px; right:20px; z-index:100000; padding:10px 20px; background:#48c948; color:#000; font-weight:bold; border:none; border-radius:6px; cursor:pointer;">
+    Fechar (Voltar)
+  </button>
+  <div id="player-container" style="width:100%; height:100%;"></div>
+</div>
+
+<script>
+  let plyrInstance = null;
+
+  // 1. Quando você monta os cards do canal automaticamente:
+  function criarCardFilme(titulo, thumbnailUrl, videoId) {
+    const card = document.createElement('div');
+    card.className = 'filme-card';
+    card.tabIndex = 0; // Essencial para foco no controle remoto da TV
+    card.innerHTML = `
+      <img src="${thumbnailUrl}" alt="${titulo}" />
+      <h3>${titulo}</h3>
+    `;
+
+    // Ao clicar ou apertar OK/Enter na TV, envia o videoId direto pro seu player
+    card.addEventListener('click', () => abrirNoPlayerCustomizado(videoId));
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.keyCode === 13) abrirNoPlayerCustomizado(videoId);
+    });
+
+    document.getElementById('catalogo-classix').appendChild(card);
+  }
+
+  // 2. Função que injeta o ID do YouTube dentro do Plyr.io limpo
+  function abrirNoPlayerCustomizado(videoId) {
+    const modal = document.getElementById('modal-player');
+    const container = document.getElementById('player-container');
+
+    // Destrói o player anterior se já existir
+    if (plyrInstance) {
+      plyrInstance.destroy();
+    }
+
+    // Cria a div com o ID dinâmico que veio do canal
+    container.innerHTML = `<div id="gl-plyr" data-plyr-provider="youtube" data-plyr-embed-id="${videoId}"></div>`;
+    modal.style.display = 'block';
+
+    // Inicia o Plyr com visual limpo e cores do GL+
+    plyrInstance = new Plyr('#gl-plyr', {
+      autoplay: true,
+      controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
+      youtube: { noCookie: true, rel: 0, showinfo: 0, iv_load_policy: 3, modestbranding: 1 }
+    });
+  }
+
+  function fecharPlayer() {
+    if (plyrInstance) {
+      plyrInstance.destroy();
+      plyrInstance = null;
+    }
+    document.getElementById('modal-player').style.display = 'none';
+  }
+</script>
 </body>
 </html>
