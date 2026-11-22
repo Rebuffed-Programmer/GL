@@ -2434,7 +2434,7 @@ window.onload = () => {
     }
 };
 </script>
-    <script>
+<script>
 (function () {
     // ==========================================
     // PLUS+ | PLAYER MULTIFONTE (CORRIGIDO)
@@ -2547,19 +2547,13 @@ window.onload = () => {
 
         const iframe = document.createElement("iframe");
 
-        if (youtube.type === "playlist") {
-            iframe.src =
-                "https://www.youtube.com/embed/videoseries?list=" +
-                encodeURIComponent(youtube.id) +
-                "&autoplay=1&rel=0&playsinline=1";
-        } else {
-            iframe.src =
-                "https://www.youtube.com/embed/" +
-                encodeURIComponent(youtube.id) +
-                "?autoplay=1&rel=0&playsinline=1";
-        }
+        const baseEmbedUrl = youtube.type === "playlist"
+            ? `https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(youtube.id)}`
+            : `https://www.youtube.com/embed/${encodeURIComponent(youtube.id)}`;
 
-        iframe.allow = "autoplay; encrypted-media; picture-in-picture; web-share";
+        // Inicia automático (se o aparelho bloquear com som, adicione &mute=1)
+        iframe.src = `${baseEmbedUrl}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
+        iframe.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen; web-share";
         iframe.allowFullscreen = true;
         iframe.referrerPolicy = "strict-origin-when-cross-origin";
 
