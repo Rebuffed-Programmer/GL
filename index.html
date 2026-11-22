@@ -1349,7 +1349,13 @@
         <!-- LOJA DE FILMES -->
         <div id="store-sections-container"></div>
 
-     
+     <section class="movie-section" id="yt-playlist-section">
+    <div class="section-header">
+        <h2 class="section-title">Conteúdos ineditos</h2>
+    </div>
+    <ul class="movie-grid" id="yt-playlist-grid"></ul>
+</section>
+        
     </main>
 
     <!-- MODAL DE DETALHES E PLAYER -->
@@ -3645,6 +3651,103 @@ window.onload = () => {
     });
 
     window.addEventListener('DOMContentLoaded', criarContainerPlayer);
+})();
+</script>
+    <script>
+(async function() {
+    const PLAYLIST_ID = "PLFcxzlfL9fOwORIjngPzmpt7WeFtf0CAj";
+    const YT_API_KEY = "AIzaSyBV8Ps8L0grv5yT-tDOFO41dC7kLDpVm_Y"; // Mesma chave já usada no arquivo
+    const grid = document.getElementById("yt-playlist-grid");
+    if (!grid) return;
+
+    function limparTitulo(texto) {
+        if (!texto) return "Vídeo do YouTube";
+        return texto
+            .replace(/classix/gi, "")
+            .replace(/full\s*movie/gi, "")
+            .replace(/\bhd\b/gi, "")
+            .replace(/\s{2,}/g, " ")
+            .trim() || "Vídeo do YouTube";
+    }
+
+    try {
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${PLAYLIST_ID}&key=${YT_API_KEY}`);
+        const data = await res.json();
+        if (!data.items || !Array.isArray(data.items)) return;
+
+        data.items.forEach(item => {
+            const vidId = item.snippet?.resourceId?.videoId;
+            if (!vidId) return;
+
+            const title = limparTitulo(item.snippet.title);
+            const thumb =
+                item.snippet.thumbnails?.maxres?.url ||
+                item.snippet.thumbnails?.high?.url ||
+                item.snippet.thumbnails?.medium?.url ||
+                `https://i.ytimg.com/vi/${vidId}/hqdefault.jpg`;
+
+            const ytUrl = `https://www.youtube.com/watch?v=${vidId}`;
+
+            const novoItem = {
+                id: vidId,
+                title: title,
+                year: "YouTube",
+                description: item.snippet.description || "Conteúdo do canal via YouTube no Plus+.",
+                poster: thumb,
+                genres: ["YouTube"],
+                videoUrl: ytUrl
+            };
+
+            // Injeta no movieData sem duplicar caso já exista
+            if (typeof movieData !== "undefined" && Array.isArray(movieData)) {
+                const jaExiste = movieData.some(m => String(m.id) === String(vidId));
+                if (!jaExiste) {
+                    movieData.push(novoItem);
+                }
+            }
+
+            // Renderiza o card usando createMovieItem se disponível, ou fallback
+            if (typeof createMovieItem === "function") {
+                const card = createMovieItem(novoItem);
+                card.onclick = () => {
+                    if (typeof populateModal === "function") {
+                        populateModal(novoItem);
+                    } else if (typeof window.switchToVideo === "function") {
+                        window.switchToVideo(ytUrl, title);
+                    }
+                };
+                grid.appendChild(card);
+            } else {
+                const li = document.createElement("li");
+                li.className = "movie-item";
+                li.setAttribute("data-movie-id", vidId);
+                li.innerHTML = `
+                    <img src="${thumb}" alt="${title}" loading="lazy">
+                    <div class="card-caption">
+                        <span class="card-caption-title">${title}</span>
+                        <span class="card-caption-meta">YouTube</span>
+                    </div>
+                `;
+                li.onclick = () => {
+                    if (typeof populateModal === "function") {
+                        populateModal(novoItem);
+                    } else if (typeof window.switchToVideo === "function") {
+                        window.switchToVideo(ytUrl, title);
+                    }
+                };
+                grid.appendChild(li);
+            }
+        });
+
+        if (typeof attachCarouselArrows === "function") {
+            attachCarouselArrows();
+        }
+        if (typeof refreshListButtons === "function") {
+            refreshListButtons();
+        }
+    } catch (err) {
+        console.error("Erro ao carregar playlist do YouTube:", err);
+    }
 })();
 </script>
 </body>
