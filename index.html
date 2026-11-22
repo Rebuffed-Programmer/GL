@@ -3657,7 +3657,7 @@ window.onload = () => {
 (() => {
     "use strict";
 
-    const API_KEY = "AIzaSyBV8Ps8L0grv5yT-tDOFO41dC7kLDpVm_Y"; // Mesma chave usada no arquivo[cite: 1]
+    const API_KEY = "AIzaSyBV8Ps8L0grv5yT-tDOFO41dC7kLDpVm_Y";
     const PLAYLIST_ID = "PLFcxzlfL9fOwORIjngPzmpt7WeFtf0CAj";
     const API = "https://www.googleapis.com/youtube/v3";
 
@@ -3801,28 +3801,47 @@ window.onload = () => {
             const items = data.items || [];
             nextPageToken = data.nextPageToken || "";
 
-            items.forEach(item => {
-                const vidId = item.snippet?.resourceId?.videoId;
-                const titleRaw = item.snippet?.title || "";
-                if (!vidId) return;
-                if (titleRaw === "Private video" || titleRaw === "Deleted video") return;
+            const candidates = items
+                .map(item => {
+                    const id = item.snippet?.resourceId?.videoId;
+                    const rawTitle = item.snippet?.title || "";
+                    if (!id || rawTitle === "Private video" || rawTitle === "Deleted video") return null;
+                    const thumbs = item.snippet.thumbnails || {};
+                    return {
+                        id,
+                        title: limparTitulo(rawTitle),
+                        thumbnail: thumbs.medium?.url || thumbs.high?.url || `https://i.ytimg.com/vi/${id}/mqdefault.jpg`
+                    };
+                })
+                .filter(Boolean);
 
-                const thumbs = item.snippet.thumbnails || {};
-                const thumbnail =
-                    thumbs.medium?.url ||
-                    thumbs.high?.url ||
-                    `https://i.ytimg.com/vi/${vidId}/mqdefault.jpg`;
-
-                addCard({
-                    id: vidId,
-                    title: limparTitulo(titleRaw),
-                    thumbnail
+            if (candidates.length > 0) {
+                const statusParams = new URLSearchParams({
+                    part: "status",
+                    id: candidates.map(c => c.id).join(","),
+                    key: API_KEY
                 });
-            });
+
+                const statusRes = await fetch(`${API}/videos?${statusParams}`);
+                const statusData = await statusRes.json();
+
+                const embeddableMap = new Map();
+                if (statusRes.ok && Array.isArray(statusData.items)) {
+                    statusData.items.forEach(v => {
+                        embeddableMap.set(v.id, v.status?.embeddable !== false);
+                    });
+                }
+
+                candidates.forEach(video => {
+                    // Só adiciona se permitir incorporação
+                    if (embeddableMap.get(video.id) === false) return;
+                    addCard(video);
+                });
+            }
 
             moreButton.hidden = !nextPageToken;
             moreButton.textContent = "Carregar mais";
-            status.textContent = grid.children.length === 0 ? "Nenhum conteúdo disponível." : "";
+            status.textContent = grid.children.length === 0 ? "Nenhum conteúdo disponível para reprodução no player." : "";
         } catch (err) {
             console.error("PLUS+ PLAYLIST:", err);
             status.textContent = "Erro ao carregar lista: " + err.message;
